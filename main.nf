@@ -1,9 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
-'''
-BAM Index should in the format BAMFILE.bam.bai
 
-'''
 include { gene_demultiplexing } from './modules/gene_demultiplexing'
 include { hash_demultiplexing } from './modules/hash_demultiplexing'
 include { donor_match } from './modules/donor_match'
