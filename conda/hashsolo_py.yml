@@ -1,0 +1,12 @@
+name: hashsolo_py
+channels:
+ - conda-forge
+dependencies:
+ - python=3.9
+ - pip
+ - pip:
+   - solo-sc
+   - scanpy
+   - argparse
+   - torchmetrics==0.6.0
+   - matplotlib

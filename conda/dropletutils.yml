@@ -1,0 +1,8 @@
+name: dropletutils
+channels:
+ - conda-forge
+ - bioconda
+dependencies:
+ - r-seurat
+ - r-argparse
+ - bioconductor-dropletutils

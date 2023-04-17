@@ -1,0 +1,11 @@
+name: demuxem_py
+channels:
+ - bioconda
+dependencies:
+ - python=3.9
+ - pegasuspy
+ - pip
+ - pip:
+   - demuxEM
+   - argparse
+   

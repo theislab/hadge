@@ -1,0 +1,16 @@
+name: donor_match
+channels:
+ - conda-forge
+ - bioconda
+dependencies:
+ - r-base=4.1
+ - r-tidyverse
+ - r-pheatmap
+ - r-magrittr
+ - r-complexupset
+ - r-data.table
+ - r-argparse
+ - r-vcfr
+ - r-ggplot2
+ - bcftools
+
