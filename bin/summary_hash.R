@@ -20,7 +20,7 @@ demuxem_summary <- function(demuxem_res) {
     obs_res_dir <- list.files(x, pattern = "_obs.csv", full.names = TRUE)[1]
     obs_res <- fread(obs_res_dir, header = TRUE)
     colnames(obs_res)[1] <- "Barcode"
-    obs_res[obs_res$demux_type == "unknown",]$assignment <- "negative"
+    #obs_res[obs_res$demux_type == "unknown",]$assignment <- "negative"
     demuxem_assign <- obs_res[, c("Barcode", "assignment")]
     colnames(demuxem_assign)[2] <- basename(x)
     demuxem_assign

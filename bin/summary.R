@@ -21,8 +21,7 @@ assignment_all <- lapply(assignment, function(x){
 }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
 assignment_all[assignment_all == "DBL"] <- "doublet"
 assignment_all[assignment_all == "AMB"] <- "negative"
-#write.table(assignment_all, "summary/assignment_all_genetic_and_hash.csv", row.names=F, quote=F, sep='\t')
-write.table(assignment_all, "summary/assignment_all_genetic_and_hash.csv", row.names=F, quote=F)
+write.table(assignment_all, "summary/assignment_all_genetic_and_hash.csv", row.names=F, quote=F, sep='\t')
 
 classification_gene <- list.files(args$gene_demulti, pattern = "_classification_all.csv", full.names = TRUE)
 classification_hash <- list.files(args$hash_demulti, pattern = "_classification_all.csv", full.names = TRUE)
@@ -31,9 +30,7 @@ classification_all <- lapply(classification, function(x){
   classi <- fread(x, header = TRUE)
   classi
 }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
-#classification_all <- classification_all[, -c("count_sin", "count_dou", "count_neg")]
 classification_all[classification_all == "SNG"] <- "singlet"
 classification_all[classification_all == "DBL"] <- "doublet"
 classification_all[classification_all == "AMB"] <- "negative"
-#write.table(classification_all, "summary/classification_all_genetic_and_hash.csv", row.names=F, quote=F, sep='\t')
-write.table(classification_all, "summary/classification_all_genetic_and_hash.csv", row.names=F, quote=F)
+write.table(classification_all, "summary/classification_all_genetic_and_hash.csv", row.names=F, quote=F, sep='\t')

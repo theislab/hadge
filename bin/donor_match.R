@@ -24,16 +24,6 @@ parser$add_argument("--outputdir", help='Output directory. ')
 
 args <- parser$parse_args()
 
-result_csv <- fread("/Users/xichenwu/hagen/work/f5/d8c5c0b4a96cccf7761320017aa893/gene_summary/genetic_assignment_all.csv", stringsAsFactors=F, sep='\t')
-#result_csv <- "/Users/xichenwu/hagen/result/parallel/summary"
-method1 <- "vireo_1"
-method2 <- "vireo_2"
-#cell_genotype <- "/Users/xichenwu/genotype_match/cellSNP.cells.vcf.gz"
-#cell_genotype <- "/Users/xichenwu/openpipeline/resources_test/vireo_test_data/cells.cellSNP.vcf.gz"
-#method1 <- "vireo_1"
-#method2 <- "multiseq_1"
-#barcode_whitelist <- fread("/Volumes/wxicu/gx12/rna/filtered_feature_bc_matrix/barcodes.tsv", header = F, stringsAsFactors = F)$V1
-
 convert2binary <- function(result_csv, method_name){
   method_assign <- result_csv %>% select("Barcode", method_name)
   donor_id <- setdiff(unique(method_assign[[method_name]]), c(NA, 'negative', 'doublet'))
@@ -47,11 +37,11 @@ convert2binary <- function(result_csv, method_name){
 
 result_csv <- NULL
 if(file.exists(args$result_csv) && !dir.exists(args$result_csv)){
-  result_csv <- fread(args$result_csv, stringsAsFactors=F, sep='\t')
+  result_csv <- fread(args$result_csv, stringsAsFactors=F)
 }
 if(dir.exists(args$result_csv)){
   result_csv <- list.files(args$result_csv, pattern = "assignment_all", full.names = T)
-  result_csv <- fread(result_csv[1], stringsAsFactors=F, sep='\t')
+  result_csv <- fread(result_csv[1], stringsAsFactors=F)
 }
 if (!is.null(args$barcode)){
   barcode_whitelist <- fread(args$barcode, header = F, stringsAsFactors = F)$V1
@@ -238,8 +228,8 @@ if (args$findVariants == 'True' | args$findVariants == 'vireo'){
   representative_variant <- fread(representative_variant)
   representative_variant <- separate(representative_variant, col= "variants", 
                                             into = c("chr", "pos"), sep = "_", extra = 'drop')
-  write.table(representative_variant[,c("chr", "pos")], quote = F, col.names=F,sep='\t',
+  write.table(representative_variant[,c("chr", "pos")], quote = F, col.names=F, sep='\t',
               file.path(args$outputdir, "representative_variants_vireo.csv"), row.names = F)
   
   
-  } 
+}
