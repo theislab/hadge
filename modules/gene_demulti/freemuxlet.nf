@@ -41,13 +41,13 @@ process freemuxlet {
     script:
         def samfile = plp == 'True' ? "--sam $sam" : ''
         def samfile_name = plp == 'True' ? sam.baseName : 'sam_file_not_used'
-        def taggroup = tag_group != 'False' ? "--tag-group ${tag_group}" : ''
-        def tagUMI = tag_UMI != 'False' ? "--tag-UMI ${tag_UMI}" : ''
+        def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
+        def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
         def vcffile = plp == 'True' ? "--vcf $vcf" : ''
         def vcffile_name = plp == 'True' ? file(vcf).baseName : "vcf_file_not_used"
-        def smlist = sm != 'False' ? "--sm $sm" : ''
-        def sm_list_file = sm_list != 'False' ? "--sm-list ${sm_list}" : ''
-        def sm_list_file_name = sm_list != 'False' ? file(sm_list).baseName : "sm_list_file_not_given"
+        def smlist = sm != 'None' ? "--sm $sm" : ''
+        def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
+        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "sm_list_file_not_given"
         def samverbose = "--sam-verbose ${sam_verbose}"
         def vcfverbose = "--vcf-verbose ${vcf_verbose}"
         def skipumi = skip_umi != "False" ? "--skip-umi" : ""
@@ -56,14 +56,14 @@ process freemuxlet {
         def minMQ = "--min-MQ ${min_MQ}"
         def minTD = "--min-TD ${min_TD}"
         def exclflag = "--excl-flag ${excl_flag}"
-        def grouplist = group_list != 'False' ? "--group-list ${group_list}" : ''
-        def grouplist_name = group_list != 'False' ? file(group_list).baseName : 'group_list_not_given'
+        def grouplist = group_list != 'None' ? "--group-list ${group_list}" : ''
+        def grouplist_name = group_list != 'None' ? file(group_list).baseName : 'group_list_not_given'
         def mintotal = "--min-total ${min_total}"
         def minuniq = "--min-uniq ${min_uniq}"
         def minumi = "--min-umi ${min_umi}"
         def minsnp = "--min-snp ${min_snp}"
         def plpfile_name = plp != 'True' ? file(plp).baseName : "plp_file_not_given"
-        def initcluster = init_cluster != 'False' ? "--init-cluster ${init_cluster}" : ''
+        def initcluster = init_cluster != 'None' ? "--init-cluster ${init_cluster}" : ''
         def n_sample = "--nsample $nsample"
         def auxfiles = aux_files != 'False' ? "--aux-files" : ''
         def verbose_info = "--verbose $verbose"
@@ -105,9 +105,9 @@ def split_input(input){
 workflow demultiplex_freemuxlet{
     take:
         sam
-        group_list
     main:
-        vcf = split_input(params.vcf_ref)
+        group_list = split_input(params.barcodes)
+        vcf = split_input(params.common_variants_freemuxlet)
         tag_group = split_input(params.tag_group)
         tag_UMI = split_input(params.tag_UMI)
         sm = split_input(params.sm)
@@ -143,8 +143,4 @@ workflow demultiplex_freemuxlet{
     
     emit:
         freemuxlet.out.collect()
-}
-
-workflow{
-        demultiplex_freemuxlet(channel.fromPath(params.bam))
 }

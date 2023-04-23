@@ -35,26 +35,26 @@ process cellSNP{
         path "cellsnp_${task.index}"
 
     script:
-        def samFile = samFile_cellSNP != 'no_samFile' ? "--samFile ${samFile_cellSNP}" : ''
-        def samFileList = samFileList_cellSNP.name != 'no_samFileList' ? "--samFileList ${samFileList_cellSNP}" : ''
-        def regionsVCF = regionsVCF_cellSNP.name != 'no_regionsVCF' ? "--regionsVCF ${regionsVCF_cellSNP}" : ''
-        def targetsVCF = targetsVCF_cellSNP.name != 'no_targetsVCF' ? "--targetsVCF ${targetsVCF_cellSNP}" : ''
-        def barcodeFile = barcodeFile_cellSNP != 'no_barcodeFile' ? "--barcodeFile ${barcodeFile_cellSNP}" : ''
-        def sampleList = sampleList_cellSNP.name != 'no_sampleList' ? "--sampleList ${sampleList_cellSNP}" : ''
-        def sampleIDs = sampleIDs_cellSNP != 'no_sampleIDs' ? "--sampleIDs ${sampleIDs_cellSNP}" : ''
+        def samFile = samFile_cellSNP != 'None' ? "--samFile ${samFile_cellSNP}" : ''
+        def samFileList = samFileList_cellSNP.name != 'None' ? "--samFileList ${samFileList_cellSNP}" : ''
+        def regionsVCF = regionsVCF_cellSNP.name != 'None' ? "--regionsVCF ${regionsVCF_cellSNP}" : ''
+        def targetsVCF = targetsVCF_cellSNP.name != 'None' ? "--targetsVCF ${targetsVCF_cellSNP}" : ''
+        def barcodeFile = barcodeFile_cellSNP != 'None' ? "--barcodeFile ${barcodeFile_cellSNP}" : ''
+        def sampleList = sampleList_cellSNP.name != 'None' ? "--sampleList ${sampleList_cellSNP}" : ''
+        def sampleIDs = sampleIDs_cellSNP != 'None' ? "--sampleIDs ${sampleIDs_cellSNP}" : ''
         def genotype = genotype_cellSNP != 'False' ? "--genotype" : ''
         def gzip = gzip_cellSNP != 'False' ? "--gzip" : ''
         def printSkipSNPs = printSkipSNPs_cellSNP != 'False' ? "--printSkipSNPs" : ''
-        def nproc = nproc_cellSNP != 'False' ? "--nproc ${nproc_cellSNP}" : ''
-        def refseq = refseq_cellSNP.name != 'no_refseq' ? "--refseq ${refseq_cellSNP}" : ''
-        def chrom = chrom_cellSNP != 'False' ? "--chrom ${chrom_cellSNP}" : ''
+        def nproc = nproc_cellSNP != 'None' ? "--nproc ${nproc_cellSNP}" : ''
+        def refseq = refseq_cellSNP.name != 'None' ? "--refseq ${refseq_cellSNP}" : ''
+        def chrom = chrom_cellSNP != 'None' ? "--chrom ${chrom_cellSNP}" : ''
         def cellTAG = "--cellTAG ${cellTAG_cellSNP}"
         def UMItag = "--UMItag ${UMItag_cellSNP}"
         def minCOUNT = "--minCOUNT ${minCOUNT_cellSNP}"
         def minMAF = "--minMAF ${minMAF_cellSNP}"
         def doubletGL = doubletGL_cellSNP != 'False' ? "--doubletGL" : ''
-        def inclFLAG = inclFLAG_cellSNP != 'False' ? "--inclFLAG ${inclFLAG_cellSNP}" : ''
-        def exclFLAG = exclFLAG_cellSNP != 'False' ? "--exclFLAG ${exclFLAG_cellSNP}" : ''
+        def inclFLAG = inclFLAG_cellSNP != 'None' ? "--inclFLAG ${inclFLAG_cellSNP}" : ''
+        def exclFLAG = exclFLAG_cellSNP != 'None' ? "--exclFLAG ${exclFLAG_cellSNP}" : ''
         def minLEN = "--minLEN ${minLEN_cellSNP}"
         def minMAPQ = "--minMAPQ ${minMAPQ_cellSNP}"
         def countORPHAN = countORPHAN_cellSNP != 'False' ? "--countORPHAN" : ''
@@ -84,8 +84,8 @@ def split_input(input){
 workflow variant_cellSNP{
     take:
         samFile
-        barcodeFile
     main:
+        barcodeFile = channel.fromPath(params.barcodes)
         samFileList = channel.fromPath(params.samFileList)
         regionsVCF = channel.fromPath(params.regionsVCF)
         targetsVCF =  channel.fromPath(params.targetsVCF)
@@ -111,8 +111,4 @@ workflow variant_cellSNP{
         cellSNP(samFile, samFileList, regionsVCF, targetsVCF, barcodeFile, sampleList, sampleIDs, genotype_cellSNP, gzip_cellSNP, printSkipSNPs, nproc_cellSNP, refseq_cellSNP, chrom, cellTAG, UMItag, minCOUNT, minMAF, doubletGL, inclFLAG, exclFLAG, minLEN, minMAPQ, countORPHAN, cellsnp_out)
     emit:
         cellSNP.out
-}
-
-workflow{
-     variant_cellSNP(channel.fromPath(params.bam))
 }

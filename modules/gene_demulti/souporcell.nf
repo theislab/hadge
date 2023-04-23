@@ -42,15 +42,15 @@ process souporcell{
         def minalt = "--min_alt ${min_alt}"
         def minref = "--min_ref ${min_ref}"
         def maxloci = "--max_loci ${max_loci}"
-        def restart = restarts != 'False' ? "--restarts $restarts" : ''
-        def commonvariant = (common_variants != 'False' & known_genotypes == 'False' )? "--common_variants ${common_variants}" : ''
-        def commonvariant_name = (common_variants != 'False' & known_genotypes == 'False' ) ? file(common_variants).baseName : 'no_common_variants'
+        def restart = restarts != 'None' ? "--restarts $restarts" : ''
+        def commonvariant = (common_variants != 'None' & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
+        def commonvariant_name = (common_variants != 'None' & known_genotypes == 'None' ) ? file(common_variants).baseName : 'no_common_variants'
 
-        def knowngenotype = known_genotypes != 'False' ? "--known_genotypes ${known_genotypes}" : ''
-        def knowngenotype_name = known_genotypes != 'False' ? file(known_genotypes).baseName : 'no_known_genotypes'
+        def knowngenotype = known_genotypes != 'None' ? "--known_genotypes ${known_genotypes}" : ''
+        def knowngenotype_name = known_genotypes != 'None' ? file(known_genotypes).baseName : 'no_known_genotypes'
 
-        def knowngenotypes_sample = known_genotypes_sample_names != 'False' ? "--known_genotypes_sample_names ${known_genotypes_sample_names}" : ''
-        def knowngenotype_sample_name = known_genotypes_sample_names != 'False' ? file(known_genotypes_sample_names).baseName : 'no_knowngenotypes_sample_names'
+        def knowngenotypes_sample = known_genotypes_sample_names != 'None' ? "--known_genotypes_sample_names ${known_genotypes_sample_names}" : ''
+        def knowngenotype_sample_name = known_genotypes_sample_names != 'None' ? file(known_genotypes_sample_names).baseName : 'no_knowngenotypes_sample_names'
 
         def skipremap = skip_remap != 'False' ? "--skip_remap True" : ''
         def ign = ignore != 'False' ? "--ignore True" : ''
@@ -79,8 +79,8 @@ def split_input(input){
 workflow demultiplex_souporcell{
     take:
         bam
-        barcodes
     main:
+        barcodes = split_input(params.barcodes)
         fasta = split_input(params.fasta)
         threads = split_input(params.threads)
         clusters = split_input(params.nsample)
@@ -102,8 +102,4 @@ workflow demultiplex_souporcell{
             
     emit:
         souporcell.out.collect()
-}
-
-workflow{
-        demultiplex_souporcell(channel.fromPath(params.bam))
 }

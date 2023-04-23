@@ -43,6 +43,3 @@ workflow data_preprocess{
 
 }
 
-workflow{
-    data_preprocess(channel.fromPath(params.bam))
-}

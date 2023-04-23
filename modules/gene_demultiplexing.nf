@@ -32,7 +32,7 @@ process summary{
         val souporcell_result
         val scsplit_result
     output:
-        path gene_summary
+        path genetic_summary
 
     script:
         def demuxlet_files = ""
@@ -73,15 +73,13 @@ process summary{
         }
         
         """
-        mkdir gene_summary && cd gene_summary
+        mkdir genetic_summary && cd genetic_summary
         summary_gene.R $demuxlet_files $vireo_files $souporcell_files $scsplit_files $freemuxlet_files
         """
 }
 
 
 workflow gene_demultiplexing {
-    take:
-    recover_barcodes
     main:
     input_bam = params.cellranger == 'True'? Channel.value(params.cellranger_dir).map{ return it + "/outs/possorted_genome_bam.bam"} : Channel.fromPath(params.bam)
     input_bai = params.cellranger == 'True'? Channel.value(params.cellranger_dir).map{ return it + "/outs/possorted_genome_bam.bam.bai"}: Channel.fromPath(params.bam).map{ return it + ".bai"}
@@ -95,96 +93,37 @@ workflow gene_demultiplexing {
         qc_bam_bai = data_preprocess.out.map{ return it + "/sorted.bam.bai"}
     }
 
-    if (params.vireo == "True" &  params.vireo_variant != 'False'){
-        if (params.vireo_variant == 'cellSNP' | params.vireo_variant == 'Both'){
-            if(params.vireo_preprocess != 'False'){
-                variant_cellSNP(qc_bam, recover_barcodes)
-            }
-            else{
-                variant_cellSNP(input_bam, recover_barcodes)
-            }
-            cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
+    if (params.vireo == "True" &  params.vireo_variant != 'False' &  params.vireo_variant != 'freebayes'){
+        if(params.vireo_preprocess != 'False'){
+            variant_cellSNP(qc_bam)
         }
         else{
-            if (params.scSplit == "True" & params.scSplit_variant != 'False'){
-                if (params.scSplit_variant == 'cellSNP' | params.scSplit_variant == 'Both'){
-                    if(params.scSplit_preprocess != 'False'){
-                        variant_cellSNP(qc_bam, recover_barcodes)
-                    }
-                    else{
-                        variant_cellSNP(input_bam, recover_barcodes)
-                    }
-                    cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
-                }
-            }
+            variant_cellSNP(input_bam)
         }
-       
-        if (params.vireo_variant == "freebayes" | params.vireo_variant == 'Both'){
-            freebayes_region = Channel.from(1..22, "X","Y").flatten()
-            if (params.region != "False"){
-                freebayes_region = Channel.value(params.region)
-            }
-            if(params.vireo_preprocess != 'False'){
-                variant_freebayes(qc_bam, qc_bam_bai, freebayes_region)
-            }
-            else{
-                variant_freebayes(input_bam, input_bai, freebayes_region)
-            }
-            filter_variant(variant_freebayes.out, "True","True")
-            freebayes_vcf = filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"}
-
+        cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
+    }
+    
+    if (params.scSplit == "True" & params.scSplit_variant != 'False' & params.scSplit_variant != 'cellSNP' ){
+        freebayes_region = Channel.from(1..22, "X","Y").flatten()
+        if (params.region != "None"){
+            freebayes_region = split_input(params.region)
+        }
+        if(params.scSplit_preprocess != 'False'){
+            variant_freebayes(qc_bam, qc_bam_bai, freebayes_region)
         }
         else{
-            if (params.scSplit == "True" & params.scSplit_variant != 'False'){
-                if (params.scSplit_variant == 'freebayes' | params.scSplit_variant == 'Both'){
-                    freebayes_region = Channel.from(1..22, "X","Y").flatten()
-                    if (params.region != "False"){
-                        freebayes_region = split_input(params.region)
-                    }
-                    if(params.scSplit_preprocess != 'False'){
-                        variant_freebayes(qc_bam, qc_bam_bai, freebayes_region)
-                    }
-                    else{
-                        variant_freebayes(input_bam, input_bai, freebayes_region)
-                    }
-                    filter_variant(variant_freebayes.out, "True","True")
-                    freebayes_vcf = filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"}
-                }
-            }
+            variant_freebayes(input_bam, input_bai, freebayes_region)
         }
+        filter_variant(variant_freebayes.out, "True","True")
+        freebayes_vcf = filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"}
+                
     }
-    else{
-        if (params.scSplit == "True" & params.scSplit_variant != 'False'){
-            if (params.scSplit_variant == 'cellSNP' | params.scSplit_variant == 'Both'){
-                if(params.scSplit_preprocess != 'False'){
-                    variant_cellSNP(qc_bam, recover_barcodes)
-                }
-                else{
-                    variant_cellSNP(input_bam, recover_barcodes)
-                }
-                cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
-            }
-            if (params.scSplit_variant == "freebayes" | params.scSplit_variant == 'Both'){
-                freebayes_region = Channel.from(1..22, "X","Y","MT").flatten()
-                if (params.region != "False"){
-                    freebayes_region = split_input(params.region)
-                }
-                if(params.scSplit_preprocess != 'False'){
-                    variant_freebayes(qc_bam, qc_bam_bai, freebayes_region)
-                }
-                else{
-                    variant_freebayes(input_bam, input_bai, freebayes_region)
-                }
-                filter_variant(variant_freebayes.out, "True","True")
-                freebayes_vcf = filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"}
-            }
-        }
-    }
+    
   
     
     if (params.demuxlet == "True"){
         bam = params.demuxlet_preprocess == 'True'? qc_bam: (params.demuxlet_preprocess == 'False'? input_bam : qc_bam.mix(input_bam))
-        demultiplex_demuxlet(bam, recover_barcodes)
+        demultiplex_demuxlet(bam)
         demuxlet_out = demultiplex_demuxlet.out
     }
     else{
@@ -194,7 +133,7 @@ workflow gene_demultiplexing {
     
     if (params.freemuxlet == "True"){
         bam = params.freemuxlet_preprocess == 'True'? qc_bam: (params.freemuxlet_preprocess == 'False'? input_bam : qc_bam.mix(input_bam))
-        demultiplex_freemuxlet(bam, recover_barcodes)
+        demultiplex_freemuxlet(bam)
         freemuxlet_out = demultiplex_freemuxlet.out
     }
     else{
@@ -204,13 +143,9 @@ workflow gene_demultiplexing {
     
     if (params.vireo == "True"){
         vcf = params.vireo_variant == 'False'? Channel.fromPath(params.celldata): \
-            (params.vireo_variant == 'freebayes'? freebayes_vcf: \
             (params.vireo_variant == 'cellSNP'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"} : \
-            (params.vireo_variant == 'Both'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(freebayes_vcf) : \
-            (params.vireo_variant == 'noCellSNP'? freebayes_vcf.mix(Channel.fromPath(params.celldata)) : \
-            (params.vireo_variant == 'noFreebayes'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(Channel.fromPath(params.celldata)) : \
-            variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(freebayes_vcf, Channel.fromPath(params.celldata)))))))
-        demultiplex_vireo(vcf)
+            variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(Channel.fromPath(params.celldata)))        
+            demultiplex_vireo(vcf)
         vireo_out = demultiplex_vireo.out
     }
     else{
@@ -223,12 +158,8 @@ workflow gene_demultiplexing {
         bai = params.scSplit_preprocess == 'True'? qc_bam_bai: (params.scSplit_preprocess == 'False'? input_bai : qc_bam_bai.mix(input_bai))
         vcf = params.scSplit_variant == 'False'? Channel.fromPath(params.vcf_mixed): \
             (params.scSplit_variant == 'freebayes'? filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"} : \
-            (params.scSplit_variant == 'cellSNP'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"} : \
-            (params.scSplit_variant == 'Both'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(freebayes_vcf) : \
-            (params.scSplit_variant == 'noCellSNP'? freebayes_vcf.mix(Channel.fromPath(params.vcf_mixed)) : \
-            (params.scSplit_variant == 'noFreebayes'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(Channel.fromPath(params.vcf_mixed)) : \
-            variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(freebayes_vcf, Channel.fromPath(params.vcf_mixed)))))))
-        demultiplex_scSplit(bam, vcf, bai, recover_barcodes)
+            freebayes_vcf.mix(Channel.fromPath(params.vcf_mixed))) 
+        demultiplex_scSplit(bam, vcf, bai)
         scSplit_out = demultiplex_scSplit.out
     }
     else{
@@ -238,7 +169,7 @@ workflow gene_demultiplexing {
     
     if (params.souporcell == "True"){
         bam = params.souporcell_preprocess == 'True'? qc_bam: (params.souporcell_preprocess == 'False'? input_bam : qc_bam.mix(input_bam))
-        demultiplex_souporcell(bam, recover_barcodes)
+        demultiplex_souporcell(bam)
         souporcell_out = demultiplex_souporcell.out
     }
     else{

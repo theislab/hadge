@@ -37,22 +37,22 @@ process vireo{
     script:
         def cell_data = "-c $celldata"
         def celldata_name = celldata.baseName
-        def n_donor =  ndonor != 'False'? "-N $ndonor" : ''
-        def n_donor_yesno =  ndonor != 'False'? "$ndonor" : "no_ndonor"
-        def vartrix_data = vartrixData != 'False' ? "--vartrixData $vartrixData" : ''
-        def vartrix_data_name = vartrixData != 'False' ? file(vartrixData).baseName : 'vartrixData_not_given'
-        def donor = donorfile != 'False' ? "-d $donorfile" : ''
-        def donor_data_name = donorfile != 'False' ? file(donorfile).baseName : 'donorfile_not_given'
-        def geno_tag = donorfile != 'False' ? "--genoTag $genoTag" : ''
+        def n_donor =  ndonor != 'None'? "-N $ndonor" : ''
+        def n_donor_yesno =  ndonor != 'None'? "$ndonor" : "no_ndonor"
+        def vartrix_data = vartrixData != 'None' ? "--vartrixData $vartrixData" : ''
+        def vartrix_data_name = vartrixData != 'None' ? file(vartrixData).baseName : 'vartrixData_not_given'
+        def donor = donorfile != 'None' ? "-d $donorfile" : ''
+        def donor_data_name = donorfile != 'None' ? file(donorfile).baseName : 'donorfile_not_given'
+        def geno_tag = donorfile != 'None' ? "--genoTag $genoTag" : ''
         def no_doublet = noDoublet != 'False' ? "--noDoublet" : ''
         def n_init = "--nInit $nInit"
         def extra_donor = "--extraDonor $extraDonor"
         def extradonor_mode = extraDonorMode != 'distance' ? "--extraDonorMode $extraDonorMode" : ''
-        def learnGT = (forceLearnGT != 'False' && donorfile != 'False')? "--forceLearnGT" : ''
-        def learnGT_yesno = (forceLearnGT != 'False' && donorfile != 'False')? "$forceLearnGT" : 'False'
+        def learnGT = (forceLearnGT != 'False' && donorfile != 'None')? "--forceLearnGT" : ''
+        def learnGT_yesno = (forceLearnGT != 'False' && donorfile != 'None')? "$forceLearnGT" : 'False'
         def ase_mode = ASEmode != 'False' ? "--ASEmode" : ''
         def no_plot = noPlot != 'False' ? "--noPlot" : ''
-        def random_seed = randSeed != 'none'? "--randSeed $randSeed" : ''
+        def random_seed = randSeed != 'None'? "--randSeed $randSeed" : ''
         def cell_range = cellRange != 'all'? "--cellRange $cellRange" : ''
         def call_ambient_rna = callAmbientRNAs != 'False' ? "--callAmbientRNAs" : ''
         def n_proc = "--nproc $nproc"
@@ -63,7 +63,7 @@ process vireo{
         touch vireo_${task.index}/params.csv
         echo -e "Argument,Value \n cell_data,${celldata_name} \n n_donor,${n_donor_yesno} \n vartrix_data, ${vartrix_data_name} \n donor_data, ${donor_data_name} \n genoTag, ${genoTag} \n noDoublet, ${noDoublet} \n nInit, ${nInit} \n extraDonor, ${extraDonor} \n extraDonorMode, ${extraDonorMode} \n learnGT, ${learnGT_yesno} \n ASEmode, ${ASEmode} \n noPlot, ${noPlot} \n randSeed, ${randSeed} \n cellRange, ${cellRange} \n callAmbientRNAs, ${callAmbientRNAs} \n nproc, ${nproc}" >> vireo_${task.index}/params.csv
         vireo ${cell_data} ${n_donor} ${vartrix_data} $donor ${geno_tag} ${no_doublet} ${n_init} ${extra_donor} ${extradonor_mode} $learnGT ${ase_mode} ${no_plot} ${random_seed} ${cell_range} ${call_ambient_rna} ${n_proc} -o vireo_${task.index}/${vireo_out}
-        if ([ "$donorfile" = "False" ]); then
+        if ([ "$donorfile" = "None" ]); then
             if ([ "$findVariant" = "True" ] || [ "$findVariant" = "vireo" ]); then
                 GTbarcode -i vireo_${task.index}/${vireo_out}/GT_donors.vireo.vcf.gz -o vireo_${task.index}/${vireo_out}/filtered_variants.tsv ${randSeed}
             fi
@@ -114,10 +114,4 @@ workflow demultiplex_vireo{
 
     emit:
         vireo.out.collect()
-}
-
-
-workflow{
-    demultiplex_vireo(channel.fromPath(params.celldata))
-
 }

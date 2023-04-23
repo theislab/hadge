@@ -8,7 +8,6 @@ process demuxlet {
         each sam
         each tag_group
         each tag_UMI
-        each vcf_ref
         each sm
         each sm_list
         each sam_verbose
@@ -47,13 +46,13 @@ process demuxlet {
     script:
         def samfile = plp == 'False' ? "--sam $sam" : ''
         def samfile_name = plp == 'False' ? sam.baseName : 'sam_file_not_used'
-        def taggroup = tag_group != 'False' ? "--tag-group ${tag_group}" : ''
-        def tagUMI = tag_UMI != 'False' ? "--tag-UMI ${tag_UMI}" : ''
-        def vcfref = plp == 'True' ? "--vcf ${vcf_ref}" : ""
-        def vcfref_name = plp == 'True' ? file(vcf_ref).baseName : "vcf_ref_file_not_used"
-        def smlist = sm != 'False' ? "--sm $sm" : ''
-        def sm_list_file = sm_list != 'False' ? "--sm-list ${sm_list}" : ''
-        def sm_list_file_name = sm_list != 'False' ? file(sm_list).baseName : "sm_list_file_not_given"
+        def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
+        def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
+        def vcfref = plp == 'True' ? "--vcf ${vcf_donor}" : ""
+        def vcfref_name = plp == 'True' ? file(vcf_donor).baseName : "vcf_ref_file_not_used"
+        def smlist = sm != 'None' ? "--sm $sm" : ''
+        def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
+        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "sm_list_file_not_given"
         def samverbose = "--sam-verbose ${sam_verbose}"
         def vcfverbose = "--vcf-verbose ${vcf_verbose}"
         def skipumi = skip_umi != "False" ? "--skip-umi" : ""
@@ -62,8 +61,8 @@ process demuxlet {
         def minMQ = "--min-MQ ${min_MQ}"
         def minTD = "--min-TD ${min_TD}"
         def exclflag = "--excl-flag ${excl_flag}"
-        def grouplist = group_list != 'False' ? "--group-list ${group_list}" : ''
-        def grouplist_name = group_list != 'False' ? file(group_list).baseName : 'group_list_not_given'
+        def grouplist = group_list != 'None' ? "--group-list ${group_list}" : ''
+        def grouplist_name = group_list != 'None' ? file(group_list).baseName : 'group_list_not_given'
         def mintotal = "--min-total ${min_total}"
         def minumi = "--min-umi ${min_umi}"
         def minuniq = "--min-uniq ${min_uniq}"
@@ -111,11 +110,10 @@ def split_input(input){
 workflow demultiplex_demuxlet{
     take:
         sam
-        group_list
     main:
+        group_list = split_input(params.barcodes)
         tag_group = split_input(params.tag_group)
         tag_UMI = split_input(params.tag_UMI)
-        vcfref = split_input(params.vcf_ref)
         sm = split_input(params.sm)
         sm_list = split_input(params.sm_list)
         sam_verbose = split_input(params.sam_verbose)
@@ -143,12 +141,8 @@ workflow demultiplex_demuxlet{
         doublet_prior = split_input(params.doublet_prior)
         demuxlet_out = split_input(params.demuxlet_out)
 
-        demuxlet(sam, tag_group, tag_UMI, vcfref, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ, min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, min_snp, plp, vcfdonor, field, geno_error_offset, geno_error_coeff, r2_info, min_mac, min_callrate, alpha, doublet_prior, demuxlet_out)
+        demuxlet(sam, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ, min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, min_snp, plp, vcfdonor, field, geno_error_offset, geno_error_coeff, r2_info, min_mac, min_callrate, alpha, doublet_prior, demuxlet_out)
         
     emit:
         demuxlet.out.collect()
-}
-
-workflow{
-    demultiplex_demuxlet(channel.fromPath(params.bam))
 }

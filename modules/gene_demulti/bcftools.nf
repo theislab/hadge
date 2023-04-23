@@ -73,7 +73,4 @@ workflow filter_variant{
     emit:
         bcftools.out
 }
-  
-workflow{
-    filter_variant(channel.value([params.test_a, params.test_b]), channel.value("True"), channel.value("True"))
-}
+
