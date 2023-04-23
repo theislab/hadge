@@ -38,7 +38,7 @@ cd hagen
 If you want to use Souporcell later, you should also download the singularity image in the project directory with the command `singularity pull shub://wheaton5/souporcell`.
 
 
-To run the pipeline, we need to prepare the input data and set the configuration file correctly.
+To run the pipeline, you need to prepare the input data and set the configuration file correctly.
 
 ## **Data preparation**
 The input data depends heavily on the demultiplexing tools. In the following table, you will find the minimal input data required by different tools.
@@ -65,7 +65,7 @@ You may see that some tools share some input data in common, so we have only one
 | Reference genome (FASTA)                   	| `params.fasta`<br>`params.fasta_index` 	|
 | Cell genotype (VCF or cellSNP folder)      	| `params.celldata`                      	|
 
-In case you want to perform genetic demultiplexing on pre-processed data, we provide a process for this purpose, which is in concordance with [the instruction of scSplit](). It only requires the Alignment (BAM) file as input. To activate the pre-processing step, set `[method]_preprocess` as `True`.
+In case you want to perform genetic demultiplexing on pre-processed data, we provide a process for this purpose, which is in concordance with [the instruction of scSplit](https://github.com/jon-xu/scSplit). It only requires the Alignment (BAM) file as input. To activate the pre-processing step, set `[method]_preprocess` as `True`.
 
 In case you don't have any cell genotypes or variants called from mixed samples yet, we provide two processes for variant calling. 
 | Variant calling methods 	| Input data                                                  	| Parameter                                                                	| Output                      	|
@@ -99,7 +99,7 @@ Similar as in the genetic demultiplexing workflow, we provide a pre-processing s
 For benchmarking, you can have following options for `[htodemux/multiseq]_preprocess`:
 * `True`: activate pre-proecessing
 * `False`: inactivate pre-proecessing, get the input data from `params.rdsObj_[method]`
-* Otherwise: activate pre-proecessing, take the output and use `params.celldata` as well
+* Otherwise: activate pre-proecessing, take the output and use `params.rdsObj_[method]` as well
 
   
 ## **Pipeline configuration**
@@ -166,23 +166,38 @@ After each demultiplexing workflow, the pipeline will generate some TSV files to
     | barcode-1 	|   donor-1  	|   donor-2  	| ... 	|
     | barcode-2 	|   doublet  	|  negative  	| ... 	|
     |    ...    	|     ...    	|     ...    	| ... 	|
-* `[method]_params.csv`: specified paramters all trials for a given method
-    |    Argument   	|     value     |
+* `[method]_params.csv`: specified paramters of all trials for a given method
+    |    Argument   	|     Value     |
     |    :---------:	|  :----------:	|
     |  seuratObejctPath |      Path 	|
     |     quantile   	|      0.7  	|
     |       ...     	|      ...    	|
-* `[workflow]_classification_all.csv`: save the classification of all tasks across different methods
+* `[workflow]_classification_all.csv`: classification of all trials across different methods
     |  Barcode  	| multiseq_1 	| htodemux_1 	| ... 	|
     |:---------:	|:----------:	|:----------:	|:---:	|
     |    ...    	|     ...    	|     ...    	| ... 	|
-*  `[workflow]_assignment_all.csv`: save the assignment of all tasks across different methods
+*  `[workflow]_assignment_all.csv`: save the assignment of all trials across different methods
     |  Barcode  	| multiseq_1 	| htodemux_1 	| ... 	|
     |:---------:	|:----------:	|:----------:	|:---:	|
     |    ...    	|     ...    	|     ...    	| ... 	|
-In the `rescue` mode, the pipeline will merge the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `summary` folder.
+In the `rescue` mode: 
+* The pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `summary` folder.
+* Donor matching: in the folder `donor_match/donor_match_[method1]_[method2]` you will find:
+    * folder`[method1]_[trial_ID]_vs_[method2]_[trial_ID]` with:
+        * `correlation_res.csv`: correlation scores of donor matching
+        `concordance_heatmap.png`: a heatmap visualising the the correlation scores
+        *  `donor_match.csv`: A map between hashtag and donor identity.
+    * Once the optimal match among all trials between `method1` and `method2` is found, the pipeline maps the result of `method1` to `method2` and provides:
+        * `all_assignment_after_match.csv`: Assignment of all cell barcodes
+        * `intersect_assignment_after_match.csv`: Assignment of joint cell barcodes
+    * If `method1` of the optimal match is `vireo` and identification of donor-specific variants is enabled:
+        *  `donor_specific_variants.csv`: a list of donor-specific variants
+        * `donor_specific_variants_upset.png`: An upset plot showing the number of donor-specific variants
+        * `donor_genotype_subset_by_default_matched.vcf`: Donor genotypes of donor-specific variants
 
 
+
+## Parameters
 
 ## Credits
 
