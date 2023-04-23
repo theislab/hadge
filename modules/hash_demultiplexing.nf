@@ -17,7 +17,6 @@ process summary{
         val multiseq_result
         val hashedDrops_result
         val solo_result
-        val select
     
     output:
         path hash_summary
@@ -69,7 +68,7 @@ process summary{
         
         """
         mkdir hash_summary && cd hash_summary
-        summary_hash.R --select $select $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files
+        summary_hash.R $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files
         """
 }
 
@@ -92,7 +91,7 @@ workflow hash_demultiplexing{
     }
     
     if (params.multiseq == "True"){
-        rdsobj = params.multiseq_preprocess == 'True'? preprocessing_hashing.out: (params.multiseq_preprocess == 'False'? Channel.from(params.rdsObj_multi) : preprocessing_hashing.out.mix(Channel.from(params.rdsObj_multi)))
+        rdsobj = params.multiseq_preprocess == 'True'? preprocessing_hashing.out: (params.multiseq_preprocess == 'False'? Channel.from(params.rdsObj_multiseq) : preprocessing_hashing.out.mix(Channel.from(params.rdsObj_multiseq)))
         multiseq_hashing(rdsobj)
         multiseq_out = multiseq_hashing.out
     }
@@ -132,7 +131,7 @@ workflow hash_demultiplexing{
         solo_out = channel.value("no_result")
     }
     
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, params.select)
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out)
     emit:
     summary.out
 }

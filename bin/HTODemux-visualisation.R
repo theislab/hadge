@@ -59,7 +59,7 @@ hashtag <-readRDS(hash_file)
 if(args$ridgePlot == "TRUE"){
   Idents(hashtag) <- paste0(args$assay, "_maxID")
   RidgePlot(hashtag, assay = args$assay, features = rownames(hashtag[[args$assay]]), ncol = args$ridgeNCol)
-  ggsave(paste0(args$outputdir, '/ridge.jpeg'), device = 'jpeg', dpi = 500, height = 10, width = 10)
+  ggsave(paste0(args$outputdir, '/ridge.jpeg'), device = 'jpeg', dpi = 500) # height = 10, width = 10
 }
 
 if(args$featureScatter == "TRUE"){
@@ -70,7 +70,7 @@ if(args$featureScatter == "TRUE"){
 if(args$vlnPlot == "TRUE"){
   Idents(hashtag) <- paste0(args$assay, "_classification.global")
   VlnPlot(hashtag, features = args$vlnFeatures, pt.size = 0.1, log = args$vlnLog)
-  ggsave(paste0(args$outputdir, '/violinPlot.jpeg'), device = 'jpeg',dpi = 500)
+  ggsave(paste0(args$outputdir, '/violinPlot.jpeg'), device = 'jpeg', dpi = 500)
 }
 
 if(args$tSNE == "TRUE"){

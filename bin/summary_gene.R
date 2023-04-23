@@ -2,45 +2,8 @@
 suppressPackageStartupMessages(library("argparse"))
 suppressPackageStartupMessages(library("data.table"))
 suppressPackageStartupMessages(library("R.utils"))
-#suppressPackageStartupMessages(library("reshape2"))
 suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("stringr"))
-#suppressPackageStartupMessages(library("ggpubr"))
-
-# transform analysis csv ----------------------------------------------------------------------------------------------------------------------------------------------------------
-transform_df <- function(result_melt){
-  colnames(result_melt) = c('Trial','donor_identity','number')
-  result_melt_sorted <- arrange(result_melt, Trial, number)
-  result_melt_sorted_cumsum <- ddply(result_melt_sorted, "Trial", transform, label_ypos=cumsum(number))
-  result_melt_sorted_cumsum <- result_melt_sorted_cumsum %>% 
-  group_by('donor_identity') %>%
-  dplyr::mutate(label_ypos_new = mean(label_ypos)) %>% 
-  ungroup() %>% 
-  as.data.frame()
-  return (result_melt_sorted_cumsum)
-}
-
-
-# plot analysis csv ----------------------------------------------------------------------------------------------------------------------------------------------------------
-bar_plot_group <- function(result_melt, tool){
-  max_ylim = max(result_melt$label_ypos) + 50
-  
-  if(nrow(result_melt[result_melt$number==0,]) != 0){
-    result_melt[result_melt$number==0,]$label_ypos_new = NA
-    result_melt[result_melt$number==0,]$label_ypos = NA
-  }
-  
-  bar_plot_g = ggplot(result_melt, aes(x = Trial, y = number, fill = donor_identity)) + 
-    geom_bar(stat="identity") + 
-    geom_text(aes(y = label_ypos, label = number), vjust = 2, size = 3.5) +
-    scale_fill_brewer(palette="Blues") +ylim(0, max_ylim) + ggtitle(paste0("Demultiplexing Results: ", tool)) + 
-    theme_light() + theme(plot.title = element_text(hjust = 0.5))
-    
-  png(paste0(tool,"_barplotgroup.png"))
-  print(bar_plot_g)
-  #write.csv(result_melt, "ggplot_info.csv",row.names=FALSE)
-  while (!is.null(dev.list()))  dev.off() 
-}
 
 #create parser object
 parser <- ArgumentParser("Parameters for comparing parameters")
@@ -96,17 +59,9 @@ demuxlet_summary <- function(demuxlet_res) {
   }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Argument"), .)
   write.csv(params, "demuxlet_params.csv", row.names=FALSE, quote=FALSE)
   
-  #result_melt = melt(stat_donor_identity)
-  #result_melt$Trial = sapply(result_melt$Trial,function(x){
-   # x = sub('Demuxlet Trial','D',x)
-  #})
-
-  #result_melt_transform = transform_df(result_melt)
-  #bar_plot_group(result_melt_transform,'demuxlet')
-  
 }
 
-# analysis freemuxlet data -------------------------------------------------------------------------------------------------
+# analysis freemuxlet data ------------------------------------------------------------------------------------------------
 
 freemuxlet_summary <- function(freemuxlet_res) {
   assign <- lapply(freemuxlet_res, function(x){
@@ -150,14 +105,7 @@ freemuxlet_summary <- function(freemuxlet_res) {
     params_res
   }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Argument"), .)
   write.csv(params, "freemuxlet_params.csv", row.names=FALSE, quote=FALSE)
-  #result_melt = melt(stat_donor_identity)
-  #result_melt$Trial = sapply(result_melt$Trial,function(x){
-   # x = sub('Freemuxlet Trial','F',x)
-  #})
   
-  #result_melt_transform = transform_df(result_melt)
-  #bar_plot_group(result_melt_transform,'freemuxlet')
-
 }
 
 # analysis vireo data ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -194,14 +142,6 @@ vireo_summary <- function(vireo_res) {
   }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Argument"), .)
   write.csv(params, "vireo_params.csv", row.names=FALSE, quote=FALSE)
   
-  #result_melt = melt(stat_donors)
-  #result_melt$Trial = sapply(result_melt$Trial,function(x){
-   # x = sub('Vireo Trial','V',x)
-  #})
-
-  #result_melt_transform = transform_df(result_melt)
-  #bar_plot_group(result_melt_transform,'vireo')
-  
 }
 
 # analysis souporcell data ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -222,7 +162,7 @@ souporcell_summary <- function(souporcell_res) {
   classi[classi != "negative" & classi != "doublet"] <- "singlet"
   classi$Barcode <- assign$Barcode
   classi <- classi %>% select(order(colnames(classi)))
-  write.csv(assign, "souporcell_classification.csv", row.names=FALSE, quote=FALSE)
+  write.csv(classi, "souporcell_classification.csv", row.names=FALSE, quote=FALSE)
 
   
   classi_sum <- data.frame(table(t(classi[,-1])))
@@ -239,13 +179,6 @@ souporcell_summary <- function(souporcell_res) {
     params_res
   }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Argument"), .)
   write.csv(params, "souporcell_params.csv", row.names=FALSE, quote=FALSE)
-  
-  #result_melt = melt(stat_donors)
-  #result_melt$Trial = sapply(result_melt$Trial,function(x){
-   # x = sub('Souporcell Trial','Soup',x)
-  #})
-  #result_melt = transform_df(result_melt)
-  #bar_plot_group(result_melt,'Souporcell')
   
   
 }
@@ -286,14 +219,6 @@ scsplit_summary <- function(scsplit_res) {
     params_res
   }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Argument"), .)
   write.csv(params, "scsplit_params.csv", row.names=FALSE, quote=FALSE)
-  
- # result_melt = melt(stat_donors)
- # result_melt$Trial = sapply(result_melt$Trial,function(x){
-  #  x = sub('scSplit Trial','sc',x)
- # })
- # result_melt = transform_df(result_melt) 
- # bar_plot_group(result_melt,'scSplit')
-  
   
 }
  

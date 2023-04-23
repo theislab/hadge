@@ -40,7 +40,7 @@ def split_input(input){
 
 workflow preprocessing_hashing{
     main:
-        rdsObject = split_input(params.rdsObject)
+        rdsObject = split_input(params.rdsObject_preprocess)
         umi_matrix = split_input(params.umi_matrix_preprocess)
         hto_matrix =  split_input(params.hto_matrix_preprocess)
         sel_method = split_input(params.sel_method)

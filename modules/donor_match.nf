@@ -20,7 +20,7 @@ process matchDonor{
     script:
         def cell_genotype_path = ""
         if (findVariants == "True" | findVariants == "default"){
-            if (cell_genotype == "False"){
+            if (cell_genotype == "None"){
                 cell_genotype = "$projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP/cellsnp_1/*/cellSNP.cells.vcf.gz"
             }
             
@@ -28,7 +28,7 @@ process matchDonor{
         }
         def vireo_parent_path = ""
         if ( findVariants == 'vireo' | findVariants == 'True' ){
-            if (params.mode == "donor_match" & vireo_parent_dir != 'False'){
+            if (params.mode == "donor_match" & vireo_parent_dir != 'None'){
                 vireo_parent_path = "--vireo_parent_dir $vireo_parent_dir"
             }
             else{
@@ -37,7 +37,7 @@ process matchDonor{
             
         }
         def barcode_whitelist_path = ""
-        if (barcode_whitelist != "False"){
+        if (barcode_whitelist != "None"){
           barcode_whitelist_path = "--barcode $barcode_whitelist"
         }
         """
@@ -61,13 +61,17 @@ process matchDonor{
                     bcftools view --header-only $cell_genotype | grep "^##" | grep -v "^##bcftools" > \$outputdir/donor_with_header.vcf
                     grep -v "^##" \$outputdir/GT_donors.vireo.vcf >> \$outputdir/donor_with_header.vcf
                     bcftools sort \$outputdir/donor_with_header.vcf -Oz -o \$outputdir/compressed_sorted_donor_genotype.vcf.gz
+                    rm \$outputdir/donor_with_header.vcf
                 else
                     bcftools sort \$donor_genotype -Oz -o \$outputdir/compressed_sorted_donor_genotype.vcf.gz
                 fi
                 bcftools index \$outputdir/compressed_sorted_donor_genotype.vcf.gz
-                bcftools filter \$outputdir/compressed_sorted_donor_genotype.vcf.gz -R \$outputdir/representative_variants_default.csv > \$outputdir/donor_genotype_subset_by_default.vcf
+                bcftools filter \$outputdir/compressed_sorted_donor_genotype.vcf.gz -R \$outputdir/donor_specific_variants.csv > \$outputdir/donor_genotype_subset_by_default.vcf
                 bcftools reheader --samples \$outputdir/donor_match.csv -o \$outputdir/donor_genotype_subset_by_default_matched.vcf \$outputdir/donor_genotype_subset_by_default.vcf
-                                
+
+                rm \$outputdir/GT_donors.vireo.vcf
+
+
             fi
             if ([ "$findVariants" = "True" ]); then
                 bcftools filter \$outputdir/compressed_sorted_donor_genotype.vcf.gz -R \$outputdir/representative_variants_vireo.csv > \$outputdir/donor_genotype_subset_by_vireo.vcf
@@ -78,9 +82,14 @@ process matchDonor{
                 bcftools index \$outputdir/compressed_sorted_donor_genotype.vcf.gz
                 bcftools filter \$outputdir/compressed_sorted_donor_genotype.vcf.gz -R \$outputdir/representative_variants_vireo.csv > \$outputdir/donor_genotype_subset_by_vireo.vcf
                 bcftools reheader --samples \$outputdir/donor_match.csv -o \$outputdir/donor_genotype_subset_by_vireo_matched.vcf \$outputdir/donor_genotype_subset_by_vireo.vcf
-            fi
-        fi
 
+            fi
+            rm \$outputdir/best_method_vireo.txt
+            rm \$outputdir/compressed_sorted_donor_genotype.vcf.gz
+            rm \$outputdir/compressed_sorted_donor_genotype.vcf.gz.csi
+
+        fi
+        
 
         """
 }

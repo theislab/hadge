@@ -3,7 +3,7 @@ library(data.table)
 library(stringr)
 library(argparse)
 library(dplyr)
-library("R.utils")
+#library("R.utils")
 
 parser <- ArgumentParser("Parameters for comparing parameters")
 parser$add_argument("--demuxem", help = "Folder containing output files of demuxem", default = NULL)
@@ -12,7 +12,6 @@ parser$add_argument("--multiseq", help = "Folder containing output files of mult
 parser$add_argument("--hashsolo", help = "Folder containing output files of hashsolo", default = NULL)
 parser$add_argument("--solo", help = "Folder containing output files of solo", default = NULL)
 parser$add_argument("--hashedDrops", help = "Folder containing output files of hashedDrops", default = NULL)
-parser$add_argument("--select", help = "Select the singlets detected by the specified number of tools or fewer.", default = 1)
 args <- parser$parse_args()
 
 demuxem_summary <- function(demuxem_res) {
@@ -20,7 +19,6 @@ demuxem_summary <- function(demuxem_res) {
     obs_res_dir <- list.files(x, pattern = "_obs.csv", full.names = TRUE)[1]
     obs_res <- fread(obs_res_dir, header = TRUE)
     colnames(obs_res)[1] <- "Barcode"
-    #obs_res[obs_res$demux_type == "unknown",]$assignment <- "negative"
     demuxem_assign <- obs_res[, c("Barcode", "assignment")]
     colnames(demuxem_assign)[2] <- basename(x)
     demuxem_assign
@@ -240,13 +238,3 @@ classification_all <- lapply(classification, function(x){
 }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
 
 write.csv(classification_all, "hash_classification_all.csv", row.names=FALSE, quote=FALSE)
-#classification_all$count_dou <- apply(classification_all[,-1], 1, function(x) sum(x == 'doublet', na.rm=TRUE))
-#classification_all$count_neg <- apply(classification_all[,-1], 1, function(x) sum(x == 'negative', na.rm=TRUE))
-classification_all$count_sin <- apply(classification_all[,-1], 1, function(x) sum(x == 'singlet', na.rm=TRUE))
-
-
-# if(args$select != 0 ){
-write.table(classification_all[classification_all$count_sin<=args$select,]$Barcode, file='selected_barcodes.tsv', quote=FALSE, sep='\t', col.names = FALSE, row.names = FALSE)
-# }else{
-    # write.table(classification_all[,1], file='selected_barcodes.tsv', quote=FALSE, sep='\t', col.names = FALSE, row.names = FALSE)
-# }

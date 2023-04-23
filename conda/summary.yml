@@ -6,3 +6,4 @@ dependencies:
  - r-data.table 
  - r-argparse
  - r-stringr
+ - r-r.utils
