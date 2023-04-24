@@ -26,15 +26,15 @@ param_list = [['hto_h5_dir', args.hto_h5_dir], ['prior_negative', args.priors[0]
  
 param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 
-
-
 if __name__ == '__main__':
     cell_hashing_data = sc.read_10x_h5(args.hto_h5_dir, gex_only=False)
     if args.clustering_data is not None:
       trans_data = sc.read_10x_h5(args.clustering_data)
       trans_data.var_names_make_unique()
+      print("--------------------Get data-------------------------------")
       hashsolo.hashsolo(cell_hashing_data, priors=args.priors, clustering_data=args.clustering_data, pre_existing_clusters=args.pre_existing_clusters, number_of_noise_barcodes=args.number_of_noise_barcodes)
     else:
+      print("--------------------Get data-------------------------------")
       hashsolo.hashsolo(cell_hashing_data, priors=args.priors, pre_existing_clusters=args.pre_existing_clusters, number_of_noise_barcodes=args.number_of_noise_barcodes)
     print("--------------------Finished demultiplexing-------------------------------")
 
@@ -45,6 +45,7 @@ if __name__ == '__main__':
     cell_hashing_data.obs.to_csv(args.outputdir + "/" + args.assignmentOutHashSolo + "_res.csv")
     hashsolo.plot_qc_checks_cell_hashing(cell_hashing_data)
     plt.savefig(args.outputdir + "/" + args.plotOutHashSolo + ".jpg", dpi=400)
+    param_df.fillna("None",inplace=True)
     param_df.to_csv(args.outputdir + "/params.csv", index=False)
 
 

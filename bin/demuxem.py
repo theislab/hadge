@@ -85,6 +85,7 @@ if __name__ == '__main__':
     total = ["total", rna_data.shape[0]]
     summary.loc[len(summary)] = total
     summary.to_csv(output_name + "_summary.csv", index=False)
+    param_df.fillna("None",inplace=True)
     param_df.to_csv(args.outputdir + "/params.csv", index=False)
     
     rna_data.obs.replace(np.nan,'negative', inplace=True)
