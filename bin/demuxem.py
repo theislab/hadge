@@ -88,9 +88,9 @@ if __name__ == '__main__':
     param_df.fillna("None",inplace=True)
     param_df.to_csv(args.outputdir + "/params.csv", index=False)
     
-    rna_data.obs.replace(np.nan,'negative', inplace=True)
+    rna_data.obs.assignment.replace(np.nan,'negative', inplace=True)
     hashtags = hashing_data.var.index.tolist()
     hashtags = hashtags + ["negative"]
     toreplace = [ht for ht in rna_data.obs['assignment'].unique() if ht not in hashtags]
-    rna_data.obs.replace(toreplace,'doublet', inplace=True)
+    rna_data.obs.assignment.replace(toreplace,'doublet', inplace=True)
     rna_data.obs.to_csv(output_name + "_obs.csv")

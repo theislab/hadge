@@ -12,8 +12,6 @@ library(argparse)
 parser <- ArgumentParser("Parameters for donor matching based on Pearson coorelation. ")
 parser$add_argument("--result_csv", help = "The path to the csv file or the directory containing the demultiplexing assignment. ")
 parser$add_argument("--barcode", help = "The path to the tsv file containing the white list of barcodes. ", default = NULL)
-parser$add_argument("--method1", help="The Name of the first method in the assignment file to map donors. ")
-parser$add_argument("--method2", help="The Name of the second method in the assignment file. We will use its donor names as reference.")
 parser$add_argument("--findVariants", help='How to find representative variants for each donor. ', default='default')
 parser$add_argument("--cell_genotype", help="The path to the VCF file containing the genotype of the cells.")
 parser$add_argument("--variant_count", help='The Minimal count of a variant for filtering', type="integer", default = 0)
@@ -35,6 +33,8 @@ convert2binary <- function(result_csv, method_name){
 }
 
 result_csv <- NULL
+#result_csv <- fread("/Volumes/wxicu/gx12/summary/assignment_all_genetic_and_hash.csv", stringsAsFactors=F)
+
 if(file.exists(args$result_csv) && !dir.exists(args$result_csv)){
   result_csv <- fread(args$result_csv, stringsAsFactors=F)
 }
@@ -46,79 +46,108 @@ if (!is.null(args$barcode)){
   barcode_whitelist <- fread(args$barcode, header = F, stringsAsFactors = F)$V1
   result_csv <- result_csv[result_csv$Barcode %in% barcode_whitelist, ]
 }
-method1_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method1)]
-method2_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method2)]
+
+all_methods <- colnames(result_csv)
+all_methods <- all_methods[all_methods!="Barcode"]
+all_methods_pair <- combn(all_methods, 2, simplify = F)
+method1_all <- sapply(all_methods_pair, "[", 1)
+method2_all <- sapply(all_methods_pair, "[", 2)
+
+hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo")
+genetic_methods <- c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
+
 best_score <- 0
 best_method1 <- NULL
 best_method2 <- NULL
 
 if (is.null(method1_all) | is.null(method2_all)){
-  stop("The specified method is not found in the CSV file!")
+  stop("No method is not found in the CSV file!")
 }
 
-for (method1 in method1_all){
-  for (method2 in method2_all){
-    outputdir <- file.path(args$outputdir, paste0(method1, "_vs_", method2))
-    ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
-    
-    method1_res <- convert2binary(result_csv, method1)
-    method2_res <- convert2binary(result_csv, method2)
-    
-    intersect_barcode <- intersect(rownames(method1_res), rownames(method2_res))
-    method1_res <- method1_res[rownames(method1_res) %in% intersect_barcode,]
-    method2_res<- method2_res[rownames(method2_res) %in% intersect_barcode,]
-    
-    correlation_res <- apply(method1_res, 2, function(x){
-      apply(method2_res, 2, function(y){
-        return(cor.test(x, y)[["estimate"]][["cor"]])
-      })}
-    )
-    write.csv(correlation_res, file.path(outputdir, "correlation_res.csv"))
-    
-    match_score <- 0
-    geno_match <- as.data.frame(matrix(nrow = ncol(correlation_res), ncol = 3))
-    colnames(geno_match) <- c("Method1_ID","Method2_ID","Correlation")
-    geno_match$Method1_ID <- colnames(correlation_res)
-    for (id in geno_match$Method1_ID){
-      if (max(correlation_res[,id]) == max(correlation_res[which.max(correlation_res[,id]),])){
-        geno_match[which(geno_match$Method1_ID == id),2:3] <- c(rownames(correlation_res)[which.max(correlation_res[,id])], max(correlation_res[,id]))
-        match_score <- match_score + max(correlation_res[,id])
-      } 
-      else {
-        geno_match[which(geno_match$Cluster1_ID == id)] <- c("unassigned", NA)
-      }
+for (i in 1:length(method1_all)){
+  #method1 <- "vireo_1"
+  #method2 <- "multiseq_1"
+  method1 <- method1_all[i]
+  method2 <- method2_all[i]
+  # put the hashing method on the second place
+  if (grepl(paste(hashing_methods, collapse="|"), method1) & 
+      (grepl(paste(genetic_methods, collapse="|"), method2))){
+    hash_method <- method1
+    method1 <- method2
+    method2 <- hash_method
+  }
+  
+  outputdir <- file.path(args$outputdir, paste0(method1, "_vs_", method2))
+  ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
+  
+  method1_res <- convert2binary(result_csv, method1)
+  method2_res <- convert2binary(result_csv, method2)
+  
+  intersect_barcode <- intersect(rownames(method1_res), rownames(method2_res))
+  method1_res <- method1_res[rownames(method1_res) %in% intersect_barcode,]
+  method2_res<- method2_res[rownames(method2_res) %in% intersect_barcode,]
+  
+  correlation_res <- apply(method1_res, 2, function(x){
+    apply(method2_res, 2, function(y){
+      return(cor.test(x, y)[["estimate"]][["cor"]])
+    })}
+  )
+  write.csv(correlation_res, file.path(outputdir, "correlation_res.csv"))
+  
+  match_score <- 0
+  geno_match <- as.data.frame(matrix(nrow = ncol(correlation_res), ncol = 3))
+  colnames(geno_match) <- c("Method1","Method2","Correlation")
+  geno_match$Method1 <- colnames(correlation_res)
+
+  for (id in geno_match$Method1){
+    if (!is.infinite(-max(correlation_res[,id], na.rm=T)) && 
+        max(correlation_res[,id], na.rm=T) == 
+        max(correlation_res[which.max(correlation_res[,id]),], na.rm=T)){
+      geno_match[which(geno_match$Method1 == id), 2:3] <- 
+        c(rownames(correlation_res)[which.max(correlation_res[,id])], 
+          max(correlation_res[,id], na.rm=T))
+      match_score <- match_score + max(correlation_res[,id], na.rm=T)
+    } 
+    else {
+      geno_match[which(geno_match$Cluster1_ID == id)] <- c("unassigned", NA)
     }
-    
-    write.table(geno_match[,1:2], file.path(outputdir, "donor_match.csv"), row.names = F, col.names = F, sep = " ", quote = F)
+  }
+  
+  write.table(geno_match[,1:2], file.path(outputdir, "donor_match.csv"), row.names = F, col.names = F, sep = " ", quote = F)
+  
+  newCols <- colorRampPalette(grDevices::rainbow(nrow(geno_match)))
+  annoCol <- newCols(nrow(geno_match))
+  names(annoCol) <- colnames(correlation_res)
+  annoCol <- list(category = annoCol)
+  correlation_res <- correlation_res[order(as.numeric(row.names(correlation_res))), ]
+  pheatmap(correlation_res, treeheight_row=F, treeheight_col=F, display_numbers=T, angle_col="0",
+           number_color = "white", fontsize = 12, cluster_rows = F, cluster_cols = F, width = 7, height = 5,
+           filename=file.path(outputdir, "concordance_heatmap.png"))
+  
+  if (grepl(paste(hashing_methods, collapse="|"), method2) & 
+      grepl(paste(genetic_methods, collapse="|"), method1)){
+  
     if (match_score > best_score){
       write.table(geno_match[,1:2], file.path(args$outputdir, "donor_match.csv"), row.names = F, col.names = F, sep = " ", quote = F)
     }
+    
     best_method1 <- ifelse(match_score > best_score, method1, best_method1)
     best_method2 <- ifelse(match_score > best_score, method2, best_method2)
     best_score <- ifelse(match_score > best_score, match_score, best_score)
-    
-    newCols <- colorRampPalette(grDevices::rainbow(nrow(geno_match)))
-    annoCol <- newCols(nrow(geno_match))
-    names(annoCol) <- colnames(correlation_res)
-    annoCol <- list(category = annoCol)
-    correlation_res <- correlation_res[order(as.numeric(row.names(correlation_res))), ]
-    pheatmap(correlation_res, treeheight_row=F, treeheight_col=F, display_numbers=T, angle_col="0",
-             number_color = "white", fontsize = 12, cluster_rows = F, cluster_cols = F, width = 7, height = 5,
-             filename=file.path(outputdir, "concordance_heatmap.png"))
     
     result_merge <- select(result_csv, "Barcode", method1, method2)
     result_merge_new <- result_merge
     
     for (i in 1:nrow(geno_match)){
-      result_merge_new[[method1]] <- replace(result_merge_new[[method1]], result_merge[[method1]] == geno_match$Method1_ID[i], 
-                                                  geno_match$Method2_ID[i])
+      result_merge_new[[method1]] <- replace(result_merge_new[[method1]], result_merge[[method1]] == geno_match$Method1[i], 
+                                             geno_match$Method2[i])
     }
     
     write.csv(result_merge_new, file.path(outputdir, "all_assignment_after_match.csv"), row.names = F)
     result_merge_new <- result_merge_new[result_merge_new$Barcode %in% intersect_barcode,]
     write.csv(result_merge_new, file.path(outputdir, "intersect_assignment_after_match.csv"), row.names = F)
-    
   }
+    
 }
 
 print(best_score)
@@ -130,7 +159,7 @@ if (args$findVariants == 'True' | args$findVariants == 'default'){
     write.table(best_method1, file.path(args$outputdir, "best_method_vireo.txt"), sep = "\t", row.names = F, col.names = F, quote = F)
     
   } else{
-    stop("Vireo is not the best method1 for donor matching!")
+    stop("Vireo is not the best method for donor matching!")
   }
   outputdir <- file.path(args$outputdir, paste0(best_method1, "_vs_", best_method2))
   outputdir_variant <- file.path(outputdir, "variant_filtering")

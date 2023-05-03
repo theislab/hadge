@@ -6,8 +6,8 @@ process matchDonor{
     input:
         path demultiplexing_result
         path barcode_whitelist
-        val method1_name
-        val method2_name
+        // val method1_name
+        // val method2_name
         val findVariants
         val cell_genotype
         val variant_count
@@ -15,7 +15,7 @@ process matchDonor{
         val vireo_parent_dir
     
     output:
-        path "donor_match_${method1_name}_${method2_name}"
+        path "donor_match"
 
     script:
         def cell_genotype_path = ""
@@ -42,9 +42,9 @@ process matchDonor{
         }
         """
         export R_MAX_VSIZE=100Gb
-        outputdir=donor_match_${method1_name}_${method2_name}
+        outputdir=donor_match
         mkdir -p \$outputdir
-        donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --method1 $method1_name --method2 $method2_name  --findVariants $findVariants \
+        donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --findVariants $findVariants \
                 $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count --outputdir \$outputdir $vireo_parent_path
                 
         if ([ "$findVariants" != "False" ]); then
@@ -99,6 +99,5 @@ workflow donor_match{
     take:
         demultiplexing_result
     main:
-        matchDonor(demultiplexing_result, params.barcodes, params.match_donor_method1, params.match_donor_method2, params.findVariants, params.celldata,
-            params.variant_count, params.variant_pct, params.vireo_parent_dir)
+        matchDonor(demultiplexing_result, params.barcodes, params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
 }
