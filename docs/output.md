@@ -45,13 +45,13 @@ This document describes the output produced by each process of the pipeline.
 # Hashing-based deconvolution workflow
 The output of hashing-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/hashing`.
 
-## Pre-processing: 
+## Pre-processing 
 output directory: `preprocess/preprocess_[task_ID]`
 
 * `${params.preprocessOut}.rds`: pre-processed data in an RDS object 
 * `params.csv`: specified parameters in the hashing pre-processing task
 
-## HTODemux: 
+## HTODemux
 output directory: `htodemux/htodemux_[task_ID]`
 
 * `${params.assignmentOutHTO}_assignment_htodemux.csv`: the assignment of HTODemux
@@ -59,7 +59,7 @@ output directory: `htodemux/htodemux_[task_ID]`
 * `${params.objectOutHTO}.rds`: the result of HTODemux in an RDS object 
 * `params.csv`: specified parameters in the HTODemux task
 
-Optionally :
+Optionally:
 * `ridge.jpeg`: a ridge plot showing the enrichment of selected HTOs
 * `featureScatter.jpeg`: a scatter plot showing the signal of two selected HTOs
 * `violinPlot.jpeg`: a violin plot showing selected features
@@ -67,13 +67,13 @@ Optionally :
 * `heatMap.jpeg`: a heatmap of hashtag oligo signals across singlets, doublets and negative cells
 * `visual_params.csv`: specified parameters for visualisation of the HTODemux result
 
-## Multiseq:
+## Multiseq
 output directory: `multiseq/multiseq_[task_ID]`
 * `${params.assignmentOutMulti}_res.csv`: the assignment of Multiseq
 * `${params.objectOutMulti}.rds`: the result of Multiseq in an RDS object 
 * `params.csv`: specified parameters in the Multiseq task
 
-## Demuxem:
+## Demuxem
 output directory: `demuxem/demuxem_[task_ID]`
 
 * `${params.objectOutDemuxem}_demux.zarr.zip`: RNA expression matrix with demultiplexed sample identities in Zarr format
@@ -90,20 +90,20 @@ output directory: `demuxem/demuxem_[task_ID]`
 Optionally: 
 * `{params.objectOutDemuxem}.{gene_name}.violin.pdf`: violin plots using specified gender-specific gene
 
-## Solo:
+## Solo
 output directory: `solo/solo_[task_ID]`
 
 * `${params.assignmentOutSolo}_res.csv`: the assignment of Solo
 * `params.csv`: specified parameters in the Solo task
 
-## HashSolo:
+## HashSolo
 output directory: `hashsolo/hashsolo_[task_ID]`
 
 * `${params.assignmentOutHashSolo}_res.csv`: the assignment of HashSolo
 * `${params.plotOutHashSolo}.jpg`: plot of HashSolo demultiplexing results for QC checks
 * `params.csv`: specified parameters in the HashSolo task
 
-## HashedDrops:
+## HashedDrops
 output directory: `hashedDrops/hashedDrops_[task_ID]`
 
 * `${params.objectOutEmptyDrops}.rds`: the result of emptyDrops in an RDS object 
@@ -114,11 +114,10 @@ output directory: `hashedDrops/hashedDrops_[task_ID]`
 * `${params.objectOutHashedDrops}_LogFC.png`: a diagnostic plot comparing the log-fold change between the second HTO's abundance and the ambient contamination
 * `params.csv`: specified parameters in the HashedDrops task
 
-<br>
 
 # Genetics-based deconvolution workflow
 The output of genetics-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/genetics`.
-## Samtools:
+## Samtools
 output directory: `samtools/samtools_[task_ID]`
 
 * `filtered.bam`: processed BAM in a way that reads with any of following patterns be removed: read quality lower than 10, being unmapped segment, being secondary alignment, not passing filters, being PCR or optical duplicate, or being supplementary alignment
@@ -127,7 +126,7 @@ output directory: `samtools/samtools_[task_ID]`
 * `sorted.bam`: sorted BAM
 * `sorted.bam.bai`: index of sorted BAM
 
-## cellSNP-lite:
+## cellSNP-lite
 * `cellSNP.base.vcf.gz`: a VCF file listing genotyped SNPs and aggregated AD & DP infomation (without GT)
 * `cellSNP.samples.tsv`: a TSV file listing cell barcodes or sample IDs
 * `cellSNP.tag.AD.mtx`: a file in mtx format, containing the allele depths of the alternative (ALT) alleles
@@ -136,17 +135,17 @@ output directory: `samtools/samtools_[task_ID]`
 * `cellSNP.cells.vcf.gz`: a VCF file listing genotyped SNPs and AD & DP & genotype (GT) information for each cell or sample
 * `params.csv`: specified parameters in the cellsnp-lite task
 
-## Freebayes:
+## Freebayes
 * `${region}_${vcf_freebayes}`: a VCF file containing variants called from mixed samples in the given chromosome region
 
-## Bcftools:
+## Bcftools
 output directory: `bcftools/bcftools_[task_ID]`
 
 * `total_chroms.vcf`: a VCF containing variants from all chromosomes
 * `sorted_total_chroms.vcf`: sorted VCF file
 * `filtered_sorted_total_chroms.vcf`: sorted VCF file containing variants with a quality score > 30
 
-## Demuxlet:
+## Demuxlet
 output directory: `demuxlet/demuxlet_[task_ID]`
 
 * `{demuxlet_out}.best`: result of demuxlet containing the best guess of the sample identity, with detailed statistics to reach to the best guess
@@ -158,7 +157,7 @@ Optionally:
 * `{demuxlet_out}.umi`: contains the position covered by each umi
 * `{demuxlet_out}.var`: contains the position, reference allele and allele frequency for each SNP.
 
-## Freemuxlet:
+## Freemuxlet
 output directory: `freemuxlet/freemuxlet_[task_ID]`
 
 * `{freemuxlet_out}.clust1.samples.gz`: contains the best guess of the sample identity, with detailed statistics to reach to the best guess.
@@ -176,7 +175,7 @@ Optionally:
 * `{freemuxlet_out}.ldist.gz`: contains the pairwise Bayes factor for each possible pair of droplets
 
 
-## Vireo:
+## Vireo
 output directory: `vireo/vireo_[task_ID]`
 
 * `donor_ids.tsv`: assignment of Vireo with detailed statistics
@@ -190,7 +189,7 @@ output directory: `vireo/vireo_[task_ID]`
 * `_log.txt`: vireo log file
 * `params.csv`: specified parameters in the Vireo task
 
-## scSplit:
+## scSplit
 output directory: `scSplit/scsplit_[task_ID]`
 * `alt_filtered.csv`: count matrix of alternative alleles
 * `ref_filtered.csv`: count matrix of reference alleles
@@ -202,7 +201,7 @@ output directory: `scSplit/scsplit_[task_ID]`
 * `scSplit.log`: log file containing information for current run, iterations, and final Maximum Likelihood and doublet sample
 * `params.csv`: specified parameters in the scSplit task
 
-## Souporcell:
+## Souporcell
 output directory: `souporcell/souporcell_[task_ID]`
 * `alt.mtx`: count matrix of alternative alleles
 * `ref.mtx`: count matrix of reference alleles
@@ -210,7 +209,6 @@ output directory: `souporcell/souporcell_[task_ID]`
 * `cluster_genotypes.vcf`: VCF with genotypes for each cluster for each variant in the input vcf from freebayes
 * `ambient_rna.txt`: contains the ambient RNA percentage detected
 * `params.csv`: specified parameters in the Souporcell task
-
 
 
 # Merging results

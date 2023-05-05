@@ -47,7 +47,6 @@ You can have following options for `scsplit_variant`:
 * `cellsnp`: activate cellsnp
 * Otherwise: activate cellsnp, take the output of freebayes and use `params.celldata` as well
 
-<br>
 
 ### Hashing-based deconvolution workflow
 
