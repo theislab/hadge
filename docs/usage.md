@@ -24,12 +24,10 @@ You may see that some tools share some input data in common, so we set only one 
 | Reference genome (FASTA)                   	| `params.fasta`<br>`params.fasta_index` 	|
 | Cell genotype (VCF or cellSNP folder)      	| `params.celldata`                      	|
 
-<br>
 
 #### <strong> Pre-processing </strong>
 In case you want to perform genetics-based deconvolution on pre-processed data, we provide a process in concordance with [the instruction of scSplit](https://github.com/jon-xu/scSplit). It only requires the Alignment (BAM) file as input. To specify which method is performed on the pre-processed data : set `[method]_preprocess = True`.
 
-<br>
 
 #### <strong> Variant calling </strong> 
 
@@ -62,7 +60,6 @@ You can have following options for `scsplit_variant`:
 | HashedDrops           	| - 10x mtx directory with hashing count matrix (Directory)                                                          	| `params.hto_matrix_hashedDrops`                            	|
 | Demuxem               	| - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) 	| `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem` 	|
 
-<br>
 
 #### <strong> Pre-processing </strong>
 
@@ -73,7 +70,6 @@ For benchmarking, you can have following options for `[htodemux/multiseq]_prepro
 * `False`: inactivate pre-proecessing, get the input data from `params.rdsObj_[method]`
 * Otherwise: activate pre-proecessing, take the output and use `params.rdsObj_[method]` as well
 
-<br>
 
 ## **Pipeline configuration**
 ### **Conda environments:**

@@ -37,7 +37,6 @@ cd hagen
 
 If you want to use Souporcell later, you should also download the singularity image in the project directory with the command `singularity pull shub://wheaton5/souporcell`.
 
-<br>
 
 ## **Quick start**
 In the `nextflow.config` file, 
@@ -62,7 +61,7 @@ Each demultiplexing process will generate some intermediate files in the folder 
 * Output of the task, check [output.md](https://github.com/theislab/hagen/blob/main/docs/output.md) for more details.
 
 ### **Final output:**
-After each demultiplexing workflow is complete, the pipeline will generate TSV files to summarize the results in the folder `[workflow]_summary`.
+After each demultiplexing workflow is complete, the pipeline will generate TSV files to summarize the results in the folder `$projectDir/$params.outdir/$params.mode/[workflow]/[workflow]_summary`.
 * `[method]_classification.csv`: classification of all trials for a given method
 * `[method]_assignment.csv`: assignment of all trials for a given method
 * `[method]_params.csv`: specified paramters of all trials for a given method
@@ -70,7 +69,7 @@ After each demultiplexing workflow is complete, the pipeline will generate TSV f
 * `[workflow]_assignment_all.csv`: save the assignment of all trials across different methods
 
 ### **Additional output for ***rescue*** mode:**
-Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `summary` folder. 
+Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$projectDir/$params.outdir/$params.mode/summary` folder. 
 
 The output of the donor-matching process can be found in the folder `donor_match`, check [output.md](https://github.com/theislab/hagen/blob/main/docs/output.md) for more details.
 
