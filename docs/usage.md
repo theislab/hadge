@@ -171,7 +171,6 @@ profiles{
 |:---------:	|:-------------------------------------------------------------:	|
 |   outdir  	|                Output directory of the pipeline               	|
 |    mode   	| Mode of the pipeline: genetic, hashing, rescue or donor_match 	|
-|               |                                                               	|
 
 ### Hashing-based: Preprocessing 
 | 	            |                                                                                  |
@@ -186,7 +185,7 @@ profiles{
 | norm_method                  	| Method for normalization of HTO data. Default: CLR                                             	|
 | margin                       	| If performing CLR normalization, normalize across features (1) or cells (2). Default: 2        	|
 | preprocessOut                	| Name of the output Seurat object. Default: preprocessed                                           |
-| 	            |                                                                                  |
+
 
 ### Hashing-based: HTODemux
 |  	                        |                                                                      |
@@ -219,7 +218,7 @@ profiles{
 | tsnePerplexity          	| Perplexity when running t-SNE dimensionality reduction. Default: 100                                 |
 | heatmap                 	| Whether to generate an HTO heatmap. Default: True                                            	       |
 | heatmapNcells           	| Number of cells to plot. Default: 5000               	                                               |
-|  	                        |                                                                                                      |
+
 
 ### Hashing-based: Multiseq
 |  	                        |                                                                                                      |
@@ -236,7 +235,6 @@ profiles{
 | verbose_multiseq        	| Wether to print the output. Default: multiseq                                                        |
 | assignmentOutMulti      	| Prefix of the output CSV files. Default: multiseq   	                                               |
 | objectOutMulti          	| Name of the output Seurat object. Default: multiseq   	                                           |
-|  	                        |                                                                                                      |
 
 
 ### Hashing-based: Solo 
@@ -254,7 +252,6 @@ profiles{
 | soft                       | Return probabilities instead of class label. Default: False                                      |
 | include_simulated_doublets | Return probabilities for simulated doublets as well.                                             |
 | assignmentOutSolo          | Prefix of the output CSV files. Default: solo_predict                                            |
-|  	                         |                                                                                                  |
 
 
 ### Hashing-based: HashSolo 
@@ -269,7 +266,6 @@ profiles{
 | number_of_noise_barcodes  | Number of barcodes to use to create noise distribution. Default: None      |
 | assignmentOutHashSolo     | Prefix of the output CSV files. Default: hashsolo                          |
 | plotOutHashSolo           | Prefix of the output figures. Default: hashsolo                            |
-|  	                        |                                                                            |
 
 
 ### Hashing-based: DemuxEm
@@ -287,12 +283,11 @@ profiles{
 | generate_gender_plot   | Generate violin plots using gender-specific genes (e.g. Xist). Value is a comma-separated list of gene names. Default: None            |
 | random_state           | Random seed set for reproducing results. Default: 0                     |
 | objectOutDemuxem       | Prefix of the output files. Default: demuxem_res                        |
-|  	                     |                                                                         |
 
 
 ### Hashing-based: HashedDrops
 |  	                      |                                                                         |
-|-------------------------|-==----------------------------------------------------------------------|
+|-------------------------|-------------------------------------------------------------------------|
 | hto_matrix_hashedDrops   | Input folder to raw HTO expression matrix in 10x format.               |
 | lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100     |
 | niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000           |
@@ -316,7 +311,6 @@ profiles{
 | combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL                           |
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                  |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                    |
-|  	                       |                                                                                                    |
 
 
 ### Genetics-based: Demuxlet and dsc-pileup
@@ -354,7 +348,6 @@ profiles{
 | alpha                                   | Grid of alpha to search for. Default: 0.5                           |
 | doublet-prior                           | Prior of doublet. Default: 0.5                                      |
 | demuxlet_out                            | Prefix out the demuxlet and dsc-pileup output files. Default: demuxlet_res           |
-|  	                                      |                                                                     |
 
 
 ### Genetics-based: Freemuxlet and dsc-pileup
@@ -418,7 +411,6 @@ profiles{
 | callAmbientRNAs       | If use, detect ambient RNAs in each cell. Default: False                                 |
 | nproc                 | Number of subprocesses for computing, this sacrifices memory for speedups. Default: 4    |
 | vireo_out             | Dirtectory for output files. Default: vireo_out                                          |          
-|  	                    |                                                                                          |
 
 
 ### Genetics-based: scSplit
@@ -443,6 +435,7 @@ profiles{
 | sample_geno             | Whether to generate sample genotypes based on the split result. Default: True                                                                                               |
 | scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out              |
 
+
 ### Genetics-based: Souporcell 
 |  	                        |                                                                      |
 |---------------------------|----------------------------------------------------------------------|
@@ -466,7 +459,7 @@ profiles{
 | skip_remap                | Don't remap with minimap2, not recommended unless in conjunction with comman variants. Default: True |
 | ignore                    | Set to True to ignore data error assertions. Default: False          |
 | souporcell_out            | Dirtectory for Souporcell output files. Default: souporcell_out      | 
-|  	                        |                                                                      |
+
 
 ### Genetics-based: cellSNP-lite
 |  	                        |                                                                      |
@@ -496,5 +489,3 @@ profiles{
 | maxDEPTH                  | Maximum depth for one site of one file (excluding those filtered reads), avoids excessive memory usage; 0 means highest possible value. Default: 0    |
 | countORPHAN               | If use, do not skip anomalous read pairs. Default: False             |
 | cellsnp_out               | Dirtectory for cellSNP-lite output files. Default: cellSNP_out       |
-|  	                        |                                                                      |
-
