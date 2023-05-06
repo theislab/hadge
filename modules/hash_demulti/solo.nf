@@ -3,6 +3,8 @@
 nextflow.enable.dsl=2
 process solo{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/solo", mode:'copy'
+    label 'small_mem'
+    
     input:
         each rna_matrix_dir
         each max_epochs

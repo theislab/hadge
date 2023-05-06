@@ -10,6 +10,8 @@ include { solo_hashing } from './hash_demulti/solo'
 
 process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti", mode: 'copy'
+    label 'small_mem'
+    
     input:
         val demuxem_result
         val hashsolo_result

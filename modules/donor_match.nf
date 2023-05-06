@@ -2,12 +2,14 @@
 nextflow.enable.dsl=2
 
 process matchDonor{
-    publishDir "$projectDir/$params.outdir/$params.mode/donor_match", mode: 'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
+    label 'big_mem'
+    
     input:
         path demultiplexing_result
         path barcode_whitelist
-        // val method1_name
-        // val method2_name
+        val method1_name
+        val method2_name
         val findVariants
         val cell_genotype
         val variant_count
@@ -18,6 +20,10 @@ process matchDonor{
         path "donor_match"
 
     script:
+        def two_method = ""
+        if (method1_name != "None" & method2_name != "None"){
+            two_method = "--method1 $method1_name --method2 $method2_name"
+        }
         def cell_genotype_path = ""
         if (findVariants == "True" | findVariants == "default"){
             if (cell_genotype == "None"){
@@ -45,7 +51,8 @@ process matchDonor{
         outputdir=donor_match
         mkdir -p \$outputdir
         donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --findVariants $findVariants \
-                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count --outputdir \$outputdir $vireo_parent_path
+                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count \
+                $two_method --outputdir \$outputdir $vireo_parent_path
                 
         if ([ "$findVariants" != "False" ]); then
             best_method_vireo="\$(head -n 1 \$outputdir/best_method_vireo.txt)"
@@ -99,5 +106,6 @@ workflow donor_match{
     take:
         demultiplexing_result
     main:
-        matchDonor(demultiplexing_result, params.barcodes, params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
+        matchDonor(demultiplexing_result, params.barcodes, params.match_donor_method1, params.match_donor_method2, 
+            params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
 }

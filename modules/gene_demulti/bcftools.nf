@@ -31,7 +31,8 @@ if (concat == "True" & filter == "True"){
 
 process bcftools{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/bcftools", mode: 'copy'
-
+    label 'big_mem'
+    
     input:
         val vcf
         val concat

@@ -13,6 +13,7 @@ nextflow.enable.dsl=2
 
 process samstool{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/samtools", mode: 'copy'
+    label 'big_mem'
 
     input:
         file bam

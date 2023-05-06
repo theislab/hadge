@@ -3,8 +3,8 @@ nextflow.enable.dsl=2
 
 process souporcell{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/souporcell", mode: 'copy'
-    echo true
-
+    label 'big_mem'
+    
     input:
         each bam
         each barcodes

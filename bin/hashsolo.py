@@ -17,7 +17,7 @@ parser.add_argument('--pre_existing_clusters',
                     help='column in cell_hashing_adata.obs for how to break up demultiplexing',
                     type=str, default=None)
 parser.add_argument('--clustering_data', help='input transcriptional h5 file for clustering', type=str, default=None)
-parser.add_argument('--number_of_noise_barcodes', help='Number of threads to use.', type=int, default=None)
+parser.add_argument('--number_of_noise_barcodes', help='Number of barcodes to use to create noise distribution', type=int, default=None)
 parser.add_argument('--assignmentOutHashSolo', help='prefix name for CSV results', type=str, default="hash_solo")
 parser.add_argument('--plotOutHashSolo', help='prefix name for the JPG plot', type=str, default="hash_solo_plot")
 parser.add_argument('--outputdir', help='Output directory')

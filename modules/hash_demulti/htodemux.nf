@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process htodemux{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/htodemux", mode: 'copy'
     label 'seurat'
+    label 'small_mem'
+    
     input:
         each seurat_object
         each assay

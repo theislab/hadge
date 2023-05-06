@@ -3,7 +3,8 @@ nextflow.enable.dsl=2
 
 process cellSNP{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP", mode: 'copy'
-    
+    label 'big_mem'
+
     input:
         val samFile_cellSNP
         file samFileList_cellSNP
@@ -87,7 +88,7 @@ workflow variant_cellSNP{
     main:
         barcodeFile = channel.fromPath(params.barcodes)
         samFileList = channel.fromPath(params.samFileList)
-        regionsVCF = channel.fromPath(params.regionsVCF)
+        regionsVCF = channel.fromPath(params.common_variants_cellsnp)
         targetsVCF =  channel.fromPath(params.targetsVCF)
         sampleList = channel.fromPath(params.sampleList)
         sampleIDs = channel.value(params.sampleIDs)

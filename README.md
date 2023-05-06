@@ -55,7 +55,7 @@ Finally, you can run the pipeline with:
 All pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. 
 
 ### **Intermediate output**
-The pipeline saves the output of each process for two workflows separately, so you will find the results of hashing-based and genetics-based deconvolution methods in the folder `hashing` and `genetic` respectively.
+The pipeline saves the output of each process for two workflows separately, so you will find the results of hashing-based and genetics-based deconvolution methods in the folder `hash_demulti` and `gene_demulti` respectively.
 
 Each demultiplexing process will generate some intermediate files in the folder in the format `[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. In this folder, you can find following files:
 * `params.csv`: specified parameters in the task

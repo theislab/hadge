@@ -3,6 +3,8 @@ nextflow.enable.dsl=2
 
 process hash_solo{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashsolo", mode:'copy'
+    label 'small_mem'
+    
     input:
         each hto_h5_dir
         each priors_negative

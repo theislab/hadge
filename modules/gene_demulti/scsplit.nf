@@ -3,7 +3,8 @@ nextflow.enable.dsl=2
 
 process scSplit{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/scSplit", mode: 'copy'
-    
+    label 'big_mem'
+
     input:
         each vcf
         each bam

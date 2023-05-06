@@ -1,6 +1,8 @@
 process preprocess{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/preprocess", mode:'copy'
     label 'seurat'
+    label 'small_mem'
+    
     input:
         each rdsObject
         each umi_matrix

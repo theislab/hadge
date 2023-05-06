@@ -3,7 +3,8 @@ nextflow.enable.dsl=2
 
 process freebayes{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/freebayes", mode: 'copy'
-
+    label 'big_mem'
+    
     input:
         file bam_freebayes
         file bai_freebayes

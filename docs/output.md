@@ -12,7 +12,7 @@ This document describes the output produced by each process of the pipeline.
 </details>
 <br>
 <details><summary>Workflows </summary>
-<details><summary>Hashing-based deconvolution </summary>
+<details><summary>Hashing-based deconvolution (hash_demulti)</summary>
 
 * Pre-processing 
 * Multiseq
@@ -25,7 +25,7 @@ This document describes the output produced by each process of the pipeline.
 </details>
 
 
-<details><summary>Genetics-based deconvolution </summary>
+<details><summary>Genetics-based deconvolution (gene_demulti)</summary>
 
 * Pre-processing: Samtools
 * Variant-calling: freebayes
@@ -43,7 +43,7 @@ This document describes the output produced by each process of the pipeline.
 <br>
 
 # Hashing-based deconvolution workflow
-The output of hashing-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/hashing`.
+The output of hashing-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/hash_demulti`.
 
 ## Pre-processing 
 output directory: `preprocess/preprocess_[task_ID]`
@@ -116,7 +116,7 @@ output directory: `hashedDrops/hashedDrops_[task_ID]`
 
 
 # Genetics-based deconvolution workflow
-The output of genetics-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/genetics`.
+The output of genetics-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/gene_demulti`.
 ## Samtools
 output directory: `samtools/samtools_[task_ID]`
 

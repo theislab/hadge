@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process multi_seq{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/multiseq", mode:'copy'
     label 'seurat'
+    label 'small_mem'
+    
     input:
     each rdsObject
     each quantile

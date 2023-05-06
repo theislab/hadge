@@ -3,6 +3,8 @@ nextflow.enable.dsl=2
 
 process demuxem{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxem", mode:'copy'
+    label 'small_mem'
+    
     input:
         each raw_rna_matrix_dir
         each raw_hto_matrix_dir

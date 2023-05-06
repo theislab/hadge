@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-options(future.globals.maxSize = 4000 * 1024^5)
+#options(future.globals.maxSize = 4000 * 1024^5)
 library(pheatmap)
 library(data.table)
 library(magrittr)
@@ -12,6 +12,8 @@ library(argparse)
 parser <- ArgumentParser("Parameters for donor matching based on Pearson coorelation. ")
 parser$add_argument("--result_csv", help = "The path to the csv file or the directory containing the demultiplexing assignment. ")
 parser$add_argument("--barcode", help = "The path to the tsv file containing the white list of barcodes. ", default = NULL)
+parser$add_argument("--method1", help="The Name of the first method in the assignment file to map donors. ", default = NULL)
+parser$add_argument("--method2", help="The Name of the second method in the assignment file. We will use its donor names as reference.", default=NULL)
 parser$add_argument("--findVariants", help='How to find representative variants for each donor. ', default='default')
 parser$add_argument("--cell_genotype", help="The path to the VCF file containing the genotype of the cells.")
 parser$add_argument("--variant_count", help='The Minimal count of a variant for filtering', type="integer", default = 0)
@@ -33,7 +35,6 @@ convert2binary <- function(result_csv, method_name){
 }
 
 result_csv <- NULL
-#result_csv <- fread("/Volumes/wxicu/gx12/summary/assignment_all_genetic_and_hash.csv", stringsAsFactors=F)
 
 if(file.exists(args$result_csv) && !dir.exists(args$result_csv)){
   result_csv <- fread(args$result_csv, stringsAsFactors=F)
@@ -47,11 +48,17 @@ if (!is.null(args$barcode)){
   result_csv <- result_csv[result_csv$Barcode %in% barcode_whitelist, ]
 }
 
-all_methods <- colnames(result_csv)
-all_methods <- all_methods[all_methods!="Barcode"]
-all_methods_pair <- combn(all_methods, 2, simplify = F)
-method1_all <- sapply(all_methods_pair, "[", 1)
-method2_all <- sapply(all_methods_pair, "[", 2)
+if(!is.null(args$method1) & !is.null(args$method2)){
+  method1_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method1)]
+  method2_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method2)]
+}else{
+  all_methods <- colnames(result_csv)
+  all_methods <- all_methods[all_methods!="Barcode"]
+  all_methods_pair <- combn(all_methods, 2, simplify = F)
+  method1_all <- sapply(all_methods_pair, "[", 1)
+  method2_all <- sapply(all_methods_pair, "[", 2)
+}
+
 
 hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo")
 genetic_methods <- c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
@@ -65,10 +72,9 @@ if (is.null(method1_all) | is.null(method2_all)){
 }
 
 for (i in 1:length(method1_all)){
-  #method1 <- "vireo_1"
-  #method2 <- "multiseq_1"
   method1 <- method1_all[i]
   method2 <- method2_all[i]
+  
   # put the hashing method on the second place
   if (grepl(paste(hashing_methods, collapse="|"), method1) & 
       (grepl(paste(genetic_methods, collapse="|"), method2))){

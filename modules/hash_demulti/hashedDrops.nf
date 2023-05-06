@@ -3,6 +3,8 @@ nextflow.enable.dsl=2
 
 process hashedDrops{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashedDrops", mode:'copy'
+    label 'small_mem'
+    
     input:
         each raw_hto_matrix_dir
         each lower
