@@ -166,13 +166,15 @@ profiles{
 ```
 
 ## **Parameters**
-
-|   General 	|                                                               	|
+### General
+|               |                                                               	|
 |:---------:	|:-------------------------------------------------------------:	|
 |   outdir  	|                Output directory of the pipeline               	|
 |    mode   	| Mode of the pipeline: genetic, hashing, rescue or donor_match 	|
+|               |                                                               	|
 
-| Hashing-based: Preprocessing 	|                                                                                                	|
+### Hashing-based: Preprocessing 
+| 	            |                                                                                  |
 |------------------------------	|------------------------------------------------------------------------------------------------	|
 | rdsObject_preprocess         	| Specify whether the input data for the pre-processing is an RDS object or not. Default: False  	|
 | umi_matrix_preprocess        	| The UMI count matrix, e.g. a directory provided by 10x genomics.                               	|
@@ -183,57 +185,62 @@ profiles{
 | assay                        	| Assay name for HTO modality. Default: HTO                                                      	|
 | norm_method                  	| Method for normalization of HTO data. Default: CLR                                             	|
 | margin                       	| If performing CLR normalization, normalize across features (1) or cells (2). Default: 2        	|
-| preprocessOut                	| Name of the output Seurat object. Default: preprocessed                                           	|
+| preprocessOut                	| Name of the output Seurat object. Default: preprocessed                                           |
+| 	            |                                                                                  |
 
-
-| Hashing-based: HTODemux 	|                                                                                                                                	|
+### Hashing-based: HTODemux
+|  	                        |                                                                      |
 |-------------------------	|--------------------------------------------------------------------------------------------------------------------------------	|
-| htodemux_preprocess     	| Specify whether the input data for the HTODemux need to be pre-processed. Default: True                                        	|
-| rdsObj_htodemux         	| Input for HTODemux when htodemux_preprocess!=True, a Seurat object with normalized HTO data. Default: None                 	|
-| assay                   	| Name of the Hashtag assay. Default: HTO                                                                                        	|
-| quantile_htodemux       	| The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99 	|
-| kfunc                   	| Clustering function for initial hashtag grouping. Default: clara.                                                              	|
-| nstarts                 	| nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                     	|
-| nsamples                	| Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                          	|
-| seed                    	| Sets the random seed. Default: 42                                                                                              	|
-| init                    	| Initial number of clusters for hashtags. Default: NULL, which means the # of hashtag oligo names + 1 to account for negatives. 	|
-| objectOutHTO            	| Name of the output Seurat object. Default: htodemux                                                                            	|
-| assignmentOutHTO        	| Prefix of the output CSV files. Default: htodemux                                                                              	|
-| ridgePlot               	| Whether to generate a ridge plot to visualize enrichment for all HTOs. Default: True                                           	|
-| ridgeNCol               	| Number of columns in the ridge plot. Default: 3                                                                                	|
-| featureScatter          	| Whether to generate a scatter plot to visualize pairs of HTO signals. Default: False                                           	|                                                                          	|
-| scatterFeat1            	| First feature to plot. Default: False                                                                                          	|
-| scatterFeat2            	| Second feature to plot. Default: False                                                                                         	|
-| vlnplot                 	| Whether to generate a violin plot, e.g. to compare number of UMIs for singlets, doublets and negative cells. Default: True     	|
-| vlnFeatures             	| Features to plot. Default: nCount_RNA                                                                                          	|
-| vlnLog                  	| Whether to plot the feature axis on log scale. Default: True                                                                   	|
-| tsne                    	| Whether to generate a 2D tSNE embedding for HTOs. Default: True                                                                	|
-| tsneIdents              	| Subset Seurat object based on identity class. Default: Negative                                                                	|
-| tsneInvert              	| Whether to keep or remove the identity class. Default: True                                                                    	|
-| tsneVerbose             	| Whether to print the top genes associated with high/low loadings for the PCs when running PCA. Default: False                  	|
-| tsneApprox              	| Whether to use truncated singular value decomposition to approximate PCA. Default: False                                       	|
-| tsneDimMax              	| Number of dimensions to use as input features when running t-SNE dimensionality reduction. Default: 2                          	|
-| tsnePerplexity          	| Perplexity when running t-SNE dimensionality reduction. Default: 100                                                           	|
-| heatmap                 	| Whether to generate an HTO heatmap. Default: True                                                                              	|
-| heatmapNcells           	| Number of cells to plot. Default: 5000                                                                                         	|
+| htodemux_preprocess     	| Specify whether the input data for the HTODemux need to be pre-processed. Default: True              |
+| rdsObj_htodemux         	| Input for HTODemux when htodemux_preprocess!=True, a Seurat object with normalized HTO data. Default: None |
+| assay                   	| Name of the Hashtag assay. Default: HTO                                                              |
+| quantile_htodemux       	| The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99 |
+| kfunc                   	| Clustering function for initial hashtag grouping. Default: clara.                                    |
+| nstarts                 	| nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                 |
+| nsamples                	| Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100   |
+| seed                    	| Sets the random seed. Default: 42                                                                    |
+| init                    	| Initial number of clusters for hashtags. Default: NULL, which means the # of hashtag oligo names + 1 to account for negatives. |
+| objectOutHTO            	| Name of the output Seurat object. Default: htodemux                                                  |
+| assignmentOutHTO        	| Prefix of the output CSV files. Default: htodemux                                                    |
+| ridgePlot               	| Whether to generate a ridge plot to visualize enrichment for all HTOs. Default: True                 |
+| ridgeNCol               	| Number of columns in the ridge plot. Default: 3                                                      |
+| featureScatter          	| Whether to generate a scatter plot to visualize pairs of HTO signals. Default: False                 |
+| scatterFeat1            	| First feature to plot. Default: False                                                                |
+| scatterFeat2            	| Second feature to plot. Default: False                                                               |
+| vlnplot                 	| Whether to generate a violin plot, e.g. to compare number of UMIs for singlets, doublets and negative cells. Default: True  |
+| vlnFeatures             	| Features to plot. Default: nCount_RNA                                                                |
+| vlnLog                  	| Whether to plot the feature axis on log scale. Default: True                                         |
+| tsne                    	| Whether to generate a 2D tSNE embedding for HTOs. Default: True                                      |
+| tsneIdents              	| Subset Seurat object based on identity class. Default: Negative                                      |
+| tsneInvert              	| Whether to keep or remove the identity class. Default: True                                          |
+| tsneVerbose             	| Whether to print the top genes associated with high/low loadings for the PCs when running PCA. Default: False  |
+| tsneApprox              	| Whether to use truncated singular value decomposition to approximate PCA. Default: False             |
+| tsneDimMax              	| Number of dimensions to use as input features when running t-SNE dimensionality reduction. Default: 2 |
+| tsnePerplexity          	| Perplexity when running t-SNE dimensionality reduction. Default: 100                                 |
+| heatmap                 	| Whether to generate an HTO heatmap. Default: True                                            	       |
+| heatmapNcells           	| Number of cells to plot. Default: 5000               	                                               |
+|  	                        |                                                                                                      |
 
-| Hashing-based: Multiseq 	|                                                                                                                	|
-|-------------------------	|----------------------------------------------------------------------------------------------------------------	|
-| multiseq_preprocess     	| Specify whether the input data for the Multiseq need to be pre-processed. Default: True                        	|
-| rdsObj_multiseq         	| Input for Multiseq when multiseq_preprocess!=True, a Seurat object with normalized HTO data. Default: None 	|
-| assay                   	| Name of the Hashtag assay. Default: HTO                                                                        	|
-| quantile_multi          	| The quantile to use for classification. Default: 0.7                                                           	|
-| autoThresh              	| Whether to perform automated threshold finding to define the best quantile. Default: True                      	|
-| maxiter                 	| nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                     	|
-| qrangeFrom              	| The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.1                                	|
-| qrangeTo                	| The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.9                                	|
-| qrangeBy                	| The constant difference of a range of possible quantile values to try if autoThresh=TRUE. Default: 0.05    	|
-| verbose_multiseq        	| Wether to print the output. Default: multiseq                                                                  	|
-| assignmentOutMulti      	| Prefix of the output CSV files. Default: multiseq                                                              	|
-| objectOutMulti          	| Name of the output Seurat object. Default: multiseq                                                            	|
+### Hashing-based: Multiseq
+|  	                        |                                                                                                      |
+|-------------------------	|------------------------------------------------------------------------------------------------------|
+| multiseq_preprocess     	| Specify whether the input data for the Multiseq need to be pre-processed. Default: True              |
+| rdsObj_multiseq         	| Input for Multiseq when multiseq_preprocess!=True, a Seurat object with normalized HTO data. Default: None |
+| assay                   	| Name of the Hashtag assay. Default: HTO                                                              |
+| quantile_multi          	| The quantile to use for classification. Default: 0.7                                                 |
+| autoThresh              	| Whether to perform automated threshold finding to define the best quantile. Default: True            |
+| maxiter                 	| nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                 |
+| qrangeFrom              	| The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.1                          |
+| qrangeTo                	| The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.9                          |
+| qrangeBy                	| The constant difference of a range of possible quantile values to try if autoThresh=TRUE. Default: 0.05 |
+| verbose_multiseq        	| Wether to print the output. Default: multiseq                                                        |
+| assignmentOutMulti      	| Prefix of the output CSV files. Default: multiseq   	                                               |
+| objectOutMulti          	| Name of the output Seurat object. Default: multiseq   	                                           |
+|  	                        |                                                                                                      |
 
 
-| Hashing-based: Solo        |                                                                                                  |
+### Hashing-based: Solo 
+|  	                        |                                                                                                   |
 |----------------------------|--------------------------------------------------------------------------------------------------|
 | rna_matrix_solo            | Input folder to RNA expression matrix in 10x format.                                             |
 | max_epochs                 | Number of epochs to train for. Default: 400                                                      |
@@ -247,9 +254,11 @@ profiles{
 | soft                       | Return probabilities instead of class label. Default: False                                      |
 | include_simulated_doublets | Return probabilities for simulated doublets as well.                                             |
 | assignmentOutSolo          | Prefix of the output CSV files. Default: solo_predict                                            |
+|  	                         |                                                                                                  |
 
 
-| Hashing-based: HashSolo   |                                                                            |
+### Hashing-based: HashSolo 
+|  	                        |                                                                            |
 |---------------------------|----------------------------------------------------------------------------|
 | hto_h5_hashsolo           | Input h5 file with hashing counts.                                         |
 | priors_negative           | Prior for the negative hypothesis. Default: 1/3                            |
@@ -260,231 +269,232 @@ profiles{
 | number_of_noise_barcodes  | Number of barcodes to use to create noise distribution. Default: None      |
 | assignmentOutHashSolo     | Prefix of the output CSV files. Default: hashsolo                          |
 | plotOutHashSolo           | Prefix of the output figures. Default: hashsolo                            |
+|  	                        |                                                                            |
 
 
-| Hashing-based: DemuxEm |                                                                                                                               |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| rna_matrix_demuxem     | Input folder to raw RNA expression matrix in 10x format.                                                                      |
-| hto_matrix_demuxem     | Input folder to raw HTO expression matrix in 10x format.                                                                      |
-| threads_demuxem        | Number of threads to use. Must be a positive integer. Default: 1                                                              |
-| alpha_demuxem          | The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse. Default: 0.0 |
-| alpha_noise            | The Dirichlet prior concenration parameter on the background noise. Default: 1.0                                              |
-| min_num_genes          | Filter cells/nuclei with at least specified number of expressed genes. Default: 100                                                   |
-| min_num_umis           | Filter cells/nuclei with at least specified number of UMIs. Default: 100                                                              |
-| min_signal             | Any cell/nucleus with less than min_signal hashtags from the signal will be marked as unknown. Default: 10                    |
-| tol                    | Threshold used for the EM convergence. Default: 1e-6                                                                          |
-| generate_gender_plot   | Generate violin plots using gender-specific genes (e.g. Xist). Value is a comma-separated list of gene names. Default: None  |
-| random_state           | Random seed set for reproducing results. Default: 0                                                                           |
-| objectOutDemuxem       | Prefix of the output files. Default: demuxem_res                                                                              |
+### Hashing-based: DemuxEm
+|  	                        |                                                                      |
+|---------------------------|----------------------------------------------------------------------|
+| rna_matrix_demuxem     | Input folder to raw RNA expression matrix in 10x format.                |
+| hto_matrix_demuxem     | Input folder to raw HTO expression matrix in 10x format.                |
+| threads_demuxem        | Number of threads to use. Must be a positive integer. Default: 1        |
+| alpha_demuxem          | The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse. Default: 0.0     |
+| alpha_noise            | The Dirichlet prior concenration parameter on the background noise. Default: 1.0  |
+| min_num_genes          | Filter cells/nuclei with at least specified number of expressed genes. Default: 100 |
+| min_num_umis           | Filter cells/nuclei with at least specified number of UMIs. Default: 100|
+| min_signal             | Any cell/nucleus with less than min_signal hashtags from the signal will be marked as unknown. Default: 10 |
+| tol                    | Threshold used for the EM convergence. Default: 1e-6                    |
+| generate_gender_plot   | Generate violin plots using gender-specific genes (e.g. Xist). Value is a comma-separated list of gene names. Default: None            |
+| random_state           | Random seed set for reproducing results. Default: 0                     |
+| objectOutDemuxem       | Prefix of the output files. Default: demuxem_res                        |
+|  	                     |                                                                         |
 
 
-| Hashing-based: HashedDrops    |                                                                                                                                                                                                            |
-|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| hto_matrix_hashedDrops   | Input folder to raw HTO expression matrix in 10x format.                                                                                                                                                   |
-| lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100                                                                           |
-| niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000                                                                                                                   |
-| testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: True                                                                                                     |
-| ignore_hashedDrops       | The lower bound on the total UMI count, at or below which barcodes will be ignored. Default: NULL                                                                                                          |
-| alpha_hashedDrops        | The scaling parameter for the Dirichlet-multinomial sampling scheme. Default: NULL                                                                                                                         |
-| round                    | Whether to check for non-integer values in m and, if present, round them for ambient profile estimation. Default: True                                                                                     |
-| byRank                   | If set, this is used to redefine lower and any specified value for lower is ignored. Default: NULL                                                                                                         |
-| isCellFDR                | FDR Threshold to filter the cells for empty droplet detection. Default: 0.01                                                                                                                               |
-| objectOutEmptyDrops      | Prefix of the emptyDroplets output RDS object. Default: emptyDroplets                                                                                                                                      |
-| assignmentOutEmptyDrops  | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets                                                                                                                                        |
-| ambient                  | The relative abundance of each HTO in the ambient solution. Default: NULL                                                                                                                                  |
-| minProp                  | The ambient profile when ambient=NULL. Default: 0.05                                                                                                                                                       |
-| pseudoCount = 5          | The minimum pseudo-count when computing logfold changes. Default: 5                                                                                                                                        |
-| constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: False                                                                                          |
-| doubletNmads             | The number of median absolute deviations (MADs) to use to identify doublets. Default: 3                                                                                                                    |
-| doubletMin               | The minimum threshold on the log-fold change to use to identify doublets. Default: 2                                                                                                                       |
-| doubletMixture           | Wwhether to use a 2-component mixture model to identify doublets. Default: False                                                                                                                           |
-| confidentNmads           | The number of MADs to use to identify confidently assigned singlets. Default: 3                                                                                                                            |
-| confidenMin              | The minimum threshold on the log-fold change to use to identify singlets. Default: 2                                                                                                                       |
-| combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL |
-| objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
-| assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
+### Hashing-based: HashedDrops
+|  	                      |                                                                         |
+|-------------------------|-==----------------------------------------------------------------------|
+| hto_matrix_hashedDrops   | Input folder to raw HTO expression matrix in 10x format.               |
+| lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100     |
+| niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000           |
+| testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: True|
+| ignore_hashedDrops       | The lower bound on the total UMI count, at or below which barcodes will be ignored. Default: NULL  |
+| alpha_hashedDrops        | The scaling parameter for the Dirichlet-multinomial sampling scheme. Default: NULL                 |
+| round                    | Whether to check for non-integer values in m and, if present, round them for ambient profile estimation. Default: True              |
+| byRank                   | If set, this is used to redefine lower and any specified value for lower is ignored. Default: NULL |
+| isCellFDR                | FDR Threshold to filter the cells for empty droplet detection. Default: 0.01                       |
+| objectOutEmptyDrops      | Prefix of the emptyDroplets output RDS object. Default: emptyDroplets                              |
+| assignmentOutEmptyDrops  | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets                                |
+| ambient                  | The relative abundance of each HTO in the ambient solution. Default: NULL                          |
+| minProp                  | The ambient profile when ambient=NULL. Default: 0.05                                               |
+| pseudoCount = 5          | The minimum pseudo-count when computing logfold changes. Default: 5                                |
+| constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: False                      |
+| doubletNmads             | The number of median absolute deviations (MADs) to use to identify doublets. Default: 3            |
+| doubletMin               | The minimum threshold on the log-fold change to use to identify doublets. Default: 2               |
+| doubletMixture           | Wwhether to use a 2-component mixture model to identify doublets. Default: False                   |
+| confidentNmads           | The number of MADs to use to identify confidently assigned singlets. Default: 3                    |
+| confidenMin              | The minimum threshold on the log-fold change to use to identify singlets. Default: 2               |
+| combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL                           |
+| objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                  |
+| assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                    |
+|  	                       |                                                                                                    |
 
-| Genetics-based: Demuxlet and dsc-pileup |                                                                                                                                               |
-|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| demuxlet                   | Whether to run Demuxlet. Default: False                                                 |
-| Demuxlet_preprocess        | Whether to perform pre-processing on the input params.bam for demuxlet. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.bam file as input for benchmarking. Default: False   |
+
+### Genetics-based: Demuxlet and dsc-pileup
+|  	                        |                                                                                   |
+|---------------------------|-----------------------------------------------------------------------------------|
+| demuxlet                   | Whether to run Demuxlet. Default: False                                          |
+| demuxlet_preprocess        | Whether to perform pre-processing on the input params.bam for demuxlet. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.bam file as input for benchmarking. Default: False   |
+| bam                                     | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed. |
+| bai                                     | Index of Input SAM/BAM/CRAM file.                                   |
+| barcodes                                | List of cell barcodes to consider.                                  |
+| tag_group                               | Tag representing readgroup or cell barcodes, in the case to partition the BAM file into multiple groups. For 10x genomics, use CB Default: CB                                                           |
+| tag_UMI                                 | Tag representing UMIs. For 10x genomiucs, use UB. Default: UB       |
+| sm                                      | List of sample IDs to compare to. Default: None (use all)           |
+| vcf_donor                               | Input VCF/BCF file, containing GT, GP or PL for donors. It also requires the AC and AN field if plp_freemuxlet=True.                                                                                         |
+| sm_list                                 | File containing the list of sample IDs to compare. Default: None    |
+| sam_verbose                             | Verbose message frequency for SAM/BAM/CRAM. Default: 1000000        |
+| vcf_verbose                             | Verbose message frequency for VCF/BCF. Default: 10000               |
+| skip_umi                                | Do not generate [prefix].umi.gz file, which stores the regions covered by each barcode/UMI pair. Default: False                                                                                            |
+| cap_BQ                                  | Maximum base quality (higher BQ will be capped). Default: 40        |
+| min_BQ                                  | Minimum base quality to consider (lower BQ will be skipped). Default: 13             |
+| min_MQ                                  | Minimum mapping quality to consider (lower MQ will be ignored). Default: 20          |
+| min_TD                                  | Minimum distance to the tail (lower will be ignored). Default: 0    |
+| excl_flag                               | SAM/BAM FLAGs to be excluded. Default: 3844                         |
+| min_total                               | Minimum number of total reads for a droplet/cell to be considered. Default: 0        |
+| min_uniq                                | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                                                                                          |
+| min_snp                                 | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0 |
+| min_umi                                 | Minimum number of UMIs for a droplet/cell to be considered. Default: 0               |
+| plp                                     | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. It set False, will use SAM file to call Demuxlet. Default: False                                        |
+| field                                   | FORMAT field to extract the genotype, likelihood, or posterior from. Default: GT     |
+| geno_error_offset                       | Offset of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]. Default: 0.1  |
+| geno_error_coeff                        | Slope of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]. Default: 0.0   |
+| r2_info                                 | INFO field name representing R2 value. Used for representing imputation quality. Default: R2 |
+| min_mac                                 | Minimum minor allele frequency. Default: 1                          |
+| min_callrate                            | Minimum call rate. Default: 0.5                                     |
+| alpha                                   | Grid of alpha to search for. Default: 0.5                           |
+| doublet-prior                           | Prior of doublet. Default: 0.5                                      |
+| demuxlet_out                            | Prefix out the demuxlet and dsc-pileup output files. Default: demuxlet_res           |
+|  	                                      |                                                                     |
+
+
+### Genetics-based: Freemuxlet and dsc-pileup
+|  	                         |                                                                                    |
+|----------------------------|------------------------------------------------------------------------------------|
+| freemuxlet                 | Whether to run Freemuxlet. Default: True                                           |
+| freemuxlet_preprocess      | Whether to perform pre-processing on the input params.bam for Freemuxlet. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and params.bam as input for benchmarking. Default: False |
 | bam                                       | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed. |
 | bai                                       | Index of Input SAM/BAM/CRAM file.                                   |
 | barcodes                                  | List of cell barcodes to consider.                                  |
-| tag_group                               | Tag representing readgroup or cell barcodes, in the case to partition the BAM file into multiple groups. For 10x genomics, use CB Default: CB |
-| tag_UMI                                 | Tag representing UMIs. For 10x genomiucs, use UB. Default: UB                                                                                 |
-| sm                                      | List of sample IDs to compare to. Default: None (use all)                                                                                     |
-| vcf_donor                                 | Input VCF/BCF file, containing GT, GP or PL for donors. It also requires the AC and AN field if plp_freemuxlet=True.                         |
-| sm_list                                 | File containing the list of sample IDs to compare. Default: None                                                                              |
-| sam_verbose                             | Verbose message frequency for SAM/BAM/CRAM. Default: 1000000                                                                                  |
-| vcf_verbose                             | Verbose message frequency for VCF/BCF. Default: 10000                                                                                         |
-| skip_umi                                | Do not generate [prefix].umi.gz file, which stores the regions covered by each barcode/UMI pair. Default: False                               |
-| cap_BQ                                  | Maximum base quality (higher BQ will be capped). Default: 40                                                                                  |
-| min_BQ                                  | Minimum base quality to consider (lower BQ will be skipped). Default: 13                                                                      |
-| min_MQ                                  | Minimum mapping quality to consider (lower MQ will be ignored). Default: 20                                                                   |
-| min_TD                                  | Minimum distance to the tail (lower will be ignored). Default: 0                                                                              |
-| excl_flag                               | SAM/BAM FLAGs to be excluded. Default: 3844                                                                                                   |
-| min_total                               | Minimum number of total reads for a droplet/cell to be considered. Default: 0                                                                 |
-| min_uniq                                | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                                   |
-| min_snp                                 | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0                                                          |
-| min_umi                                 | Minimum number of UMIs for a droplet/cell to be considered. Default: 0                                                       |
-| plp                                     | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. It set False, will use SAM file to call Demuxlet. Default: False                                                                    |
-| field                                   | FORMAT field to extract the genotype, likelihood, or posterior from. Default: GT                                                              |
-| geno_error_offset                       | Offset of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]. Default: 0.1                                                   |
-| geno_error_coeff                        | Slope of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]. Default: 0.0                                                    |
-| r2_info                                 | INFO field name representing R2 value. Used for representing imputation quality. Default: R2                                                  |
-| min_mac                                 | Minimum minor allele frequency. Default: 1                                                                                                    |
-| min_callrate                            | Minimum call rate. Default: 0.5                                                                                                               |
-| alpha                                   | Grid of alpha to search for. Default: 0.5                                                                                                     |
-| doublet-prior                           | Prior of doublet. Default: 0.5                                                                                                                |
-| demuxlet_out                            | Prefix out the demuxlet and dsc-pileup output files. Default: demuxlet_res                                                                    |
-
-
-
-| Genetics-based: Freemuxlet and dsc-pileup |                                                                                                                                               |
-|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| freemuxlet                 | Whether to run Freemuxlet. Default: True                                                |
-| Freemuxlet_preprocess      | Whether to perform pre-processing on the input params.bam for Freemuxlet. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and params.bam as input for benchmarking. Default: False |
-| bam                                       | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed. |
-| bai                                       | Index of Input SAM/BAM/CRAM file.                                   |
-| barcodes                                  | List of cell barcodes to consider.                                  |
-| nsample                                   | Number of samples multiplexed together                              |                                                              
+| nsample                                   | Number of samples multiplexed together |                                                              
 | tag_group                                 | Tag representing readgroup or cell barcodes, in the case to partition the BAM file into multiple groups. For 10x genomics, use CB Default: CB |
-| tag_UMI                                   | Tag representing UMIs. For 10x genomiucs, use UB. Default: UB                                                                                 |
-| common_variants_freemuxlet                | Input VCF/BCF file for dsc-pileup, containing the AC and AN field.                                                                                           |
-| sm                                        | List of sample IDs to compare to. Default: None (use all)                                                                                     |
-| sm_list                                   | File containing the list of sample IDs to compare. Default: None                                                                              |
-| sam_verbose                               | Verbose message frequency for SAM/BAM/CRAM. Default: 1000000                                                                                  |
-| vcf_verbose                               | Verbose message frequency for VCF/BCF. Default: 10000                                                                                         |
-| skip_umi                                  | Do not generate [prefix].umi.gz file, which stores the regions covered by each barcode/UMI pair. Default: False                               |
-| cap_BQ                                    | Maximum base quality (higher BQ will be capped). Default: 40                                                                                  |
-| min_BQ                                    | Minimum base quality to consider (lower BQ will be skipped). Default: 13                                                                      |
-| min_MQ                                    | Minimum mapping quality to consider (lower MQ will be ignored). Default: 20                                                                   |
-| min_TD                                    | Minimum distance to the tail (lower will be ignored). Default: 0                                                                              |
-| excl_flag                                 | SAM/BAM FLAGs to be excluded. Default: 3844                                                                                                   |
-| min_total                                 | Minimum number of total reads for a droplet/cell to be considered. Default: 0                                                                 |
-| min_uniq                                  | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                                   |
-| min_umi                                   | Minimum number of UMIs for a droplet/cell to be considered. Default: 0                                                                        |
-| min_snp                                   | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0                                                          |
-| plp_freemuxlet                            | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. Default: True                             |
-| init_cluster                              | Input file containing the initial cluster information. Default: None                                                                          |
-| aux_files                                 | Turn on writing auxiliary output files. Default: False                                                                                        |
-| verbose                                   | Turn on verbose mode with specific verbosity threshold. 0: fully verbose, 100 : no verbose messages. Default: 100                             |
-| doublet_prior                             | Prior of doublet. Default: 0.5                                                                                                                |
-| bf_thres                                  | Bayes Factor Threshold used in the initial clustering. Default: 5.41                                                                          |
-| frac_init_clust                           | Fraction of droplets to be clustered in the very first round of initial clustering procedure. Default: 0.5                                    |
-| iter_init                                 | Iteration for initial cluster assignment (set to zero to skip the iterations). Default: 10                                                    |
-| keep_init_missing                         | Keep missing cluster assignment as missing in the initial iteration. Default: False                                                           |
-| freemuxlet_out                            | Prefix out the freemuxlet and dsc-pileup output files. Default: freemuxlet_out                                                                |
+| tag_UMI                                   | Tag representing UMIs. For 10x genomiucs, use UB. Default: UB       |
+| common_variants_freemuxlet                | Input VCF/BCF file for dsc-pileup, containing the AC and AN field.  |
+| sm                                        | List of sample IDs to compare to. Default: None (use all)           |
+| sm_list                                   | File containing the list of sample IDs to compare. Default: None    |
+| sam_verbose                               | Verbose message frequency for SAM/BAM/CRAM. Default: 1000000        |
+| vcf_verbose                               | Verbose message frequency for VCF/BCF. Default: 10000               |
+| skip_umi                                  | Do not generate [prefix].umi.gz file, which stores the regions covered by each barcode/UMI pair. Default: False                        |
+| cap_BQ                                    | Maximum base quality (higher BQ will be capped). Default: 40        |
+| min_BQ                                    | Minimum base quality to consider (lower BQ will be skipped). Default: 13              |
+| min_MQ                                    | Minimum mapping quality to consider (lower MQ will be ignored). Default: 20           |
+| min_TD                                    | Minimum distance to the tail (lower will be ignored). Default: 0    |
+| excl_flag                                 | SAM/BAM FLAGs to be excluded. Default: 3844                         |
+| min_total                                 | Minimum number of total reads for a droplet/cell to be considered. Default: 0         |
+| min_uniq                                  | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                      |
+| min_umi                                   | Minimum number of UMIs for a droplet/cell to be considered. Default: 0                |
+| min_snp                                   | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0  |
+| plp_freemuxlet                            | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. Default: True                       |
+| init_cluster                              | Input file containing the initial cluster information. Default: None |
+| aux_files                                 | Turn on writing auxiliary output files. Default: False               |
+| verbose                                   | Turn on verbose mode with specific verbosity threshold. 0: fully verbose, 100 : no verbose messages. Default: 100                      |
+| doublet_prior                             | Prior of doublet. Default: 0.5                                       |
+| bf_thres                                  | Bayes Factor Threshold used in the initial clustering. Default: 5.41 |
+| frac_init_clust                           | Fraction of droplets to be clustered in the very first round of initial clustering procedure. Default: 0.5                     |
+| iter_init                                 | Iteration for initial cluster assignment (set to zero to skip the iterations). Default: 10 |
+| keep_init_missing                         | Keep missing cluster assignment as missing in the initial iteration. Default: False   |
+| freemuxlet_out                            | Prefix out the freemuxlet and dsc-pileup output files. Default: freemuxlet_out        |
 
 
-| Genetics-based: Vireo |                                                                                                                                                                               |
-|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| vireo                      | Whether to run Vireo. Default: True                                                     |
-| Vireo_preprocess           | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False                       |
-| Vireo_variant              | Whether to perform cellSNP-lite before running Vireo. False: Don't run cellSNP, use params.cell data as input. cellSNP: Run cellSNP. Otherwise: Use both the result of cellSNP-lite and params.celldata as input for benchmarking. Default: cellSNP |
-| celldata              | The cell genotype file in VCF format or cellSNP folder with sparse matrices.                                                                                                  |
-| nsample               | Number of donors to demultiplex; can be larger than provided in vcf_donor                                                                                                     |
+### Genetics-based: Vireo
+|  	                    |                                                                                          |
+|-----------------------|------------------------------------------------------------------------------------------|
+| vireo                 | Whether to run Vireo. Default: True                                                      |
+| vireo_preprocess      | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False                   |
+| vireo_variant         | Whether to perform cellSNP-lite before running Vireo. False: Don't run cellSNP, use params.cell data as input. cellSNP: Run cellSNP. Otherwise: Use both the result of cellSNP-lite and params.celldata as input for benchmarking. Default: cellSNP |
+| celldata              | The cell genotype file in VCF format or cellSNP folder with sparse matrices.             |
+| nsample               | Number of donors to demultiplex; can be larger than provided in vcf_donor                |
 | vartrixData           | The cell genotype files in vartrix outputs (three/four files, comma separated): alt.mtx,ref.mtx,barcodes.tsv,SNPs.vcf.gz. This will suppress cellData argument. Default: None |
-| vcf_donor             | The donor genotype file in VCF format. Default: None                                                                                                                          |
-| genoTag               | The tag for donor genotype: GT, GP, PL. Default: GT                                                                                                                           |
-| noDoublet             | If use, not checking doublets. Default: False                                                                                                                                 |
-| nInit                 | Number of random initializations, when GT needs to learn. Default: 50                                                                                                         |
-| extraDonor            | Number of extra donor in pre-cluster, when GT needs to learn. Default: 0                                                                                                      |
-| extraDonorMode        | Method for searching from extra donors. size: n_cell per donor; distance: GT distance between donor. Default: distance                                                        |
-| forceLearnGT          | If use, treat donor GT as prior only. Default: False                                                                                                                          |
-| ASEmode               | If use, turn on SNP specific allelic ratio. Default: False                                                                                                                    |
-| noPlot                | If use, turn off plotting GT distance. Default: False                                                                                                                         |
-| randSeed              | Seed for random initialization. Default: None                                                                                                                                 |
-| cellRange             | Range of cells to process, eg. 0-10000. Default: all                                                                                                                          |
-| callAmbientRNAs       | If use, detect ambient RNAs in each cell. Default: False                                                                                                                      |
-| nproc                 | Number of subprocesses for computing, this sacrifices memory for speedups. Default: 4                                                                                         |
-| vireo_out             | Dirtectory for output files. Default: vireo_out                                                                                                                               |                                              
+| vcf_donor             | The donor genotype file in VCF format. Default: None                                     |
+| genoTag               | The tag for donor genotype: GT, GP, PL. Default: GT                                      |
+| noDoublet             | If use, not checking doublets. Default: False                                            |
+| nInit                 | Number of random initializations, when GT needs to learn. Default: 50                    |
+| extraDonor            | Number of extra donor in pre-cluster, when GT needs to learn. Default: 0                 |
+| extraDonorMode        | Method for searching from extra donors. size: n_cell per donor; distance: GT distance between donor. Default: distance                |
+| forceLearnGT          | If use, treat donor GT as prior only. Default: False                                     |
+| ASEmode               | If use, turn on SNP specific allelic ratio. Default: False                               |
+| noPlot                | If use, turn off plotting GT distance. Default: False                                    |
+| randSeed              | Seed for random initialization. Default: None                                            |
+| cellRange             | Range of cells to process, eg. 0-10000. Default: all                                     |
+| callAmbientRNAs       | If use, detect ambient RNAs in each cell. Default: False                                 |
+| nproc                 | Number of subprocesses for computing, this sacrifices memory for speedups. Default: 4    |
+| vireo_out             | Dirtectory for output files. Default: vireo_out                                          |          
+|  	                    |                                                                                          |
 
 
-| Genetics-based: scSplit |                                                                                                                                                                                                                                                            |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| scSplit                    | Whether to run scSplit. Default: True                                                   |
-| scSplit_preprocess         | Whether to perform pre-processing on the input params.bam for Freebayes and scSplit. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: True                 |
-| scSplit_variant            | Whether to perform Freebayes before running scSplit. False: don't run freebyaes, use params.vcf_mixed as input. freebayes: run Freebayes. Otherwise: use both the result of freebayes and params.vcf_mixed as input for benchmarking. Default: freebayes                      |
-| vcf_mixed               | VCF from mixed BAM. Default: None                                                                                                                                                                                                                          |
-| bam                     | Input Mixed sample BAM.                                                                                                                                                                                                                                    |
-| bai                     | Index of mixed sample BAM.                                                                                                                                                                                                                                 |
-| barcodes                | Barcodes whitelist.                                                                                                                                                                                                                                        |
-| tag_group               | Tag for barcode. Default: CB                                                                                                                                                                                                                               |
-| common_variants_scSplit | Common SNVs for scSplit.                                                                                                                                                                                                                                   |
-| nsample                 | Expected number of mixed samples.                                                                                                                                                                                                                          |
-| refscSplit              | Output Ref count matrix. Default: ref_filtered.csv                                                                                                                                                                                                         |
-| altscSplit              | Output Alt count matrix. Default: alt_filtered.csv                                                                                                                                                                                                         |
-| subscSplit              | The maximum number of subpopulations in autodetect mode. Default: 10                                                                                                                                                                                       |
-| emsscSplit              | Number of EM repeats to avoid local maximum. Default: 30                                                                                                                                                                                                   |
+### Genetics-based: scSplit
+|  	                      |                                                                        |
+|-------------------------|------------------------------------------------------------------------|
+| scSplit                 | Whether to run scSplit. Default: True                                  |
+| scSplit_preprocess      | Whether to perform pre-processing on the input params.bam for Freebayes and scSplit. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: True             |
+| scSplit_variant         | Whether to perform Freebayes before running scSplit. False: don't run freebyaes, use params.vcf_mixed as input. freebayes: run Freebayes. Otherwise: use both the result of freebayes and params.vcf_mixed as input for benchmarking. Default: freebayes                 |
+| vcf_mixed               | VCF from mixed BAM. Default: None                                      |
+| bam                     | Input Mixed sample BAM.                                                |
+| bai                     | Index of mixed sample BAM.                                             |
+| barcodes                | Barcodes whitelist.                                                    |
+| tag_group               | Tag for barcode. Default: CB                                           |
+| common_variants_scSplit | Common SNVs for scSplit.                                               |
+| nsample                 | Expected number of mixed samples. |
+| refscSplit              | Output Ref count matrix. Default: ref_filtered.csv                     |
+| altscSplit              | Output Alt count matrix. Default: alt_filtered.csv                     |
+| subscSplit              | The maximum number of subpopulations in autodetect mode. Default: 10   |
+| emsscSplit              | Number of EM repeats to avoid local maximum. Default: 30               |
 | dblscSplit              | Correction for doublets, Setting to 0 means you would expect no doublets. There will be no refinement on the results if this optional parameter is not specified or specified percentage is less than doublet rates detected during the run. Default: None |
-| vcf_donor               | Known individual genotypes to limit distinguishing variants to available variants, so that users do not need to redo genotyping on selected variants.                                                                                                      |
-| sample_geno             | Whether to generate sample genotypes based on the split result. Default: True                                                                                                                                                                              |
-| scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out                                                                                                                                                                                                  |
+| vcf_donor               | Known individual genotypes to limit distinguishing variants to available variants, so that users do not need to redo genotyping on selected variants.                                                           |
+| sample_geno             | Whether to generate sample genotypes based on the split result. Default: True                                                                                               |
+| scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out              |
 
+### Genetics-based: Souporcell 
+|  	                        |                                                                      |
+|---------------------------|----------------------------------------------------------------------|
+| souporcell                | Whether to run Souporcell. Default: True                             |
+| souporcell_preprocess     | Whether to perform pre-processing on the input params.bam for Souporcell. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False |
+| bam                       | Cellranger bam.                                                      |
+| bai                       | Index of cellranger bam.                                             |
+| barcodes                  | Barcodes.tsv from cellranger                                         |
+| fasta                     | Reference fasta file.                                                |
+| fasta_index               | Index of reference fasta file.                                       |
+| nsample                   | Number of clusters in the BAM file.                                  |
+| threads                   | Max threads to use. Default: 5                                       |
+| ploidy                    | Ploidy, must be 1 or 2. Default: 2                                   |
+| min_alt                   | Min alt to use locus. Default: 10                                    |
+| min_ref                   | Min ref to use locus. Default: 10                                    |
+| max_loci                  | Max loci per cell, affects speed. Default: 2048                      |
+| restarts                  | Number of restarts in clustering, when there are > 12 clusters we recommend increasing this to avoid local minima. Default: None       |                  
+| common_variants_souporcell| Common variant loci or known variant loci vcf, must be vs same reference fasta. |
+| vcf_donor                 | Known variants per clone in population vcf mode, must be VCF file.   |
+| known_genotypes_sample_names | Which samples in population vcf from known genotypes option represent the donors in your sample. Default: None |
+| skip_remap                | Don't remap with minimap2, not recommended unless in conjunction with comman variants. Default: True |
+| ignore                    | Set to True to ignore data error assertions. Default: False          |
+| souporcell_out            | Dirtectory for Souporcell output files. Default: souporcell_out      | 
+|  	                        |                                                                      |
 
-| Genetics-based: Souporcell   |                                                                                                                                  |
-|------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| souporcell                 | Whether to run Souporcell. Default: True                                                |
-| souporcell_preprocess      | Whether to perform pre-processing on the input params.bam for Souporcell. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False             |
-| bam                          | Cellranger bam.                                                                                                                  |
-| bai                          | Index of cellranger bam.                                                                                                         |
-| barcodes                     | Barcodes.tsv from cellranger                                                                                                     |
-| fasta                        | Reference fasta file.                                                                                                            |
-| fasta_index                  | Index of reference fasta file.                                                                                                   |
-| nsample                      | Number of clusters in the BAM file.                                                                                              |
-| threads                      | Max threads to use. Default: 5                                                                                                   |
-| ploidy                       | Ploidy, must be 1 or 2. Default: 2                                                                                               |
-| min_alt                      | Min alt to use locus. Default: 10                                                                                                |
-| min_ref                      | Min ref to use locus. Default: 10                                                                                                |
-| max_loci                     | Max loci per cell, affects speed. Default: 2048                                                                                  |
-| restarts                     | Number of restarts in clustering, when there are > 12 clusters we recommend increasing this to avoid local minima. Default: None |
-| common_variants_souporcell   | Common variant loci or known variant loci vcf, must be vs same reference fasta.                                                  |
-| vcf_donor                    | Known variants per clone in population vcf mode, must be VCF file.                                                               |
-| known_genotypes_sample_names | Which samples in population vcf from known genotypes option represent the donors in your sample. Default: None                   |
-| skip_remap                   | Don't remap with minimap2, not recommended unless in conjunction with comman variants. Default: True                             |
-| ignore                       | Set to True to ignore data error assertions. Default: False                                                                      |
-| souporcell_out               | Dirtectory for Souporcell output files. Default: souporcell_out                                                                  |
-|                              |                                                                                                                                  |
+### Genetics-based: cellSNP-lite
+|  	                        |                                                                      |
+|---------------------------|----------------------------------------------------------------------|
+| bam                       | An indexed sam/bam file(s), comma separated multiple samples.        |
+| barcodes                  | A plain file listing all effective cell barcode.                                                                                           |
+| samFileList               | A list file containing bam files, each per line. Default: None       |
+| regionsVCF                | A VCF file listing all candidate snps, for fetch each variants.      |
+| targetsVCF                | Similar as regionsVCF, but the next position is accessed by streaming rather than indexing/jumping. Default: None                        |
+| sampleList                | A list file containing sample IDs, each per line. Default: None      |
+| sampleIDs                 | Comma separated sample ids. Default: None                            |
+| genotype_cellSNP          | If use, do genotyping in addition to counting. Default: True         |
+| gzip_cellSNP              | If use, the output files will be zipped into BGZF format. Default: True     |
+| printSkipSNPs             | If use, the SNPs skipped when loading VCF will be printed. Default: False   |
+| nproc_cellSNP             | min alt to use locus. Default: 10                                    |
+| refseq_cellSNP            | Faidx indexed reference sequence file. If set, the real (genomic) ref extracted from this file would be used for Mode 2 or for the missing REFs in the input VCF for Mode 1. Default: None.                     |
+| chrom                     | The chromosomes to use, comma separated. Default: None (1-22)        |
+| cellTAG                   | Tag for cell barcodes, turn off with None. Default: CB               |
+| UMItag                    | Tag for UMI: UB, Auto, None. For Auto mode, use UB if barcodes are inputted, otherwise use None. None mode means no UMI but read counts. Default: Auto                                                        |
+| minCOUNT                  | Minimum aggragated count. Default: 20                                |
+| minMAF                    | Minimum minor allele frequency. Default: 0.0                         |
+| doubletGL                 | If use, keep doublet GT likelihood. Default: False                   |
+| inclFLAG                  | Required flags: skip reads with all mask bits unset []. Default: None|
+| exclFLAG                  | Filter flags: skip reads with any mask bits set [UNMAP,SECONDARY,QCFAIL (when use UMI) or UNMAP,SECONDARY,QCFAIL,DUP (otherwise)]. Default: None      |
+| minLEN                    | Minimum mapped length for read filtering. Default: 30                |
+| minMAPQ                   | Minimum MAPQ for read filtering. Default: 20                         |
+| maxDEPTH                  | Maximum depth for one site of one file (excluding those filtered reads), avoids excessive memory usage; 0 means highest possible value. Default: 0    |
+| countORPHAN               | If use, do not skip anomalous read pairs. Default: False             |
+| cellsnp_out               | Dirtectory for cellSNP-lite output files. Default: cellSNP_out       |
+|  	                        |                                                                      |
 
-| genetics-based: cellSNP-lite |                                                                                                                                                                                             |
-|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| bam                        | An indexed sam/bam file(s), comma separated multiple samples.                                                                                                                               |
-| barcodes                   | A plain file listing all effective cell barcode.                                                                                                                                            |
-| samFileList                | A list file containing bam files, each per line. Default: None                                                                                                                              |
-| regionsVCF                 | A VCF file listing all candidate snps, for fetch each variants.                                                                                                                             |
-| targetsVCF                 | Similar as regionsVCF, but the next position is accessed by streaming rather than indexing/jumping. Default: None                                                                          |
-| sampleList                 | A list file containing sample IDs, each per line. Default: None                                                                                                                             |
-| sampleIDs                  | Comma separated sample ids. Default: None                                                                                                                                                   |
-| genotype_cellSNP           | If use, do genotyping in addition to counting. Default: True                                                                                                                               |
-| gzip_cellSNP               | If use, the output files will be zipped into BGZF format. Default: True                                                                                                                     |
-| printSkipSNPs              | If use, the SNPs skipped when loading VCF will be printed. Default: False                                                                                                                   |
-| nproc_cellSNP              | min alt to use locus. default: 10                                                                                                                                                           |
-| refseq_cellSNP             | Faidx indexed reference sequence file. If set, the real (genomic) ref extracted from this file would be used for Mode 2 or for the missing REFs in the input VCF for Mode 1. Default: None. |
-| chrom                      | The chromosomes to use, comma separated. Default: None (1-22)                                                                                                                               |
-| cellTAG                    | Tag for cell barcodes, turn off with None. Default: CB                                                                                                                                      |
-| UMItag                     | Tag for UMI: UB, Auto, None. For Auto mode, use UB if barcodes are inputted, otherwise use None. None mode means no UMI but read counts. Default: Auto                                      |
-| minCOUNT                   | Minimum aggragated count. Default: 20                                                                                                                                                       |
-| minMAF                     | Minimum minor allele frequency. Default: 0.0                                                                                                                                                |
-| doubletGL                  | If use, keep doublet GT likelihood. Default: False                                                                                                                                          |
-| inclFLAG                   | Required flags: skip reads with all mask bits unset []. Default: None                                                                                                                       |
-| exclFLAG                   | Filter flags: skip reads with any mask bits set [UNMAP,SECONDARY,QCFAIL (when use UMI) or UNMAP,SECONDARY,QCFAIL,DUP (otherwise)]. Default: None                                            |
-| minLEN                     | Minimum mapped length for read filtering. Default: 30                                                                                                                                       |
-| minMAPQ                    | Minimum MAPQ for read filtering. Default: 20                                                                                                                                                |
-| maxDEPTH                   | Maximum depth for one site of one file (excluding those filtered reads), avoids excessive memory usage; 0 means highest possible value. Default: 0                                          |
-| countORPHAN                | If use, do not skip anomalous read pairs. Default: False                                                                                                                                    |
-| cellsnp_out                | Dirtectory for cellSNP-lite output files. Default: cellSNP_out                                                                                                                              |
-
-| Donor matching        | Paramter                                                                                                                                                                                                                                                                                                                                                       |
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| match_donor           | Whether to match donor when in the rescue mode. Default: True                                                                                                                                                                                                                                                                                                  |
-| demultiplexing_result | The folder to the CSV file containing demultiplexing results when in the donor_match mode. Default: None.                                                                                                                                                                                                                                                      |
-| barcodes              | Barcodes whitelist.                                                                                                                                                                                                                                                                                                                                            |
-| match_donor_method1   | The genetics-based deconvolution method for donor matching, can be either [method] or [method]_[task]. If None, will compare all the methods against each other. Default: None                                                                                                                                                                                 |
-| match_donor_method2   | The hashing-based deconvolution method for donor matching, can be either [method] or [method]_[task]. If None, will compare all the methods against each other. Default: None                                                                                                                                                                                  |
-| findVariants          | Whether to find informative variants in the Vireo donor genotype when the optimal match found in the donor matching is Vireo. default: Find donor-specific variants. vireo: Subset the donor genotype to a set of discriminatory variants by Vireo. True: Find donor-specific as well as discriminatory variants. False: Don't filter variants. Default: False |
-| celldata              | Cell genotype when in the donor_match mode. Default: None                                                                                                                                                                                                                                                                                                      |
-| variant_count         | The minimal read depth of a SNP for filtering. Default: 10                                                                                                                                                                                                                                                                                                     |
-| variant_pct           | The minimal percentage of an allelle at a SNP position to determine the overrepresented allele. Default: 0.9                                                                                                                                                                                                                                                   |
-| vireo_parent_dir      | Folder to the output of Vireo when in the donor_match mode. Default: None                                                                                                                                                                                                                                                                                      |
