@@ -188,38 +188,32 @@ solo_summary <- function(solo_res){
 
 
 if (!is.null(args$hashedDrops)){
-  hashedDrops_res <- substring(args$hashedDrops, 1, nchar(args$hashedDrops)-1)
-  hashedDrops_res <- str_split(hashedDrops_res, pattern=':')[[1]]
+  hashedDrops_res <- str_split(args$hashedDrops, pattern=':')[[1]]
   hasheddrops_summary(hashedDrops_res)
   print("hashedDrops result found")
 }
 if (!is.null(args$demuxem)){
-  demuxem_res <- substring(args$demuxem, 1, nchar(args$demuxem)-1)
-  demuxem_res <- str_split(demuxem_res, pattern=':')[[1]]
+  demuxem_res <- str_split(args$demuxem, pattern=':')[[1]]
   demuxem_summary(demuxem_res)
   print("DemuxEM result found")
 }
 if (!is.null(args$hashsolo)){
-  hashsolo_res <- substring(args$hashsolo, 1, nchar(args$hashsolo)-1)
-  hashsolo_res <- str_split(hashsolo_res, pattern=':')[[1]]
+  hashsolo_res <- str_split(args$hashsolo, pattern=':')[[1]]
   hashsolo_summary(hashsolo_res)
   print("HashSolo result found")
 }
 if (!is.null(args$multiseq)){
-  multiseq_res <- substring(args$multiseq, 1, nchar(args$multiseq)-1)
-  multiseq_res <- str_split(multiseq_res, pattern=':')[[1]]
+  multiseq_res <- str_split(args$multiseq, pattern=':')[[1]]
   multiseq_summary(multiseq_res)
   print("MultiSeqDemux result found")
 }
 if (!is.null(args$htodemux)){
-  htodemux_res <- substring(args$htodemux, 1, nchar(args$htodemux)-1)
-  htodemux_res <- str_split(htodemux_res, pattern=':')[[1]]
+  htodemux_res <- str_split(args$htodemux, pattern=':')[[1]]
   htodemux_summary(htodemux_res)
   print("HTODemux result found")
 }
 if (!is.null(args$solo)){
-  solo_res <- substring(args$solo, 1, nchar(args$solo)-1)
-  solo_res <- str_split(solo_res, pattern=':')[[1]]
+  solo_res <- str_split(args$solo, pattern=':')[[1]]
   solo_summary(solo_res)
   print("solo result found")
 }

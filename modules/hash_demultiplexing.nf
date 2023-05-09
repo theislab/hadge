@@ -32,40 +32,22 @@ process summary{
         def solo_files = ""
         
         if (demuxem_result != "no_result"){
-            demuxem_files = "--demuxem "
-            for(r : demuxem_result) {
-                demuxem_files  = demuxem_files + r + ":"
-            }
+            demuxem_files = "--demuxem ${demuxem_result.join(":")}"
         }
         if (hashsolo_result != "no_result"){
-            hashsolo_files = "--hashsolo "
-            for(r : hashsolo_result) {
-                hashsolo_files = hashsolo_files + r + ":"
-            }
+            hashsolo_files = "--hashsolo ${hashsolo_result.join(":")}"
         }
         if (htodemux_result != "no_result"){
-            htodemux_files = "--htodemux "
-            for(r : htodemux_result) {
-                htodemux_files = htodemux_files + r + ":"
-            }
+            htodemux_files = "--htodemux ${htodemux_result.join(":")}"
         }
         if (multiseq_result != "no_result"){
-            multiseq_files = "--multiseq "
-            for(r : multiseq_result) {
-                multiseq_files = multiseq_files + r + ":"
-            }
+            multiseq_files = "--multiseq ${multiseq_result.join(":")}"
         }
         if (hashedDrops_result != "no_result"){
-            hashedDrops_files = "--hashedDrops "
-            for(r : hashedDrops_result) {
-                hashedDrops_files = hashedDrops_files + r + ":"
-            }
+            hashedDrops_files = "--hashedDrops ${hashedDrops_result.join(":")}"
         }
         if (solo_result != "no_result"){
-            solo_files = "--solo "
-            for(r : solo_result) {
-                solo_files = solo_files + r + ":"
-            }
+            solo_files = "--solo ${solo_result.join(":")}"
         }
         
         """

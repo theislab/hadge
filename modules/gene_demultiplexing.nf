@@ -44,34 +44,19 @@ process summary{
         def scsplit_files = ""
         
         if (demuxlet_result != "no_result"){
-            demuxlet_files = "--demuxlet "
-            for(r : demuxlet_result) {
-                demuxlet_files  = demuxlet_files + r + ":"
-            }
+            demuxlet_files = "--demuxlet ${demuxlet_result.join(":")}"
         }
         if (freemuxlet_result != "no_result"){
-            freemuxlet_files = "--freemuxlet "
-            for(r : freemuxlet_result) {
-                freemuxlet_files = freemuxlet_files + r + ":"
-            }
+            freemuxlet_files = "--freemuxlet ${freemuxlet_result.join(":")}"
         }
         if (vireo_result != "no_result"){
-            vireo_files = "--vireo "
-            for(r : vireo_result) {
-                vireo_files = vireo_files + r + ":"
-            }
+            vireo_files = "--vireo ${vireo_result.join(":")}"
         }
         if (souporcell_result != "no_result"){
-            souporcell_files = "--souporcell "
-            for(r : souporcell_result) {
-                souporcell_files = souporcell_files + r + ":"
-            }
+            souporcell_files = "--souporcell ${souporcell_result.join(":")}"
         }
         if (scsplit_result != "no_result"){
-            scsplit_files = "--scsplit "
-            for(r : scsplit_result) {
-                scsplit_files = scsplit_files + r + ":"
-            }
+            scsplit_files =  "--scsplit ${scsplit_result.join(":")}"
         }
         
         """

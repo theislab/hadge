@@ -223,32 +223,27 @@ scsplit_summary <- function(scsplit_res) {
 }
  
 if (!is.null(args$demuxlet)){
-  demuxlet_res <- substring(args$demuxlet, 1, nchar(args$demuxlet)-1)
-  demuxlet_res <- str_split(demuxlet_res, pattern=':')[[1]]
+  demuxlet_res <- str_split(args$demuxlet, pattern=':')[[1]]
   demuxlet_summary(demuxlet_res)
   print("Demuxlet result found")
 }
 if (!is.null(args$freemuxlet)){
-  freemuxlet_res <- substring(args$freemuxlet, 1, nchar(args$freemuxlet)-1)
-  freemuxlet_res <- str_split(freemuxlet_res, pattern=':')[[1]]
+  freemuxlet_res <- str_split(args$freemuxlet, pattern=':')[[1]]
   freemuxlet_summary(freemuxlet_res)
   print("Freemuxlet result found")
 }
 if (!is.null(args$vireo)){
-  vireo_res <- substring(args$vireo, 1, nchar(args$vireo)-1)
-  vireo_res <- str_split(vireo_res, pattern=':')[[1]]
+  vireo_res <- str_split(args$vireo, pattern=':')[[1]]
   vireo_summary(vireo_res)
   print("Vireo result found")
 }
 if (!is.null(args$scsplit)){
-  scsplit_res <- substring(args$scsplit, 1, nchar(args$scsplit)-1)
-  scsplit_res <- str_split(scsplit_res, pattern=':')[[1]]
+  scsplit_res <- str_split(args$scsplit, pattern=':')[[1]]
   scsplit_summary(scsplit_res)
   print("scSplit result found")
 }
 if (!is.null(args$souporcell)){
-  souporcell_res <- substring(args$souporcell, 1, nchar(args$souporcell)-1)
-  souporcell_res <- str_split(souporcell_res, pattern=':')[[1]]
+  souporcell_res <- str_split(args$souporcell, pattern=':')[[1]]
   souporcell_summary(souporcell_res)
   print("Souporcell result found")
 }
