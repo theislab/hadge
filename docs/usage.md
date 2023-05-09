@@ -495,3 +495,84 @@ profiles{
 | maxDEPTH                  | Maximum depth for one site of one file (excluding those filtered reads), avoids excessive memory usage; 0 means highest possible value. Default: 0    |
 | countORPHAN               | If use, do not skip anomalous read pairs. Default: False             |
 | cellsnp_out               | Dirtectory for cellSNP-lite output files. Default: cellSNP_out       |
+
+
+### Genetics-based: Freebayes 
+|  	                     |                                                                      |
+|---------------------------|----------------------------------------------------------------------|
+| bam                       | Input BAM file to be analyzed.                                       |
+| bai                       | Index of input BAM file to be analyzed.                              |
+| bam_list                  | A file containing a list of BAM files to be analyzed. Default: None  |
+| fasta                     | A reference sequence for analysis.                                   |
+| fasta_index               | The index of the reference sequence for analysis.                    |
+| stdin                     | Read BAM input on stdin. Default: False                              |
+| targets                   | Limit analysis to targets listed in the BED-format file. Default: None |
+| region                    | Limit analysis to the specified chromosome region, 0-base coordinates. If set to None, all chromosomes are considered. Default: None.  |
+| samples                   | Limit analysis to samples listed (one per line) in the file. By default FreeBayes will analyze all samples in its input BAM files. Default: None  |
+| populations               | Each line of FILE should list a sample and a population which it is part of.  The population-based bayesian inference model will then be partitioned on the basis of the populations. Default: None            |
+| cnv_map                   | Read a copy number map from the BED file. Default: None              |
+| vcf_freebayes             | Name of output VCF file, must be end with .vcf. Default: vcf_freebayes_output.vcf               |
+| gvcf                      | Write gVCF output, which indicates coverage in uncalled regions. Default: False                 |
+| gvcf_chunk                | When writing gVCF output emit a record for every specified number of bases. Default: None       |
+| gvcf_dont_use_chunk       | When writing gVCF output don't emit a record for every specified number of bases. Default: None |
+| variant_input             | Use variants reported in VCF file as input to the algorithm. Variants in this file will included in the output even if there is not enough support in the data to pass input filters. Default: None               |
+| only_use_input_alleles    | Only provide variant calls and genotype likelihoods for sites and alleles which are provided in the VCF input, and provide output in the VCF for all input alleles, not just those which have support in the data. Default: False             |
+| haplotype_basis_alleles   | When specified, only variant alleles provided in this input VCF will be used for the construction of complex or haplotype alleles. Default: None |
+| report_all_haplotype_alleles | At sites where genotypes are made over haplotype alleles, provide information about all alleles in output, not only those which are called. Default: False                                                        |
+| report_monomorphic        | Report even loci which appear to be monomorphic, and report all considered alleles, even those which are not in called genotypes. Default: False |
+| pvar                      | Report sites if the probability that there is a polymorphism at the site is greater than N.  Default: 0.0 |
+| strict_vcf                | Generate strict VCF format (FORMAT/GQ will be an int). Default: False|
+| theta                     | The expected mutation rate or pairwise nucleotide diversity among the population under analysis.  This serves as the single parameter to the Ewens Sampling Formula prior model. Default: 0.001                     |
+| ploidy                    | Sets the default ploidy for the analysis. Default: 2                 |
+| pooled_discrete           | Assume that samples result from pooled sequencing. Model pooled samples using discrete genotypes across pools. When using this flag, set --ploidy to the number of alleles in each sample or use the --cnv-map to define per-sample ploidy. Default: False |
+| pooled_continuous         | Output all alleles which pass input filters, regardless of genotyping outcome or model. Default: False |
+| use_reference_allele      | This flag includes the reference allele in the analysis as if it is another sample from the same population. Default: False              |
+| reference_quality         | Assign mapping quality to the reference allele at each site and base quality. Default: 100,60 |
+| no_snps                   | Ignore SNP alleles. Default: False                                   |
+| no_indels                 | Ignore insertion and deletion alleles. Default: True                 |
+| no_mnps                   | Ignore multi-nuceotide polymorphisms, MNPs. Default: True            |
+| no_complex                | Ignore complex events (composites of other classes). Default: True   |
+| use_best_n_alleles        | Evaluate only the best N SNP alleles, ranked by sum of supporting quality scores. Set to 0 to use all. Default: 0|
+| haplotype_length          | Allow haplotype calls with contiguous embedded matches of up to this length. Set N=-1 to disable clumping. Default: 3                  |
+| min_repeat_size           | When assembling observations across repeats, require the total repeat length at least this many bp.  Default: 5  |
+| min_repeat_entropy        | To detect interrupted repeats, build across sequence until it has entropy > N bits per bp. Set to 0 to turn off. Default: 1   |
+| no_partial_observations   | Exclude observations which do not fully span the dynamically-determined detection window.  Default: None, to use all observations, dividing partial support across matching haplotypes when generating haplotypes.  |
+| dont_left_align_indels    | Turn off left-alignment of indels, which is enabled by default. Default: False                 |
+| use_duplicate_reads       | Include duplicate-marked alignments in the analysis. Default: False, to exclude duplicates marked as such in alignments                  |
+| min_mapping_quality       | Exclude alignments from analysis if they have a mapping quality less than Q. Default: 1        |
+| min_base_quality          | Exclude alleles from analysis if their supporting base quality is less than Q. Default: 1      |
+| min_supporting_allele_qsum | Consider any allele in which the sum of qualities of supporting observations is at least Q.  Default: 0         |
+| min_supporting_mapping_qsum| Consider any allele in which and the sum of mapping qualities of supporting reads is at least Q.  Default: 0    |
+| mismatch_base_quality_threshold | Count mismatches toward --read-mismatch-limit if the base quality of the mismatch is >= Q.  Default: 10    |
+| read_mismatch_limit       | Exclude reads with more than N mismatches where each mismatch has base quality >= mismatch-base-quality-threshold. Default: None, ~unbounded |
+| read_max_mismatch_fraction| Exclude reads with more than N [0,1] fraction of mismatches where each mismatch has base quality >= mismatch-base-quality-threshold. Default: 1.0  |
+| read_snp_limit            | Exclude reads with more than N base mismatches, ignoring gaps with quality >= mismatch-base-quality-threshold. Default: None, ~unbounded   |
+| read_indel_limit          | Exclude reads with more than N separate gaps. Default: None, ~unbounded   |
+| standard_filters          | Use stringent input base and mapping quality filters equivalent to -m 30 -q 20 -R 0 -S 0. Default: False         |
+| min_alternate_fraction    | Require at least this fraction of observations supporting an alternate allele within a single individual in in order to evaluate the position.  Default: 0.05 |
+| min_alternate_count       | Require at least this count of observations supporting an alternate allele within a single individual in order to evaluate the position. Default: 2              |
+| min_alternate_qsum        | Require at least this sum of quality of observations supporting an alternate allele within a single individual in order to evaluate the position.  Default: 0    |
+| min_alternate_total       | Require at least this count of observations supporting an alternate allele within the total population in order to use the allele in analysis.  Default: 1     |
+| min_coverage              | Require at least this coverage to process a site. Default: 0          |
+| max_coverage              | Do not process sites with greater than this coverage. Default: None, no limit                   |
+| no_population_priors      | Equivalent to --pooled-discrete --hwe-priors-off and removal of Ewens Sampling Formula component of priors. Default: False              |
+| hwe_priors_off            | Disable estimation of the probability of the combination arising under HWE given the allele frequency as estimated by observation frequency. Default: False |
+| binomial_obs_priors_off   | Disable incorporation of prior expectations about observations. Uses read placement probability, strand balance probability, and read position (5'-3') probability. Default: False                                   |
+| allele_balance_priors_off | Disable use of aggregate probability of observation balance between alleles as a component of the priors. Default: False              |
+| observation_bias          | Read length-dependent allele observation biases from the file. Default: None                     |
+| base_quality_cap          | Limit estimated observation quality by capping base quality at Q. Default: None                  |
+| prob_contamination        | An estimate of contamination to use for all samples. Default: 10e-9    |
+| legacy_gls                | Use legacy (polybayes equivalent) genotype likelihood calculations. Default: False               |
+| contamination_estimates   | A file containing per-sample estimates of contamination, such as those generated by VerifyBamID. Default: None   |
+| report_genotype_likelihood_max  | Report genotypes using the maximum-likelihood estimate provided from genotype likelihoods. Default: False  |
+| genotyping_max_iterations | Iterate no more than N times during genotyping step. Default: 1000     |
+| genotyping_max_banddepth  | Integrate no deeper than the Nth best genotype by likelihood when genotyping. Default: 6         |
+| posterior_integration_limits | Integrate all genotype combinations in our posterior space which include no more than N samples with their Mth best data likelihood. Default: 1,3  |
+| exclude_unobserved_genotypes | Skip sample genotypings for which the sample has no supporting reads. Default: False          |
+| genotype_variant_threshold   | Limit posterior integration to samples where the second-best genotype likelihood is no more than log(N) from the highest genotype likelihood for the sample. Default: None, ~unbounded                                                      |
+| use_mapping_quality       | Use mapping quality of alleles when calculating data likelihoods. Default: False              |
+| harmonic_indel_quality    | Use a weighted sum of base qualities around an indel, scaled by the distance from the indel. Default: False, use a minimum BQ in flanking sequence.  |
+| read_dependence_factor    | Incorporate non-independence of reads by scaling successive observations by this factor during data likelihood calculations. Default: 0.9     |
+| genotype_qualities        | Calculate the marginal probability of genotypes and report as GQ in each sample field in the VCF output Default: False              |
+| debug                     | Print debugging output. Default: False                                      |
+| dd                        | Print more verbose debugging output (requires "make DEBUG"). Default: False |
