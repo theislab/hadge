@@ -1,5 +1,7 @@
 # Usage
+
 ## **Input data preparation**
+
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
 
 ### Genetics-based deconvolution methods:
@@ -25,11 +27,12 @@ You may see that some tools share some input data in common, so we set only one 
 | Cell genotype (VCF or cellSNP folder)      	| `params.celldata`                      	|
 
 
-#### <strong> Pre-processing </strong>
+#### Pre-processing
+
 In case you want to perform genetics-based deconvolution on pre-processed data, we provide a process in concordance with [the instruction of scSplit](https://github.com/jon-xu/scSplit). It only requires the Alignment (BAM) file as input. To specify which method is performed on the pre-processed data : set `[method]_preprocess = True`.
 
 
-#### <strong> Variant calling </strong> 
+#### Variant calling
 
 In case you don't have any cell genotypes or variants called from mixed samples yet, we provide two processes for variant calling. 
 | Variant calling methods 	| Input data                                                  	| Parameter                                                                	| Output                      	|
@@ -38,16 +41,19 @@ In case you don't have any cell genotypes or variants called from mixed samples 
 | cellsnp-lite            	| - Alignment (BAM)<br>- Barcode (TSV)<br>- Common SNPs (VCF) 	| `params.bam`<br>`params.bai`<br>`params.barcodes`<br>`params.regionsVCF` 	| Cell genotypes              	|
 
 You can have following options for `scsplit_variant`:
+
 * `False`: inactivate variant calling, get the input data from `params.vcf_mixed`
 * `freebayes`: activate freebayes
 * Otherwise: activate freebayes, take the output of freebayes and use `params.vcf_mixed` as well
 
 You can have following options for `scsplit_variant`:
+
 * `False`: inactivate variant calling, get the input data from `params.celldata`
 * `cellsnp`: activate cellsnp
 * Otherwise: activate cellsnp, take the output of freebayes and use `params.celldata` as well
 
-#### <strong> Common variants </strong>
+#### Common variants
+
 When running genetics-based deconvolution methods without genotype reference, you may need common variants from the popultion. Here we collect different sources of common variants for GRCh38 recommended by different methods.
  
 | Method       | Paramter                   | Source                                                                    |
@@ -56,7 +62,6 @@ When running genetics-based deconvolution methods without genotype reference, yo
 | Souporcell   | common_variants_souporcell | https://github.com/wheaton5/souporcell                                    |
 | Freemuxlet   | common_variants_freemuxlet | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
 | cellSNP-lite | common_variants_cellsnp    | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
-
 
 ### Hashing-based deconvolution workflow
 
@@ -69,20 +74,22 @@ When running genetics-based deconvolution methods without genotype reference, yo
 | HashedDrops           	| - 10x mtx directory with hashing count matrix (Directory)                                                          	| `params.hto_matrix_hashedDrops`                            	|
 | Demuxem               	| - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) 	| `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem` 	|
 
-
-#### <strong> Pre-processing </strong>
+#### Pre-processing
 
 Similar as in the genetic demultiplexing workflow, we provide a pre-processing step specifically for HTODemux and Multiseq. The input is the UMI and hashing count matrix `params.umi_matrix_preprocess` and `params.hto_matrix_preprocess`. If the count matrix is already loaded as an RDS oject, set `params.rdsObject_preprocess` as `True`.
 
 For benchmarking, you can have following options for `[htodemux/multiseq]_preprocess`:
+
 * `True`: activate pre-proecessing
 * `False`: inactivate pre-proecessing, get the input data from `params.rdsObj_[method]`
 * Otherwise: activate pre-proecessing, take the output and use `params.rdsObj_[method]` as well
 
 
 ## **Pipeline configuration**
+
 ### **Conda environments:**
-We provide a  `environment.yml` file for each process. But you can also use local conda environments to run a process:
+
+We provide a `environment.yml` file for each process. But you can also use local Conda environments to run a process:
 
 ```
 // dont forget to enable conda
@@ -92,7 +99,7 @@ process {
     withName:scSplit {
         conda = './conda/scsplit.yml' 
     }
-    // Use Conda package names
+    // Use Conda package names
     withName:cellSNP {
         conda = 'bioconda::cellsnp-lite'
     }
@@ -104,7 +111,8 @@ process {
 
 ```
 
-### **Containers:**
+### Containers:
+
 Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
 
 ```
@@ -116,7 +124,7 @@ process {
         container = 'image_name_2'
     }
 }
-// dont forget to enable docker
+// do not forget to enable docker
 
 docker {
     enabled = true
@@ -124,11 +132,11 @@ docker {
 
 ```
 
+### Executor and resource specifications:
 
-### **Executor and resource specifications:**
-* The pipeline can be run either locally or on a HPC. You can set the executor by running the pipeline with `-profile standard` or `-profile cluster`. Of course, you can add other profiles if you want. 
+* The pipeline can be run either locally or on an HPC. You can set the executor by running the pipeline with `-profile standard` or `-profile cluster`. Of course, you can add other profiles if you want.
 * Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
-*  As default, the pipeline is run locally with the standard profile, where all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
+* As default, the pipeline is run locally with the standard profile, where all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
 
 ```
 profiles{
@@ -165,14 +173,17 @@ profiles{
 
 ```
 
-## **Parameters**
+## Parameters
+
 ### General
+
 |               |                                                               	|
 |:---------:	|:-------------------------------------------------------------:	|
 |   outdir  	|                Output directory of the pipeline               	|
 |    mode   	| Mode of the pipeline: genetic, hashing, rescue or donor_match 	|
 
-### Hashing-based: Preprocessing 
+### Hashing-based: Preprocessing
+
 | 	                    |                                                                            |
 |-------------------------|----------------------------------------------------------------------------|
 | rdsObject_preprocess  | Whether the input data for the pre-processing is an RDS object or not. Default: False  |
@@ -188,6 +199,7 @@ profiles{
 
 
 ### Hashing-based: HTODemux
+
 |  	                    |                                                                            |
 |--------------------------|----------------------------------------------------------------------------|
 | htodemux              | Whether to perform HTODemux. Default: True                                 |
@@ -222,6 +234,7 @@ profiles{
 
 
 ### Hashing-based: Multiseq
+
 |  	                    |                                                                             |
 |--------------------------|-----------------------------------------------------------------------------|
 | multiseq              | Whether to perform Multiseq. Default: True                                  |
@@ -239,7 +252,8 @@ profiles{
 | objectOutMulti        | Name of the output Seurat object. Default: multiseq   	                  |
 
 
-### Hashing-based: Solo 
+### Hashing-based: Solo
+
 |  	                      |                                                                    |
 |----------------------------|--------------------------------------------------------------------|
 | solo                       | Whether to perform Solo. Default: True                             |
@@ -257,7 +271,8 @@ profiles{
 | assignmentOutSolo          | Prefix of the output CSV files. Default: solo_predict              |
 
 
-### Hashing-based: HashSolo 
+### Hashing-based: HashSolo
+
 |  	                     |                                                                            |
 |---------------------------|----------------------------------------------------------------------------|
 | hashsolo                  | Whether to perform HashSolo. Default: True                                 |
@@ -273,6 +288,7 @@ profiles{
 
 
 ### Hashing-based: DemuxEm
+
 |  	                  |                                                                         |
 |------------------------|-------------------------------------------------------------------------|
 | demuxem                | Whether to perform Demuxem. Default: True                               |
@@ -291,6 +307,7 @@ profiles{
 
 
 ### Hashing-based: HashedDrops
+
 |  	                      |                                                                         |
 |-------------------------|-------------------------------------------------------------------------|
 | hashedDrops             | Whether to perform hashedDrops. Default: True                           |
@@ -320,6 +337,7 @@ profiles{
 
 
 ### Genetics-based: Demuxlet and dsc-pileup
+
 |  	                     |                                                                     |
 |---------------------------|---------------------------------------------------------------------|
 | demuxlet                  | Whether to run Demuxlet. Default: False                            |
@@ -357,6 +375,7 @@ profiles{
 
 
 ### Genetics-based: Freemuxlet and dsc-pileup
+
 |  	            |                                                                                    |
 |------------------|------------------------------------------------------------------------------------|
 | freemuxlet       | Whether to run Freemuxlet. Default: True                                           |
@@ -395,6 +414,7 @@ profiles{
 
 
 ### Genetics-based: Vireo
+
 |  	               |                                                                              |
 |---------------------|------------------------------------------------------------------------------|
 | vireo               | Whether to run Vireo. Default: True                                          |
@@ -420,6 +440,7 @@ profiles{
 
 
 ### Genetics-based: scSplit
+
 |  	                      |                                                                        |
 |-------------------------|------------------------------------------------------------------------|
 | scSplit                 | Whether to run scSplit. Default: True                                  |
@@ -442,7 +463,8 @@ profiles{
 | scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out              |
 
 
-### Genetics-based: Souporcell 
+### Genetics-based: Souporcell
+
 |  	                        |                                                                      |
 |---------------------------|----------------------------------------------------------------------|
 | souporcell                | Whether to run Souporcell. Default: True                             |
@@ -468,6 +490,7 @@ profiles{
 
 
 ### Genetics-based: cellSNP-lite
+
 |  	                        |                                                                      |
 |---------------------------|----------------------------------------------------------------------|
 | bam                       | An indexed sam/bam file(s), comma separated multiple samples.        |
@@ -497,7 +520,8 @@ profiles{
 | cellsnp_out               | Dirtectory for cellSNP-lite output files. Default: cellSNP_out       |
 
 
-### Genetics-based: Freebayes 
+### Genetics-based: Freebayes
+
 |  	                     |                                                                      |
 |---------------------------|----------------------------------------------------------------------|
 | bam                       | Input BAM file to be analyzed.                                       |
