@@ -31,28 +31,19 @@ The hashing-based deconvolution includes 9 methods:
 
 The Hagen pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
 
-As next, please clone the repository
+As next, please run the pipeline
 
 ```bash
-git clone https://github.com/theislab/hagen.git
-cd hagen
+nextflow run http://github.com/theislab/hagen
 ```
-
-If you want to use Souporcell later, you should also download the singularity image in the project directory with the command `singularity pull shub://wheaton5/souporcell`.
 
 ## **Quick start**
 
-In the `nextflow.config` file, 
-* Choose the mode: `mode = <genetic/hashing/rescue>`
-* Specify the folder name `outdir` to save the output files. This will create a folder automatically in the project directory.
+* Choose the mode: `--mode=<genetic/hashing/rescue>`
+* Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
 * Specify the input data for each process.
-* We strongly recommend to run each process in a separate container or in a conda environment. As default, the process will run in different conda environemnts defined by the `environment.yml` files in the folder [conda](https://github.com/theislab/hagen/tree/main/conda). 
 * The pipeline can be run either locally or on a HPC with different resource specifications. As default, the pipeline will run locally. You can also set the SLURM executor by running the pipeline with `-profile cluster`. 
 * Please also check [usage.md](https://github.com/theislab/hagen/blob/main/docs/usage.md) for more details.
-
-Finally, you can run the pipeline with:
-
-    nextflow run main.nf -profile <standard/cluster>
 
 ## **Pipeline output**
 

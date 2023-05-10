@@ -61,7 +61,7 @@ process souporcell{
         mkdir $out
         touch souporcell_${task.index}/params.csv
         echo -e "Argument,Value \n bamfile,${bamfile_name} \n barcode,${barcode_name} \n fasta, ${fastafile_name} \n threads, ${threads} \n clusters, ${clusters} \n ploidy, ${ploidy} \n min_alt, ${min_alt} \n min_ref, ${min_ref} \n max_loci, ${max_loci} \n restarts, ${restarts} \n common_variant, ${commonvariant_name} \n known_genotype, ${knowngenotype_name} \n known_genotype_sample, ${knowngenotype_sample_name} \n skip_remap, ${skip_remap} \n ignore, ${ignore} " >> souporcell_${task.index}/params.csv
-        singularity exec -B $PWD:$PWD $projectDir/souporcell_latest.sif souporcell_pipeline.py $bamfile $barcode $fastafile $thread $cluster $ploi $minalt $minref $maxloci $restart $commonvariant $knowngenotype $knowngenotypes_sample $skipremap $ign -o $out
+        souporcell_pipeline.py $bamfile $barcode $fastafile $thread $cluster $ploi $minalt $minref $maxloci $restart $commonvariant $knowngenotype $knowngenotypes_sample $skipremap $ign -o $out
         """
 }
 
