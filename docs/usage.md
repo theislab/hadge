@@ -70,7 +70,7 @@ When running genetics-based deconvolution methods without genotype reference, yo
 | HTODemux              	| - Seurat object with both UMI and hashing count matrix (RDS)                                                       	| `params.rdsObj_htodemux`                                   	|
 | Multiseq              	| - Seurat object with both UMI and hashing count matrix (RDS)                                                       	| `params.rdsObj_htodemux`                                   	|
 | Solo                  	| - 10x mtx directory with UMI count matrix (Directory)                                                              	| `params.rna_matrix_solo`                                   	|
-| HashSolo              	| - HDF5 file with hashing count matrix (H5)                                                                         	| `params.hto_h5_hashsolo`                                   	|
+| HashSolo              	| - 10x mtx directory with hashing count matrix (H5)                                                                         	| `params.hto_matrix_hashsolo`                                   	|
 | HashedDrops           	| - 10x mtx directory with hashing count matrix (Directory)                                                          	| `params.hto_matrix_hashedDrops`                            	|
 | Demuxem               	| - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) 	| `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem` 	|
 
@@ -276,12 +276,12 @@ profiles{
 |  	                     |                                                                            |
 |---------------------------|----------------------------------------------------------------------------|
 | hashsolo                  | Whether to perform HashSolo. Default: True                                 |
-| hto_h5_hashsolo           | Input h5 file with hashing counts.                                         |
+| hto_matrix_hashsolo       | Input folder to hashing expression matrix in 10x format.                   |
 | priors_negative           | Prior for the negative hypothesis. Default: 1/3                            |
 | priors_singlet            | Prior for the singlet hypothesis. Default: 1/3                             |
 | priors_doublet            | Prior for the doublet hypothesis. Default: 1/3                             |
 | pre_existing_clusters     | Column in the input data for how to break up demultiplexing. Default: None |
-| clustering_data           | Input transcriptional h5 file for clustering. Default: None                |
+| rna_matrix_hashsolo       | Optional input folder to RNA expression matrix in 10x format. Default: None |
 | number_of_noise_barcodes  | Number of barcodes to use to create noise distribution. Default: None      |
 | assignmentOutHashSolo     | Prefix of the output CSV files. Default: hashsolo                          |
 | plotOutHashSolo           | Prefix of the output figures. Default: hashsolo                            |
@@ -322,7 +322,7 @@ profiles{
 | isCellFDR               | FDR Threshold to filter the cells for empty droplet detection. Default: 0.01 |
 | objectOutEmptyDrops     | Prefix of the emptyDroplets output RDS object. Default: emptyDroplets   |
 | assignmentOutEmptyDrops | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets     |
-| ambient                 | The relative abundance of each HTO in the ambient solution. Default: NULL|
+| ambient                 | Whether to use the relative abundance of each HTO in the ambient solution from emptyDrops, set TRUE only when testAmbient=TRUE. Default: FALSE |
 | minProp                 | The ambient profile when ambient=NULL. Default: 0.05                    |
 | pseudoCount = 5         | The minimum pseudo-count when computing logfold changes. Default: 5     |
 | constantAmbient         | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: FALSE   |

@@ -19,7 +19,7 @@ parser$add_argument("--objectOutEmptyDrops",help="Prefix name for the emptyDrops
 parser$add_argument("--assignmentOutEmptyDrops",help="prefex name for emptyDrops assignment CSV file", default = "emptyDroplets")
 
 #for hashedDrops
-parser$add_argument("--ambient",help="A numeric vector of length equal to nrow(matrix), specifying the relative abundance of each HTO in the ambient solution.", default = NULL, type = "double")
+parser$add_argument("--ambient",help="Whether to use the relative abundance of each HTO in the ambient solution from emtpyDrops, set TRUE only when test_ambient is TRUE.", action='store_true')
 parser$add_argument("--minProp",help="Numeric scalar to be used to infer the ambient profile when ambient=NULL,", default = 0.05, type = "double")
 parser$add_argument("--pseudoCount",help="A numeric scalar specifying the minimum pseudo-count when computing logfold changes.", default = 5, type = "double")
 parser$add_argument("--constantAmbient",help="Logical scalar indicating whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells.", action='store_true')
@@ -58,7 +58,11 @@ png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
 plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
 dev.off()
 
-hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = args$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+if (args$ambient == TRUE){
+    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+}else{
+    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+}
 
 print("------------------- hashedDrops finished ---------------------------------")
 
@@ -77,11 +81,6 @@ if(is.null(byRank)){
     byRank <- "NULL"
 }
 
-ambient <- args$ambient
-if(is.null(ambient)){
-    ambient <- "NULL"
-}
-
 minProp <- args$minProp
 if(is.null(minProp)){
     minProp <- "NULL"
@@ -91,15 +90,15 @@ combinations <- args$combinations
 if(is.null(combinations)){
    combinations <- "NULL"
 }
+
 Argument <- c("raw_hto_matrix_dir", "lower", "niters", "testAmbient", "ignore", "alpha", "round", "byRank", "isCellFDR", "ambient", "minProp", "pseudoCount", "constantAmbient", "doubletNmads", "doubletMin", "doubletMixture", "confidentNmads", "confidenMin", "combinations")
-Value <- c(args$raw_hto_matrix_dir, args$lower, args$niters, args$testAmbient, ignore, alpha, args$round, byRank, args$isCellFDR, ambient, minProp, args$pseudoCount, args$constantAmbient, args$doubletNmads, args$doubletMin, args$doubletMixture, args$confidentNmads, args$confidenMin, combinations)
+Value <- c(args$raw_hto_matrix_dir, args$lower, args$niters, args$testAmbient, ignore, alpha, args$round, byRank, args$isCellFDR, args$ambient, minProp, args$pseudoCount, args$constantAmbient, args$doubletNmads, args$doubletMin, args$doubletMixture, args$confidentNmads, args$confidenMin, combinations)
 
 params <- data.frame(Argument, Value)
 
 print("-------- Following Files are saved in folder hashedDrops_out ------------")
 print(paste0(args$objectOutHashedDrops, ".rds"))
 print(paste0(args$assignmentOutHashedDrops, "_res.csv"))
-print(paste0(args$objectOutHashedDrops, "_LogFC.png"))
 print("params.csv")
 write.csv(params, paste0(args$outputdir, "/params.csv"))
 write.csv(hashedDrops_out, paste0(args$outputdir, "/", args$assignmentOutHashedDrops, "_res.csv"))
@@ -107,7 +106,11 @@ saveRDS(hashedDrops_out, file=paste0(args$outputdir, "/", args$objectOutHashedDr
 
 colors <- ifelse(hashedDrops_out$Confident, "black", ifelse(hashedDrops_out$Doublet, "red", "grey"))
 png(paste0(args$outputdir, "/", "plot_hashed.png"))
-plot(hashedDrops_out$LogFC, hashedDrops_out$LogFC2, col=colors,
-                xlab="Log-fold change between best and second HTO",
-                ylab="Log-fold change between second HTO and ambient")
-dev.off()
+if(sum(is.na(hashedDrops_out$LogFC2)) != length(hashedDrops_out$LogFC2)){
+    print(paste0(args$objectOutHashedDrops, "_LogFC.png"))
+    plot(hashedDrops_out$LogFC, hashedDrops_out$LogFC2, col=colors,
+            xlab="Log-fold change between best and second HTO",
+            ylab="Log-fold change between second HTO and ambient")
+    dev.off()
+
+}

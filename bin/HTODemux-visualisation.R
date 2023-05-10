@@ -79,7 +79,7 @@ if(args$tSNE == "TRUE"){
   hashtag.subset <- ScaleData(hashtag.subset, features = rownames(hashtag.subset),
                                    verbose = args$tSNEVerbose)
   hashtag.subset <- RunPCA(hashtag.subset, features = rownames(hashtag.subset), approx = args$tSNEApprox)
-  hashtag.subset <- RunTSNE(hashtag.subset, dims = 1:args$tSNEDimMax, perplexity = args$tSNEPerplexity)
+  hashtag.subset <- RunTSNE(hashtag.subset, dims = 1:args$tSNEDimMax, perplexity = args$tSNEPerplexity, check_duplicates = FALSE)
   DimPlot(hashtag.subset)
   ggsave(paste0(args$outputdir, '/tSNE.jpeg'), device = 'jpeg',dpi = 500)
 }

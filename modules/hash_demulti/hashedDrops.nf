@@ -42,7 +42,7 @@ process hashedDrops{
 	    def ign = ignore != 'NULL' ? " --ignore ${ignore}" : ''
         def alp = alpha != 'NULL' ? " --alpha ${alpha}" : ''
         def byR = byRank != 'NULL' ? " --by.rank ${byRank}" : ''
-        def amb = ambient != 'NULL' ? " --ambient ${ambient}" : ''
+        def amb = ambient != 'False' ? " --ambient" : ''
         def comb = combinations != 'NULL' ? " --combinations ${combinations}" : ''
 
         """
