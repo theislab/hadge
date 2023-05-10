@@ -5,18 +5,20 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
-![Caption](pipeline_v2.png)
+![Caption](docs/source/_static/images/pipeline_v2.png)
 ## **Introduction**
-Hagen is a one-stop pipeline for demultiplexing single cell mixtures. It consists of 14 methods across two workflows: hashing-based and genetics-based deconvolution methods, which can be run in 3 modes. 
+Hagen is a one-stop pipeline for demultiplexing single cell mixtures. It consists of 14 methods across two workflows: hashing-based and genetics-based deconvolution methods, which can be run in 3 modes.
 
-The genetics-based deconvolution workflow includes 5 methods: 
+The genetics-based deconvolution workflow includes 5 methods:
+
 * Freemuxlet 
 * Demuxlet
 * Vireo
 * Souporcell
 * scSplit
 
-The hashing-based deconvolution includes 9 methods: 
+The hashing-based deconvolution includes 9 methods:
+
 * hashedDrops
 * Multiseq
 * HTODemux
@@ -30,13 +32,13 @@ The hashing-based deconvolution includes 9 methods:
 The Hagen pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
 
 As next, please clone the repository
-```
+
+```bash
 git clone https://github.com/theislab/hagen.git
 cd hagen
 ```
 
 If you want to use Souporcell later, you should also download the singularity image in the project directory with the command `singularity pull shub://wheaton5/souporcell`.
-
 
 ## **Quick start**
 
