@@ -9,6 +9,8 @@
 ## **Introduction**
 Hagen is a one-stop pipeline for demultiplexing single cell mixtures. It consists of 14 methods across two workflows: hashing-based and genetics-based deconvolution methods, which can be run in 3 modes.
 
+Read the [documentation](https://hadge.readthedocs.io/en/latest/).
+
 The genetics-based deconvolution workflow includes 5 methods:
 
 * Freemuxlet 
