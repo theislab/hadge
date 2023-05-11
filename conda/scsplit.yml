@@ -1,19 +1,17 @@
 name: scsplit
 channels:
- - bioconda
+  - bioconda
 dependencies:
- - python=3.9
- - setuptools<58
- - git
- - pip
- - pip:
-   - numpy
-   - pandas<2.0
-   - pysam
-   - scikit-learn==1.1.3
-   - scipy
-   - statistics
-   - pyVCF
- #  - scSplit
- 
-   
+  - python=3.9
+  - setuptools<58
+  - git
+  - pip
+  - pip:
+      - numpy
+      - pandas<2.0
+      - pysam
+      - scikit-learn==1.1.3
+      - scipy
+      - statistics
+      - pyVCF
+  #  - scSplit

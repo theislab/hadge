@@ -1,12 +1,11 @@
 name: demuxem_py_test
 channels:
- - bioconda
+  - bioconda
 dependencies:
- - python=3.9
- - pegasuspy
- - pip
- - pip:
-   - pandas<2.0
-   - demuxEM
-   - argparse
-   
+  - python=3.9
+  - pegasuspy
+  - pip
+  - pip:
+      - pandas<2.0
+      - demuxEM
+      - argparse
