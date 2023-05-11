@@ -419,7 +419,7 @@ profiles{
 |---------------------|------------------------------------------------------------------------------|
 | vireo               | Whether to run Vireo. Default: True                                          |
 | vireo_preprocess    | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False  |
-| vireo_variant       | Whether to perform cellSNP-lite before running Vireo. False: Don't run cellSNP, use params.cell data as input. cellSNP: Run cellSNP. Otherwise: Use both the result of cellSNP-lite and params.celldata as input for benchmarking. Default: cellSNP |
+| vireo_variant       | Whether to perform cellSNP-lite before running Vireo. False: Don't run cellSNP, use params.cell data as input. cellSNP: Run cellSNP. Otherwise: Use both the result of cellSNP-lite and params.celldata as input for benchmarking. Default: cellsnp |
 | celldata            | The cell genotype file in VCF format or cellSNP folder with sparse matrices. |
 | nsample             | Number of donors to demultiplex; can be larger than provided in vcf_donor    |
 | vartrixData         | The cell genotype files in vartrix outputs (three/four files, comma separated): alt.mtx,ref.mtx,barcodes.tsv,SNPs.vcf.gz. This will suppress cellData argument. Default: None |
@@ -496,7 +496,7 @@ profiles{
 | bam                       | An indexed sam/bam file(s), comma separated multiple samples.        |
 | barcodes                  | A plain file listing all effective cell barcode.                                                                                           |
 | samFileList               | A list file containing bam files, each per line. Default: None       |
-| regionsVCF                | A VCF file listing all candidate snps, for fetch each variants.      |
+| common_variants_cellsnp   | A VCF file listing all candidate snps, for fetch each variants.      |
 | targetsVCF                | Similar as regionsVCF, but the next position is accessed by streaming rather than indexing/jumping. Default: None                        |
 | sampleList                | A list file containing sample IDs, each per line. Default: None      |
 | sampleIDs                 | Comma separated sample ids. Default: None                            |
