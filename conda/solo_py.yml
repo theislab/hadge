@@ -1,10 +1,10 @@
 name: solo_py
 channels:
- - conda-forge
+  - conda-forge
 dependencies:
- - python=3.9
- - scvi-tools
- - pip
- - pip:
-   - scanpy
-   - argparse
+  - python=3.9
+  - scvi-tools
+  - pip
+  - pip:
+      - scanpy
+      - argparse
