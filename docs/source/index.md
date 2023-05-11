@@ -6,7 +6,7 @@
 
 ## **Introduction**
 
-Hagen is a one-stop pipeline for demultiplexing single cell mixtures. It consists of 14 methods across two workflows: hashing-based and genetics-based deconvolution methods, which can be run in 3 modes.
+hadge is a one-stop pipeline for demultiplexing single cell mixtures. It consists of 14 methods across two workflows: hashing-based and genetics-based deconvolution methods, which can be run in 3 modes.
 
 The genetics-based deconvolution workflow includes 5 methods:
 
@@ -28,12 +28,12 @@ The hashing-based deconvolution includes 9 methods:
 
 ## **Installation**
 
-The Hagen pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
+The hadge pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
 
 As next, please run the pipeline
 
 ```bash
-nextflow run http://github.com/theislab/hagen
+nextflow run http://github.com/theislab/hadge
 ```
 
 ## **Quick start**
@@ -42,7 +42,7 @@ nextflow run http://github.com/theislab/hagen
 - Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
 - Specify the input data for each process.
 - The pipeline can be run either locally or on a HPC with different resource specifications. As default, the pipeline will run locally. You can also set the SLURM executor by running the pipeline with `-profile cluster`.
-- Please also check [usage.md](https://github.com/theislab/hagen/blob/main/docs/usage.md) for more details.
+- Please also check [](usage) for more details.
 
 ## **Pipeline output**
 
@@ -55,7 +55,7 @@ The pipeline saves the output of each process for two workflows separately, so y
 Each demultiplexing process will generate some intermediate files in the folder in the format `[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. In this folder, you can find following files:
 
 - `params.csv`: specified parameters in the task
-- Output of the task, check [output.md](https://github.com/theislab/hagen/blob/main/docs/output.md) for more details.
+- Output of the task, check [](output) for more details.
 
 ### **Final output**
 
@@ -71,11 +71,7 @@ After each demultiplexing workflow is complete, the pipeline will generate TSV f
 
 Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$projectDir/$params.outdir/$params.mode/summary` folder.
 
-The output of the donor-matching process can be found in the folder `donor_match`, check [output.md](https://github.com/theislab/hagen/blob/main/docs/output.md) for more details.
-
-## Documentation
-
-The hagen pipeline comes with documentation about the pipeline: [usage](https://github.com/theislab/hagen/blob/main/docs/usage.md) and [output](https://github.com/theislab/hagen/blob/main/docs/output.md).
+The output of the donor-matching process can be found in the folder `donor_match`, check [](output) for more details.
 
 ```{toctree}
 :caption: 'Contents:'

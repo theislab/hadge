@@ -1,4 +1,4 @@
-project = 'hagen'
+project = 'hadge'
 copyright = '2023, Fabiola Curion, Xichen Wu, Lukas Heumos'
 author = 'Fabiola Curion, Xichen Wu, Lukas Heumos'
 release = '1.0.0'
