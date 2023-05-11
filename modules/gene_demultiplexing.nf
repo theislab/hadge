@@ -1,9 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
-'''
-BAM Index should in the format BAMFILE.bam.bai
 
-'''
 include { data_preprocess } from './gene_demulti/samtools'
 include { filter_variant } from './gene_demulti/bcftools'
 include { variant_cellSNP } from './gene_demulti/cellsnp'

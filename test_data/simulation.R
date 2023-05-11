@@ -6,6 +6,7 @@ library(DropletUtils)
 # use demuxlet tutorial dataset to simulate hashing and rna expression matrix
 test_data_barcode <- fread("jurkat_293t_demuxlet.best")
 test_data_barcode <- test_data_barcode[,c("BARCODE", "BEST")]
+write(x=test_data_barcode$BARCODE, "barcodes.tsv")
 test_data_barcode <- separate(test_data_barcode, col = BEST, into = c("classification", "identity"), sep = "\\-")
 test_data_barcode_singlet <- test_data_barcode[test_data_barcode$classification == "SNG",]$BARCODE
 test_data_barcode_singlet_jurkat <- test_data_barcode[test_data_barcode$classification == "SNG" &
