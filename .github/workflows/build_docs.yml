@@ -19,5 +19,5 @@ jobs:
         pip install -r docs/requirements.txt
     
     - name: Build documentation
-      run: cd docs & make html
+      run: cd docs && make html
 
