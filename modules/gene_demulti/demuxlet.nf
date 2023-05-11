@@ -46,7 +46,7 @@ process demuxlet {
         path "demuxlet_${task.index}"
 
     script:
-        def samfile = plp == 'False' ? "--sam $sam" : ''
+        def samfile = "--sam $sam"
         def samfile_name = plp == 'False' ? sam.baseName : 'sam_file_not_used'
         def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
         def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
@@ -84,7 +84,6 @@ process demuxlet {
       
         """
         mkdir demuxlet_${task.index}
-        mkdir demuxlet_${task.index}/plp
         touch demuxlet_${task.index}/params.csv
         barcode_num=\$(wc -l < "${group_list}")
         echo -e "Argument,Value \n samfile,${samfile_name} \n tag_group,${tag_group} \n tag_UMI, ${tag_UMI} \n vcf_ref, ${vcfref_name} \n sm, ${sm} \n sm_list_file, ${sm_list_file_name} \n sam_verbose, ${sam_verbose} \n vcf_verbose, ${vcf_verbose} \n skip_umi, ${skip_umi} \n cap_BQ, ${cap_BQ} \n min_BQ, ${min_BQ} \n min_MQ, ${min_MQ} \n min_TD, ${min_TD} \n excl_flag, ${excl_flag} \n grouplist, ${grouplist_name}_\${barcode_num} \n min_total, ${min_total} \n min_uniq, ${min_uniq} \n min_umi, ${min_umi} \n min_snp, ${min_snp} \n plpfile, ${plpfile_name} \n vcf_donor, ${vcfdonor_name} \n field, ${field} \n geno_error_offset, ${geno_error_offset} \n geno_error_coeff, ${geno_error_coeff} \n r2_info, ${r2_info} \n min_mac, ${min_mac} \n min_callrate, ${min_callrate} \n alpha, ${alpha} \n doublet_prior, ${doublet_prior}" >> demuxlet_${task.index}/params.csv
@@ -92,6 +91,7 @@ process demuxlet {
         then
             popscle demuxlet $samfile $taggroup $tagUMI $vcfdonor $fieldinfo ${genoerror_off} ${genoerror_cof} $r2info $minmac $mincallrate $smlist ${sm_list_file} --alpha ${alpha_value} $doubletprior $samverbose $vcfverbose $capBQ $minBQ $minMQ $minTD $exclflag $grouplist $mintotal $minumi $minsnp $plpfile --out demuxlet_${task.index}/${demuxlet_out}
         else
+            mkdir demuxlet_${task.index}/plp
             popscle dsc-pileup $samfile ${taggroup} ${tagUMI} $vcfref ${smlist} ${sm_list_file} ${samverbose} ${vcfverbose} ${skipumi} ${capBQ} ${minBQ} ${minMQ} ${minTD} ${exclflag} ${grouplist} ${mintotal} ${minsnp} --out demuxlet_${task.index}/plp/${demuxlet_out}
             popscle demuxlet $taggroup $tagUMI --plp demuxlet_${task.index}/plp/${demuxlet_out} $vcfdonor $fieldinfo ${genoerror_off} ${genoerror_cof} $r2info $minmac $mincallrate $smlist ${sm_list_file} --alpha ${alpha_value} $doubletprior $samverbose $vcfverbose $capBQ $minBQ $minMQ $minTD $exclflag $grouplist $mintotal $minumi $minsnp $minuniq --out demuxlet_${task.index}/${demuxlet_out}
             

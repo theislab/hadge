@@ -68,29 +68,30 @@ process summary{
 
 workflow gene_demultiplexing {
     main:
-    input_bam = params.cellranger == 'True'? Channel.value(params.cellranger_dir).map{ return it + "/outs/possorted_genome_bam.bam"} : Channel.fromPath(params.bam)
-    input_bai = params.cellranger == 'True'? Channel.value(params.cellranger_dir).map{ return it + "/outs/possorted_genome_bam.bam.bai"}: Channel.fromPath(params.bam).map{ return it + ".bai"}
+    input_bam = Channel.fromPath(params.bam)
+    input_bai = Channel.fromPath(params.bai)
 
     if ((params.demuxlet == "True" & params.demuxlet_preprocess != 'False')| \
        (params.freemuxlet == "True" & params.freemuxlet_preprocess != 'False')| \
        (params.scSplit == "True" & params.scSplit_preprocess != 'False') | \
+       (params.vireo == "True" & params.vireo_preprocess != 'False') | \
        (params.souporcell == "True" & params.souporcell_preprocess != 'False')){
         data_preprocess(input_bam)
         qc_bam = data_preprocess.out.map{ return it + "/sorted.bam"}
         qc_bam_bai = data_preprocess.out.map{ return it + "/sorted.bam.bai"}
     }
 
-    if (params.vireo == "True" &  params.vireo_variant != 'False' &  params.vireo_variant != 'freebayes'){
+    if (params.vireo == "True" & params.vireo_variant != 'False' & params.vireo_variant != 'freebayes'){
         if(params.vireo_preprocess != 'False'){
-            variant_cellSNP(qc_bam)
+            variant_cellSNP(qc_bam, qc_bam_bai)
         }
         else{
-            variant_cellSNP(input_bam)
+            variant_cellSNP(input_bam, input_bai)
         }
         cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
     }
     
-    if (params.scSplit == "True" & params.scSplit_variant != 'False' & params.scSplit_variant != 'cellSNP' ){
+    if (params.scSplit == "True" & params.scSplit_variant != 'False' & params.scSplit_variant != 'cellsnp' ){
         freebayes_region = Channel.from(1..22, "X","Y").flatten()
         if (params.region != "None"){
             freebayes_region = split_input(params.region)
@@ -106,8 +107,7 @@ workflow gene_demultiplexing {
                 
     }
     
-  
-    
+
     if (params.demuxlet == "True"){
         bam = params.demuxlet_preprocess == 'True'? qc_bam: (params.demuxlet_preprocess == 'False'? input_bam : qc_bam.mix(input_bam))
         demultiplex_demuxlet(bam)
@@ -130,7 +130,7 @@ workflow gene_demultiplexing {
     
     if (params.vireo == "True"){
         vcf = params.vireo_variant == 'False'? Channel.fromPath(params.celldata): \
-            (params.vireo_variant == 'cellSNP'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"} : \
+            (params.vireo_variant == 'cellsnp'? variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"} : \
             variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(Channel.fromPath(params.celldata)))        
             demultiplex_vireo(vcf)
         vireo_out = demultiplex_vireo.out
