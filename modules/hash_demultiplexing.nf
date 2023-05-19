@@ -19,6 +19,10 @@ process summary{
         val multiseq_result
         val hashedDrops_result
         val solo_result
+        val generate_anndata
+        val generate_mudata
+        path rna_matrix
+        path hto_matrix
     
     output:
         path hash_summary
@@ -30,6 +34,8 @@ process summary{
         def multiseq_files = ""
         def hashedDrops_files = ""
         def solo_files = ""
+        def generate_adata = ""
+        def generate_mdata = ""
         
         if (demuxem_result != "no_result"){
             demuxem_files = "--demuxem ${demuxem_result.join(":")}"
@@ -49,10 +55,24 @@ process summary{
         if (solo_result != "no_result"){
             solo_files = "--solo ${solo_result.join(":")}"
         }
+        if (generate_anndata == "True"){
+            if(rna_matrix.name == "None"){
+                error "Error: RNA count matrix is not given."
+            }
+            generate_adata = "--generate_anndata --read_rna_mtx $rna_matrix"
+        }
+        if (generate_mudata == "True"){
+            if(rna_matrix.name == "None"){
+                error "Error: RNA count matrix is not given."
+            }
+            if(hto_matrix.name == "None"){
+                error "Error: HTO count matrix is not given."
+            }
+            generate_mdata = "--generate_mudata --read_rna_mtx $rna_matrix --read_hto_mtx $hto_matrix"
+        }
         
         """
-        mkdir hash_summary && cd hash_summary
-        summary_hash.R $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files $generate_adata $generate_mdata
         """
 }
 
@@ -115,7 +135,9 @@ workflow hash_demultiplexing{
         solo_out = channel.value("no_result")
     }
     
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out)
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, 
+            params.generate_anndata, params.generate_mudata,
+            file(params.rna_matrix), file(params.hto_matrix))
     emit:
     summary.out
 }

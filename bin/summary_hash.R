@@ -3,16 +3,18 @@ library(data.table)
 library(stringr)
 library(argparse)
 library(dplyr)
-#library("R.utils")
 
 parser <- ArgumentParser("Parameters for comparing parameters")
-parser$add_argument("--demuxem", help = "Folder containing output files of demuxem", default = NULL)
-parser$add_argument("--htodemux", help = "Folder containing output files of htodemux", default = NULL)
-parser$add_argument("--multiseq", help = "Folder containing output files of multiseq", default = NULL)
-parser$add_argument("--hashsolo", help = "Folder containing output files of hashsolo", default = NULL)
-parser$add_argument("--solo", help = "Folder containing output files of solo", default = NULL)
-parser$add_argument("--hashedDrops", help = "Folder containing output files of hashedDrops", default = NULL)
-args <- parser$parse_args()
+parser.add_argument("--demuxem", help="Folder containing output files of demuxem", default=None)
+parser.add_argument("--htodemux", help="Folder containing output files of htodemux", default=None)
+parser.add_argument("--multiseq", help="Folder containing output files of multiseq", default=None)
+parser.add_argument("--hashsolo", help="Folder containing output files of hashsolo", default=None)
+parser.add_argument("--solo", help="Folder containing output files of solo", default=None)
+parser.add_argument("--hashedDrops", help="Folder containing output files of hashedDrops", default=None)
+parser.add_argument("--generate_anndata", help="Generate anndata", action='store_true')
+parser.add_argument("--read_mtx", help="10x-Genomics-formatted mtx directory", default=None)
+args = parser.parse_args()
+
 
 demuxem_summary <- function(demuxem_res) {
   assign <- lapply(demuxem_res, function(x){
@@ -82,10 +84,22 @@ hashsolo_summary <- function(hashsolo_res){
 }
 
 hasheddrops_summary <- function(hasheddrops_res){
+  assign <- lapply(hasheddrops_res, function(x){
+    obs_res_dir <- list.files(x, pattern = "_res.csv", full.names = TRUE)[1]
+    obs_res <- fread(obs_res_dir, header = TRUE)
+    obs_res$Classification <- ifelse(obs_res$Confident, "singlet", ifelse(obs_res$Doublet, "doublet", "negative"))
+    obs_res$Best <- ifelse(!obs_res$Classification %in% c("doublet", "negative"), obs_res$Best, obs_res$Classification)
+    colnames(obs_res)[1] <- 'Barcode'
+    hasheddrops_assign <- obs_res[, c('Barcode', 'Best')]
+    colnames(hasheddrops_assign) <- c("Barcode", basename(x))
+    hasheddrops_assign
+  }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
+  write.csv(assign, "hasheddrops_assignment.csv", row.names=FALSE, quote=FALSE)
+
   classi <- lapply(hasheddrops_res, function(x){
     obs_res_dir <- list.files(x, pattern = "_res.csv", full.names = TRUE)[1]
     obs_res <- fread(obs_res_dir, header = TRUE)
-    obs_res$Classification = ifelse(obs_res$Confident, "singlet", ifelse(obs_res$Doublet, "doublet", "negative"))
+    obs_res$Classification <- ifelse(obs_res$Confident, "singlet", ifelse(obs_res$Doublet, "doublet", "negative"))
     colnames(obs_res)[1] <- 'Barcode'
     hasheddrops_classi <- obs_res[,c('Barcode', 'Classification')]
     colnames(hasheddrops_classi) <- c("Barcode", basename(x))

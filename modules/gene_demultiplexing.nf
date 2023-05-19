@@ -30,6 +30,10 @@ process summary{
         val vireo_result
         val souporcell_result
         val scsplit_result
+        val generate_anndata
+        val generate_mudata
+        path rna_matrix
+        path hto_matrix
     output:
         path genetic_summary
 
@@ -39,6 +43,8 @@ process summary{
         def vireo_files = ""
         def souporcell_files = ""
         def scsplit_files = ""
+        def generate_adata = ""
+        def generate_mdata = ""
         
         if (demuxlet_result != "no_result"){
             demuxlet_files = "--demuxlet ${demuxlet_result.join(":")}"
@@ -55,10 +61,26 @@ process summary{
         if (scsplit_result != "no_result"){
             scsplit_files =  "--scsplit ${scsplit_result.join(":")}"
         }
-        
+        if (scsplit_result != "no_result"){
+            scsplit_files =  "--scsplit ${scsplit_result.join(":")}"
+        }
+        if (generate_anndata == "True"){
+            if(rna_matrix.name == "None"){
+                error "Error: RNA count matrix is not given."
+            }
+            generate_adata = "--generate_anndata --read_rna_mtx $rna_matrix"
+        }
+        if (generate_mudata == "True"){
+            if(rna_matrix.name == "None"){
+                error "Error: RNA count matrix is not given."
+            }
+            if(hto_matrix.name == "None"){
+                error "Error: HTO count matrix is not given."
+            }
+            generate_mdata = "--generate_mudata --read_rna_mtx $rna_matrix --read_hto_mtx $hto_matrix"
+        }
         """
-        mkdir genetic_summary && cd genetic_summary
-        summary_gene.R $demuxlet_files $vireo_files $souporcell_files $scsplit_files $freemuxlet_files
+        summary_gene.py $demuxlet_files $vireo_files $souporcell_files $scsplit_files $freemuxlet_files $generate_adata $generate_mdata
         """
 }
 
@@ -160,7 +182,9 @@ workflow gene_demultiplexing {
         souporcell_out = channel.value("no_result")
     }
 
-    summary(demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out)
+    summary(demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out, 
+            params.generate_anndata, params.generate_mudata,
+            file(params.rna_matrix), file(params.hto_matrix))
     emit:
     summary.out
 }
