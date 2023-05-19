@@ -1,0 +1,12 @@
+name: summary
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pip
+  - pip:
+      - pandas<2.0
+      - scanpy
+      - argparse
+      - muon
+      - numpy

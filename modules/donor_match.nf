@@ -97,7 +97,6 @@ process matchDonor{
 
         fi
         
-
         """
 }
 
@@ -108,4 +107,6 @@ workflow donor_match{
     main:
         matchDonor(demultiplexing_result, params.barcodes, params.match_donor_method1, params.match_donor_method2, 
             params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
+    emit:
+        matchDonor.out
 }
