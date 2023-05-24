@@ -7,6 +7,10 @@ include { hash_solo_hashing } from './hash_demulti/hashsolo'
 include { hashedDrops_hashing } from './hash_demulti/hashedDrops'
 include { demuxem_hashing } from './hash_demulti/demuxem'
 include { solo_hashing } from './hash_demulti/solo'
+include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
+include { demuxmix_hashing } from './hash_demulti/demuxmix'
+include { bff_hashing } from './hash_demulti/bff'
+
 
 process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti", mode: 'copy'
@@ -19,6 +23,9 @@ process summary{
         val multiseq_result
         val hashedDrops_result
         val solo_result
+        val gmmDemux_result
+        val demuxmix_result
+        val bff_result
         val generate_anndata
         val generate_mudata
         path rna_matrix
@@ -34,6 +41,9 @@ process summary{
         def multiseq_files = ""
         def hashedDrops_files = ""
         def solo_files = ""
+        def gmmDemux_files = ""
+        def demuxmix_files = ""
+        def bff_files = ""
         def generate_adata = ""
         def generate_mdata = ""
         
@@ -55,6 +65,15 @@ process summary{
         if (solo_result != "no_result"){
             solo_files = "--solo ${solo_result.join(":")}"
         }
+        if (gmmDemux_result != "no_result"){
+            gmmDemux_files = "--gmm_demux ${gmmDemux_result.join(":")}"
+        }
+        if (demuxmix_result != "no_result"){
+            demuxmix_files = "--demuxmix ${demuxmix_result.join(":")}"
+        }
+        if (bff_result != "no_result"){
+            bff_files = "--bff ${bff_result.join(":")}"
+        }
         if (generate_anndata == "True"){
             if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
@@ -72,7 +91,7 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files $generate_adata $generate_mdata
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $solo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         """
 }
 
@@ -80,8 +99,10 @@ process summary{
 
 workflow hash_demultiplexing{
     main:
-    if ((params.htodemux == "True" & params.htodemux_preprocess != "False")| \
-       (params.multiseq == "True" & params.multiseq_preprocess != 'False')){
+    if ( (params.htodemux == "True" & params.htodemux_preprocess != "False")| \
+       (params.multiseq == "True" & params.multiseq_preprocess != 'False') | \
+       (params.demuxmix_mode == "True" & params.demuxmix_preprocess != "False") | \
+       (params.bff_mode == "True" & params.bff_preprocess != "False")){
         preprocessing_hashing()
     }
     
@@ -134,8 +155,28 @@ workflow hash_demultiplexing{
     else{
         solo_out = channel.value("no_result")
     }
+    if(params.gmmDemux == "True"){
+        gmm_demux_hashing()
+        gmmDemux_out = gmm_demux_hashing.out
+    }else{
+        gmmDemux_out = channel.value("no_result")
+    }
+    if(params.demuxmix_mode == "True"){
+        rdsobj = params.demuxmix_preprocess == 'True'? preprocessing_hashing.out: (params.demuxmix_preprocess == 'False'? Channel.from(params.rdsObj_demuxmix) : preprocessing_hashing.out.mix(Channel.from(params.rdsObj_demuxmix)))
+        demuxmix_hashing(rdsobj)
+        demuxmix_out = demuxmix_hashing.out
+    }else{
+        demuxmix_out = channel.value("no_result")
+    }
+    if(params.bff_mode == "True"){
+        rdsobj = params.bff_preprocess == 'True'? preprocessing_hashing.out: (params.bff_preprocess == 'False'? Channel.from(params.rdsObj_bff) : preprocessing_hashing.out.mix(Channel.from(params.rdsObj_bff)))
+        bff_hashing(rdsobj)
+        bff_out = bff_hashing.out
+    }else{
+        bff_out = channel.value("no_result")
+    }
     
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, 
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, gmmDemux_out, demuxmix_out, bff_out
             params.generate_anndata, params.generate_mudata,
             file(params.rna_matrix), file(params.hto_matrix))
     emit:
