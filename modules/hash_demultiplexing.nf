@@ -99,7 +99,7 @@ process summary{
 
 workflow hash_demultiplexing{
     main:
-    if ( (params.htodemux == "True" & params.htodemux_preprocess != "False")| \
+    if ((params.htodemux == "True" & params.htodemux_preprocess != "False")| \
        (params.multiseq == "True" & params.multiseq_preprocess != 'False') | \
        (params.demuxmix_mode == "True" & params.demuxmix_preprocess != "False") | \
        (params.bff_mode == "True" & params.bff_preprocess != "False")){
@@ -176,7 +176,7 @@ workflow hash_demultiplexing{
         bff_out = channel.value("no_result")
     }
     
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, gmmDemux_out, demuxmix_out, bff_out
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, solo_out, gmmDemux_out, demuxmix_out, bff_out,
             params.generate_anndata, params.generate_mudata,
             file(params.rna_matrix), file(params.hto_matrix))
     emit:
