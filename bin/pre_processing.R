@@ -26,6 +26,7 @@ Value <- c(args$fileUmi, args$fileHto, args$ndelim, args$rdsObject, args$selectM
 
 params <- data.frame(Argument, Value)
 
+print(args$rdsObject)
 if(args$rdsObject){
   umi <- readRDS(args$fileUmi)
   counts <- readRDS(args$fileHto)

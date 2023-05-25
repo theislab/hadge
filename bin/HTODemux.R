@@ -15,7 +15,7 @@ parser$add_argument("--seed", help = "Sets the random seed.", type = "integer", 
 parser$add_argument("--init", help = "Initial number of clusters for hashtags.", default = NULL, type = "integer")
 parser$add_argument("--assay", help = "Assay name", default = "HTO")
 parser$add_argument("--objectOutHTOdemux", help = "Prefix name for the object containing the output of HTODemux object", type = "character", default = "htodemux")
-parser$add_argument("--assignmentOutHTOdemux", help="Prefeix name for the file containing the output of HTODemux assignment", type = "character", default = "htodemux")
+parser$add_argument("--assignmentOutHTOdemux", help="Prefix name for the file containing the output of HTODemux assignment", type = "character", default = "htodemux")
 parser$add_argument("--outputdir", help='Output directory')
 
 
@@ -69,7 +69,6 @@ print("------------------- Following Files are saved ---------------------------
 print(paste0(args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))
 print(paste0(args$assignmentOutHTOdemux, "_classification_htodemux.csv"))
 print(paste0(args$objectOutHTOdemux,".rds"))
-print("params.csv")
 write.csv(params, paste0(args$outputdir, "/params.csv"))
 write.csv(assignment, paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))
 #write.csv(hashtag[[paste0(args$assay,"_classification")]], paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))

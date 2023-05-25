@@ -17,7 +17,7 @@ process bff{
         each majorityConsensusThreshold
         each chemistry
         each callerDisagreementThreshold
-        
+        each assignmentOutBff
         
     output:
         path "bff_${task.index}"
@@ -29,7 +29,7 @@ process bff{
         bff.R --seuratObject $seurat_object --assay $assay --methods $methods --methodsForConsensus $methodsForConsensus \
         --cellbarcodeWhitelist $cellbarcodeWhitelist --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile $metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
-        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${task.index}
+        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${task.index} --assignmentOutBff $assignmentOutBff
         """
 
 }
@@ -58,9 +58,10 @@ workflow bff_hashing{
         majorityConsensusThreshold  = split_input(params.majorityConsensusThreshold)
         chemistry = split_input(params.chemistry)
         callerDisagreementThreshold = split_input(params.callerDisagreementThreshold)
+        assignmentOutBff = split_input(params.assignmentOutBff)
 
 
-        bff(seurat_object,assay, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold)
+        bff(seurat_object,assay, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff)
   
   emit:
         bff.out.collect()

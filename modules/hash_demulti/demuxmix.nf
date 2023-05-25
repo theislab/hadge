@@ -16,6 +16,7 @@ process demuxmix{
         each maxIter_demuxmix
         each k_hto
         each k_rna
+        each assignmentOutDemuxmix
         
     output:
         path "demuxmix_${task.index}"
@@ -27,7 +28,7 @@ process demuxmix{
 
         Rscript $baseDir/bin/demuxmix.R --seuratObject $seurat_object --rna_available $rna_available --assay $assay --model $model --alpha_demuxmix $alpha_demuxmix \
             --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix \
-            --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${task.index}
+            --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${task.index} --assignmentOutDemuxmix $assignmentOutDemuxmix
         """
 
 }
@@ -53,10 +54,11 @@ workflow demuxmix_hashing{
         tol_demuxmix = split_input(params.tol_demuxmix)
         maxIter_demuxmix = split_input(params.maxIter_demuxmix)
         k_hto = split_input(params.k_hto)
-        k_rna = split_input(params.k_rna) 
+        k_rna = split_input(params.k_rna)
+        assignmentOutDemuxmix = split_input(params.assignmentOutDemuxmix) 
         
 
-        demuxmix(seurat_object,rna_available, assay,model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna )
+        demuxmix(seurat_object,rna_available, assay,model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,assignmentOutDemuxmix )
   
   emit:
         demuxmix.out.collect()

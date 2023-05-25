@@ -155,7 +155,7 @@ workflow hash_demultiplexing{
     else{
         solo_out = channel.value("no_result")
     }
-    if(params.gmmDemux == "True"){
+    if(params.gmmDemux == "True" && params.rdsObject_preprocess == "FALSE"){
         gmm_demux_hashing()
         gmmDemux_out = gmm_demux_hashing.out
     }else{

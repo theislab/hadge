@@ -36,6 +36,7 @@ parser$add_argument("--perCellSaturation", help='An optional dataframe with the 
 parser$add_argument("--majorityConsensusThreshold", help='This applies to calculating a consensus call when multiple algorithms are used')
 parser$add_argument("--chemistry", help='This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3.')
 parser$add_argument("--callerDisagreementThreshold", help='If provided, the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells.')
+parser$add_argument("--assignmentOutBff", help="Prefix name for the file containing the output of BFF assignment", type = "character", default = "bff")
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
 
@@ -84,6 +85,7 @@ seurat_hto_counts <- hashtag[["HTO"]]@counts
 
 cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = seurat_hto_counts, methods = c("bff_raw", "bff_cluster"), doTSNE = FALSE, doHeatmap = FALSE)
 print("params.csv")
-#write.csv(params, paste0(args$outputdir, "/params.csv"))
-#write.csv(cell_hash_R_res, paste0(args$outputdir, "/", "assignment_bff.csv"))
-write.csv(cell_hash_R_res, "assignment_bff.csv")
+
+write.csv(params, paste0(args$outputdir, "/params.csv"))
+write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+

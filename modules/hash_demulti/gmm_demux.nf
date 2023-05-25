@@ -13,7 +13,7 @@ process gmm_demux{
         //obligatory
         each summary
         //need to be combined with summary to get a report as file
-        each report 
+        each report_gmm 
         //mode 4
         // write csv or tsv - type of input
         each mode_GMM
@@ -30,22 +30,25 @@ process gmm_demux{
     script:
         def extract_droplets = extract != 'None' ? " -x ${extract}" : ''
         
-        if(mode_GMM=="csv")
+        if(mode_GMM=="csv"){
             """
             mkdir gmm_demux_${task.index}
+            touch gmm_demux_${task.index}_$report_gmm
             
-            GMM-demux -c $path_hto $hto_name_gmm -u $summary --report gmm_demux_${task.index} --full gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report $report --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
+            GMM-demux -c $path_hto $hto_name_gmm -u $summary --report gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
+            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm   --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
             
             """
-        else
+        }else {
             """
             mkdir gmm_demux_${task.index}
+            touch gmm_demux_${task.index}_$report_gmm
             
-            GMM-demux $path_hto $hto_name_gmm -u $summary -r gmm_demux_${task.index}/$report --full gmm_demux_${task.index} -o gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report $report --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
+            GMM-demux $path_hto $hto_name_gmm -u $summary -r gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} -o gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
+            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
             
             """
+        }
 
 
 }
@@ -64,12 +67,12 @@ workflow gmm_demux_hashing{
         path_hto = split_input(params.hto_matrix_preprocess)
         hto_name_gmm = split_input(params.hto_name_gmm)
         summary = split_input(params.summary)
-        report = split_input(params.report)
+        report_gmm = split_input(params.report_gmm)
         mode = split_input(params.mode_GMM)
         extract = split_input(params.extract)
         threshold_gmm = split_input(params.threshold_gmm)
 
-        gmm_demux(path_hto,hto_name_gmm,summary,report,mode,extract,threshold_gmm)
+        gmm_demux(path_hto,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm)
   
   emit:
         gmm_demux.out.collect()
