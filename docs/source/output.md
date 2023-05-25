@@ -22,6 +22,9 @@ This document describes the output produced by each process of the pipeline.
 - DemuxEM
 - HashSolo
 - Solo
+- Demuxmix
+- GMM-Demux
+- BFF
 
 </details>
 
@@ -124,6 +127,29 @@ output directory: `hashedDrops/hashedDrops_[task_ID]`
 - `${params.assignmentOutHashedDrops}_res.csv`: the assignment of HashSolo
 - `${params.objectOutHashedDrops}_LogFC.png`: a diagnostic plot comparing the log-fold change between the second HTO's abundance and the ambient contamination
 - `params.csv`: specified parameters in the HashedDrops task
+
+### Demuxmix
+output directory: `demuxmix/demuxmix_[task_ID]`
+
+- `${params.assignmentOutDemuxmix}_assignment_demuxmix.csv`: the assignment and classification results produced by Demuxmix
+- `params.csv`: specified parameters in the Demuxmix task
+
+### GMM-Demux
+output directory: `gmm_demux/gmm_demux_[task_ID]`
+
+- `features.tsv.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
+- `barcodes.tsv.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
+- `matrix.mtx.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
+- `GMM_full.csv`: The classification file containing the label of each droplet as well as the probability of the classification.
+- `GMM_full.config`: Used to assign each classification to a donor using the numbers listed in the config file
+- `gmm_demux_${task.index}_report.txt`: Specify the file to store summary report, produced only if GMM can find a viable solution that satisfies the droplet formation model
+- `params.csv`: specified parameters in the GMM-Demux task
+
+### BFF
+output directory: `bff/bff_[task_ID]`
+
+- `${params.assignmentOutBff}_assignment_demuxmix.csv`: the assignment and classification results produced by BFF
+- `params.csv`: specified parameters in the BFF task
 
 ## Genetics-based deconvolution workflow
 
