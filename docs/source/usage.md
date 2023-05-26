@@ -71,12 +71,15 @@ When running genetics-based deconvolution methods without genotype reference, yo
 | HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                 | `params.hto_matrix_hashsolo`                               |
 | HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                          | `params.hto_matrix_hashedDrops`                            |
 | Demuxem              | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem` |
+| Demuxmix              | - Seurat object with both UMI and hashing count matrix (RDS) |  `params.rdsObj_demuxmix` |
+| GMM-Demux              | - 10x mtx directory with hashing count matrix |`params.hto_matrix_gmmDemux` |
+| BFF             | - Seurat object with both UMI and hashing count matrix (RDS) |`params.rdsObj_bff` |
 
 #### Pre-processing
 
-Similar as in the genetic demultiplexing workflow, we provide a pre-processing step specifically for HTODemux and Multiseq. The input is the UMI and hashing count matrix `params.umi_matrix_preprocess` and `params.hto_matrix_preprocess`. If the count matrix is already loaded as an RDS oject, set `params.rdsObject_preprocess` as `True`.
+Similar as in the genetic demultiplexing workflow, we provide a pre-processing step specifically for HTODemux, Multiseq, Demuxmix and BFF. The input is the UMI and hashing count matrix `params.umi_matrix_preprocess` and `params.hto_matrix_preprocess`. If the count matrix is already loaded as an RDS oject, set `params.rdsObject_preprocess` as `True`.
 
-For benchmarking, you can have following options for `[htodemux/multiseq]_preprocess`:
+For benchmarking, you can have following options for `[htodemux/multiseq/bff/demuxmix]_preprocess`:
 
 - `True`: activate pre-proecessing
 - `False`: inactivate pre-proecessing, get the input data from `params.rdsObj_[method]`
@@ -199,7 +202,7 @@ profiles{
 |                     |                                                                                                                                                                                                                                                     |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | htodemux            | Whether to perform HTODemux. Default: True                                                                                                                                                                                                          |
-| htodemux_preprocess | Wether to pre-processe the input data params.rdsObj_htodemux for HTODemux. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_htodemux as input for benchmarking. Default: True |
+| htodemux_preprocess | Whether to pre-processe the input data params.rdsObj_htodemux for HTODemux. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_htodemux as input for benchmarking. Default: True |
 | rdsObj_htodemux     | Input for HTODemux when htodemux_preprocess!=True, a Seurat object with normalized HTO data. Default: None                                                                                                                                          |
 | assay               | Name of the hashtag assay. Default: HTO                                                                                                                                                                                                             |
 | quantile_htodemux   | The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99                                                                                                                      |
@@ -233,7 +236,7 @@ profiles{
 |                     |                                                                                                                                                                                                                                       |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | multiseq            | Whether to perform Multiseq. Default: True                                                                                                                                                                                            |
-| multiseq_preprocess | Wether to pre-processe the input data params.rdsObj_multiseq for Multiseq. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_multiseq as input for benchmarking. |
+| multiseq_preprocess | Whether to pre-processe the input data params.rdsObj_multiseq for Multiseq. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_multiseq as input for benchmarking. |
 | rdsObj_multiseq     | Input for Multiseq when multiseq_preprocess!=True, a Seurat object with normalized HTO data. Default: None                                                                                                                            |
 | assay               | Name of the Hashtag assay. Default: HTO                                                                                                                                                                                               |
 | quantile_multi      | The quantile to use for classification. Default: 0.7                                                                                                                                                                                  |
@@ -325,6 +328,37 @@ profiles{
 | combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL |
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
+
+### Hashing-based: Demuxmix
+
+|                      |                                                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| demuxmix_mode              | Whether to perform Demuxmix. Default: True                                                                                     |
+| demuxmix_preprocess | Whether to pre-processe the input data params.rdsObj_demuxmix for Demuxmix. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_demuxmix as input for benchmarking. |
+| rdsObj_demuxmix     | Input for Demuxmix when demuxmix_preprocess!=True, a Seurat object with normalized HTO data. Default: None                                                                                                       |
+| assay               | Name of the Hashtag assay. Default: HTO                                                                                                       |
+| rna_available   |  Whether RNA assay is avaible or not. Necessary to use different models provided by Demuxmix. Default: False                                                                     |
+| model        | Specification for the type of mixture model to be used. Either "naive", "regpos", "reg" or "auto". The last three options require parameter rna to be specified. "auto" selects the best model based on the classification error probability summed over all droplets. |
+| alpha_demuxmix         | Threshold defining the left tail of the mixture distribution to classify singlets. Default: 0.9                                                      |
+| beta_demuxmix           | Threshold for defining the right tail of the mixture distribution to classify negatives. Threshold must be between 0 and 1. Default: 0.9                   |
+| tol_demuxmix                  | Threshold used for the EM convergence. Default: 1e-5                                                                         |
+| maxIter_demuxmix | Maximum number of iterations for the EM algorithm and for the alternating iteration process fitting the NB regression models within each EM iteration. Default: 100  |
+| k_hto         | Used to define outliers in the HTO counts. Among droplets positive for the hashtag based on initial clustering, HTO counts larger than a certain value are considered outliers.  Default: 1.5                                                                           |
+| k_rna     | Factor to define outliers in the numbers of detected genes. Default: 1.5                                                                           |
+
+### Hashing-based: GMM-Demux
+
+|                          |                                                                             |
+| ------------------------ | --------------------------------------------------------------------------- |
+| gmmDemux                 | Whether to perform GMM-Demux. Default: True                                  |
+| hto_matrix_gmmDemux      | Input folder to hashing expression matrix in 10x format. GMM only accepts tsv/csv files as input                   |
+| hto_name_gmm          | a list of sample tags (HTOs) separated by ',' without whitespace.  Default: None                          |
+| summary           | Generate the statstic summary of the dataset. It requires the total number of cells in the assay.  Default: 2000                            |
+| mode_GMM           | GMM-Demux only receives csv or tsv files as input, that must be specified. Default: tsv                             |
+| extract    | Extract names of the sample barcoding tag(s) to extract, separated by ','. Joint tags are linked with '+'. Whan extract is set, other functions are turned off. Default: None |
+| threshold_gmm      | It provides the confidence threshold value Default: 0.8 |
+| ambiguous | he estimated chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Only used if also extract is set. Default: 0.05     |
+
 
 ### Genetics-based: Demuxlet and dsc-pileup
 

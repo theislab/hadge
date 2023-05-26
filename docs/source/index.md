@@ -24,7 +24,9 @@ The hashing-based deconvolution includes 9 methods:
 - Demuxem
 - Solo
 - HashSolo
-- TODO
+- Demuxmix
+- GMM-Demux
+- BFF
 
 ## **Installation**
 

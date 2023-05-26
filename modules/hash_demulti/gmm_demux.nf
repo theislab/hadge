@@ -21,6 +21,7 @@ process gmm_demux{
         each extract 
         //float between 0 and 1
         each threshold_gmm
+        each ambiguous
         
         
     
@@ -29,14 +30,15 @@ process gmm_demux{
         
     script:
         def extract_droplets = extract != 'None' ? " -x ${extract}" : ''
-        
+        def ambiguous_droplets = extract != 'None' ? " --ambiguous ${ambiguous}" : ''
+
         if(mode_GMM=="csv"){
             """
             mkdir gmm_demux_${task.index}
             touch gmm_demux_${task.index}_$report_gmm
             
             GMM-demux -c $path_hto $hto_name_gmm -u $summary --report gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm   --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
+            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm   --mode $mode_GMM  $extract --threshold_gmm $threshold_gmm $ambiguous_droplets  --outputdir gmm_demux_${task.index}
             
             """
         }else {
@@ -45,7 +47,7 @@ process gmm_demux{
             touch gmm_demux_${task.index}_$report_gmm
             
             GMM-demux $path_hto $hto_name_gmm -u $summary -r gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} -o gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm --mode $mode_GMM --extract $extract --threshold_gmm $threshold_gmm --outputdir gmm_demux_${task.index}
+            Rscript $baseDir/bin/gmm_demux_params.R --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm --mode $mode_GMM $extract --threshold_gmm $threshold_gmm $ambiguous_droplets --outputdir gmm_demux_${task.index}
             
             """
         }
@@ -64,15 +66,16 @@ def split_input(input){
 
 workflow gmm_demux_hashing{
   main:
-        path_hto = split_input(params.hto_matrix_preprocess)
+        path_hto = split_input(params.hto_matrix_gmmDemux)
         hto_name_gmm = split_input(params.hto_name_gmm)
         summary = split_input(params.summary)
         report_gmm = split_input(params.report_gmm)
         mode = split_input(params.mode_GMM)
         extract = split_input(params.extract)
         threshold_gmm = split_input(params.threshold_gmm)
+        ambiguous = split_input(params.ambiguous)
 
-        gmm_demux(path_hto,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm)
+        gmm_demux(path_hto,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()
