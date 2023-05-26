@@ -359,6 +359,26 @@ profiles{
 | threshold_gmm      | It provides the confidence threshold value Default: 0.8 |
 | ambiguous | he estimated chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Only used if also extract is set. Default: 0.05     |
 
+### Hashing-based: BFF
+
+|                          |                                                                             |
+| ------------------------ | --------------------------------------------------------------------------- |
+| bff_mode                 | Whether to perform BFF. Default: True                                  |
+| bff_preprocess | Whether to pre-processe the input data params.rdsObj_bff for BFF. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_bff as input for benchmarking. |
+| rdsObj_bff     | Input for BFF when bff_preprocess!=True, a Seurat object with normalized HTO data. Default:None                                                                                             |
+| assay               | Name of the Hashtag assay. Default:HTO                                                                                              |
+
+| methods          | A vector of one or more calling methods to use.  Default: bff_raw,bff_cluster                         |
+| methodsForConsensus           | By default  a consensus call will be generated using all methods in the libray or the ones given as string separated by commas  Default: NULL                            |
+
+| cellbarcodeWhitelist    |  vector of expected cell barcodes. This allows reporting on the total set of expected barcodes. Default: NULL |
+| metricsFile      | If provided, summary metrics will be written to this file. Default: NULL |
+| doTSNE | If true, tSNE will be run on the resulting hashing calls after each caller. Default: True   |
+| doHeatmap | If true, Seurat::HTOHeatmap will be run on the results of each caller. Default: True|
+| perCellSaturation | An optional dataframe with the columns cellbarcode and saturation. Default: NULL|
+| majorityConsensusThreshold |calculating a consensus call when multiple algorithms are used. Between 0 and 1. Default: NULL|
+|chemistry| This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3. Default: 10xV3|
+| callerDisagreementThreshold | If used,  the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells. Default: NULL |
 
 ### Genetics-based: Demuxlet and dsc-pileup
 
