@@ -1,44 +1,34 @@
 #!/usr/bin/env nextflow
-'''
-        path "sorted.bam"
-        path "sorted.bam.bai"
-        path "filtered.bam"
-        path "filtered.bam.bai"
-        path "no_dup.bam"
-            sort_bam = samstool.out[0]
-        sort_bamindex = samstool.out[1]
-        
-'''
 nextflow.enable.dsl=2
 
 process samstool{
-    publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/samtools", mode: 'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/samtools", mode: 'copy'
     label 'big_mem'
 
     input:
-        file bam
+        tuple val(sampleId), path(bam)
 
     output:
-        path "samtools_${task.index}"
+        path "samtools_${sampleId}"
         
 
     script:
         """
-        mkdir samtools_${task.index}
-        samtools view -S -b -q 10 -F 3844 $bam > samtools_${task.index}/filtered.bam
-        samtools index samtools_${task.index}/filtered.bam samtools_${task.index}/filtered.bam.bai
-        umi_tools dedup --stdin=samtools_${task.index}/filtered.bam --extract-umi-method=tag --umi-tag=UR --cell-tag=CB --log=logfile > samtools_${task.index}/no_dup.bam
-        samtools sort samtools_${task.index}/no_dup.bam -o samtools_${task.index}/sorted.bam
-        samtools index samtools_${task.index}/sorted.bam samtools_${task.index}/sorted.bam.bai
+        mkdir samtools_${sampleId}
+        samtools view -S -b -q 10 -F 3844 $bam > samtools_${sampleId}/filtered.bam
+        samtools index samtools_${sampleId}/filtered.bam samtools_${sampleId}/filtered.bam.bai
+        umi_tools dedup --stdin=samtools_${sampleId}/filtered.bam --extract-umi-method=tag --umi-tag=UR --cell-tag=CB --log=logfile > samtools_${sampleId}/no_dup.bam
+        samtools sort samtools_${sampleId}/no_dup.bam -o samtools_${sampleId}/sorted.bam
+        samtools index samtools_${sampleId}/sorted.bam samtools_${sampleId}/sorted.bam.bai
         """
 }
 
 
 workflow data_preprocess{
     take:
-        bam
+        input_list
     main:
-        samstool(bam)
+        samstool(input_list)
     emit:
         samstool.out
 

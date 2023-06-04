@@ -2,7 +2,6 @@
 #options(future.globals.maxSize = 4000 * 1024^5)
 library(pheatmap)
 library(data.table)
-# library(magrittr)
 library(ComplexUpset)
 library(ggplot2)
 library(tidyverse)
@@ -63,12 +62,20 @@ if (!is.null(args$method1) && !is.null(args$method2)) {
 }
 
 
-hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo")
+hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo", "hashedDrops")
 genetic_methods <- c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
 
-best_score <- 0
+best_result <- c(0, TRUE)
 best_method1 <- NULL
 best_method2 <- NULL
+num_trial <- 1
+
+result_record <- data.frame(best_method1 = character(),
+                    best_method2 = character(),
+                    score = numeric(),
+                    matched_donor = numeric(),
+                    remain_na = logical(),
+                    stringsAsFactors = FALSE)
 
 if (is.null(method1_all) || is.null(method2_all)) {
   stop("No method is not found in the CSV file!")
@@ -88,10 +95,10 @@ for (i in 1:length(method1_all)){
 
   outputdir <- file.path(args$outputdir, paste0(method1, "_vs_", method2))
   ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
-
+  
   method1_res <- convert2binary(result_csv, method1)
   method2_res <- convert2binary(result_csv, method2)
-
+  
   intersect_barcode <- intersect(rownames(method1_res), rownames(method2_res))
   method1_res <- method1_res[rownames(method1_res) %in% intersect_barcode, ]
   method2_res <- method2_res[rownames(method2_res) %in% intersect_barcode, ]
@@ -104,6 +111,8 @@ for (i in 1:length(method1_all)){
   write.csv(correlation_res, file.path(outputdir, "correlation_res.csv"))
 
   match_score <- 0
+  remain_na <- FALSE
+  matched_donor <- 0
   geno_match <- as.data.frame(matrix(nrow = ncol(correlation_res), ncol = 3))
   colnames(geno_match) <- c("Method1", "Method2", "Correlation")
   geno_match$Method1 <- colnames(correlation_res)
@@ -116,11 +125,12 @@ for (i in 1:length(method1_all)){
         c(rownames(correlation_res)[which.max(correlation_res[, id])],
           max(correlation_res[, id], na.rm = TRUE))
       match_score <- match_score + max(correlation_res[, id], na.rm = TRUE)
+      matched_donor <- matched_donor + 1
     } else {
       geno_match[which(geno_match$Cluster1_ID == id)] <- c("unassigned", NA)
+      remain_na <- TRUE
     }
   }
-
   write.table(geno_match[,1:2],
               file.path(outputdir, "donor_match.csv"),
               row.names = FALSE, col.names = FALSE, sep = " ", quote = FALSE)
@@ -139,19 +149,29 @@ for (i in 1:length(method1_all)){
   }
 
   if (grepl(paste(hashing_methods, collapse = "|"), method2) &&
-      grepl(paste(genetic_methods, collapse = "|"), method1)) {
+    grepl(paste(genetic_methods, collapse = "|"), method1)) {
 
-    if (match_score > best_score){
+    if (!remain_na){
+      print(paste0("All pairs are matched between ", method1, " and ", method2))
+      print(match_score)
+      print("------------------------------------------------------------------")
+    }
+
+    if (match_score > best_result[1]){
       write.table(geno_match[, 1:2],
                   file.path(args$outputdir, "donor_match.csv"),
                   row.names = FALSE, col.names = FALSE,
                   sep = " ", quote = FALSE)
     }
 
-    best_method1 <- ifelse(match_score > best_score, method1, best_method1)
-    best_method2 <- ifelse(match_score > best_score, method2, best_method2)
-    best_score <- ifelse(match_score > best_score, match_score, best_score)
-
+    best_method1 <- ifelse(match_score > best_result[1], method1, best_method1)
+    best_method2 <- ifelse(match_score > best_result[1], method2, best_method2)
+    best_result[2] <- ifelse(match_score > best_result[1], remain_na, best_result[2])
+    best_result[1] <- ifelse(match_score > best_result[1], match_score, best_result[1])
+    new_record <- c(method1, method2, match_score, matched_donor, remain_na)
+    result_record[num_trial, ] <- new_record
+    num_trial <- num_trial + 1
+    
     result_merge <- select(result_csv, "Barcode", method1, method2)
     result_merge_new <- result_merge
 
@@ -165,7 +185,7 @@ for (i in 1:length(method1_all)){
               file.path(outputdir, "all_assignment_after_match.csv"),
               row.names = FALSE)
 
-    if (best_score == match_score) {
+    if (best_result[1]== match_score) {
       write.csv(result_merge_new,
                 file.path(args$outputdir, "all_assignment_after_match.csv"),
                 row.names = FALSE)
@@ -175,14 +195,20 @@ for (i in 1:length(method1_all)){
     write.csv(result_merge_new,
               file.path(outputdir, "intersect_assignment_after_match.csv"),
               row.names = FALSE)
+
+    print(paste0("Best score: ", best_result[1]))
+    print(paste0("Best method pair: ", best_method1, " and ", best_method2))
+    if (best_result[2]){
+      print("But be careful: Not all donors are matched!")
+    }
+    write.csv(result_record, file.path(args$outputdir, "score_record.csv"), row.names = FALSE)
+
+  }
+  else{
+    print("No donor matching is performed since this is not the comparison between genotype-based and hashing-based deconvolution methods.")
   }
 
 }
-
-print(best_score)
-print(best_method1)
-print(best_method2)
-
 
 if (args$findVariants == "True" || args$findVariants == "default") {
   if (startsWith(best_method1, "vireo")) {

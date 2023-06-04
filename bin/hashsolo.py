@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import argparse
 import pandas as pd
 
-parser = argparse.ArgumentParser(description='Parser for Hash Solo - Demultiplexing')
+parser = argparse.ArgumentParser(description='Parser for HashSolo - Demultiplexing')
 
 parser.add_argument('--hto_data', help='Input directory containing hashing count matrix in 10x mtx format.')
 parser.add_argument('--priors', metavar='N', type=float, nargs=3,
@@ -32,7 +32,7 @@ if __name__ == '__main__':
       trans_data = sc.read_10x_mtx(args.clustering_data)
       trans_data.var_names_make_unique()
       print("--------------------Get data-------------------------------")
-      hashsolo.hashsolo(cell_hashing_data, priors=args.priors, clustering_data=args.clustering_data, pre_existing_clusters=args.pre_existing_clusters, number_of_noise_barcodes=args.number_of_noise_barcodes)
+      hashsolo.hashsolo(cell_hashing_data, priors=args.priors, clustering_data=trans_data, pre_existing_clusters=args.pre_existing_clusters, number_of_noise_barcodes=args.number_of_noise_barcodes)
     else:
       print("--------------------Get data-------------------------------")
       hashsolo.hashsolo(cell_hashing_data, priors=args.priors, pre_existing_clusters=args.pre_existing_clusters, number_of_noise_barcodes=args.number_of_noise_barcodes)

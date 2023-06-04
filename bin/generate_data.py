@@ -11,7 +11,6 @@ parser.add_argument("--generate_anndata", help="Generate anndata", action='store
 parser.add_argument("--generate_mudata", help="Generate mudata", action='store_true')
 parser.add_argument("--read_rna_mtx", help="10x-Genomics-formatted mtx directory for gene expression", default=None)
 parser.add_argument("--read_hto_mtx", help="10x-Genomics-formatted mtx directory for HTO expression", default=None)
-
 args = parser.parse_args()
 
 if __name__ == '__main__':

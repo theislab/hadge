@@ -2,48 +2,38 @@
 nextflow.enable.dsl=2
 
 process vireo{
-    publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/vireo", mode: 'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
     label 'small_mem'
 
     input:
-        each celldata
-        each ndonor
-    
-        each vartrixData
-        each donorfile
-        each genoTag
-    
-        each noDoublet
-        each nInit
-        each extraDonor
-        each extraDonorMode
-        each forceLearnGT
-
-        each ASEmode
-        each noPlot
-        each randSeed
-        each cellRange
-        each callAmbientRNAs
-        each nproc
-        
-        each findVariant
-        
-        each vireo_out
+        tuple val(sampleId), path(celldata), val(ndonor), val(donorfile)
+        val genoTag
+        val noDoublet
+        val nInit
+        val extraDonor
+        val extraDonorMode
+        val forceLearnGT
+        val ASEmode
+        val noPlot
+        val randSeed
+        val cellRange
+        val callAmbientRNAs
+        val nproc
+        val findVariant
+        val vireo_out
 
 
     output:
-        path "vireo_${task.index}"
+        path "vireo_${sampleId}"
     
 
     script:
         def cell_data = "-c $celldata"
         def celldata_name = celldata.baseName
         def n_donor =  ndonor != 'None'? "-N $ndonor" : ''
-        def n_donor_yesno =  ndonor != 'None'? "$ndonor" : "no_ndonor"
-        def vartrix_data = vartrixData != 'None' ? "--vartrixData $vartrixData" : ''
-        def vartrix_data_name = vartrixData != 'None' ? file(vartrixData).baseName : 'vartrixData_not_given'
+        def n_donor_yesno =  ndonor != 'None'? "$ndonor" : "Number of donors are not given"
         def donor = donorfile != 'None' ? "-d $donorfile" : ''
-        def donor_data_name = donorfile != 'None' ? file(donorfile).baseName : 'donorfile_not_given'
+        def donor_data_name = donorfile != 'None' ? donorfile : 'Donor file is not given'
         def geno_tag = donorfile != 'None' ? "--genoTag $genoTag" : ''
         def no_doublet = noDoublet != 'False' ? "--noDoublet" : ''
         def n_init = "--nInit $nInit"
@@ -59,14 +49,17 @@ process vireo{
         def n_proc = "--nproc $nproc"
 
         """
-        mkdir vireo_${task.index}
-        mkdir vireo_${task.index}/${vireo_out}
-        touch vireo_${task.index}/params.csv
-        echo -e "Argument,Value \n cell_data,${celldata_name} \n n_donor,${n_donor_yesno} \n vartrix_data, ${vartrix_data_name} \n donor_data, ${donor_data_name} \n genoTag, ${genoTag} \n noDoublet, ${noDoublet} \n nInit, ${nInit} \n extraDonor, ${extraDonor} \n extraDonorMode, ${extraDonorMode} \n learnGT, ${learnGT_yesno} \n ASEmode, ${ASEmode} \n noPlot, ${noPlot} \n randSeed, ${randSeed} \n cellRange, ${cellRange} \n callAmbientRNAs, ${callAmbientRNAs} \n nproc, ${nproc}" >> vireo_${task.index}/params.csv
-        vireo ${cell_data} ${n_donor} ${vartrix_data} $donor ${geno_tag} ${no_doublet} ${n_init} ${extra_donor} ${extradonor_mode} $learnGT ${ase_mode} ${no_plot} ${random_seed} ${cell_range} ${call_ambient_rna} ${n_proc} -o vireo_${task.index}/${vireo_out}
-        if ([ "$donorfile" = "None" ]); then
+        mkdir vireo_${sampleId}
+        mkdir vireo_${sampleId}/${vireo_out}
+        touch vireo_${sampleId}/params.csv
+        echo -e "Argument,Value \n cell_data,${celldata_name} \n n_donor,${n_donor_yesno} \n donor_data,${donor_data_name} \n genoTag,${genoTag} \n noDoublet,${noDoublet} \n nInit,${nInit} \n extraDonor,${extraDonor} \n extraDonorMode,${extraDonorMode} \n learnGT,${learnGT_yesno} \n ASEmode,${ASEmode} \n noPlot,${noPlot} \n randSeed,${randSeed} \n cellRange,${cellRange} \n callAmbientRNAs,${callAmbientRNAs} \n nproc,${nproc}" >> vireo_${sampleId}/params.csv
+        
+        vireo ${cell_data} ${n_donor} $donor ${geno_tag} ${no_doublet} ${n_init} ${extra_donor} ${extradonor_mode} $learnGT \
+            ${ase_mode} ${no_plot} ${random_seed} ${cell_range} ${call_ambient_rna} ${n_proc} -o vireo_${sampleId}/${vireo_out}
+        
+        if ([ "$donor_data_name" = "Donor file is not given" ]); then
             if ([ "$findVariant" = "True" ] || [ "$findVariant" = "vireo" ]); then
-                GTbarcode -i vireo_${task.index}/${vireo_out}/GT_donors.vireo.vcf.gz -o vireo_${task.index}/${vireo_out}/filtered_variants.tsv ${randSeed}
+                GTbarcode -i vireo_${sampleId}/${vireo_out}/GT_donors.vireo.vcf.gz -o vireo_${sampleId}/${vireo_out}/filtered_variants.tsv ${randSeed}
             fi
         fi
         
@@ -74,43 +67,28 @@ process vireo{
 
 }
 
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
-    }
-    else{
-        Channel.from(input)
-    }
-}
-
 workflow demultiplex_vireo{
     take:
-        celldata
+        input_list
           
     main:
-        ndonor = split_input(params.nsample)
-
-        vartrixData = split_input(params.vartrixData)
-        donorfile = split_input(params.vcf_donor)
-        genoTag = split_input(params.genoTag)
-
-        noDoublet = split_input(params.noDoublet)
-        nInit = split_input(params.nInit)
-        extraDonor = split_input(params.extraDonor)
-        extraDonorMode = split_input(params.extraDonorMode)
-        forceLearnGT = split_input(params.forceLearnGT)
-
-        ASEmode = split_input(params.ASEmode)
-        noPlot = split_input(params.noPlot)
-        randSeed = split_input(params.randSeed)
-        cellRange = split_input(params.cellRange)
-        callAmbientRNAs = split_input(params.callAmbientRNAs)
-        nproc = split_input(params.nproc)
-        findVariant = split_input(params.findVariants)
-        vireo_out = split_input(params.vireo_out)
+        genoTag = params.genoTag
+        noDoublet = params.noDoublet
+        nInit = params.nInit
+        extraDonor = params.extraDonor
+        extraDonorMode = params.extraDonorMode
+        forceLearnGT = params.forceLearnGT
+        ASEmode = params.ASEmode
+        noPlot = params.noPlot
+        randSeed = params.randSeed
+        cellRange = params.cellRange
+        callAmbientRNAs = params.callAmbientRNAs
+        nproc = params.nproc
+        findVariant = params.findVariants
+        vireo_out = params.vireo_out
     
-        vireo(celldata, ndonor, vartrixData, donorfile, genoTag, noDoublet, nInit, extraDonor, extraDonorMode, forceLearnGT, ASEmode, noPlot, randSeed, cellRange, callAmbientRNAs, nproc, findVariant, vireo_out)
+        vireo(input_list, genoTag, noDoublet, nInit, extraDonor, extraDonorMode, forceLearnGT, ASEmode, noPlot, randSeed, \
+            cellRange, callAmbientRNAs, nproc, findVariant, vireo_out)
     
 
     emit:

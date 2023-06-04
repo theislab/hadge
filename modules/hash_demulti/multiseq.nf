@@ -2,64 +2,54 @@
 nextflow.enable.dsl=2
 
 process multi_seq{
-    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/multiseq", mode:'copy'
+    publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/multiseq", mode: 'copy'
     label 'seurat'
     label 'small_mem'
     
     input:
-    each rdsObject
-    each quantile
-    each autoThresh
-    each maxiter
-    each qrangeFrom
-    each qrangeTo
-    each qrangeBy
-    each verbose
-    each assay
-    each objectOutMulti
-    each assignmentOutMulti
+        each seurat_object
+        val quantile
+        val autoThresh
+        val maxiter
+        val qrangeFrom
+        val qrangeTo
+        val qrangeBy
+        val verbose
+        val assay
+        val objectOutMulti
+        val assignmentOutMulti
 
     output:
-        path "multiseq_${task.index}"
+        path "multiseq_${seurat_object.name.tokenize( '_' )[1]}"
 
     script:
+        def sampleId = seurat_object.name.tokenize( '_' )[1]
         def autoThr = autoThresh != 'FALSE' ? " --autoThresh" : ''
         def verb = verbose != 'FALSE' ? " --verbose" : ''
                 
         """
-        mkdir multiseq_${task.index}
-        MultiSeq.R --seuratObjectPath $rdsObject  --assay $assay --quantile $quantile $autoThr --maxiter $maxiter --qrangeFrom $qrangeFrom --qrangeTo $qrangeTo --qrangeBy $qrangeBy $verb --objectOutMulti $objectOutMulti --assignmentOutMulti $assignmentOutMulti --outputdir multiseq_${task.index}
+        mkdir multiseq_${sampleId}
+        MultiSeq.R --seuratObjectPath $seurat_object  --assay $assay --quantile $quantile $autoThr \
+                   --maxiter $maxiter --qrangeFrom $qrangeFrom --qrangeTo $qrangeTo --qrangeBy $qrangeBy \
+                   $verb --objectOutMulti $objectOutMulti --assignmentOutMulti $assignmentOutMulti --outputdir multiseq_${sampleId}
         """
-}
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
-    }
-    else{
-        Channel.from(input)
-    }
 }
 
 workflow multiseq_hashing{
    take:
-        rdsObject
+        seurat_object
    main:
-        quantile = split_input(params.quantile_multi)
-        autoThresh = split_input(params.autoThresh)
-        maxIter = split_input(params.maxiter)
-        qrangeFrom = split_input(params.qrangeFrom)
-        qrangeTo = split_input(params.qrangeTo)
-        qrangeBy = split_input(params.qrangeBy)
-        verbose = split_input(params.verbose_multiseq)
-        assay = split_input(params.assay)
-        objectOutMulti = split_input(params.objectOutMulti)
-        assignmentOutMulti = split_input(params.assignmentOutMulti)
-        multi_seq(rdsObject, quantile, autoThresh, maxIter, qrangeFrom, qrangeTo, qrangeBy, verbose, assay, objectOutMulti, assignmentOutMulti)
+        quantile = params.quantile_multi
+        autoThresh = params.autoThresh
+        maxIter = params.maxiter
+        qrangeFrom = params.qrangeFrom
+        qrangeTo = params.qrangeTo
+        qrangeBy = params.qrangeBy
+        verbose = params.verbose_multiseq
+        assay = params.assay
+        objectOutMulti = params.objectOutMulti
+        assignmentOutMulti = params.assignmentOutMulti
+        multi_seq(seurat_object, quantile, autoThresh, maxIter, qrangeFrom, qrangeTo, qrangeBy, verbose, assay, objectOutMulti, assignmentOutMulti)
    emit:
         multi_seq.out.collect()
-}
-
-workflow{
-     multiseq_hashing()
 }

@@ -2,68 +2,56 @@
 nextflow.enable.dsl=2
 
 process demuxem{
-    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxem", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
     
     input:
-        each raw_rna_matrix_dir
-        each raw_hto_matrix_dir
-        each threads
-        each alpha
-        each alpha_noise
-        each tol
-        each min_num_genes
-        each min_num_umis
-        each min_signal
-        each random_state
-        each generate_gender_plot
-        each objectOutDemuxem
+        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"), 
+                             path(raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}")
+        val threads
+        val alpha
+        val alpha_noise
+        val tol
+        val min_num_genes
+        val min_num_umis
+        val min_signal
+        val random_state
+        val generate_gender_plot
+        val objectOutDemuxem
     output:
-        path "demuxem_${task.index}"
+        path "demuxem_${sampleId}"
         
     script:
         def generateGenderPlot = generate_gender_plot != 'None' ? " --generateGenderPlot ${generate_gender_plot}" : ''
         """
-        mkdir demuxem_${task.index}
-        demuxem.py --rna_matrix_dir $raw_rna_matrix_dir --hto_matrix_dir $raw_hto_matrix_dir --randomState $random_state --min_signal $min_signal --min_num_genes $min_num_genes --min_num_umis $min_num_umis --alpha $alpha --alpha_noise $alpha_noise --tol $tol --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${task.index}
+        mkdir demuxem_${sampleId}
+        demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \
+            --randomState $random_state --min_signal $min_signal --tol $tol \
+            --min_num_genes $min_num_genes --min_num_umis $min_num_umis --alpha $alpha --alpha_noise $alpha_noise \
+            --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId}
         
         """
 
 }
 
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
-    }
-    else{
-        Channel.from(input)
-    }
-}
-
 workflow demuxem_hashing{
-  main:
-        raw_rna_matrix_dir = split_input(params.rna_matrix_demuxem)
-        raw_hto_matrix_dir = split_input(params.hto_matrix_demuxem)
-        threads = split_input(params.threads_demuxem)
-        alpha = split_input(params.alpha_demuxem)
-        alpha_noise = split_input(params.alpha_noise)
-        min_num_genes = split_input(params.min_num_genes)
-        min_num_umis = split_input(params.min_num_umis)
-        min_signal = split_input(params.min_signal)
-        tol = split_input(params.tol)
-        random_state = split_input(params.random_state)
-        generate_gender_plot = split_input(params.generate_gender_plot)
-        objectOutDemuxem = split_input(params.objectOutDemuxem)
+    take:
+        input_list
+    main:
+        threads = params.threads_demuxem
+        alpha = params.alpha_demuxem
+        alpha_noise = params.alpha_noise
+        min_num_genes = params.min_num_genes
+        min_num_umis = params.min_num_umis
+        min_signal = params.min_signal
+        tol = params.tol
+        random_state = params.random_state
+        generate_gender_plot = params.generate_gender_plot
+        objectOutDemuxem = params.objectOutDemuxem
 
-        demuxem(raw_rna_matrix_dir, raw_hto_matrix_dir, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, min_signal, random_state, generate_gender_plot, objectOutDemuxem)
+        demuxem(input_list, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
+                min_signal, random_state, generate_gender_plot, objectOutDemuxem)
   
   emit:
         demuxem.out.collect()
-}
-
-
-workflow{
-    demuxem_hashing()
-
-
 }
