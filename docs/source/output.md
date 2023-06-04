@@ -129,12 +129,14 @@ output directory: `hashedDrops/hashedDrops_[task_ID]`
 - `params.csv`: specified parameters in the HashedDrops task
 
 ### Demuxmix
+
 output directory: `demuxmix/demuxmix_[task_ID]`
 
 - `${params.assignmentOutDemuxmix}_assignment_demuxmix.csv`: the assignment and classification results produced by Demuxmix
 - `params.csv`: specified parameters in the Demuxmix task
 
 ### GMM-Demux
+
 output directory: `gmm_demux/gmm_demux_[task_ID]`
 
 - `features.tsv.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
@@ -146,6 +148,7 @@ output directory: `gmm_demux/gmm_demux_[task_ID]`
 - `params.csv`: specified parameters in the GMM-Demux task
 
 ### BFF
+
 output directory: `bff/bff_[task_ID]`
 
 - `${params.assignmentOutBff}_assignment_demuxmix.csv`: the assignment and classification results produced by BFF
