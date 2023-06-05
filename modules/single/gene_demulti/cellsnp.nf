@@ -2,13 +2,15 @@
 nextflow.enable.dsl=2
 
 process cellSNP{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP", mode: 'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP", mode: 'copy'
     label 'big_mem'
 
     input:
-        tuple val(sampleId), path(samFile_cellSNP), path(indexFile_cellSNP), path(barcodeFile_cellSNP)
+        path samFile_cellSNP
+        path indexFile_cellSNP
         val regionsVCF_cellSNP
         val targetsVCF_cellSNP
+        path barcodeFile_cellSNP
         val sampleList_cellSNP
         val sampleIDs_cellSNP
         val genotype_cellSNP
@@ -31,13 +33,13 @@ process cellSNP{
 
 
     output:
-        path "cellsnp_${sampleId}"
+        path "cellsnp_${task.index}"
 
     script:
-        def samFile = "--samFile ${samFile_cellSNP}"
+        def samFile = samFile_cellSNP.name != 'None' ? "--samFile ${samFile_cellSNP}" : ''
         def regionsVCF = regionsVCF_cellSNP != 'None' ? "--regionsVCF ${regionsVCF_cellSNP}" : ''
         def targetsVCF = targetsVCF_cellSNP != 'None' ? "--targetsVCF ${targetsVCF_cellSNP}" : ''
-        def barcodeFile = "--barcodeFile ${barcodeFile_cellSNP}"
+        def barcodeFile = barcodeFile_cellSNP.name != 'None' ? "--barcodeFile ${barcodeFile_cellSNP}" : ''
         def sampleList = sampleList_cellSNP != 'None' ? "--sampleList ${sampleList_cellSNP}" : ''
         def sampleIDs = sampleIDs_cellSNP != 'None' ? "--sampleIDs ${sampleIDs_cellSNP}" : ''
         def genotype = genotype_cellSNP != 'False' ? "--genotype" : ''
@@ -56,37 +58,37 @@ process cellSNP{
         def minLEN = "--minLEN ${minLEN_cellSNP}"
         def minMAPQ = "--minMAPQ ${minMAPQ_cellSNP}"
         def countORPHAN = countORPHAN_cellSNP != 'False' ? "--countORPHAN" : ''
-        def out = "cellsnp_${sampleId}/${cellsnp_out}"
+        def out = "cellsnp_${task.index}/${cellsnp_out}"
 
         """
-        base_name_bam="\$(basename $samFile_cellSNP)"
-        base_name_bai="\$(basename $indexFile_cellSNP)"
-        base_name1="\${base_name_bam%.*}"
-        base_name2="\${base_name_bai%.*}"
-        if [ "\$base_name1" = "\$base_name2" ]; then
-            echo "The bam file and bam index have the same base name."
-        else
-            echo "The bam file and bam index have different base name."
-            new_file_name="\${base_name1}.bai"
-            cp $indexFile_cellSNP \$new_file_name
-        fi
-        mkdir cellsnp_${sampleId}
+        mkdir cellsnp_${task.index}
         mkdir $out
-        touch cellsnp_${sampleId}/params.csv
-        echo -e "Argument,Value \n samfile,${samFile_cellSNP} \n regionsVCF,${regionsVCF_cellSNP} \n targetsVCF,${targetsVCF_cellSNP} \n barcodeFile,${barcodeFile_cellSNP} \n sampleList,${sampleList_cellSNP} \n sampleIDs,${sampleIDs_cellSNP} \n genotype,${genotype_cellSNP} \n gzip,${gzip_cellSNP} \n printSkipSNPs,${printSkipSNPs_cellSNP} \n nproc,${nproc_cellSNP} \n refseq,${refseq_cellSNP} \n chrom,${chrom_cellSNP} \n cellTAG,${cellTAG_cellSNP} \n UMItag,${UMItag_cellSNP} \n minCOUNT,${minCOUNT_cellSNP} \n minMAF,${minMAF_cellSNP} \n doubletGL,${doubletGL_cellSNP} \n inclFLAG,${inclFLAG_cellSNP} \n exclFLAG,${exclFLAG_cellSNP} \n minLEN,${minLEN_cellSNP} \n minMAPQ,${minMAPQ_cellSNP} \n countORPHAN,${countORPHAN_cellSNP}" >> cellsnp_${sampleId}/params.csv
-        cellsnp-lite $samFile $regionsVCF $targetsVCF $barcodeFile $sampleList $sampleIDs $genotype $gzip $printSkipSNPs \
-            $nproc $refseq $chrom $cellTAG $UMItag $minCOUNT $minMAF $doubletGL $inclFLAG $exclFLAG $minLEN $minMAPQ \
-            $countORPHAN --outDir $out
+        touch cellsnp_${task.index}/params.csv
+        echo -e "Argument,Value \n samfile,${samFile_cellSNP} \n regionsVCF,${regionsVCF_cellSNP} \n targetsVCF,${targetsVCF_cellSNP} \n barcodeFile,${barcodeFile_cellSNP} \n sampleList,${sampleList_cellSNP} \n sampleIDs,${sampleIDs_cellSNP} \n genotype,${genotype_cellSNP} \n gzip,${gzip_cellSNP} \n printSkipSNPs,${printSkipSNPs_cellSNP} \n nproc,${nproc_cellSNP} \n refseq,${refseq_cellSNP} \n chrom,${chrom_cellSNP} \n cellTAG,${cellTAG_cellSNP} \n UMItag,${UMItag_cellSNP} \n minCOUNT,${minCOUNT_cellSNP} \n minMAF,${minMAF_cellSNP} \n doubletGL,${doubletGL_cellSNP} \n inclFLAG,${inclFLAG_cellSNP} \n exclFLAG,${exclFLAG_cellSNP} \n minLEN,${minLEN_cellSNP} \n minMAPQ,${minMAPQ_cellSNP} \n countORPHAN,${countORPHAN_cellSNP}" >> cellsnp_${task.index}/params.csv
+        cellsnp-lite $samFile $regionsVCF $targetsVCF $barcodeFile $sampleList $sampleIDs \
+            $genotype $gzip $printSkipSNPs $nproc $refseq $chrom $cellTAG $UMItag $minCOUNT $minMAF $doubletGL \
+            $inclFLAG $exclFLAG $minLEN $minMAPQ $countORPHAN --outDir $out
         cd $out
         gunzip -c cellSNP.cells.vcf.gz > cellSNP.cells.vcf
         """
 }
 
 
+def split_input(input){
+    if (input =~ /;/ ){
+        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+    }
+    else{
+        Channel.from(input)
+    }
+}
+
 workflow variant_cellSNP{
     take:
-        input_list
+        samFile
+        indexFile
     main:
+        barcodeFile = channel.fromPath(params.barcodes)
         regionsVCF = channel.value(params.common_variants_cellsnp)
         targetsVCF = channel.value(params.targetsVCF)
         sampleList = channel.value(params.sampleList)
@@ -108,9 +110,9 @@ workflow variant_cellSNP{
         minMAPQ = channel.value(params.minMAPQ)
         countORPHAN = channel.value(params.countORPHAN)
         cellsnp_out = channel.value(params.cellsnp_out)
-        cellSNP(input_list, regionsVCF, targetsVCF, sampleList, sampleIDs, genotype_cellSNP, gzip_cellSNP, printSkipSNPs, 
-            nproc_cellSNP, refseq_cellSNP, chrom, cellTAG, UMItag, minCOUNT, minMAF, doubletGL, inclFLAG, exclFLAG, minLEN, minMAPQ, 
-            countORPHAN, cellsnp_out)
+        cellSNP(samFile, indexFile, regionsVCF, targetsVCF, barcodeFile, sampleList, 
+            sampleIDs, genotype_cellSNP, gzip_cellSNP, printSkipSNPs, nproc_cellSNP, refseq_cellSNP, 
+            chrom, cellTAG, UMItag, minCOUNT, minMAF, doubletGL, inclFLAG, exclFLAG, minLEN, minMAPQ, countORPHAN, cellsnp_out)
     emit:
         cellSNP.out
 }

@@ -11,16 +11,16 @@ parser.add_argument("--demuxem", help="Folder containing output files of demuxem
 parser.add_argument("--htodemux", help="Folder containing output files of htodemux", default=None)
 parser.add_argument("--multiseq", help="Folder containing output files of multiseq", default=None)
 parser.add_argument("--hashsolo", help="Folder containing output files of hashsolo", default=None)
-parser.add_argument("--solo", help="Folder containing output files of solo", default=None)
 parser.add_argument("--hashedDrops", help="Folder containing output files of hashedDrops", default=None)
 parser.add_argument("--generate_anndata", help="Generate anndata", action='store_true')
 parser.add_argument("--generate_mudata", help="Generate mudata", action='store_true')
 parser.add_argument("--read_rna_mtx", help="10x-Genomics-formatted mtx directory for gene expression", default=None)
 parser.add_argument("--read_hto_mtx", help="10x-Genomics-formatted mtx directory for HTO expression", default=None)
+parser.add_argument("--sampleId", help="sampleID if multiple samples are demultiplexed", default=None)
 
 args = parser.parse_args()
 
-def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
+def demuxem_summary(demuxem_res, raw_adata, raw_mudata, sampleId):
     assign = []
     classi = []
     params = []
@@ -41,7 +41,7 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            adata.write("hash_summary" + sampleId + "/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         # TODO: add mudata
 
@@ -61,16 +61,16 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
         
 
     assign = pd.concat(assign, axis=1)
-    assign.to_csv("hash_summary/demuxem_assignment.csv", quoting=False)
+    assign.to_csv("hash_summary" + sampleId + "/demuxem_assignment.csv", quoting=False)
 
     classi = pd.concat(classi, axis=1)
-    classi.to_csv("hash_summary/demuxem_classification.csv", quoting=False)
+    classi.to_csv("hash_summary" + sampleId + "/demuxem_classification.csv", quoting=False)
     
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/demuxem_params.csv")
+    params.to_csv("hash_summary" + sampleId + "/demuxem_params.csv")
 
 
-def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
+def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata, sampleId):
     assign = []
     classi = []
     params = []
@@ -90,7 +90,7 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            adata.write("hash_summary" + sampleId + "/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
         hashsolo_classi["most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0: "negative", 1: "singlet", 2: "doublet"})
@@ -103,15 +103,15 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
         params.append(params_res)
 
     assign = pd.concat(assign, axis=1)
-    assign.to_csv("hash_summary/hashsolo_assignment.csv", quoting=False)
+    assign.to_csv("hash_summary" + sampleId + "/hashsolo_assignment.csv", quoting=False)
     
     classi = pd.concat(classi, axis=1)
-    classi.to_csv("hash_summary/hashsolo_classification.csv", quoting=False)
+    classi.to_csv("hash_summary" + sampleId + "/hashsolo_classification.csv", quoting=False)
     
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/hashsolo_params.csv")
+    params.to_csv("hash_summary" + sampleId + "/hashsolo_params.csv")
 
-def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
+def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata, sampleId):
     assign = []
     classi = []
     params = []
@@ -134,7 +134,7 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            adata.write("hash_summary" + sampleId + "/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         hasheddrops_classi = obs_res[["Barcode", "Classification"]]
         hasheddrops_classi.rename(columns={"Classification": os.path.basename(x)}, inplace=True)
@@ -146,15 +146,15 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
         params.append(params_res)
 
     assign = pd.concat(assign, axis=1).reset_index(drop=True)
-    assign.to_csv("hash_summary/hasheddrops_assignment.csv", index=False, quoting=False)
+    assign.to_csv("hash_summary" + sampleId + "/hasheddrops_assignment.csv", index=False, quoting=False)
     
     classi = pd.concat(classi, axis=1).reset_index(drop=True)
-    classi.to_csv("hash_summary/hasheddrops_classification.csv", index=False, quoting=False)
+    classi.to_csv("hash_summary" + sampleId + "/hasheddrops_classification.csv", index=False, quoting=False)
     
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/hasheddrops_params.csv")
+    params.to_csv("hash_summary" + sampleId + "/hasheddrops_params.csv")
 
-def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
+def multiseq_summary(multiseq_res, raw_adata, raw_mudata, sampleId):
     assign = []
     params = []
     for x in multiseq_res:
@@ -173,7 +173,7 @@ def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            adata.write("hash_summary" + sampleId + "/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
         params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)
@@ -181,16 +181,16 @@ def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
         params.append(params_res)
     
     assign = pd.concat(assign, axis=1)
-    assign.to_csv("hash_summary/multiseq_assignment.csv", quoting=False)
+    assign.to_csv("hash_summary" + sampleId + "/multiseq_assignment.csv", quoting=False)
 
     classi = assign.copy()
     classi[(classi != "doublet") & (classi != "negative")] = "singlet"
-    classi.to_csv("hash_summary/multiseq_classification.csv", quoting=False)
+    classi.to_csv("hash_summary" + sampleId + "/multiseq_classification.csv", quoting=False)
 
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/multiseq_params.csv")
+    params.to_csv("hash_summary" + sampleId + "/multiseq_params.csv")
 
-def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
+def htodemux_summary(htodemux_res, raw_adata, raw_mudata, sampleId):
     assign = []
     classi = []
     params = []
@@ -210,7 +210,7 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            adata.write("hash_summary" + sampleId + "/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
         obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_classification_htodemux.csv")][0])
         htodemux_classi = pd.read_csv(obs_res_dir)
@@ -229,107 +229,75 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
         params.append(params_res)
 
     assign = pd.concat(assign, axis=1)
-    assign.to_csv("hash_summary/htodemux_assignment.csv", quoting=False)
+    assign.to_csv("hash_summary" + sampleId + "/htodemux_assignment.csv", quoting=False)
 
     classi = pd.concat(classi, axis=1)
-    classi.to_csv("hash_summary/htodemux_classification.csv", quoting=False)
+    classi.to_csv("hash_summary" + sampleId + "/htodemux_classification.csv", quoting=False)
     
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/htodemux_params.csv")
+    params.to_csv("hash_summary" + sampleId + "/htodemux_params.csv")
         
-def solo_summary(solo_res, raw_adata, raw_mudata):
-    classi = []
-    params = []
-    
-    for x in solo_res:
-        obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_res.csv")][0])
-        solo_classi = pd.read_csv(obs_res_dir)
-        solo_classi.columns = ["Barcode", os.path.basename(x)]
-        solo_classi["Barcode"] = solo_classi["Barcode"].str.replace("-0", "")
-        solo_classi.index = solo_classi.Barcode
-        solo_classi = solo_classi.drop(columns=['Barcode'])
-        classi.append(solo_classi)
-
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            adata.obs = adata.obs.merge(solo_classi, left_index=True, right_index=True, how='left')
-            adata.obs.rename(columns={adata.obs.columns[0]: 'droplet'}, inplace=True)
-            adata.obs.droplet = adata.obs.droplet.fillna("negative")
-            adata.obs.droplet = adata.obs.droplet.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
-
-        params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
-        params_res = pd.read_csv(params_dir, usecols=[0, 1], keep_default_na=False, index_col=0)
-        params_res.columns = [os.path.basename(x)]
-        params.append(params_res)
-    
-    classi = pd.concat(classi, axis=1, join="outer")
-    classi.to_csv("hash_summary/solo_classification.csv", quoting=False)
-    
-    params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/solo_params.csv")
 
 if __name__ == '__main__':
     adata = None
     mudata = None
-
-    os.mkdir("hash_summary")
-    os.mkdir("hash_summary/adata")
-    os.mkdir("hash_summary/mudata")
+    sampleId = ""
+    if args.sampleId is not None:
+        sampleId = "_" + args.sampleId
+    
+    if not os.path.exists("hash_summary" + sampleId):
+        os.mkdir("hash_summary" + sampleId)
 
     if args.generate_anndata is True:
+        os.mkdir("hash_summary" + sampleId + "/adata")
         adata = sc.read_10x_mtx(args.read_rna_mtx)
     
     if args.generate_mudata is True:
         # TODO
+        os.mkdir("hash_summary" + sampleId + "/mudata")
         pass
 
     if args.hashedDrops is not None:
         hashedDrops_res = args.hashedDrops.split(':')
-        hasheddrops_summary(hashedDrops_res, adata, mudata)
+        hasheddrops_summary(hashedDrops_res, adata, mudata, sampleId)
         print("hashedDrops result found")
 
     if args.demuxem is not None:
         demuxem_res = args.demuxem.split(':')
-        demuxem_summary(demuxem_res, adata, mudata)
+        demuxem_summary(demuxem_res, adata, mudata, sampleId)
         print("DemuxEM result found")
 
     if args.hashsolo is not None:
         hashsolo_res = args.hashsolo.split(':')
-        hashsolo_summary(hashsolo_res, adata, mudata)
+        hashsolo_summary(hashsolo_res, adata, mudata, sampleId)
         print("HashSolo result found")
 
     if args.multiseq is not None:
         multiseq_res = args.multiseq.split(':')
-        multiseq_summary(multiseq_res, adata, mudata)
+        multiseq_summary(multiseq_res, adata, mudata, sampleId)
         print("MultiSeqDemux result found")
 
     if args.htodemux is not None:
         htodemux_res = args.htodemux.split(':')
-        htodemux_summary(htodemux_res, adata, mudata)
+        htodemux_summary(htodemux_res, adata, mudata, sampleId)
         print("HTODemux result found")
 
-    if args.solo is not None:
-        solo_res = args.solo.split(':')
-        solo_summary(solo_res, adata, mudata)
-        print("solo result found")
-
     # Read and combine assignment files
-    assignment = [file for file in os.listdir("hash_summary") if file.endswith("_assignment.csv")]
-    assignment_all = pd.read_csv(os.path.join("hash_summary", assignment[0]))
+    assignment = [file for file in os.listdir("hash_summary" + sampleId) if file.endswith("_assignment.csv")]
+    assignment_all = pd.read_csv(os.path.join("hash_summary" + sampleId, assignment[0]))
 
     if len(assignment) > 1:
         for df in assignment[1:]:
-            df = pd.read_csv(os.path.join("hash_summary",df))
+            df = pd.read_csv(os.path.join("hash_summary" + sampleId, df))
             assignment_all = pd.merge(assignment_all, df, on='Barcode', how='outer')
-    assignment_all.to_csv("hash_summary/hashing_assignment_all.csv", index=False)
+    assignment_all.to_csv("hash_summary" + sampleId + "/hashing_assignment_all.csv", index=False)
 
     # Read and combine classification files
-    classification = [file for file in os.listdir("hash_summary") if file.endswith("_classification.csv")]
-    classification_all = pd.read_csv(os.path.join("hash_summary", classification[0]))
+    classification = [file for file in os.listdir("hash_summary" + sampleId) if file.endswith("_classification.csv")]
+    classification_all = pd.read_csv(os.path.join("hash_summary" + sampleId, classification[0]))
 
     if len(classification) > 1:
         for df in classification[1:]:
-            df = pd.read_csv(os.path.join("hash_summary",df))
+            df = pd.read_csv(os.path.join("hash_summary" + sampleId, df))
             classification_all = pd.merge(classification_all, df, on='Barcode', how='outer')
-    classification_all.to_csv("hash_summary/hashing_classification_all.csv", index=False)
+    classification_all.to_csv("hash_summary" + sampleId + "/hashing_classification_all.csv", index=False)

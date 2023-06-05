@@ -2,11 +2,12 @@
 nextflow.enable.dsl=2
 
 process freebayes{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freebayes", mode: 'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/freebayes", mode: 'copy'
     label 'big_mem'
     
     input:
-        tuple val(sampleId), path(bam_freebayes), path(bai_freebayes)
+        path bam_freebayes
+        path bai_freebayes
         val stdin_freebayes
         val ref_freebayes
         val ref_index_freebayes
@@ -83,7 +84,7 @@ process freebayes{
         
 
     output:
-        tuple val(sampleId), path ("${sampleId}_${region_freebayes}_${vcf_freebayes}")
+        path "*.vcf"
 
     script:
     def stdin = stdin_freebayes != 'False' ? "--stdin" : ''
@@ -168,7 +169,7 @@ process freebayes{
 
     """
     freebayes ${bam_freebayes} $stdin -f ${ref_freebayes} $targets $region $samples $populations ${cnv_map} \
-    -v ${sampleId}_${region_freebayes}_${vcf_freebayes} $gvcf ${gvcf_chunk} ${gvcf_dont_use_chunk} ${variant_input} ${only_use_input_alleles} ${haplotype_basis_alleles} ${report_all_haplotype_alleles} ${report_monomorphic} $pvar ${strict_vcf} \
+    -v ${region_freebayes}_${vcf_freebayes} $gvcf ${gvcf_chunk} ${gvcf_dont_use_chunk} ${variant_input} ${only_use_input_alleles} ${haplotype_basis_alleles} ${report_all_haplotype_alleles} ${report_monomorphic} $pvar ${strict_vcf} \
     $theta $ploidy ${pooled_discrete} ${pooled_continuous} \
     ${use_reference_allele} ${reference_quality} ${no_snps} ${no_indels} ${no_mnps} ${no_complex} ${use_best_n_alleles} ${haplotype_length} ${min_repeat_size} ${min_repeat_entropy} ${no_partial_observations} ${dont_left_align_indels} \
     ${use_duplicate_reads} ${min_mapping_quality} ${min_base_quality} ${min_supporting_allele_qsum} ${min_supporting_mapping_qsum} ${mismatch_base_quality_threshold} \
@@ -184,8 +185,9 @@ process freebayes{
 
 workflow variant_freebayes{
     take:
-       input_list
-       region_freebayes
+        bam_freebayes
+        bai_freebayes
+        region_freebayes
     main:
         stdin_freebayes = Channel.value(params.stdin)
         fasta_reference = Channel.value(params.fasta)
@@ -265,7 +267,7 @@ workflow variant_freebayes{
         dd_freebayes = channel.value(params.dd)
         
 
-        freebayes(input_list, stdin_freebayes, fasta_reference, fasta_reference_index, targets_freebayes, region_freebayes, samples_freebayes, populations_freebayes, cnv_map_freebayes, \
+        freebayes(bam_freebayes, bai_freebayes, stdin_freebayes, fasta_reference, fasta_reference_index, targets_freebayes, region_freebayes, samples_freebayes, populations_freebayes, cnv_map_freebayes, \
         vcf_freebayes, gvcf_freebayes, gvcf_chunk_freebayes, gvcf_dont_use_chunk_freebayes, variant_input_freebayes, only_use_input_alleles_freebayes, haplotype_basis_alleles_freebayes, report_all_haplotype_alleles_freebayes, report_monomorphic_freebayes, pvar_freebayes, strict_vcf_freebayes, \
         theta_freebayes, ploidy_freebayes, pooled_discrete_freebayes, pooled_continuous_freebayes, use_reference_allele_freebayes, reference_quality_freebayes, \
         no_snps, no_indels, no_mnps, no_complex, use_best_n_alleles_freebayes, haplotype_length_freebayes, min_repeat_size_freebayes, min_repeat_entropy_freebayes, no_partial_observations_freebayes, \
@@ -277,6 +279,6 @@ workflow variant_freebayes{
         genotype_variant_threshold_freebayes, use_mapping_quality_freebayes, harmonic_indel_quality_freebayes, read_dependence_factor_freebayes, genotype_qualities_freebayes, debug_freebayes, dd_freebayes)
 
     emit:
-        freebayes.out.groupTuple()
+        freebayes.out.collect()
 
 }

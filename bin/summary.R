@@ -16,7 +16,7 @@ assignment <- append(assignment_gene, assignment_hash)
 ifelse(!dir.exists("summary"), dir.create("summary"), FALSE)
 
 assignment_all <- lapply(assignment, function(x){
-  assign <- fread(x, header = TRUE)
+  assign <- fread(x, header = TRUE, na.strings = c(NA_character_, ""))
   assign
 }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
 assignment_all[assignment_all == "DBL"] <- "doublet"
@@ -27,7 +27,7 @@ classification_gene <- list.files(args$gene_demulti, pattern = "_classification_
 classification_hash <- list.files(args$hash_demulti, pattern = "_classification_all.csv", full.names = TRUE)
 classification <- append(classification_gene, classification_hash)
 classification_all <- lapply(classification, function(x){
-  classi <- fread(x, header = TRUE)
+  classi <- fread(x, header = TRUE, na.strings = c(NA_character_, ""))
   classi
 }) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="Barcode"), .)
 classification_all[classification_all == "SNG"] <- "singlet"
