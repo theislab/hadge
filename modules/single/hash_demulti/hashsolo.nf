@@ -1,11 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 process hash_solo{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/hashsolo", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashsolo", mode:'copy'
     label 'small_mem'
     
     input:
-        val sampleId
         path hto_data, stageAs: "hto_data_${params.hto_matrix_hashsolo}"
         each priors_negative
         each priors_singlet
@@ -46,7 +45,6 @@ def split_input(input){
 
 workflow hash_solo_hashing {
     take:
-        sampleId
         hto_matrix
         rna_matrix
     main:
@@ -59,7 +57,7 @@ workflow hash_solo_hashing {
         assignmentOutHashSolo = params.assignmentOutHashSolo
         plotOutHashSolo = params.plotOutHashSolo
 
-        hash_solo(sampleId, hto_matrix, priors_negative, priors_singlet, priors_doublet, pre_existing_clusters, rna_matrix, use_rna_data, number_of_noise_barcodes, assignmentOutHashSolo, plotOutHashSolo)
+        hash_solo(hto_matrix, priors_negative, priors_singlet, priors_doublet, pre_existing_clusters, rna_matrix, use_rna_data, number_of_noise_barcodes, assignmentOutHashSolo, plotOutHashSolo)
     emit:
         hash_solo.out.collect()
 }

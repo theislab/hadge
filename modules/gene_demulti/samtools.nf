@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
-process samstool{
+process samtools{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/samtools", mode: 'copy'
     label 'big_mem'
 
@@ -28,9 +28,9 @@ workflow data_preprocess{
     take:
         input_list
     main:
-        samstool(input_list)
+        samtools(input_list)
     emit:
-        samstool.out
+        samtools.out
 
 }
 
