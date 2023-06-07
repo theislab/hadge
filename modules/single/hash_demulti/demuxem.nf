@@ -2,11 +2,10 @@
 nextflow.enable.dsl=2
 
 process demuxem{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
     
     input:
-        val sampleId
         path raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}"
         path raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"
         val threads
@@ -46,7 +45,6 @@ def split_input(input){
 
 workflow demuxem_hashing{
     take:
-        sampleId
         hto_matrix
         rna_matrix
     main:
@@ -61,7 +59,7 @@ workflow demuxem_hashing{
         generate_gender_plot = split_input(params.generate_gender_plot)
         objectOutDemuxem = params.objectOutDemuxem
 
-        demuxem(sampleId, rna_matrix, hto_matrix, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
+        demuxem(rna_matrix, hto_matrix, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
                 min_signal, random_state, generate_gender_plot, objectOutDemuxem)
   
   emit:

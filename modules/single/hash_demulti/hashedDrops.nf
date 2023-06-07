@@ -2,11 +2,10 @@
 nextflow.enable.dsl=2
 
 process hashedDrops{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/hashedDrops", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashedDrops", mode:'copy'
     label 'small_mem'
     
     input:
-        val sampleId
         path raw_hto_matrix_dir
         each lower
         each niters
@@ -66,7 +65,6 @@ def split_input(input){
 
 workflow hashedDrops_hashing{
     take:
-        sampleId
         hto_matrix
     main:
         lower = split_input(params.lower)
@@ -93,7 +91,7 @@ workflow hashedDrops_hashing{
         objectOutHashedDrops = params.objectOutHashedDrops
         assignmentOutHashedDrops = params.assignmentOutHashedDrops
 
-        hashedDrops(sampleId, hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops)
+        hashedDrops(hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops)
         
     emit:
         hashedDrops.out.collect()
