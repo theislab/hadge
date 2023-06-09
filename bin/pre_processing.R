@@ -13,7 +13,7 @@ parser$add_argument("--rdsObject", help = "whether inputs are rds objects", acti
 parser$add_argument("--selectMethod", help = "Selection method", default = "mean.var.plot")
 parser$add_argument("--numberFeatures", help = "Number of features to be used when finding variable features", type = "integer", default = 2000)
 parser$add_argument("--assay", help = "Assay name for hashing modality", default = "HTO")
-parser$add_argument("--demuxmix", help = "Demuxmix only requires the object without pre-processing", default="false")
+parser$add_argument("--raw_data", help = "Demuxmix and BFF only require the object without pre-processing", default="false")
 parser$add_argument("--rna_available", help = "Demuxmix only requires the object without pre-processing", default="true")
 parser$add_argument("--normalisationMethod", help = "Normalisation method", default = "CLR")
 parser$add_argument("--margin", help = "Margin for normalisation", type="integer", default = 2)
@@ -34,13 +34,12 @@ if(args$rdsObject){
 }else{
   if(as.logical(args$rna_available)){
     umi <- Read10X(data.dir = args$fileUmi)
-    
   }
   counts <- Read10X(data.dir = args$fileHto)
 }
 
 
-if(as.logical(args$demuxmix)){
+if(as.logical(args$raw_data)){
 Argument <- c("fileUmi", "fileHto")
 Value <- c(args$fileUmi, args$fileHto)
 params <- data.frame(Argument, Value)

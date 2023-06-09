@@ -14,7 +14,7 @@ process preprocess{
         val margin
         val normalisation_method
         each rna_available
-        each demuxmix_preprocess
+        each raw_data_object
         val preprocess_out
     output:
         path "preprocess_${sampleId}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}"
@@ -24,7 +24,7 @@ process preprocess{
         mkdir preprocess_${sampleId}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
         pre_processing.R --fileUmi rna_data --fileHto hto_data --ndelim $ndelim \
                          --selectMethod $selection_method --numberFeatures $number_features --assay $assay \
-                         --margin $margin --normalisationMethod $normalisation_method --rna_available $rna_available --demuxmix $demuxmix_preprocess --OutputFile $preprocess_out \
+                         --margin $margin --normalisationMethod $normalisation_method --rna_available $rna_available --raw_data $raw_data_object --OutputFile $preprocess_out \
                          --outputdir preprocess_${sampleId}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
     """
 
