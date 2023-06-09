@@ -1,0 +1,14 @@
+name: gmm_demux
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.9
+  - numpy
+  - pandas
+  - r-argparse
+  - r-data.table
+  - pip
+  - pip:
+      - GMM_Demux==0.2.1.3
+      - scikit-learn==1.1.3

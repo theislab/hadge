@@ -14,17 +14,21 @@ process preprocess{
         val assay
         each margin
         val normalisation_method
+        each rna_available
+        each demuxmix_preprocess
         val preprocess_out
+
     output:
         path "preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}"
 
     script:
+    
     """
         mkdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
         pre_processing.R --fileUmi rna_data --fileHto hto_data --ndelim $ndelim \
-                         --selectMethod $selection_method --numberFeatures $number_features --assay $assay \
-                         --margin $margin --normalisationMethod $normalisation_method --OutputFile $preprocess_out \
-                         --outputdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
+                        --selectMethod $selection_method --numberFeatures $number_features --assay $assay \
+                        --margin $margin --normalisationMethod $normalisation_method --rna_available $rna_available --demuxmix $demuxmix_preprocess --OutputFile $preprocess_out \
+                        --outputdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
     """
 
 
@@ -53,9 +57,10 @@ workflow preprocessing_hashing{
         assay = params.assay
         margin = split_input(params.margin)
         norm_method = split_input(params.norm_method)
+        rna_available = split_input(params.rna_available)
+        demuxmix_preprocess_mode = split_input(params.demuxmix_preprocess_mode)
         out_file = params.preprocessOut
-        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method, out_file)
+        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method,rna_available,demuxmix_preprocess_mode,out_file)
     emit:
         preprocess.out.collect()
 }
-  

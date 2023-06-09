@@ -1,0 +1,14 @@
+name: bff
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base>=4.2
+  - r-seurat
+  - conda-forge::r-devtools
+  - conda-forge::r-data.table
+  - conda-forge::r-ggplot2
+  - conda-forge::r-cowplot
+  - conda-forge::r-here
+  - conda-forge::r-argparse
+  - conda-forge::r-dplyr

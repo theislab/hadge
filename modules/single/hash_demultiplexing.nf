@@ -189,7 +189,6 @@ workflow hash_demultiplexing{
     }
     if (params.gmmDemux == "True"){
         gmmDemux_hto_input = params.hto_matrix_gmm_demux == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        print gmmDemux_hto_input
         gmm_demux_hashing(gmmDemux_hto_input)
         gmmDemux_out = gmm_demux_hashing.out
     }
