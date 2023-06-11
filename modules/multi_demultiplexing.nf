@@ -1,5 +1,4 @@
 #!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
 include { hash_demultiplexing } from './hash_demultiplexing'
 include { gene_demultiplexing } from './gene_demultiplexing'
@@ -7,6 +6,8 @@ include { donor_match } from './donor_match'
 
 process generate_data{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/data_output", mode: 'copy'
+    label 'small_mem'
+    label 'summary'
     input:
         tuple val(sampleId), val(rna_matrix), val(hto_matrix), path(assignment)
         val generate_anndata
@@ -42,19 +43,21 @@ process generate_data{
 }
 
 process summary_all{
+    label 'small_mem'
+    label 'summary'
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
     input:
         tuple val(sampleId), path(gene_demulti_result), path(hash_demulti_result)
     output:
-        tuple val(sampleId), path(summary)
+        tuple val(sampleId), path("summary")
 
     script:
         """
-        summary.R --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
+        summary.py --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
         """
 }
 
-workflow run_hadge_multi{
+workflow run_multi{
     if (params.mode == "genetic"){
         gene_demultiplexing()
         if (params.match_donor == "True"){

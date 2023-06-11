@@ -11,7 +11,7 @@ include { demuxem_hashing } from './hash_demulti/demuxem'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
-
+    label 'summary'
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxem_result

@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 process vireo{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
-    label 'small_mem'
+    label 'big_mem'
 
     input:
         tuple val(sampleId), path(celldata), val(ndonor), val(donorfile)
