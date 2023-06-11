@@ -9,7 +9,7 @@ process generate_data{
     label 'small_mem'
     label 'summary'
     input:
-        tuple val(sampleId), val(rna_matrix), val(hto_matrix), path(assignment)
+        tuple val(sampleId), val(hto_matrix), val(rna_matrix), path(assignment)
         val generate_anndata
         val generate_mudata
         
@@ -93,14 +93,24 @@ workflow run_multi{
                 | join(summary_all.out)
                 | donor_match
         }
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata)
+        Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | join(donor_match.out)
+                | set {input_generate_data}
+        generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
     }
     else if (params.mode == "donor_match"){
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row -> tuple(row.sampleId, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)} \
                 | donor_match
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata)
+        Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | join(donor_match.out)
+                | set {input_generate_data}
+        generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
     }
     
 }

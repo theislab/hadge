@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 include { run_multi } from './modules/multi_demultiplexing'
 include { gene_demultiplexing } from './modules/single/gene_demultiplexing'
 include { hash_demultiplexing } from './modules/single/hash_demultiplexing'
-include { donor_match as donor_match } from './modules/single/donor_match'
+include { donor_match } from './modules/single/donor_match'
 
 process summary_all{
     publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
