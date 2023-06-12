@@ -40,17 +40,21 @@ if(args$rdsObject){
 
 
 if(as.logical(args$raw_data)){
-Argument <- c("fileUmi", "fileHto")
-Value <- c(args$fileUmi, args$fileHto)
-params <- data.frame(Argument, Value)
-#demuxmix requires a Seurat object created from raw data, without any type of pre-processing (Normalisation, ScaleData, etc)
-# Subset RNA and HTO counts by joint cell barcodes
-joint.bcs <- intersect(colnames(umi), colnames(counts))
-umi <- umi[, joint.bcs]
-counts <- counts[, joint.bcs]
-# Setup Seurat object
-hashtag <- CreateSeuratObject(counts = umi, names.delim = args$ndelim)
-hashtag[[args$assay]] <- CreateAssayObject(counts = counts)
+  if(as.logical(args$rna_available)){
+    Argument <- c("fileUmi", "fileHto")
+    Value <- c(args$fileUmi, args$fileHto)
+    params <- data.frame(Argument, Value)
+    #demuxmix requires a Seurat object created from raw data, without any type of pre-processing (Normalisation, ScaleData, etc)
+    # Subset RNA and HTO counts by joint cell barcodes
+    joint.bcs <- intersect(colnames(umi), colnames(counts))
+    umi <- umi[, joint.bcs]
+    counts <- counts[, joint.bcs]
+    # Setup Seurat object
+    hashtag <- CreateSeuratObject(counts = umi, names.delim = args$ndelim)
+    hashtag[[args$assay]] <- CreateAssayObject(counts = counts)
+  }else{
+    hashtag <- CreateSeuratObject(counts = counts, names.delim = args$ndelim, assay = args$assay)
+  }
 }else {
 #If the parameter demuxmix is not passed, then the regular pre-processing is performed
 args <- parser$parse_args()
