@@ -50,6 +50,8 @@ workflow preprocessing_hashing{
         rna_matrix
         hto_raw_or_filtered
         rna_raw_or_filtered
+        rna_available
+        raw_data_object
     main:
         sel_method = split_input(params.sel_method)
         ndelim = params.ndelim
@@ -57,8 +59,6 @@ workflow preprocessing_hashing{
         assay = params.assay
         margin = split_input(params.margin)
         norm_method = split_input(params.norm_method)
-        rna_available = split_input(params.rna_available)
-        raw_data_object = split_input(params.raw_data_object)
         out_file = params.preprocessOut
         preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method,rna_available,raw_data_object,out_file)
     emit:

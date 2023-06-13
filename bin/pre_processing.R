@@ -32,9 +32,11 @@ if(args$rdsObject){
   counts <- readRDS(args$fileHto)
   
 }else{
-  if(as.logical(args$rna_available)){
+  if(as.logical(args$rna_available)){ 
+    
     umi <- Read10X(data.dir = args$fileUmi)
   }
+  
   counts <- Read10X(data.dir = args$fileHto)
 }
 
@@ -46,20 +48,26 @@ if(as.logical(args$raw_data)){
     params <- data.frame(Argument, Value)
     #demuxmix requires a Seurat object created from raw data, without any type of pre-processing (Normalisation, ScaleData, etc)
     # Subset RNA and HTO counts by joint cell barcodes
-    joint.bcs <- intersect(colnames(umi), colnames(counts))
-    umi <- umi[, joint.bcs]
-    counts <- counts[, joint.bcs]
+    #joint.bcs <- intersect(colnames(umi), colnames(counts))
+    #umi <- umi[, joint.bcs]
+    #counts <- counts[, joint.bcs]
     # Setup Seurat object
     hashtag <- CreateSeuratObject(counts = umi, names.delim = args$ndelim)
     hashtag[[args$assay]] <- CreateAssayObject(counts = counts)
   }else{
+    print("create a hto seurat object")
     hashtag <- CreateSeuratObject(counts = counts, names.delim = args$ndelim, assay = args$assay)
+    Argument <- c( "fileHto")
+    Value <- c(args$fileHto)
+    params <- data.frame(Argument, Value)
   }
 }else {
+  
 #If the parameter demuxmix is not passed, then the regular pre-processing is performed
 args <- parser$parse_args()
 Argument <- c("fileUmi", "fileHto", "ndelim", "rdsObject", "selectMethod", "numberFeatures", "assay", "normalisationMethod", "margin")
 Value <- c(args$fileUmi, args$fileHto, args$ndelim, args$rdsObject, args$selectMethod, args$numberFeatures, args$assay, args$normalisationMethod, args$margin)
+params <- data.frame(Argument, Value)
 # Select cell barcodes detected by both RNA and HTO In the example datasets we have already
 # filtered the cells for you, but perform this step for clarity.
 joint.bcs <- intersect(colnames(umi), colnames(counts))

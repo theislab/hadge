@@ -98,12 +98,14 @@ workflow hash_demultiplexing{
         rna_matrix_filtered
         hto_matrix_raw
         hto_matrix_filtered
+        rna_available
+        raw_data_object
     main:
     
     if (params.htodemux == "True"){
         rna_matrix = params.rna_matrix_htodemux == "raw" ? rna_matrix_raw : rna_matrix_filtered
         hto_matrix = params.hto_matrix_htodemux == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        preprocessing_hashing_htodemux(hto_matrix, rna_matrix, params.hto_matrix_htodemux, params.rna_matrix_htodemux)
+        preprocessing_hashing_htodemux(hto_matrix, rna_matrix, params.hto_matrix_htodemux, params.rna_matrix_htodemux, params.rna_available_filtered,params.raw_object_htodemux)
         htodemux_preprocess_out = preprocessing_hashing_htodemux.out
         htodemux_hashing(htodemux_preprocess_out)
         htodemux_out = htodemux_hashing.out
@@ -120,7 +122,7 @@ workflow hash_demultiplexing{
         else{
             rna_matrix = params.rna_matrix_multiseq == "raw" ? rna_matrix_raw : rna_matrix_filtered
             hto_matrix = params.hto_matrix_multiseq == "raw" ? hto_matrix_raw : hto_matrix_filtered
-            preprocessing_hashing_multiseq(hto_matrix, rna_matrix, params.hto_matrix_multiseq, params.rna_matrix_multiseq)
+            preprocessing_hashing_multiseq(hto_matrix, rna_matrix, params.hto_matrix_multiseq, params.rna_matrix_multiseq,params.rna_available_filtered, params.raw_object_multiseq)
             multiseq_preprocess_out = preprocessing_hashing_multiseq.out
         }
         multiseq_hashing(multiseq_preprocess_out)
@@ -162,7 +164,7 @@ workflow hash_demultiplexing{
     if (params.demuxmix == "True"){
         demuxmix_rna_input = params.hto_matrix_demuxmix == "raw" ? rna_matrix_raw : rna_matrix_filtered
         demuxmix_hto_input = params.rna_matrix_demuxmix == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        preprocessing_hashing_demuxmix(demuxmix_hto_input, demuxmix_rna_input, params.hto_matrix_demuxmix, params.rna_matrix_demuxmix)
+        preprocessing_hashing_demuxmix(demuxmix_hto_input, demuxmix_rna_input, params.hto_matrix_demuxmix, params.rna_matrix_demuxmix,params.rna_available,params.raw_data_object)
         demuxmix_preprocess_out = preprocessing_hashing_demuxmix.out
         demuxmix_hashing(demuxmix_preprocess_out)
         demuxmix_out = demuxmix_hashing.out
@@ -178,7 +180,7 @@ workflow hash_demultiplexing{
         else{
             bff_rna_input = params.rna_matrix_bff == "raw" ? rna_matrix_raw : rna_matrix_filtered
             bff_hto_input = params.hto_matrix_bff == "raw" ? hto_matrix_raw : hto_matrix_filtered
-            preprocessing_hashing_bff(bff_hto_input, bff_rna_input, params.hto_matrix_bff, params.rna_matrix_bff)
+            preprocessing_hashing_bff(bff_hto_input, bff_rna_input, params.hto_matrix_bff, params.rna_matrix_bff,params.rna_available_demuxmix, params.raw_data_object)
             bff_preprocess_out = preprocessing_hashing_bff.out
         }
         bff_hashing(bff_preprocess_out)

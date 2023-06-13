@@ -263,7 +263,7 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata, sampleId):
         demuxmix_classi = pd.read_csv(obs_res_dir)
         dt_classi = demuxmix_classi[["Barcode", "Classification"]]
         dt_classi.columns = ["Barcode", os.path.basename(x)]
-        classi.append(dt_classi)
+        classi.append(dt_classi) 
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
         params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
@@ -300,7 +300,6 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata,sampleId):
         #change column names
         classification_dt = classification_dt.rename(columns={0: "Cluster_id", 1: "assignment"})
         gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
-        gmm_dt["Barcode"] = gmm_dt["Barcode"].str.replace("-1", "")
         
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
