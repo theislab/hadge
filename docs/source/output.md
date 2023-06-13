@@ -301,8 +301,8 @@ After each demultiplexing workflow, the pipeline will generate some TSV files to
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`.
 - In the `rescue` mode, the pipeline merges the results of hashing and genetic demultiplexing tools into and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
-
 ## Donor matching
+
 - Folder`[method1]_[task_ID/sampleId]_vs_[method2]_[task_ID/sampleId]` with:
   - `correlation_res.csv`: correlation scores of donor matching
   - `concordance_heatmap.png`: a heatmap visualising the the correlation scores
@@ -316,7 +316,7 @@ After each demultiplexing workflow, the pipeline will generate some TSV files to
 - Folder `data_output` with:
   - an Anndata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the assignment of the best-matched method pair after donor matching
 - Folder `donor_match/donor_match_[best_method1]_[best_method2]`: Optionally, if `best_method1` is `vireo` for the optimal match `best_method1` and `best_method2` among all trials and identification of donor-specific or discriminatory variants is enabled:
-    - `donor_specific_variants.csv`: a list of donor-specific variants
-    - `donor_specific_variants_upset.png`: An upset plot showing the number of donor-specific variants
-    - `donor_genotype_subset_by_default_matched.vcf`: Donor genotypes of donor-specific variants
-    - `donor_genotype_subset_by_vireo.vcf`: Donor genotypes of a set of discriminatory variants filtered by Vireo
+  - `donor_specific_variants.csv`: a list of donor-specific variants
+  - `donor_specific_variants_upset.png`: An upset plot showing the number of donor-specific variants
+  - `donor_genotype_subset_by_default_matched.vcf`: Donor genotypes of donor-specific variants
+  - `donor_genotype_subset_by_vireo.vcf`: Donor genotypes of a set of discriminatory variants filtered by Vireo

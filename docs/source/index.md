@@ -69,7 +69,7 @@ After each demultiplexing workflow is complete, the pipeline will generate TSV f
 - `[workflow]_assignment_all.csv`: save the assignment of all trials across different methods
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`.
 
-### __Additional output for *rescue* mode__
+### **Additional output for _rescue_ mode**
 
 Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
