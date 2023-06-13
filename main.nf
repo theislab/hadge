@@ -67,13 +67,13 @@ workflow run_hadge_single{
         }
     }
     else if (params.mode == "hashing"){
-        hash_demultiplexing_single(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered, params.rna_available,params.raw_data_object)
+        hash_demultiplexing_single(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered, params.rna_available)
         if (params.match_donor == "True"){
             donor_match_single(hash_demultiplexing_single.out)
         }
     }
     else if (params.mode == "rescue"){
-        hash_demultiplexing_single(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered,params.rna_available,params.raw_data_object)
+        hash_demultiplexing_single(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered,params.rna_available)
         gene_demultiplexing_single()
         gene_summary = gene_demultiplexing_single.out
         hash_summary = hash_demultiplexing_single.out
