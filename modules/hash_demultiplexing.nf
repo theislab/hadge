@@ -23,7 +23,7 @@ process summary{
         val generate_mudata
         
     output:
-        tuple val(sampleId), path("hash_summary_${sampleId}")
+        tuple val(sampleId), path("hash_summary")
 
     script:
         def demuxem_files = ""

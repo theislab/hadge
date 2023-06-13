@@ -16,15 +16,16 @@ The genetics-based deconvolution workflow includes 5 methods:
 - Souporcell
 - scSplit
 
-The hashing-based deconvolution includes 9 methods:
+The hashing-based deconvolution includes 8 methods:
 
 - hashedDrops
 - Multiseq
 - HTODemux
 - Demuxem
-- Solo
 - HashSolo
-- TODO
+- Demuxmix
+- BFF
+- GMM_Demux
 
 ## **Installation**
 
@@ -46,30 +47,31 @@ nextflow run http://github.com/theislab/hadge
 
 ## **Pipeline output**
 
-All pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode/`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 ### **Intermediate output**
 
 The pipeline saves the output of each process for two workflows separately, so you will find the results of hashing-based and genetics-based deconvolution methods in the folder `hash_demulti` and `gene_demulti` respectively.
 
-Each demultiplexing process will generate some intermediate files in the folder in the format `[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. In this folder, you can find following files:
+If the pipeline is run on single sample, each demultiplexing process will generate some intermediate files in the folder in the format `$pipeline_output_folder/[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. If the pipeline is run on multiple samples, the `task_ID` will be replaced by `sampleId`. In the folder, you can find following files:
 
 - `params.csv`: specified parameters in the task
 - Output of the task, check [](output) for more details.
 
 ### **Final output**
 
-After each demultiplexing workflow is complete, the pipeline will generate TSV files to summarize the results in the folder `$projectDir/$params.outdir/$params.mode/[workflow]/[workflow]_summary`.
+After each demultiplexing workflow is complete, the pipeline will generate TSV files to summarize the results in the folder `$pipeline_output_folder/[workflow]/[workflow]_summary`.
 
 - `[method]_classification.csv`: classification of all trials for a given method
 - `[method]_assignment.csv`: assignment of all trials for a given method
 - `[method]_params.csv`: specified paramters of all trials for a given method
 - `[mode]_classification_all.csv`: classification of all trials across different methods
 - `[workflow]_assignment_all.csv`: save the assignment of all trials across different methods
+- `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`.
 
-### **Additional output for \***rescue**\* mode**
+### **Additional output for _rescue_ mode**
 
-Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$projectDir/$params.outdir/$params.mode/summary` folder.
+Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
 The output of the donor-matching process can be found in the folder `donor_match`, check [](output) for more details.
 
@@ -77,7 +79,6 @@ The output of the donor-matching process can be found in the folder `donor_match
 :caption: 'Contents:'
 :hidden: true
 :maxdepth: 3
-
 usage
 output
 ```
