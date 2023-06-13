@@ -4,7 +4,7 @@
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
 
-### Genetics-based deconvolution methods:
+### Genotype-based deconvolution methods:
 
 | Deconvolution methods | Input data                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------ |
@@ -28,7 +28,7 @@ You may see that some tools share some input data in common, so we set only one 
 
 #### Pre-processing
 
-In case you want to perform genetics-based deconvolution on pre-processed data, we provide a process in concordance with [the instruction of scSplit](https://github.com/jon-xu/scSplit). It only requires the Alignment (BAM) file as input. To specify which method is performed on the pre-processed data : set `[method]_preprocess = True`.
+In case you want to perform genotype-based deconvolution on pre-processed data, we provide a process in concordance with [the instruction of scSplit](https://github.com/jon-xu/scSplit). It only requires the Alignment (BAM) file as input. To specify which method is performed on the pre-processed data : set `[method]_preprocess = True`.
 
 #### Variant calling
 
@@ -39,20 +39,16 @@ In case you don't have any cell genotypes or variants called from mixed samples 
 | cellsnp-lite | - Alignment (BAM)<br>- Barcode (TSV)<br>- Common SNPs (VCF) | `params.bam`<br>`params.bai`<br>`params.barcodes`<br>`params.regionsVCF` | Cell genotypes |
 
 You can have following options for `scsplit_variant`:
+- `True`: activate freebayes
+- Otherwise: inactivate variant calling, get the input data from `params.vcf_mixed`
 
-- `False`: inactivate variant calling, get the input data from `params.vcf_mixed`
-- `freebayes`: activate freebayes
-- Otherwise: activate freebayes, take the output of freebayes and use `params.vcf_mixed` as well
-
-You can have following options for `scsplit_variant`:
-
-- `False`: inactivate variant calling, get the input data from `params.celldata`
-- `cellsnp`: activate cellsnp
-- Otherwise: activate cellsnp, take the output of freebayes and use `params.celldata` as well
+You can have following options for `vireo_variant`:
+- `True`: activate cellsnp
+- Otherwise: inactivate variant calling, get the input data from `params.celldata`
 
 #### Common variants
 
-When running genetics-based deconvolution methods without genotype reference, you may need common variants from the popultion. Here we collect different sources of common variants for GRCh38 recommended by different methods.
+When running genotype-based deconvolution methods without genotype reference, you may need common variants from the popultion. Here we collect different sources of common variants for GRCh38 recommended by different methods.
 
 | Method       | Paramter                   | Source                                                                    |
 | ------------ | -------------------------- | ------------------------------------------------------------------------- |
@@ -65,22 +61,44 @@ When running genetics-based deconvolution methods without genotype reference, yo
 
 | Deconvolution method | Input data                                                                                                         | Parameter                                                  |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rdsObj_htodemux`                                   |
-| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rdsObj_htodemux`                                   |
-| Solo                 | - 10x mtx directory with UMI count matrix (Directory)                                                              | `params.rna_matrix_solo`                                   |
-| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                 | `params.hto_matrix_hashsolo`                               |
+| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_htodemux` <br> `params.hto_matrix_htodemux`                                   |
+| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_multiseq` <br> `params.hto_matrix_multiseq`                                   |
+| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                 | `params.hto_matrix_hashsolo` <br> `params.rna_matrix_hashsolo`                               |
 | HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                          | `params.hto_matrix_hashedDrops`                            |
 | Demuxem              | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem` |
 
+The parameters `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method. Similary as genotype-based deconvlution methods, hashing methods also utilize common input parameters to store count matrices for better control.
+
+| Input data                                 | Parameter                              |
+| ------------------------------------------ | -------------------------------------- |
+| Raw scRNAseq count matrix                  | `params.rna_matrix_raw`                |
+| Filtered scRNAseq count matrix             | `params.rna_matrix_filtered`           |
+| Raw HTO count matrix                       | `params.hto_matrix_raw`                |
+| Filtered HTO count matrix                  | `params.hto_matrix_filtered`           |
+
+
 #### Pre-processing
 
-Similar as in the genetic demultiplexing workflow, we provide a pre-processing step specifically for HTODemux and Multiseq. The input is the UMI and hashing count matrix `params.umi_matrix_preprocess` and `params.hto_matrix_preprocess`. If the count matrix is already loaded as an RDS oject, set `params.rdsObject_preprocess` as `True`.
+Similar as in the genetic demultiplexing workflow, we provide a pre-processing step required before running HTODemux and Multiseq to load count matrices into a Seurat object. The input will be automatically loaded from the parameters mentioned above.
 
-For benchmarking, you can have following options for `[htodemux/multiseq]_preprocess`:
+### __Running on multiple samples__
 
-- `True`: activate pre-proecessing
-- `False`: inactivate pre-proecessing, get the input data from `params.rdsObj_[method]`
-- Otherwise: activate pre-proecessing, take the output and use `params.rdsObj_[method]` as well
+The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet should have e.g. following columns depending on the methods you want to run:
+- sampleId
+- na_matrix_raw
+- rna_matrix_filtered
+- hto_matrix_raw
+- hto_matrix_filtered
+- bam 
+- bam_index
+- barcodes
+- nsample
+- celldata
+- vcf_mixed
+- vcf_donor
+
+### __scverse compatibility__
+To ensure scverse compatibility, the pipeline provides the option to generate anndata or mudata specifeid by `params.generate_anndata`. If set to True, the pipeline will generate an AnnData object in the folder `[workflow]_summary/adata` during the summary process of two workflows. This object contains the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. Additionlly, if `match_donor` is True, the pipeline also produces an AnnData object in the `data_output` folder which contains the assignment of the best-matched method pair after donor matching.
 
 ## **Pipeline configuration**
 
@@ -123,9 +141,7 @@ process {
 }
 // do not forget to enable docker
 
-docker {
-    enabled = true
-}
+docker.enabled = true
 
 ```
 
@@ -154,7 +170,8 @@ profiles{
 
     cluster {
         process {
-            executor = 'local'
+            executor = 'slurm'
+             // queue = ...
             withLabel: big_mem {
                 cpus = 32
                 memory = 64.GB
@@ -162,7 +179,6 @@ profiles{
             withLabel: small_mem {
                 cpus = 16
                 memory = 32.GB
-                // queue = ...
             }
         }
     }
@@ -178,14 +194,14 @@ profiles{
 | :----: | :-----------------------------------------------------------: |
 | outdir |               Output directory of the pipeline                |
 |  mode  | Mode of the pipeline: genetic, hashing, rescue or donor_match |
+|  generate_anndata  | Whether to generate anndata after demultiplexing. Default: True |
+|  generate_mudata  | Whether to generate mudata after demultiplexing. Default: False |
+
 
 ### Hashing-based: Preprocessing
 
 |                       |                                                                                                 |
 | --------------------- | ----------------------------------------------------------------------------------------------- |
-| rdsObject_preprocess  | Whether the input data for the pre-processing is an RDS object or not. Default: False           |
-| umi_matrix_preprocess | The UMI count matrix, e.g. a directory provided by 10x genomics.                                |
-| hto_matrix_preprocess | The HTO count matrix, e.g. a directory provided by 10x genomics.                                |
 | ndelim                | For the initial identity calss for each cell, delimiter for the cell's column name. Default: \_ |
 | sel_method            | The selection method used to choose top variable features. Default: mean.var.plot               |
 | n_features            | Number of features to be used when finding variable features. Default: 2000                     |
@@ -197,10 +213,10 @@ profiles{
 ### Hashing-based: HTODemux
 
 |                     |                                                                                                                                                                                                                                                     |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| htodemux            | Whether to perform HTODemux. Default: True                                                                                                                                                                                                          |
-| htodemux_preprocess | Wether to pre-processe the input data params.rdsObj_htodemux for HTODemux. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_htodemux as input for benchmarking. Default: True |
-| rdsObj_htodemux     | Input for HTODemux when htodemux_preprocess!=True, a Seurat object with normalized HTO data. Default: None                                                                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | 
+| htodemux            | Whether to perform Multiseq. Default: True                                                                                                                                                                                            |
+| rna_matrix_htodemux   | Whether to use raw or filtered scRNA-seq count matrix. Default: filtered                                                                     |
+| hto_matrix_htodemux   | Whether to use raw or filtered HTO count matrix. Default: filtered                                                                       |                                                                                 
 | assay               | Name of the hashtag assay. Default: HTO                                                                                                                                                                                                             |
 | quantile_htodemux   | The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99                                                                                                                      |
 | kfunc               | Clustering function for initial hashtag grouping. Default: clara.                                                                                                                                                                                   |
@@ -233,9 +249,9 @@ profiles{
 |                     |                                                                                                                                                                                                                                       |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | multiseq            | Whether to perform Multiseq. Default: True                                                                                                                                                                                            |
-| multiseq_preprocess | Wether to pre-processe the input data params.rdsObj_multiseq for Multiseq. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.rdsObj_multiseq as input for benchmarking. |
-| rdsObj_multiseq     | Input for Multiseq when multiseq_preprocess!=True, a Seurat object with normalized HTO data. Default: None                                                                                                                            |
-| assay               | Name of the Hashtag assay. Default: HTO                                                                                                                                                                                               |
+| rna_matrix_multiseq   | Whether to use raw or filtered scRNA-seq count matrix. Default: filtered                                                                     |
+| hto_matrix_multiseq   | Whether to use raw or filtered HTO count matrix. Default: filtered                                                                       | 
+| assay               | Name of the hashtag assay, same as used for HTODemux. Default: HTO                                                                                                                                                                                               |
 | quantile_multi      | The quantile to use for classification. Default: 0.7                                                                                                                                                                                  |
 | autoThresh          | Whether to perform automated threshold finding to define the best quantile. Default: TRUE                                                                                                                                             |
 | maxiter             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                                                                                                                                  |
@@ -269,12 +285,13 @@ profiles{
 |                          |                                                                             |
 | ------------------------ | --------------------------------------------------------------------------- |
 | hashsolo                 | Whether to perform HashSolo. Default: True                                  |
-| hto_matrix_hashsolo      | Input folder to hashing expression matrix in 10x format.                    |
+| rna_matrix_hashsolo   | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                                      |
+| hto_matrix_hashsolo   | Whether to use raw or filtered HTO count matrix if use_rna_data is set to True. Default: raw                                                                       |
 | priors_negative          | Prior for the negative hypothesis. Default: 1/3                             |
 | priors_singlet           | Prior for the singlet hypothesis. Default: 1/3                              |
 | priors_doublet           | Prior for the doublet hypothesis. Default: 1/3                              |
 | pre_existing_clusters    | Column in the input data for how to break up demultiplexing. Default: None  |
-| rna_matrix_hashsolo      | Optional input folder to RNA expression matrix in 10x format. Default: None |
+| use_rna_data             | Whether to use RNA counts for deconvolution. Default: False |
 | number_of_noise_barcodes | Number of barcodes to use to create noise distribution. Default: None       |
 | assignmentOutHashSolo    | Prefix of the output CSV files. Default: hashsolo                           |
 | plotOutHashSolo          | Prefix of the output figures. Default: hashsolo                             |
@@ -284,8 +301,8 @@ profiles{
 |                      |                                                                                                                               |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | demuxem              | Whether to perform Demuxem. Default: True                                                                                     |
-| rna_matrix_demuxem   | Input folder to raw RNA expression matrix in 10x format.                                                                      |
-| hto_matrix_demuxem   | Input folder to raw HTO expression matrix in 10x format.                                                                      |
+| rna_matrix_demuxem   | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                                      |
+| hto_matrix_demuxem   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                       |
 | threads_demuxem      | Number of threads to use. Must be a positive integer. Default: 1                                                              |
 | alpha_demuxem        | The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse. Default: 0.0 |
 | alpha_noise          | The Dirichlet prior concenration parameter on the background noise. Default: 1.0                                              |
@@ -302,7 +319,7 @@ profiles{
 |                          |                                                                                                                                                                                                            |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | hashedDrops              | Whether to perform hashedDrops. Default: True                                                                                                                                                              |
-| hto_matrix_hashedDrops   | Input folder to raw HTO expression matrix in 10x format.                                                                                                                                                   |
+| hto_matrix_hashedDrops   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                                                                      |
 | lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100                                                                           |
 | niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000                                                                                                                   |
 | testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: TRUE                                                                                                     |
@@ -315,7 +332,7 @@ profiles{
 | assignmentOutEmptyDrops  | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets                                                                                                                                        |
 | ambient                  | Whether to use the relative abundance of each HTO in the ambient solution from emptyDrops, set TRUE only when testAmbient=TRUE. Default: FALSE                                                             |
 | minProp                  | The ambient profile when ambient=NULL. Default: 0.05                                                                                                                                                       |
-| pseudoCount = 5          | The minimum pseudo-count when computing logfold changes. Default: 5                                                                                                                                        |
+| pseudoCount              | The minimum pseudo-count when computing logfold changes. Default: 5                                                                                                                                        |
 | constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: FALSE                                                                                          |
 | doubletNmads             | The number of median absolute deviations (MADs) to use to identify doublets. Default: 3                                                                                                                    |
 | doubletMin               | The minimum threshold on the log-fold change to use to identify doublets. Default: 2                                                                                                                       |
@@ -326,12 +343,12 @@ profiles{
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
 
-### Genetics-based: Demuxlet and dsc-pileup
+### Genotype-based: Demuxlet and dsc-pileup
 
 |                     |                                                                                                                                                                                                                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | demuxlet            | Whether to run Demuxlet. Default: False                                                                                                                                                                                                    |
-| demuxlet_preprocess | Whether to perform pre-processing on the input params.bam for demuxlet. True: Perform pre-processing. False: Don'T perform pre-processing. Otherwise: Use both pre-processed and params.bam file as input for benchmarking. Default: False |
+| demuxlet_preprocess | Whether to perform pre-processing on the input params.bam for demuxlet. True: Perform pre-processing. Otherwise pre-processing is not called. Default: False |
 | bam                 | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed.                                                                                                                                                                        |
 | bai                 | Index of Input SAM/BAM/CRAM file.                                                                                                                                                                                                          |
 | barcodes            | List of cell barcodes to consider.                                                                                                                                                                                                         |
@@ -352,7 +369,7 @@ profiles{
 | min_uniq            | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                                                                                                                                |
 | min_snp             | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0                                                                                                                                                       |
 | min_umi             | Minimum number of UMIs for a droplet/cell to be considered. Default: 0                                                                                                                                                                     |
-| plp                 | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. It set False, will use SAM file to call Demuxlet. Default: False                                                                       |
+| plp                 | Whether to call dsc-pileup. If set True, dsc-pileup will be called. It set False, will use SAM file to call Demuxlet. Default: False                                                                       |
 | field               | FORMAT field to extract the genotype, likelihood, or posterior from. Default: GT                                                                                                                                                           |
 | geno_error_offset   | Offset of genotype error rate. [error] = [offset] + [1-offset]_[coeff]_[1-r2]. Default: 0.1                                                                                                                                                |
 | geno_error_coeff    | Slope of genotype error rate. [error] = [offset] + [1-offset]_[coeff]_[1-r2]. Default: 0.0                                                                                                                                                 |
@@ -363,12 +380,12 @@ profiles{
 | doublet-prior       | Prior of doublet. Default: 0.5                                                                                                                                                                                                             |
 | demuxlet_out        | Prefix out the demuxlet and dsc-pileup output files. Default: demuxlet_res                                                                                                                                                                 |
 
-### Genetics-based: Freemuxlet and dsc-pileup
+### Genotype-based: Freemuxlet and dsc-pileup
 
 |                            |                                                                                                                                                                                                                                         |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | freemuxlet                 | Whether to run Freemuxlet. Default: True                                                                                                                                                                                                |
-| freemuxlet_preprocess      | Whether to perform pre-processing on the input params.bam for Freemuxlet. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and params.bam as input for benchmarking. Default: False |
+| freemuxlet_preprocess      | Whether to perform pre-processing on the input params.bam for Freemuxlet. True: Perform pre-processing. Otherwise pre-processing is not called. Default: False |
 | bam                        | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed.                                                                                                                                                                     |
 | bai                        | Index of Input SAM/BAM/CRAM file.                                                                                                                                                                                                       |
 | barcodes                   | List of cell barcodes to consider.                                                                                                                                                                                                      |
@@ -390,7 +407,6 @@ profiles{
 | min_uniq                   | Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered. Default: 0                                                                                                                             |
 | min_umi                    | Minimum number of UMIs for a droplet/cell to be considered. Default: 0                                                                                                                                                                  |
 | min_snp                    | Minimum number of SNPs with coverage for a droplet/cell to be considered. Default: 0                                                                                                                                                    |
-| plp_freemuxlet             | Prefix of input files generated by dsc-pileup if available. If set True, dsc-pileup will be called. Default: True                                                                                                                       |
 | init_cluster               | Input file containing the initial cluster information. Default: None                                                                                                                                                                    |
 | aux_files                  | Turn on writing auxiliary output files. Default: False                                                                                                                                                                                  |
 | verbose                    | Turn on verbose mode with specific verbosity threshold. 0: fully verbose, 100 : no verbose messages. Default: 100                                                                                                                       |
@@ -401,13 +417,13 @@ profiles{
 | keep_init_missing          | Keep missing cluster assignment as missing in the initial iteration. Default: False                                                                                                                                                     |
 | freemuxlet_out             | Prefix out the freemuxlet and dsc-pileup output files. Default: freemuxlet_out                                                                                                                                                          |
 
-### Genetics-based: Vireo
+### Genotype-based: Vireo
 
 |                  |                                                                                                                                                                                                                                                     |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | vireo            | Whether to run Vireo. Default: True                                                                                                                                                                                                                 |
-| vireo_preprocess | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False         |
-| vireo_variant    | Whether to perform cellSNP-lite before running Vireo. False: Don't run cellSNP, use params.cell data as input. cellSNP: Run cellSNP. Otherwise: Use both the result of cellSNP-lite and params.celldata as input for benchmarking. Default: cellsnp |
+| vireo_preprocess | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. Otherwise pre-processing is not called. Default: False         |
+| vireo_variant    | Whether to perform cellSNP-lite before running Vireo. True: Run cellSNP-lite. Otherwise cellSNP-lite is not called and params.celldata is used as input. Default: True |
 | celldata         | The cell genotype file in VCF format or cellSNP folder with sparse matrices.                                                                                                                                                                        |
 | nsample          | Number of donors to demultiplex; can be larger than provided in vcf_donor                                                                                                                                                                           |
 | vartrixData      | The cell genotype files in vartrix outputs (three/four files, comma separated): alt.mtx,ref.mtx,barcodes.tsv,SNPs.vcf.gz. This will suppress cellData argument. Default: None                                                                       |
@@ -426,13 +442,13 @@ profiles{
 | nproc            | Number of subprocesses for computing, sacrifices memory for speedups. Default: 4                                                                                                                                                                    |
 | vireo_out        | Dirtectory for output files. Default: vireo_out                                                                                                                                                                                                     |
 
-### Genetics-based: scSplit
+### Genotype-based: scSplit
 
 |                         |                                                                                                                                                                                                                                                            |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | scSplit                 | Whether to run scSplit. Default: True                                                                                                                                                                                                                      |
-| scSplit_preprocess      | Whether to perform pre-processing on the input params.bam for Freebayes and scSplit. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: True        |
-| scSplit_variant         | Whether to perform Freebayes before running scSplit. False: don't run freebyaes, use params.vcf_mixed as input. freebayes: run Freebayes. Otherwise: use both the result of freebayes and params.vcf_mixed as input for benchmarking. Default: freebayes   |
+| scSplit_preprocess      | Whether to perform pre-processing on the input params.bam for Freebayes and scSplit. True: Perform pre-processing. Otherwise pre-processing is not called. Default: True        |
+| scSplit_variant         | Whether to perform Freebayes before running scSplit. True: run Freebayes. Otherwise freebayes is not called and params.vcf_mixed is used as input. Default: True   |
 | vcf_mixed               | VCF from mixed BAM. Default: None                                                                                                                                                                                                                          |
 | bam                     | Input Mixed sample BAM.                                                                                                                                                                                                                                    |
 | bai                     | Index of mixed sample BAM.                                                                                                                                                                                                                                 |
@@ -449,12 +465,12 @@ profiles{
 | sample_geno             | Whether to generate sample genotypes based on the split result. Default: True                                                                                                                                                                              |
 | scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out                                                                                                                                                                                                  |
 
-### Genetics-based: Souporcell
+### Genotype-based: Souporcell
 
 |                              |                                                                                                                                                                                                                                           |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | souporcell                   | Whether to run Souporcell. Default: True                                                                                                                                                                                                  |
-| souporcell_preprocess        | Whether to perform pre-processing on the input params.bam for Souporcell. True: Perform pre-processing. False: Don't perform pre-processing. Otherwise: Use both pre-processed and raw BAM file as input for benchmarking. Default: False |
+| souporcell_preprocess        | Whether to perform pre-processing on the input params.bam for Souporcell. True: Perform pre-processing. Otherwise pre-processing is not called. Default: False |
 | bam                          | Cellranger bam.                                                                                                                                                                                                                           |
 | bai                          | Index of cellranger bam.                                                                                                                                                                                                                  |
 | barcodes                     | Barcodes.tsv from cellranger                                                                                                                                                                                                              |
@@ -474,13 +490,12 @@ profiles{
 | ignore                       | Set to True to ignore data error assertions. Default: False                                                                                                                                                                               |
 | souporcell_out               | Dirtectory for Souporcell output files. Default: souporcell_out                                                                                                                                                                           |
 
-### Genetics-based: cellSNP-lite
+### Genotype-based: cellSNP-lite
 
 |                         |                                                                                                                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bam                     | An indexed sam/bam file(s), comma separated multiple samples.                                                                                                                               |
+| bam                     | An indexed sam/bam file, comma separated multiple samples.                                                                                                                               |
 | barcodes                | A plain file listing all effective cell barcode.                                                                                                                                            |
-| samFileList             | A list file containing bam files, each per line. Default: None                                                                                                                              |
 | common_variants_cellsnp | A VCF file listing all candidate snps, for fetch each variants.                                                                                                                             |
 | targetsVCF              | Similar as regionsVCF, but the next position is accessed by streaming rather than indexing/jumping. Default: None                                                                           |
 | sampleList              | A list file containing sample IDs, each per line. Default: None                                                                                                                             |
@@ -504,13 +519,12 @@ profiles{
 | countORPHAN             | If use, do not skip anomalous read pairs. Default: False                                                                                                                                    |
 | cellsnp_out             | Dirtectory for cellSNP-lite output files. Default: cellSNP_out                                                                                                                              |
 
-### Genetics-based: Freebayes
+### Genotype-based: Freebayes
 
 |                                 |                                                                                                                                                                                                                                                            |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | bam                             | Input BAM file to be analyzed.                                                                                                                                                                                                                             |
 | bai                             | Index of input BAM file to be analyzed.                                                                                                                                                                                                                    |
-| bam_list                        | A file containing a list of BAM files to be analyzed. Default: None                                                                                                                                                                                        |
 | fasta                           | A reference sequence for analysis.                                                                                                                                                                                                                         |
 | fasta_index                     | The index of the reference sequence for analysis.                                                                                                                                                                                                          |
 | stdin                           | Read BAM input on stdin. Default: False                                                                                                                                                                                                                    |
@@ -584,3 +598,20 @@ profiles{
 | genotype_qualities              | Calculate the marginal probability of genotypes and report as GQ in each sample field in the VCF output Default: False                                                                                                                                     |
 | debug                           | Print debugging output. Default: False                                                                                                                                                                                                                     |
 | dd                              | Print more verbose debugging output (requires "make DEBUG"). Default: False                                                                                                                                                                                |
+
+
+
+### Donor matching
+
+
+
+|       	|                    |
+|-----------------------|---------------------------------------------------------------------------------------------------------	|
+| match_donor           	| Whether to match donors. Default: True                                      	|
+| demultiplexing_result 	| A CSV file with demultiplexing assignment when running in donor_match mode. In other modes, the input is passed by the pipeline automatically. Default: None               	|
+| match_donor_method1   	| The method name to match donors. If None, all genotype-based methods are compared. Default: None      	     |
+| match_donor_method2   	| The method name to match donors. If None, all hashing-based methods are compared. Default: None               |
+| findVariants          	| Whether to extract a subset of informative variants when best genotype-based method for donor matching is vireo. `default`: subset as described in paper; `vireo`: subset by Vireo; `True`: subset using both methods; `False`: not extracting variants. Default: False 	|
+| variant_count         	| The threshold for the minimal read depth of a variant in the cell group when subseting the informative variants by default. Default: 10  |
+| variant_pct           	| The threshold for the minimal frequency of the alternative or reference allele to determine the dominant allele of a variant in the cell group when subseting the informative variants by default. Default: 0.9         	|
+| vireo_parent_dir      	| A parent folder which contains the output folder of vireo in the format of `vireo_[taskID/sampleId]` generated by hadge pipeline when running in donor_match mode. In other modes, the input is passed by the pipeline automatically. Default: None                     	|

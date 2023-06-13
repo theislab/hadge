@@ -25,7 +25,7 @@ process summary{
         val generate_mudata
   
     output:
-        tuple val(sampleId), path("genetic_summary_${sampleId}")
+        tuple val(sampleId), path("genetic_summary")
 
     script:
         def demuxlet_files = ""
@@ -99,7 +99,7 @@ workflow gene_demultiplexing {
         qc_bam = data_preprocess.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/sorted.bam", it + "/sorted.bam.bai") }
     }
 
-    if (params.scSplit == "True" & params.scSplit_variant == 'freebayes'){
+    if (params.scSplit == "True" & params.scSplit_variant == 'True'){
         freebayes_region = Channel.from(1..22, "X","Y").flatten()
         if (params.region != "None"){
             freebayes_region = split_input(params.region)
@@ -118,7 +118,7 @@ workflow gene_demultiplexing {
              
     }
 
-    if (params.vireo == "True" & params.vireo_variant == 'cellsnp'){
+    if (params.vireo == "True" & params.vireo_variant == 'True'){
         if(params.vireo_preprocess == 'True'){
             input_param_cellsnp = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -144,7 +144,7 @@ workflow gene_demultiplexing {
         else{
             input_bam_scsplit = qc_bam
         }
-        if (params.scSplit_variant == 'freebayes'){
+        if (params.scSplit_variant == 'True'){
             input_vcf_scsplit = freebayes_vcf
         }
         else{
@@ -166,13 +166,13 @@ workflow gene_demultiplexing {
     }
 
     if (params.vireo == "True"){
-        if (params.vireo_variant == 'cellsnp'){
+        if (params.vireo_variant == 'True'){
             input_vcf_vireo = cellsnp_vcf
         }
         else{
             input_vcf_vireo = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.cell_data)}
+                | map { row-> tuple(row.sampleId, row.celldata)}
         }
         input_param_vireo = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \

@@ -21,7 +21,6 @@ This document describes the output produced by each process of the pipeline.
 - HashedDrops
 - DemuxEM
 - HashSolo
-- Solo
 - Demuxmix
 - GMM-Demux
 - BFF
@@ -45,20 +44,24 @@ This document describes the output produced by each process of the pipeline.
 
 <br>
 
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode/`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+
+<br>
+
 ## Hashing-based deconvolution workflow
 
-The output of hashing-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/hash_demulti`.
+Running on a single sample, the output of hashing-based deconvolution workflow is saved in the folder `$pipeline_output_folder/hash_demulti`.
 
 ### Pre-processing
 
-output directory: `preprocess/preprocess_[task_ID]`
+output directory: `preprocess/preprocess_[task_ID/sampleId]`
 
 - `${params.preprocessOut}.rds`: pre-processed data in an RDS object
 - `params.csv`: specified parameters in the hashing pre-processing task
 
 ### HTODemux
 
-output directory: `htodemux/htodemux_[task_ID]`
+output directory: `htodemux/htodemux_[task_ID/sampleId]`
 
 - `${params.assignmentOutHTO}_assignment_htodemux.csv`: the assignment of HTODemux
 - `${params.assignmentOutHTO}_classification_htodemux.csv`: the classification of HTODemux as singlet, doublet and negative droplets
@@ -76,7 +79,7 @@ Optionally:
 
 ### Multiseq
 
-output directory: `multiseq/multiseq_[task_ID]`
+output directory: `multiseq/multiseq_[task_ID/sampleId]`
 
 - `${params.assignmentOutMulti}_res.csv`: the assignment of Multiseq
 - `${params.objectOutMulti}.rds`: the result of Multiseq in an RDS object
@@ -84,7 +87,7 @@ output directory: `multiseq/multiseq_[task_ID]`
 
 ### Demuxem
 
-output directory: `demuxem/demuxem_[task_ID]`
+output directory: `demuxem/demuxem_[task_ID/sampleId]`
 
 - `${params.objectOutDemuxem}_demux.zarr.zip`: RNA expression matrix with demultiplexed sample identities in Zarr format
 - `${params.objectOutDemuxem}.out.demuxEM.zarr.zip`: DemuxEM-calculated results in Zarr format, containing two datasets, one for HTO and one for RNA
@@ -103,14 +106,14 @@ Optionally:
 
 ### Solo
 
-output directory: `solo/solo_[task_ID]`
+output directory: `solo/solo_[task_ID/sampleId]`
 
 - `${params.assignmentOutSolo}_res.csv`: the assignment of Solo
 - `params.csv`: specified parameters in the Solo task
 
 ### HashSolo
 
-output directory: `hashsolo/hashsolo_[task_ID]`
+output directory: `hashsolo/hashsolo_[task_ID/sampleId]`
 
 - `${params.assignmentOutHashSolo}_res.csv`: the assignment of HashSolo
 - `${params.plotOutHashSolo}.jpg`: plot of HashSolo demultiplexing results for QC checks
@@ -118,7 +121,7 @@ output directory: `hashsolo/hashsolo_[task_ID]`
 
 ### HashedDrops
 
-output directory: `hashedDrops/hashedDrops_[task_ID]`
+output directory: `hashedDrops/hashedDrops_[task_ID/sampleId]`
 
 - `${params.objectOutEmptyDrops}.rds`: the result of emptyDrops in an RDS object
 - `${params.assignmentOutEmptyDrops}.csv`: the result of emptyDrops in a csv file
@@ -130,14 +133,14 @@ output directory: `hashedDrops/hashedDrops_[task_ID]`
 
 ### Demuxmix
 
-output directory: `demuxmix/demuxmix_[task_ID]`
+output directory: `demuxmix/demuxmix_[task_ID/sampleId]`
 
 - `${params.assignmentOutDemuxmix}_assignment_demuxmix.csv`: the assignment and classification results produced by Demuxmix
 - `params.csv`: specified parameters in the Demuxmix task
 
 ### GMM-Demux
 
-output directory: `gmm_demux/gmm_demux_[task_ID]`
+output directory: `gmm_demux/gmm_demux_[task_ID/sampleId]`
 
 - `features.tsv.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
 - `barcodes.tsv.gz`: default content in the output folder are the non-MSM droplets (SSDs), stored in MTX format.
@@ -149,18 +152,18 @@ output directory: `gmm_demux/gmm_demux_[task_ID]`
 
 ### BFF
 
-output directory: `bff/bff_[task_ID]`
+output directory: `bff/bff_[task_ID/sampleId]`
 
 - `${params.assignmentOutBff}_assignment_demuxmix.csv`: the assignment and classification results produced by BFF
 - `params.csv`: specified parameters in the BFF task
 
 ## Genetics-based deconvolution workflow
 
-The output of genetics-based deconvolution workflow is saved in the folder `$projectDir/$params.outdir/$params.mode/gene_demulti`.
+The output of genetics-based deconvolution workflow is saved in the folder `$pipeline_output_folder/gene_demulti`.
 
 ### Samtools
 
-output directory: `samtools/samtools_[task_ID]`
+output directory: `samtools/samtools_[task_ID/sampleId]`
 
 - `filtered.bam`: processed BAM in a way that reads with any of following patterns be removed: read quality lower than 10, being unmapped segment, being secondary alignment, not passing filters, being PCR or optical duplicate, or being supplementary alignment
 - `filtered.bam.bai`: index of filtered bam
@@ -169,6 +172,8 @@ output directory: `samtools/samtools_[task_ID]`
 - `sorted.bam.bai`: index of sorted BAM
 
 ### cellSNP-lite
+
+output directory: `cellsnp/cellsnp_[task_ID/sampleId]`
 
 - `cellSNP.base.vcf.gz`: a VCF file listing genotyped SNPs and aggregated AD & DP infomation (without GT)
 - `cellSNP.samples.tsv`: a TSV file listing cell barcodes or sample IDs
@@ -184,7 +189,7 @@ output directory: `samtools/samtools_[task_ID]`
 
 ### Bcftools
 
-output directory: `bcftools/bcftools_[task_ID]`
+output directory: `bcftools/bcftools_[task_ID/sampleId]`
 
 - `total_chroms.vcf`: a VCF containing variants from all chromosomes
 - `sorted_total_chroms.vcf`: sorted VCF file
@@ -192,7 +197,7 @@ output directory: `bcftools/bcftools_[task_ID]`
 
 ### Demuxlet
 
-output directory: `demuxlet/demuxlet_[task_ID]`
+output directory: `demuxlet/demuxlet_[task_ID/sampleId]`
 
 - `{demuxlet_out}.best`: result of demuxlet containing the best guess of the sample identity, with detailed statistics to reach to the best guess
 - `params.csv`: specified parameters in the Demuxlet task
@@ -206,7 +211,7 @@ Optionally:
 
 ### Freemuxlet
 
-output directory: `freemuxlet/freemuxlet_[task_ID]`
+output directory: `freemuxlet/freemuxlet_[task_ID/sampleId]`
 
 - `{freemuxlet_out}.clust1.samples.gz`: contains the best guess of the sample identity, with detailed statistics to reach to the best guess.
 - `{freemuxlet_out}.clust1.vcf.gz`: VCF file for each sample inferred and clustered from freemuxlet
@@ -225,7 +230,7 @@ Optionally:
 
 ### Vireo
 
-output directory: `vireo/vireo_[task_ID]`
+output directory: `vireo/vireo_[task_ID/sampleId]`
 
 - `donor_ids.tsv`: assignment of Vireo with detailed statistics
 - `summary.tsv`: summary of assignment
@@ -240,7 +245,7 @@ output directory: `vireo/vireo_[task_ID]`
 
 ### scSplit
 
-output directory: `scSplit/scsplit_[task_ID]`
+output directory: `scSplit/scsplit_[task_ID/sampleId]`
 
 - `alt_filtered.csv`: count matrix of alternative alleles
 - `ref_filtered.csv`: count matrix of reference alleles
@@ -254,7 +259,7 @@ output directory: `scSplit/scsplit_[task_ID]`
 
 ### Souporcell
 
-output directory: `souporcell/souporcell_[task_ID]`
+output directory: `souporcell/souporcell_[task_ID/sampleId]`
 
 - `alt.mtx`: count matrix of alternative alleles
 - `ref.mtx`: count matrix of reference alleles
@@ -265,7 +270,7 @@ output directory: `souporcell/souporcell_[task_ID]`
 
 ## Merging results
 
-After each demultiplexing workflow, the pipeline will generate some TSV files to summarize the results in the folder `$projectDir/$params.outdir/$params.mode/[workflow]/[workflow]_summary`.
+After each demultiplexing workflow, the pipeline will generate some TSV files to summarize the results in the folder `$pipeline_output_folder/[workflow]/[workflow]_summary`.
 
 - `[method]_classification.csv`: classification of all trials for a given method
   | Barcode | multiseq_1 | multiseq_2 | ... |
@@ -293,21 +298,24 @@ After each demultiplexing workflow, the pipeline will generate some TSV files to
   | Barcode | multiseq_1 | htodemux_1 | ... |
   |:---------: |:----------: |:----------: |:---: |
   | ... | ... | ... | ... |
+- `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`.
+- In the `rescue` mode, the pipeline merges the results of hashing and genetic demultiplexing tools into and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
-- In the `rescue` mode, the pipeline merges the results of hashing and genetic demultiplexing tools into and `assignment_all_genetic_and_hash.csv` in the `$projectDir/$params.outdir/$params.mode/summary` folder.
 
 ## Donor matching
-
-Output directory: `$projectDir/$params.outdir/$params.mode/donor_match`
-
-- folder`[method1]_[task_ID]_vs_[method2]_[task_ID]` with:
+- Folder`[method1]_[task_ID/sampleId]_vs_[method2]_[task_ID/sampleId]` with:
   - `correlation_res.csv`: correlation scores of donor matching
   - `concordance_heatmap.png`: a heatmap visualising the the correlation scores
   - `donor_match.csv`: a map between hashtag and donor identity.
-- For the optimal match `best_method1` and `best_method2` among all trials, the pipeline generates new assignment file by mapping hashtags of `best_method2` to `best_method1` in folder `donor_match/donor_match_[best_method1]_[best_method2]`:
   - `all_assignment_after_match.csv`: assignment of all cell barcodes after donor matching
   - `intersect_assignment_after_match.csv`: assignment of joint singlets after donor matching
-  - Optionally, if `best_method1` is `vireo` and identification of donor-specific or discriminatory variants is enabled:
+- General output in the `$pipeline_output_folder/donor_match` folder:
+  - `all_assignment_after_match.csv`: assignment of all cell barcodes based on the donor matching of the optimal match
+  - `donor_match.csv`: a map between hashtags and donor identities based on the donor matching of the optimal match
+  - `score_record.csv`: a CSV file storing the matching score and the number of matched donors for each method pair
+- Folder `data_output` with:
+  - an Anndata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the assignment of the best-matched method pair after donor matching
+- Folder `donor_match/donor_match_[best_method1]_[best_method2]`: Optionally, if `best_method1` is `vireo` for the optimal match `best_method1` and `best_method2` among all trials and identification of donor-specific or discriminatory variants is enabled:
     - `donor_specific_variants.csv`: a list of donor-specific variants
     - `donor_specific_variants_upset.png`: An upset plot showing the number of donor-specific variants
     - `donor_genotype_subset_by_default_matched.vcf`: Donor genotypes of donor-specific variants
