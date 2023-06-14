@@ -4,9 +4,8 @@ nextflow.enable.dsl=2
 process bff{
     publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/bff", mode:'copy'
     input:
-        each seurat_object
-        //Seurat process
-        each assay
+       
+        tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'),
         each methods
         each methodsForConsensus
         each cellbarcodeWhitelist
@@ -30,7 +29,7 @@ process bff{
 
         """
         mkdir bff_${sampleId}
-        Rscript $baseDir/bin/bff.R --seuratObject $seurat_object --assay $assay --methods $methods --methodsForConsensus $methodsForConsensus \
+        bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
         --cellbarcodeWhitelist $cellbarcodeWhitelist --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${task.index}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
         --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold $h5_available --outputdir bff_${sampleId} --assignmentOutBff $assignmentOutBff
@@ -49,9 +48,8 @@ def split_input(input){
 
 workflow bff_hashing{
   take: 
-        seurat_object
+        hto_matrix
   main:
-        assay = split_input(params.assay)
         methods = split_input(params.methods)
         methodsForConsensus = split_input(params.methodsForConsensus)
         cellbarcodeWhitelist = split_input(params.cellbarcodeWhitelist)
@@ -66,7 +64,7 @@ workflow bff_hashing{
         assignmentOutBff = split_input(params.assignmentOutBff)
         
 
-        bff(seurat_object,assay, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,rawFeatureMatrixH5,assignmentOutBff)
+        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,rawFeatureMatrixH5,assignmentOutBff)
   
   emit:
         bff.out.collect()

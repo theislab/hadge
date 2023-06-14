@@ -13,7 +13,9 @@ library(data.table)
 
 # Create a parser
 parser <- ArgumentParser("Parameters for Demuxmix")
-parser$add_argument("--seuratObject", help = "Seurat object. Assumes that the hash tag oligo (HTO) data has been added and normalized.")
+parser$add_argument("--fileUmi", help = "Path to file UMI count matrix.")
+parser$add_argument("--fileHto", help = "Path to file HTO count matrix.")
+parser$add_argument("--ndelim", help = "For the initial identity calss for each cell, delimiter for the cell's column name", default = "_")
 parser$add_argument("--pAcpt", help='Acceptance probability that must be reached in order to assign a droplet to a hashtag. ')
 parser$add_argument("--assay", help='Assay name')
 parser$add_argument("--rna_available", help='TRUE if RNA assay is available',default = FALSE)
@@ -29,24 +31,35 @@ parser$add_argument("--assignmentOutDemuxmix", help="Prefix name for the file co
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
 
-#check if seurat object is correct
-if (!endsWith(args$seuratObject, ".rds")){
-    seuratObj <- list.files(args$seuratObject, pattern = "\\.rds$", full.names = TRUE)[1]
-    print(seuratObj)
 
-}else{
-    seuratObj <- args$seuratObject
+if(as.logical(args$rna_available)){ 
+    
+    umi <- Read10X(data.dir = args$fileUmi)
 }
+counts <- Read10X(data.dir = args$fileHto)
+
+if(as.logical(args$rna_available)){
+    Argument <- c("fileUmi", "fileHto")
+    Value <- c(args$fileUmi, args$fileHto)
+    params <- data.frame(Argument, Value)
+    #demuxmix requires a Seurat object created from raw data, 
+    #without any type of pre-processing (Normalisation, ScaleData, etc)
+    # Setup Seurat object
+    hashtag <- CreateSeuratObject(counts = umi, names.delim = args$ndelim)
+    hashtag[[args$assay]] <- CreateAssayObject(counts = counts)
+  }else{
+    #If RNA data is not available, a Seurat object containing the HTO data is created
+    hashtag <- CreateSeuratObject(counts = counts, names.delim = args$ndelim, assay = args$assay)
+    Argument <- c( "fileHto")
+    Value <- c(args$fileHto)
+    params <- data.frame(Argument, Value)
+  }
 
 
-Argument <- c("seuratObject", "assay", "model", "alpha_demuxmix", "beta_demuxmix", "tol_demuxmix", "maxIter_demuxmix", "k_hto","k_rna","correct_tails")
-Value <- c(seuratObj, args$assay, args$model, args$alpha_demuxmix, args$beta_demuxmix, args$tol_demuxmix, args$maxIter_demuxmix, args$k_hto, args$k_rna,args$correctTails)
+Argument <- c("fileUmi", "fileHto","assay", "model", "alpha_demuxmix", "beta_demuxmix", "tol_demuxmix", "maxIter_demuxmix", "k_hto","k_rna","correct_tails")
+Value <- c(args$fileUmi, args$fileHto, args$assay, args$model, args$alpha_demuxmix, args$beta_demuxmix, args$tol_demuxmix, args$maxIter_demuxmix, args$k_hto, args$k_rna,args$correctTails)
 
 params <- data.frame(Argument, Value)
-
-
-# Loading Seurat object
-hashtag <-readRDS(seuratObj)
 
 
 ### Demuxmix

@@ -1,17 +1,17 @@
 #!/usr/bin/env Rscript
 
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager",repos = "http://cran.us.r-project.org")
-is_demuxmix<-require("demuxmix")
-if (!require("demuxmix", quietly = TRUE))
-    BiocManager::install("demuxmix")
-  BiocManager::install("demuxmix")
-if (!require("DropletUtils", quietly = TRUE))
-  BiocManager::install("DropletUtils")
-if (!require("preprocessCore", quietly = TRUE))
-  BiocManager::install("preprocessCore")
-if (!require("cellhashR", quietly = TRUE))
-  devtools::install_github(repo = 'bimberlab/cellhashR', ref = 'master', dependencies = TRUE, upgrade = 'always')
+#if (!require("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager",repos = "http://cran.us.r-project.org")
+#is_demuxmix<-require("demuxmix")
+#if (!require("demuxmix", quietly = TRUE))
+#    BiocManager::install("demuxmix")
+#  BiocManager::install("demuxmix")
+#if (!require("DropletUtils", quietly = TRUE))
+#  BiocManager::install("DropletUtils")
+#if (!require("preprocessCore", quietly = TRUE))
+#  BiocManager::install("preprocessCore")
+#if (!require("cellhashR", quietly = TRUE))
+#  devtools::install_github(repo = 'bimberlab/cellhashR', ref = 'master', dependencies = TRUE, upgrade = 'always')
 
 library(DropletUtils)
 library(Seurat)
@@ -25,8 +25,7 @@ library(tidyverse)
 
 # Create a parser
 parser <- ArgumentParser("Parameters for BFF")
-parser$add_argument("--seuratObject", help = "Seurat object. Assumes that the hash tag oligo (HTO) data has been added and normalized.")
-parser$add_argument("--assay", help='Assay name', default="HTO")
+parser$add_argument("--fileHto", "Path to file HTO count matrix.")
 parser$add_argument("--methods", help='A vector of one or more calling methods to use.', default="bff_raw,bff_cluster")
 parser$add_argument("--methodsForConsensus", help='By default, a consensus call will be generated using all methods', default=NULL)
 parser$add_argument("--cellbarcodeWhitelist", help='A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix')
@@ -73,22 +72,22 @@ if(is.null(callerDisagreementThreshold)){
 }
 
 #saving parameters in a dataframe
-Argument <- c("seuratObject", "assay", "methods", "methodsForConsensus", "cellbarcodeWhitelist", "metricsFile", "perCellSaturation","majorityConsensusThreshold","callerDisagreementThreshold", "doTSNE","doHeatmap","chemistry")
-Value <- c(seuratObj, args$assay, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, allerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
+Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelist", "metricsFile", "perCellSaturation","majorityConsensusThreshold","callerDisagreementThreshold", "doTSNE","doHeatmap","chemistry")
+Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, allerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
 params <- data.frame(Argument, Value)
 
 # Loading Seurat object
-hashtag <-readRDS(seuratObj)
-seurat_hto_counts <- hashtag[[args$assay]]@counts
+counts <- Read10X(data.dir = args$fileHto)
+
 #get methods used for demultiplexing
 methods_cell_hash_r <- str_split_1(args$methods, ",")
 methods_cell_hash_r <- c(methods_cell_hash_r)
 
 #loading h5 data if available
 if(isTRUE('demuxmix' %in% methods_cell_hash_r | 'demuxem' %in% methods_cell_hash_r )){
-  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = seurat_hto_counts, methods = methods_cell_hash_r, , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap,methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold, rawFeatureMatrixH5 = args$rawFeatureMatrixH5 )
+  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = methods_cell_hash_r, , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap,methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold, rawFeatureMatrixH5 = args$rawFeatureMatrixH5 )
 }else{
-  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = seurat_hto_counts, methods = methods_cell_hash_r, , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap,methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
+  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = methods_cell_hash_r, , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap,methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
 }
 
 

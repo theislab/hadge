@@ -5,6 +5,11 @@ channels:
 dependencies:
   - conda-forge::r-base>=4.2
   - r-seurat
+  - conda-forge::r-biocmanager
+  - bioconductor-demuxmix
+  - bioconductor-dropletutils
+  - bioconductor-preprocesscore
+  - git
   - conda-forge::r-devtools
   - conda-forge::r-data.table
   - conda-forge::r-ggplot2
@@ -12,3 +17,5 @@ dependencies:
   - conda-forge::r-here
   - conda-forge::r-argparse
   - conda-forge::r-dplyr
+  - pip:
+      - git+git://github.com/BimberLab/cellhashR.git

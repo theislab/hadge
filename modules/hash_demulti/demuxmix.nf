@@ -6,11 +6,13 @@ process demuxmix{
     label 'small_mem'
     
     input:
-        //shares pre-process Seurat
-        each seurat_object
-        //Same assay as Seurat
+        path hto_matrix, stageAs: 'hto_data'
+        path umi_matrix, stageAs: 'rna_data'
+        val hto_raw_or_filtered
+        val rna_raw_or_filtered
         each rna_available
         each assay
+        val ndelim
         each model
         each alpha_demuxmix
         each beta_demuxmix
@@ -30,7 +32,7 @@ process demuxmix{
         """
         mkdir demuxmix_${sampleId}
 
-        Rscript $baseDir/bin/demuxmix.R --seuratObject $seurat_object --rna_available $rna_available --assay $assay --model $model --alpha_demuxmix $alpha_demuxmix \
+        demuxmix.R --fileUmi rna_data --fileHto hto_data --rna_available $rna_available --assay $assay --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix \
             --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails\
             --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${sampleId} --assignmentOutDemuxmix $assignmentOutDemuxmix
         """
@@ -48,10 +50,14 @@ def split_input(input){
 
 workflow demuxmix_hashing{
   take:
-        seurat_object
+        hto_matrix
+        rna_matrix
+        hto_raw_or_filtered
+        rna_raw_or_filtered
+        rna_available
   main:
-        rna_available = split_input(params.rna_available)
         assay = split_input(params.assay)
+        ndelim = params.ndelim
         model = split_input(params.model)
         alpha_demuxmix =  split_input(params.alpha_demuxmix)
         beta_demuxmix = split_input(params.beta_demuxmix)
@@ -63,7 +69,7 @@ workflow demuxmix_hashing{
         assignmentOutDemuxmix = split_input(params.assignmentOutDemuxmix) 
         
 
-        demuxmix(seurat_object,rna_available, assay,model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,correctTails,assignmentOutDemuxmix)
+        demuxmix(hto_matrix,rna_matrix,hto_raw_or_filtered,rna_raw_or_filtered,rna_available, assay,ndelim,model,alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,correctTails,assignmentOutDemuxmix)
   
   emit:
         demuxmix.out.collect()
