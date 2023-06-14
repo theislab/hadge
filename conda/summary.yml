@@ -1,9 +1,0 @@
-name: summary
-channels:
-  - conda-forge
-dependencies:
-  - r-dplyr
-  - r-data.table
-  - r-argparse
-  - r-stringr
-  - r-r.utils

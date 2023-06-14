@@ -23,7 +23,7 @@ def split_input(input){
 process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
-    
+    label 'summary'
     input:
         val demuxlet_result
         val freemuxlet_result
@@ -100,7 +100,7 @@ workflow gene_demultiplexing {
             qc_bam_bai = data_preprocess.out.map{ return it + "/sorted.bam.bai"}
         }
 
-        if (params.vireo == "True" & params.vireo_variant == 'cellsnp'){
+        if (params.vireo == "True" & params.vireo_variant == 'True'){
             if(params.vireo_preprocess != 'False'){
                 variant_cellSNP(qc_bam, qc_bam_bai)
             }
@@ -110,7 +110,7 @@ workflow gene_demultiplexing {
             cellsnp_vcf = variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}
         }
         
-        if (params.scSplit == "True" & params.scSplit_variant == 'freebayes' ){
+        if (params.scSplit == "True" & params.scSplit_variant == 'True' ){
             freebayes_region = Channel.from(1..22, "X","Y").flatten()
             if (params.region != "None"){
                 freebayes_region = split_input(params.region)
@@ -147,7 +147,7 @@ workflow gene_demultiplexing {
 
         
         if (params.vireo == "True"){
-            vcf = params.vireo_variant != 'cellsnp'? Channel.fromPath(params.celldata): 
+            vcf = params.vireo_variant != 'True'? Channel.fromPath(params.celldata): 
                     variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"} 
                 //variant_cellSNP.out.map{ return it + "/*/cellSNP.cells.vcf"}.mix(Channel.fromPath(params.celldata)))        
             demultiplex_vireo(vcf)
@@ -160,7 +160,7 @@ workflow gene_demultiplexing {
         if (params.scSplit == "True"){
             bam = params.scSplit_preprocess == 'True'? qc_bam: input_bam // qc_bam.mix(input_bam))
             bai = params.scSplit_preprocess == 'True'? qc_bam_bai: input_bai // qc_bam_bai.mix(input_bai))
-            vcf = params.scSplit_variant != 'freebayes'? Channel.fromPath(params.vcf_mixed): 
+            vcf = params.scSplit_variant != 'True'? Channel.fromPath(params.vcf_mixed): 
                     filter_variant.out.map{ return it + "/filtered_sorted_total_chroms.vcf"}
                 //freebayes_vcf.mix(Channel.fromPath(params.vcf_mixed))) 
             demultiplex_scSplit(bam, vcf, bai)

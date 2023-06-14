@@ -1,5 +1,4 @@
 #!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
 include { hash_demultiplexing } from './hash_demultiplexing'
 include { gene_demultiplexing } from './gene_demultiplexing'
@@ -7,8 +6,10 @@ include { donor_match } from './donor_match'
 
 process generate_data{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/data_output", mode: 'copy'
+    label 'small_mem'
+    label 'summary'
     input:
-        tuple val(sampleId), val(rna_matrix), val(hto_matrix), path(assignment)
+        tuple val(sampleId), val(hto_matrix), val(rna_matrix), path(assignment)
         val generate_anndata
         val generate_mudata
         
@@ -42,19 +43,21 @@ process generate_data{
 }
 
 process summary_all{
+    label 'small_mem'
+    label 'summary'
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
     input:
         tuple val(sampleId), path(gene_demulti_result), path(hash_demulti_result)
     output:
-        tuple val(sampleId), path(summary)
+        tuple val(sampleId), path("summary")
 
     script:
         """
-        summary.R --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
+        summary.py --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
         """
 }
 
-workflow run_hadge_multi{
+workflow run_multi{
     if (params.mode == "genetic"){
         gene_demultiplexing()
         if (params.match_donor == "True"){
@@ -90,14 +93,24 @@ workflow run_hadge_multi{
                 | join(summary_all.out)
                 | donor_match
         }
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata)
+        Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | join(donor_match.out)
+                | set {input_generate_data}
+        generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
     }
     else if (params.mode == "donor_match"){
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row -> tuple(row.sampleId, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)} \
                 | donor_match
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata)
+        Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | join(donor_match.out)
+                | set {input_generate_data}
+        generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
     }
     
 }

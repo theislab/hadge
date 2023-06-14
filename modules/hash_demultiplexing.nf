@@ -16,7 +16,7 @@ include { bff_hashing } from './hash_demulti/bff'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
-
+    label 'summary'
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxem_result
@@ -31,7 +31,7 @@ process summary{
         val generate_mudata
         
     output:
-        tuple val(sampleId), path("hash_summary_${sampleId}")
+        tuple val(sampleId), path("hash_summary")
 
     script:
         def demuxem_files = ""

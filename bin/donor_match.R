@@ -37,12 +37,12 @@ convert2binary <- function(result_csv, method_name){
 result_csv <- NULL
 
 if (file.exists(args$result_csv) && !dir.exists(args$result_csv)) {
-  result_csv <- fread(args$result_csv, stringsAsFactors = FALSE)
+  result_csv <- fread(args$result_csv, stringsAsFactors = FALSE, na.strings = c(NA_character_, ""))
 }
 if (dir.exists(args$result_csv)) {
   result_csv <- list.files(args$result_csv,
                            pattern = "assignment_all", full.names = TRUE)
-  result_csv <- fread(result_csv[1], stringsAsFactors = FALSE)
+  result_csv <- fread(result_csv[1], stringsAsFactors = FALSE, na.strings = c(NA_character_, ""))
 }
 if (!is.null(args$barcode)) {
   barcode_whitelist <- fread(args$barcode, header = FALSE,
@@ -65,7 +65,7 @@ if (!is.null(args$method1) && !is.null(args$method2)) {
 hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo", "hashedDrops")
 genetic_methods <- c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
 
-best_result <- c(0, TRUE)
+best_result <- 0
 best_method1 <- NULL
 best_method2 <- NULL
 num_trial <- 1
@@ -157,17 +157,16 @@ for (i in 1:length(method1_all)){
       print("------------------------------------------------------------------")
     }
 
-    if (match_score > best_result[1]){
+    if (match_score > best_result & !remain_na){
       write.table(geno_match[, 1:2],
                   file.path(args$outputdir, "donor_match.csv"),
                   row.names = FALSE, col.names = FALSE,
                   sep = " ", quote = FALSE)
     }
 
-    best_method1 <- ifelse(match_score > best_result[1], method1, best_method1)
-    best_method2 <- ifelse(match_score > best_result[1], method2, best_method2)
-    best_result[2] <- ifelse(match_score > best_result[1], remain_na, best_result[2])
-    best_result[1] <- ifelse(match_score > best_result[1], match_score, best_result[1])
+    best_method1 <- ifelse(match_score > best_result & !remain_na, method1, best_method1)
+    best_method2 <- ifelse(match_score > best_result & !remain_na, method2, best_method2)
+    best_result <- ifelse(match_score > best_result & !remain_na, match_score, best_result)
     new_record <- c(method1, method2, match_score, matched_donor, remain_na)
     result_record[num_trial, ] <- new_record
     num_trial <- num_trial + 1
@@ -185,7 +184,7 @@ for (i in 1:length(method1_all)){
               file.path(outputdir, "all_assignment_after_match.csv"),
               row.names = FALSE)
 
-    if (best_result[1]== match_score) {
+    if (best_result == match_score) {
       write.csv(result_merge_new,
                 file.path(args$outputdir, "all_assignment_after_match.csv"),
                 row.names = FALSE)
@@ -196,11 +195,8 @@ for (i in 1:length(method1_all)){
               file.path(outputdir, "intersect_assignment_after_match.csv"),
               row.names = FALSE)
 
-    print(paste0("Best score: ", best_result[1]))
+    print(paste0("Best score: ", best_result))
     print(paste0("Best method pair: ", best_method1, " and ", best_method2))
-    if (best_result[2]){
-      print("But be careful: Not all donors are matched!")
-    }
     write.csv(result_record, file.path(args$outputdir, "score_record.csv"), row.names = FALSE)
 
   }
