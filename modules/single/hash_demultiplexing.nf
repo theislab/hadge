@@ -96,7 +96,6 @@ workflow hash_demultiplexing{
         rna_matrix_filtered
         hto_matrix_raw
         hto_matrix_filtered
-        rna_available
     main:
     
     if (params.htodemux == "True"){

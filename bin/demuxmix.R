@@ -69,7 +69,7 @@ hashtag_list<-hashtags_object@Dimnames
 
 
 #Demultiplexing process
-if(args$model != 'naive' && args$rna_available == 'TRUE'){
+if(args$model != 'naive' && as.logical(args$rna_available)){
     rna_counts <- hashtag$nCount_RNA
     demuxmix_demul <- demuxmix(hto_counts,rna= rna_counts, model = args$model, alpha= args$alpha_demuxmix,beta= args$beta_demuxmix,maxIter=args$maxIter_demuxmix,k.hto=args$k_hto, correctTails = as.logical(args$correctTails))
 
