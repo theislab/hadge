@@ -16,7 +16,6 @@ process bff{
         each majorityConsensusThreshold
         each chemistry
         each callerDisagreementThreshold
-        each rawFeatureMatrixH5
         each assignmentOutBff
         
     output:
@@ -24,14 +23,13 @@ process bff{
         
         
     script:
-        def h5_available = rawFeatureMatrixH5 != 'None' ? " --rawFeatureMatrixH5 ${rawFeatureMatrixH5}" : ''
 
         """
         mkdir bff_${task.index}
         bff.R --fileHto hto_data --assay $assay --methods $methods --methodsForConsensus $methodsForConsensus \
         --cellbarcodeWhitelist $cellbarcodeWhitelist --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${task.index}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
-        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold $h5_available --outputdir bff_${task.index} --assignmentOutBff $assignmentOutBff
+        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold  --outputdir bff_${task.index} --assignmentOutBff $assignmentOutBff
         """
 
 }
@@ -59,11 +57,10 @@ workflow bff_hashing{
         majorityConsensusThreshold  = split_input(params.majorityConsensusThreshold)
         chemistry = split_input(params.chemistry)
         callerDisagreementThreshold = split_input(params.callerDisagreementThreshold)
-        rawFeatureMatrixH5 = split_input(params.rawFeatureMatrixH5)
         assignmentOutBff = split_input(params.assignmentOutBff)
         
 
-        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,rawFeatureMatrixH5,assignmentOutBff)
+        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff)
   
   emit:
         bff.out.collect()
