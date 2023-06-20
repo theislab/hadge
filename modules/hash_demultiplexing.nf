@@ -189,20 +189,10 @@ workflow hash_demultiplexing{
             demuxmix_out = channel.value("no_result")
     }
     if (params.bff == "True"){
-        if (params.demuxmix == "True" & params.hto_matrix_demuxmix == params.hto_matrix_bff & 
-            params.rna_matrix_demuxmix == params.rna_matrix_bff){
-            bff_preprocess_out = demuxmix_preprocess_out
-        }
-        else{
-            Channel.fromPath(params.multi_input) \
+        Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
-                                    params.rna_matrix_bff == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered)}
-                | set {input_list_preprocess_bff}
-                preprocessing_hashing_bff(input_list_preprocess_bff, params.hto_matrix_bff, params.rna_matrix_bff) 
-                bff_preprocess_out = preprocessing_hashing_bff.out
-        }
-        bff_hashing(bff_preprocess_out)
+                | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
+                | bff_hashing
         bff_out= bff_hashing.out
     }
     else{
