@@ -26,7 +26,7 @@ process bff{
 
         """
         mkdir bff_${task.index}
-        bff.R --fileHto hto_data --assay $assay --methods $methods --methodsForConsensus $methodsForConsensus \
+        bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
         --cellbarcodeWhitelist $cellbarcodeWhitelist --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${task.index}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
         --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold  --outputdir bff_${task.index} --assignmentOutBff $assignmentOutBff

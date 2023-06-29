@@ -34,9 +34,12 @@ args <- parser$parse_args()
 
 if(as.logical(args$rna_available)){ 
     
-    umi <- Read10X(data.dir = args$fileUmi)
+    umi <- Read10X(data.dir = args$fileUmi, gene.column=1, strip.suffix = TRUE)
+    #umi <- readRDS(args$fileUmi)
 }
-counts <- Read10X(data.dir = args$fileHto)
+#counts <- Read10X(data.dir = args$fileHto, gene.column=1, strip.suffix = TRUE)
+counts <- Read10X_h5(args$fileHto)
+#counts <- readRDS(args$fileHto)
 
 if(as.logical(args$rna_available)){
     Argument <- c("fileUmi", "fileHto")
