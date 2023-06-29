@@ -42,13 +42,7 @@ parser$add_argument("--assignmentOutBff", help="Prefix name for the file contain
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
 
-#Open Seurat object containing HTO asssay
-args <- parser$parse_args()
-if (!endsWith(args$seuratObject, ".rds")){
-  seuratObj <- list.files(args$seuratObject, pattern = "\\.rds$", full.names = TRUE)[1]
-}else{
-  seuratObj <- args$seuratObject
-}
+
 #Parameters originally Null
 methodsForConsensus <- args$methodsForConsensus
 if(is.null(methodsForConsensus)){
@@ -78,7 +72,8 @@ params <- data.frame(Argument, Value)
 
 # Loading Seurat object
 counts <- Read10X(data.dir = args$fileHto)
-
+print(counts)
+print("-------------------")
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
 #Only Bff in its different variations is available
 if(args$methods == "bff_raw"){
@@ -87,7 +82,9 @@ if(args$methods == "bff_raw"){
   cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_cluster"), doTSNE = args$doTSNE, doHeatmap = args$doHeatmap)
   #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold 
 }else if(args$methods == "combined_bff"){
-  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap,methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
+  print("BFF combined")
+  cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = args$doTSNE, doHeatmap = args$doHeatmap )
+  #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold
 }else{
   print("Method not available on the pipeline")
 }else{
