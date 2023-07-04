@@ -1,18 +1,5 @@
 #!/usr/bin/env Rscript
 
-#if (!require("BiocManager", quietly = TRUE))
-#    install.packages("BiocManager",repos = "http://cran.us.r-project.org")
-#is_demuxmix<-require("demuxmix")
-#if (!require("demuxmix", quietly = TRUE))
-#    BiocManager::install("demuxmix")
-#  BiocManager::install("demuxmix")
-#if (!require("DropletUtils", quietly = TRUE))
-#  BiocManager::install("DropletUtils")
-#if (!require("preprocessCore", quietly = TRUE))
-#  BiocManager::install("preprocessCore")
-#if (!require("cellhashR", quietly = TRUE))
-#  devtools::install_github(repo = 'bimberlab/cellhashR', ref = 'master', dependencies = TRUE, upgrade = 'always')
-
 library(DropletUtils)
 library(Seurat)
 library(ggplot2)
