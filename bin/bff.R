@@ -12,7 +12,7 @@ library(tidyverse)
 
 # Create a parser
 parser <- ArgumentParser("Parameters for BFF")
-parser$add_argument("--fileHto", "Path to file HTO count matrix.")
+parser$add_argument("--fileHto", help="Path to file HTO count matrix.")
 parser$add_argument("--methods", help='A vector of one or more calling methods to use.', default="combined_bff")
 parser$add_argument("--methodsForConsensus", help='By default, a consensus call will be generated using all methods', default=NULL)
 parser$add_argument("--cellbarcodeWhitelist", help='A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix',default=NULL)
