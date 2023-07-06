@@ -62,7 +62,7 @@ print("------")
 print(do_Heatmap)
 #saving parameters in a dataframe
 Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelist", "metricsFile", "perCellSaturation","majorityConsensusThreshold","callerDisagreementThreshold", "doTSNE","doHeatmap","chemistry")
-Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, allerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
+Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, callerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
 params <- data.frame(Argument, Value)
 
 # Loading Seurat object
