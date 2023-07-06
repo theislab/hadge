@@ -29,7 +29,7 @@ parser$add_argument("--assignmentOutBff", help="Prefix name for the file contain
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
 
-
+print("In BFF")
 #Parameters originally Null
 methodsForConsensus <- args$methodsForConsensus
 if(is.null(methodsForConsensus)){
@@ -57,8 +57,9 @@ do_TSNE <- as.logical(args$doTSNE)
 do_Heatmap <- as.logical(args$doHeatmap)
 
 
-
-
+print(do_TSNE)
+print("------")
+print(do_Heatmap)
 #saving parameters in a dataframe
 Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelist", "metricsFile", "perCellSaturation","majorityConsensusThreshold","callerDisagreementThreshold", "doTSNE","doHeatmap","chemistry")
 Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, allerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
