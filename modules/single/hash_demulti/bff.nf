@@ -60,7 +60,7 @@ workflow bff_hashing{
         assignmentOutBff = split_input(params.assignmentOutBff)
         
 
-        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff)
+        bff(hto_matrix, methods, methodsForConsensus,cellbarcodeWhitelist, metricsFile,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff)
   
   emit:
         bff.out.collect()
