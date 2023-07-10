@@ -79,13 +79,10 @@ if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster
   print("Consensus only available using BFF methods on the pipeline")
 }
 
-if (is.null(cell_hash_R_res)){
-  # Loading Seurat object
-  counts <- Read10X(data.dir = args$fileHto)
-  barcodes <- counts@Dimnames
-  write.csv(barcodes, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
-}else{
-  write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
 
-}
+  # Loading Seurat object
+  #counts <- Read10X(data.dir = args$fileHto)
+  #barcodes <- counts@Dimnames
+  #write.csv(barcodes[[2]], paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
 write.csv(params, paste0(args$outputdir, "/params.csv"))

@@ -364,7 +364,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             assign.append(df)
 
         else:
-
             #df contain data and we save it in the same way
             dt_assign = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall.global"] , axis=1)
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
