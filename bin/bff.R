@@ -80,9 +80,6 @@ if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster
   print("Consensus only available using BFF methods on the pipeline")
 }
 
-if (is.null(cell_hash_R_res)){
-  print("no_result")
-}else{
-  write.csv(params, paste0(args$outputdir, "/params.csv"))
-  write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
-}
+write.csv(params, paste0(args$outputdir, "/params.csv"))
+write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+

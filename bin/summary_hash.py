@@ -355,44 +355,47 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
         bff_assign = pd.read_csv(obs_res_dir)
         data_bff = pd.DataFrame(bff_assign)
+        if data_bff.empty:
+            print("BFF didn't find any results")
+            #no results create empty dataframe for empty col
+        else:
+
+            #df contain data and we save it in the same way
+            dt_assign = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall.global"] , axis=1)
+            dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
+            dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
+            assign.append(dt_assign)
+
+            if raw_adata is not None:
+                adata = raw_adata.copy()
+                adata.obs = adata.obs.merge(bff_assign, left_index=True, right_index=True, how='left')
+                adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
+                adata.obs.donor = adata.obs.donor.fillna("negative")
+                adata.obs.donor = adata.obs.donor.astype(str)
+                adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+
+            bff_classi = pd.read_csv(obs_res_dir)
+            data_bff = pd.DataFrame(bff_classi)
+            dt_classi = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall"] , axis=1)
+            dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
+            dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
+            dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
+            dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
+            classi.append(dt_classi)
+
+            params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
+            params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
+            params_res.columns = [os.path.basename(x)]
+            params.append(params_res)
+
+        classi_df = pd.concat(classi, axis=1, join="outer")
+        classi_df.to_csv("hash_summary" +"/bff_classification.csv", index=False)
         
+        assign_df = pd.concat(assign, axis=1, join="outer")
+        assign_df.to_csv("hash_summary"  +"/bff_assignment.csv", index=False)
         
-        #df contain data and we save it in the same way
-        dt_assign = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall.global"] , axis=1)
-        dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
-        dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
-        assign.append(dt_assign)
-
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            adata.obs = adata.obs.merge(bff_assign, left_index=True, right_index=True, how='left')
-            adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
-            adata.obs.donor = adata.obs.donor.fillna("negative")
-            adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
-
-        bff_classi = pd.read_csv(obs_res_dir)
-        data_bff = pd.DataFrame(bff_classi)
-        dt_classi = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall"] , axis=1)
-        dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
-        dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
-        dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
-        dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
-        classi.append(dt_classi)
-
-        params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-        params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-        params_res.columns = [os.path.basename(x)]
-        params.append(params_res)
-
-    classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary" +"/bff_classification.csv", index=False)
-    
-    assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary"  +"/bff_assignment.csv", index=False)
-    
-    params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary"  +"/demuxmix_params.csv")
+        params = pd.concat(params, axis=1)
+        params.to_csv("hash_summary"  +"/bff_params.csv")
 
 if __name__ == '__main__':
     adata = None
