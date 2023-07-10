@@ -356,8 +356,13 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
         bff_assign = pd.read_csv(obs_res_dir)
         data_bff = pd.DataFrame(bff_assign)
         if data_bff.empty:
-            print("BFF didn't find any results")
             #no results create empty dataframe for empty col
+            column_names = ['Barcode', os.path.basename(x)]
+            # Create an empty dataframe with only column names
+            df = pd.DataFrame(columns=column_names)
+            classi.append(df)
+            assign.append(df)
+
         else:
 
             #df contain data and we save it in the same way
@@ -383,19 +388,19 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
             classi.append(dt_classi)
 
-            params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-            params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-            params_res.columns = [os.path.basename(x)]
-            params.append(params_res)
+        params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
+        params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
+        params_res.columns = [os.path.basename(x)]
+        params.append(params_res)
 
-        classi_df = pd.concat(classi, axis=1, join="outer")
-        classi_df.to_csv("hash_summary" +"/bff_classification.csv", index=False)
+    classi_df = pd.concat(classi, axis=1, join="outer")
+    classi_df.to_csv("hash_summary" +"/bff_classification.csv", index=False)
         
-        assign_df = pd.concat(assign, axis=1, join="outer")
-        assign_df.to_csv("hash_summary"  +"/bff_assignment.csv", index=False)
+    assign_df = pd.concat(assign, axis=1, join="outer")
+    assign_df.to_csv("hash_summary"  +"/bff_assignment.csv", index=False)
         
-        params = pd.concat(params, axis=1)
-        params.to_csv("hash_summary"  +"/bff_params.csv")
+    params = pd.concat(params, axis=1)
+    params.to_csv("hash_summary"  +"/bff_params.csv")
 
 if __name__ == '__main__':
     adata = None
