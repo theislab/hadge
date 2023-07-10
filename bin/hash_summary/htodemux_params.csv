@@ -1,0 +1,9 @@
+Argument,htodemux_1
+seuratObject,/Users/mylenemarianagonzalesandre/Development/hagen/work/81/05a76ee8131f847e637ddf1581d928/preprocess_1/preprocessed.rds
+quantile,0.99
+kfunc,clara
+nstarts,100
+nsamples,100
+seed,42
+init,NULL
+assay,HTO

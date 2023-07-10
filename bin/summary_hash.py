@@ -19,7 +19,7 @@ parser.add_argument("--generate_anndata", help="Generate anndata", action='store
 parser.add_argument("--generate_mudata", help="Generate mudata", action='store_true')
 parser.add_argument("--read_rna_mtx", help="10x-Genomics-formatted mtx directory for gene expression", default=None)
 parser.add_argument("--read_hto_mtx", help="10x-Genomics-formatted mtx directory for HTO expression", default=None)
-#parser.add_argument("--sampleId", help="sampleID if multiple samples are demultiplexed", default=None)
+parser.add_argument("--sampleId", help="sampleID if multiple samples are demultiplexed", default=None)
 
 args = parser.parse_args()
 
@@ -240,7 +240,7 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
     params = pd.concat(params, axis=1)
     params.to_csv("hash_summary/htodemux_params.csv")
         
-def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata, sampleId):
+def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
     classi = []
     assign = []
     params = []
@@ -271,16 +271,16 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata, sampleId):
         params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary" + sampleId + "/demuxmix_classification.csv",index=False)
+    classi_df.to_csv("hash_summary" + "/demuxmix_classification.csv",index=False)
     
     assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary" + sampleId +"/demuxmix_assignment.csv",index=False)
+    assign_df.to_csv("hash_summary"  +"/demuxmix_assignment.csv",index=False)
 
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary" + sampleId +"/demuxmix_params.csv",index=False)
+    params.to_csv("hash_summary"  +"/demuxmix_params.csv",index=False)
 
 
-def gmm_summary(gmmDemux_res,raw_adata, raw_mudata,sampleId):
+def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []
     assign = []
     params = []
@@ -335,17 +335,17 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata,sampleId):
         params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary" + sampleId +"/GMM_classification.csv", index=False)
+    classi_df.to_csv("hash_summary"  +"/GMM_classification.csv", index=False)
     
     
     assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary" + sampleId +"/GMM_assignment.csv", index=False, sep=",")
+    assign_df.to_csv("hash_summary"  +"/GMM_assignment.csv", index=False, sep=",")
     
     
     params_df = pd.concat(params, axis=1, join="outer")
-    params_df.to_csv("hash_summary" + sampleId +"/GMM_params.csv", index=False)    
+    params_df.to_csv("hash_summary"  +"/GMM_params.csv", index=False)    
 
-def bff_summary(bff_res,raw_adata, raw_mudata,sampleId):
+def bff_summary(bff_res,raw_adata, raw_mudata):
     classi = []
     assign = []
     params = []
@@ -355,6 +355,9 @@ def bff_summary(bff_res,raw_adata, raw_mudata,sampleId):
 
         bff_assign = pd.read_csv(obs_res_dir)
         data_bff = pd.DataFrame(bff_assign)
+        
+        
+        #df contain data and we save it in the same way
         dt_assign = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall.global"] , axis=1)
         dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
         dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
@@ -383,13 +386,13 @@ def bff_summary(bff_res,raw_adata, raw_mudata,sampleId):
         params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary" + sampleId +"/bff_classification.csv", index=False)
+    classi_df.to_csv("hash_summary" +"/bff_classification.csv", index=False)
     
     assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary" + sampleId +"/bff_assignment.csv", index=False)
+    assign_df.to_csv("hash_summary"  +"/bff_assignment.csv", index=False)
     
     params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary" + sampleId +"/demuxmix_params.csv")
+    params.to_csv("hash_summary"  +"/demuxmix_params.csv")
 
 if __name__ == '__main__':
     adata = None
@@ -409,40 +412,40 @@ if __name__ == '__main__':
 
     if args.hashedDrops is not None:
         hashedDrops_res = args.hashedDrops.split(':')
-        hasheddrops_summary(hashedDrops_res, adata, mudata, sampleId)
+        hasheddrops_summary(hashedDrops_res, adata, mudata)
 
     if args.demuxem is not None:
         demuxem_res = args.demuxem.split(':')
-        demuxem_summary(demuxem_res, adata, mudata, sampleId)
+        demuxem_summary(demuxem_res, adata, mudata)
 
     if args.hashsolo is not None:
         hashsolo_res = args.hashsolo.split(':')
-        hashsolo_summary(hashsolo_res, adata, mudata, sampleId)
+        hashsolo_summary(hashsolo_res, adata, mudata)
 
     if args.multiseq is not None:
         multiseq_res = args.multiseq.split(':')
-        multiseq_summary(multiseq_res, adata, mudata, sampleId)
+        multiseq_summary(multiseq_res, adata, mudata)
 
     if args.htodemux is not None:
         htodemux_res = args.htodemux.split(':')
-        htodemux_summary(htodemux_res, adata, mudata, sampleId)
+        htodemux_summary(htodemux_res, adata, mudata)
     
     if args.demuxmix is not None:
         demuxmix_res = args.demuxmix.split(':')
-        demuxmix_summary(demuxmix_res, adata, mudata,sampleId)
+        demuxmix_summary(demuxmix_res, adata, mudata)
 
     if args.gmm_demux is not None:
         gmmDemux_res = args.gmm_demux.split(':')
-        gmm_summary(gmmDemux_res, adata, mudata,sampleId)
+        gmm_summary(gmmDemux_res, adata, mudata)
 
     if args.bff is not None:
         bff_res = args.bff.split(':')
-        bff_summary(bff_res, adata, mudata,sampleId)
+        bff_summary(bff_res, adata, mudata)
 
 
     # Read and combine assignment files
-    assignment = [file for file in os.listdir("hash_summary" + sampleId) if file.endswith("_assignment.csv")]
-    assignment_all = pd.read_csv(os.path.join("hash_summary" + sampleId, assignment[0]))
+    assignment = [file for file in os.listdir("hash_summary") if file.endswith("_assignment.csv")]
+    assignment_all = pd.read_csv(os.path.join("hash_summary", assignment[0]))
    
     if len(assignment) > 1:
         for df in assignment[1:]:
