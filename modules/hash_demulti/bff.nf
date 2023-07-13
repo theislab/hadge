@@ -17,6 +17,8 @@ process bff{
         each chemistry
         each callerDisagreementThreshold
         each assignmentOutBff
+        each preprocess_bff
+        each barcodeWhitelist
         
     output:
         path "bff_${sampleId}"
@@ -30,7 +32,8 @@ process bff{
         bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
         --cellbarcodeWhitelist $cellbarcodeWhitelist --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${task.index}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
-        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} --assignmentOutBff $assignmentOutBff
+        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} --assignmentOutBff $assignmentOutBff \ 
+        --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
         """
 
 }
@@ -59,9 +62,10 @@ workflow bff_hashing{
         chemistry = split_input(params.chemistry)
         callerDisagreementThreshold = split_input(params.callerDisagreementThreshold)
         assignmentOutBff = split_input(params.assignmentOutBff)
-        
+        preprocess_bff = split_input(params.preprocess_bff)
+        barcodeWhitelist = split_input(params.barcodeWhitelist)
 
-        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff)
+        bff(hto_matrix, methods, methodsForConsensus, metricsFile,cellbarcodeWhitelist,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff,preprocess_bff,barcodeWhitelist)
   
   emit:
         bff.out.collect()

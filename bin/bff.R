@@ -63,7 +63,15 @@ Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist
 params <- data.frame(Argument, Value)
 
 if(as.logical(args$preprocess)){
-counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = args$barcodeWhitelist)
+string <- args$barcodeWhitelist
+#separate the barcodes by comma
+words <- strsplit(string, ",")[[1]]
+#Remove leading/trailing whitespace from each word
+words <- trimws(words)
+# Step 3: Create a vector from the barcodesl
+vector <- unlist(words)
+
+counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
 }else{
 counts <- Read10X(args$fileHto) 
 }
@@ -85,6 +93,10 @@ if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster
   print("Consensus only available using BFF methods on the pipeline")
 }
 
-
-write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+if(cell_hash_R_res.is.null){
+  df <- data.frame()
+  write.csv(df, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+}else{
+  write.csv(cell_hash_R_res, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
+}
 write.csv(params, paste0(args$outputdir, "/params.csv"))
