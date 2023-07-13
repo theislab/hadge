@@ -93,7 +93,7 @@ if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster
   print("Consensus only available using BFF methods on the pipeline")
 }
 
-if(cell_hash_R_res.is.null){
+if(is.null(cell_hash_R_res)){
   df <- data.frame()
   write.csv(df, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
 }else{
