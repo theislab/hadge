@@ -3,6 +3,7 @@ nextflow.enable.dsl=2
 
 process gmm_demux{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/gmm_demux", mode:'copy'
+    label 'small_mem'
     input:
         path path_hto
         //HTO names as string separated by commas
