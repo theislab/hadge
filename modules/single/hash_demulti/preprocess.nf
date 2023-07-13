@@ -15,6 +15,7 @@ process preprocess{
         each margin
         val normalisation_method
         val preprocess_out
+        each gene_col
 
     output:
         path "preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}"
@@ -26,7 +27,7 @@ process preprocess{
         pre_processing.R --fileUmi rna_data --fileHto hto_data --ndelim $ndelim \
                         --selectMethod $selection_method --numberFeatures $number_features --assay $assay \
                         --margin $margin --normalisationMethod $normalisation_method --OutputFile $preprocess_out \
-                        --outputdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
+                        --outputdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered} --gene_col $gene_col
     """
 
 
@@ -56,7 +57,8 @@ workflow preprocessing_hashing{
         margin = split_input(params.margin)
         norm_method = split_input(params.norm_method)
         out_file = params.preprocessOut
-        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method,out_file)
+        gene_col = split_input(params.gene_col)
+        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method,out_file,gene_col)
     emit:
         preprocess.out.collect()
 }

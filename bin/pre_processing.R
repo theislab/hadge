@@ -15,7 +15,7 @@ parser$add_argument("--numberFeatures", help = "Number of features to be used wh
 parser$add_argument("--assay", help = "Assay name for hashing modality", default = "HTO")
 parser$add_argument("--normalisationMethod", help = "Normalisation method", default = "CLR")
 parser$add_argument("--margin", help = "Margin for normalisation", type="integer", default = 2)
-
+parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or features.tsv to use for gene names; default is 2", type="integer", default = 2)
 parser$add_argument( "--OutputFile", help="Prefix of output files containing the output of HTODemux hashtag", default = "preprocessed")
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
@@ -29,7 +29,7 @@ if(args$rdsObject){
   
 }else{
     
-  umi <- Read10X(data.dir = args$fileUmi)
+  umi <- Read10X(data.dir = args$fileUmi,gene.column = args$gene_col)
   counts <- Read10X(data.dir = args$fileHto)
 }
 
