@@ -52,7 +52,7 @@ callerDisagreementThreshold <- args$callerDisagreementThreshold
 if(is.null(callerDisagreementThreshold)){
   callerDisagreementThreshold <- "NULL"
 }
-
+print(args$fileHto)
 #Transform logical parameters
 do_TSNE <- as.logical(args$doTSNE)
 do_Heatmap <- as.logical(args$doHeatmap)
@@ -63,6 +63,8 @@ Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist
 params <- data.frame(Argument, Value)
 
 if(as.logical(args$preprocess)){
+  print("Preprocessing activated")
+  print(args$preprocess)
   #get barcodes
   string <- args$barcodeWhitelist
   #separate the barcodes by comma
@@ -72,8 +74,8 @@ if(as.logical(args$preprocess)){
   # Step 3: Create a vector from the barcodesl
   vector <- unlist(words)
   print("Preprocessing")
-  counts <- Read10X(args$fileHto) 
-#counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
+  #counts <- Read10X(args$fileHto) 
+  counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
 }else{
   print("No preprocessing")
   counts <- Read10X(args$fileHto) 
@@ -81,22 +83,25 @@ if(as.logical(args$preprocess)){
 
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
-  if(args$methods == "bff_raw"){
+  if (args$methods == "bff_raw") {
+    print("Executing BFF raw")
     cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw"), doTSNE = do_TSNE, doHeatmap = do_Heatmap, methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
-  }else if(args$methods == "bff_cluster"){
+  }else if (args$methods == "bff_cluster") {
+    print("Executing BFF cluster")
     cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_cluster"), doTSNE = do_TSNE, doHeatmap = do_Heatmap)
     #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold 
-  }else if(args$methods == "combined_bff"){
-    print("BFF combined")
+  }else if (args$methods == "combined_bff") {
+    print("Executing BFF combined")
     cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap )
     #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold
-  }else{
+  }else {
     print("Method not available on the pipeline")
 }else{
   print("Consensus only available using BFF methods on the pipeline")
 }
 
 if(is.null(cell_hash_R_res)){
+  print("No results found")
   df <- data.frame()
   write.csv(df, paste0(args$outputdir, "/", args$assignmentOutBff, "_assignment_bff.csv"), row.names=FALSE)
 }else{
