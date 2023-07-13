@@ -29,8 +29,8 @@ if(args$rdsObject){
   
 }else{
     
-  umi <- Read10X(data.dir = args$fileUmi,gene.column = args$gene_col)
-  counts <- Read10X(data.dir = args$fileHto)
+  umi <- Read10X(data.dir = args$fileUmi, gene.column = args$gene_col)
+  counts <- Read10X(data.dir = args$fileHto, gene.column = args$gene_col)
 }
 
 Argument <- c("fileUmi", "fileHto", "ndelim", "rdsObject", "selectMethod", "numberFeatures", "assay", "normalisationMethod", "margin")
