@@ -60,7 +60,7 @@ Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelis
 Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, callerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
 params <- data.frame(Argument, Value)
 
-counts <- args$fileHto
+counts <- Read10X(args$fileHto) 
 barcodeData <- ProcessCountMatrix(rawCountData = counts)
 
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
