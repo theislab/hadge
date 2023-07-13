@@ -18,6 +18,8 @@ parser$add_argument("--methodsForConsensus", help='By default, a consensus call 
 parser$add_argument("--cellbarcodeWhitelist", help='A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix',default=NULL)
 parser$add_argument("--metricsFile", help='If provided, summary metrics will be written to this file.', default="metrics_cell_hash_r.csv")
 parser$add_argument("--doTSNE", help='If true, tSNE will be run on the resulting hashing calls after each caller.', default=TRUE)
+parser$add_argument("--preprocess", help='If true, the PreProcess function by CellHashR is executed', default=FALSE)
+parser$add_argument("--barcodeWhitelist", help='A vector of barcode names to retain, used for preprocessing step', default=NULL)
 parser$add_argument("--doHeatmap", help='f true, Seurat::HTOHeatmap will be run on the results of each caller.', default=TRUE)
 parser$add_argument("--perCellSaturation", help='An optional dataframe with the columns cellbarcode and saturation',default=NULL)
 parser$add_argument("--majorityConsensusThreshold", help='This applies to calculating a consensus call when multiple algorithms are used',default=NULL)
@@ -60,19 +62,22 @@ Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelis
 Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, callerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
 params <- data.frame(Argument, Value)
 
+if(as.logical(args$preprocess)){
+counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = args$barcodeWhitelist)
+}else{
 counts <- Read10X(args$fileHto) 
-barcodeData <- ProcessCountMatrix(rawCountData = counts)
+}
 
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if(args$methods == "bff_raw"){
-    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = barcodeData, methods = c("bff_raw"), doTSNE = do_TSNE, doHeatmap = do_Heatmap, methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
+    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw"), doTSNE = do_TSNE, doHeatmap = do_Heatmap, methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
   }else if(args$methods == "bff_cluster"){
-    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = barcodeData, methods = c("bff_cluster"), doTSNE = do_TSNE, doHeatmap = do_Heatmap)
+    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_cluster"), doTSNE = do_TSNE, doHeatmap = do_Heatmap)
     #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold 
   }else if(args$methods == "combined_bff"){
     print("BFF combined")
-    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = barcodeData, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap )
+    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap )
     #methodsForConsensus = args$methodsForConsensus,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile= args$metricsFile, perCellSaturation= args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold
   }else{
     print("Method not available on the pipeline")
