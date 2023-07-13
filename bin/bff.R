@@ -63,17 +63,20 @@ Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist
 params <- data.frame(Argument, Value)
 
 if(as.logical(args$preprocess)){
-string <- args$barcodeWhitelist
-#separate the barcodes by comma
-words <- strsplit(string, ",")[[1]]
-#Remove leading/trailing whitespace from each word
-words <- trimws(words)
-# Step 3: Create a vector from the barcodesl
-vector <- unlist(words)
-
-counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
+  #get barcodes
+  string <- args$barcodeWhitelist
+  #separate the barcodes by comma
+  words <- strsplit(string, ",")[[1]]
+  #Remove leading/trailing whitespace from each word
+  words <- trimws(words)
+  # Step 3: Create a vector from the barcodesl
+  vector <- unlist(words)
+  print("Preprocessing")
+  counts <- Read10X(args$fileHto) 
+#counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
 }else{
-counts <- Read10X(args$fileHto) 
+  print("No preprocessing")
+  counts <- Read10X(args$fileHto) 
 }
 
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
