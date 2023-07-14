@@ -21,6 +21,7 @@ process demuxmix{
         each k_rna
         each correctTails
         each assignmentOutDemuxmix
+        each gene_col
         
     output:
         path "demuxmix_${task.index}"
@@ -31,7 +32,7 @@ process demuxmix{
         mkdir demuxmix_${task.index}
         demuxmix.R --fileUmi rna_data --fileHto hto_data --rna_available $rna_available --assay $assay --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix \
             --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails \
-            --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${task.index} --assignmentOutDemuxmix $assignmentOutDemuxmix 
+            --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${task.index} --assignmentOutDemuxmix $assignmentOutDemuxmix --gene_col $gene_col
         """
 
 }
@@ -64,9 +65,10 @@ workflow demuxmix_hashing{
         k_rna = split_input(params.k_rna)
         correctTails = split_input(params.correctTails)
         assignmentOutDemuxmix = split_input(params.assignmentOutDemuxmix) 
+        gene_col = split_input(params.gene_col)
         
 
-        demuxmix(hto_matrix,rna_matrix,hto_raw_or_filtered,rna_raw_or_filtered,rna_available, assay,ndelim,model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,correctTails,assignmentOutDemuxmix )
+        demuxmix(hto_matrix,rna_matrix,hto_raw_or_filtered,rna_raw_or_filtered,rna_available, assay,ndelim,model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,correctTails,assignmentOutDemuxmix,gene_col )
   
   emit:
         demuxmix.out.collect()

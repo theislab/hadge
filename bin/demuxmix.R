@@ -18,6 +18,7 @@ parser$add_argument("--fileHto", help = "Path to file HTO count matrix.")
 parser$add_argument("--ndelim", help = "For the initial identity calss for each cell, delimiter for the cell's column name", default = "_")
 parser$add_argument("--pAcpt", help='Acceptance probability that must be reached in order to assign a droplet to a hashtag. ')
 parser$add_argument("--assay", help='Assay name')
+parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or features.tsv to use for gene names; default is 2", type="integer", default = 2)
 parser$add_argument("--rna_available", help='TRUE if RNA assay is available',default = FALSE)
 parser$add_argument("--correctTails", help='If TRUE, droplets meeting the threshold defined by alpha (beta) are classified as "negative" ("positive") even if the mixture model suggests a different classification',default = TRUE)
 parser$add_argument("--model", help='A character specifying the type of mixture model to be used. Either "naive", "regpos", "reg" or "auto".', default = 'naive')
@@ -34,11 +35,11 @@ args <- parser$parse_args()
 
 if(as.logical(args$rna_available)){ 
     
-    umi <- Read10X(data.dir = args$fileUmi, gene.column=1, strip.suffix = TRUE)
+    umi <- Read10X(data.dir = args$fileUmi, gene.column=args$gene_col, strip.suffix = TRUE)
     #umi <- readRDS(args$fileUmi)
 }
-#counts <- Read10X(data.dir = args$fileHto, gene.column=1, strip.suffix = TRUE)
-counts <- Read10X_h5(args$fileHto)
+counts <- Read10X(data.dir = args$fileHto, gene.column=args$gene_col, strip.suffix = TRUE)
+#counts <- Read10X_h5(args$fileHto)
 #counts <- readRDS(args$fileHto)
 
 if(as.logical(args$rna_available)){
