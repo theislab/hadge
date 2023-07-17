@@ -84,19 +84,21 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
         obs_res.index.name='Barcode'
         hashsolo_assign = obs_res[["Classification"]]
         hashsolo_assign.columns = [os.path.basename(x)]
-        hashsolo_assign.replace({"Doublet": "doublet", "Negative": "negative"}, inplace=True)
+        hashsolo_assign = hashsolo_assign.replace({"Doublet": "doublet", "Negative": "negative"}, inplace=True)
         assign.append(hashsolo_assign)
         
         if raw_adata is not None:
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(hashsolo_assign, left_index=True, right_index=True, how='left')
-            adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
+            adata.obs = adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-        hashsolo_classi["most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0: "negative", 1: "singlet", 2: "doublet"})
+        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 0 , "most_likely_hypothesis"] = "negative"
+        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 1 , "most_likely_hypothesis"] = "singlet"
+        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 2 , "most_likely_hypothesis"] = "doublet"
         hashsolo_classi.columns = [os.path.basename(x)]
         classi.append(hashsolo_classi)
     
@@ -128,7 +130,7 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
         obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
         
         hasheddrops_res = obs_res[["Barcode", "Best"]]
-        hasheddrops_res.rename(columns={"Best": os.path.basename(x)}, inplace=True)
+        hasheddrops_res = hasheddrops_res.rename(columns={"Best": os.path.basename(x)}, inplace=True)
         assign.append(hasheddrops_res)
 
         if raw_adata is not None:
@@ -355,7 +357,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
         bff_assign = pd.read_csv(obs_res_dir)
         data_bff = pd.DataFrame(bff_assign)
-        print(data_bff)
         if data_bff.empty:
             #no results create empty dataframe for empty col
             column_names = ['Barcode', os.path.basename(x)]
@@ -386,7 +387,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
             
             dt_classi = data_bff.copy()
-            
             column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
                 dt_classi = dt_classi.drop([column], axis=1)
