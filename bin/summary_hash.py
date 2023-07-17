@@ -130,7 +130,7 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
         obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
         
         hasheddrops_res = obs_res[["Barcode", "Best"]]
-        hasheddrops_res = hasheddrops_res.rename(columns={"Best": os.path.basename(x)}, inplace=True)
+        hasheddrops_res = hasheddrops_res.rename(columns={"Best": os.path.basename(x)})
         assign.append(hasheddrops_res)
 
         if raw_adata is not None:
@@ -142,7 +142,7 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         hasheddrops_classi = obs_res[["Barcode", "Classification"]]
-        hasheddrops_classi.rename(columns={"Classification": os.path.basename(x)}, inplace=True)
+        hasheddrops_classi = hasheddrops_classi.rename(columns={"Classification": os.path.basename(x)})
         classi.append(hasheddrops_classi)
     
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
