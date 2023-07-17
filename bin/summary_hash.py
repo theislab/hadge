@@ -362,10 +362,15 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             df = pd.DataFrame(columns=column_names)
             classi.append(df)
             assign.append(df)
-
         else:
             #df contain data and we save it in the same way
-            dt_assign = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall.global"] , axis=1)
+            dt_assign = data_bff.copy()
+            #check if the columns contain results from both bff_s or only one
+            column_names = ["Unnamed: 0","bff_raw","bff_cluster","consensuscall.global"]
+            for column in column_names:
+                if column in dt_assign.columns:
+                    dt_assign = dt_assign.drop([column], axis=1)
+            dt_assign.loc[dt_assign["consensuscall"] == "Singlet", "consensuscall"] = "singlet"
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
             dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
             assign.append(dt_assign)
@@ -378,9 +383,12 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
                 adata.obs.donor = adata.obs.donor.astype(str)
                 adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
-            bff_classi = pd.read_csv(obs_res_dir)
-            data_bff = pd.DataFrame(bff_classi)
-            dt_classi = data_bff.drop(["Unnamed: 0", "bff_raw","bff_cluster","consensuscall"] , axis=1)
+            
+            dt_classi = data_bff.copy()
+            
+            column_names_class = ["Unnamed: 0","bff_raw","bff_cluster","consensuscall"]
+            for column in column_names_class:
+                dt_classi = dt_classi.drop([column], axis=1)
             dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
