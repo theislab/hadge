@@ -355,6 +355,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
         bff_assign = pd.read_csv(obs_res_dir)
         data_bff = pd.DataFrame(bff_assign)
+        print(data_bff)
         if data_bff.empty:
             #no results create empty dataframe for empty col
             column_names = ['Barcode', os.path.basename(x)]
@@ -386,7 +387,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             
             dt_classi = data_bff.copy()
             
-            column_names_class = ["Unnamed: 0","bff_raw","bff_cluster","consensuscall"]
+            column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
                 dt_classi = dt_classi.drop([column], axis=1)
             dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
