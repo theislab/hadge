@@ -55,8 +55,6 @@ if __name__ == '__main__':
             )
         )
         rna_data._inplace_subset_obs(obs_index)
-    else:
-        continue
     # run demuxEM
     demuxEM.estimate_background_probs(hashing_data, random_state=args.randomState)
     demuxEM.demultiplex(rna_data, hashing_data, min_signal=args.min_signal, alpha=args.alpha, alpha_noise=args.alpha_noise, tol=args.tol, n_threads=args.n_threads)
