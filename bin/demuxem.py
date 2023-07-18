@@ -42,14 +42,13 @@ if __name__ == '__main__':
         filter = True
     elif args.filter_demuxem.lower() in ['false', 'f', 'no', 'n', '0']:
         filter = False
-        print(filter)
     else:
         raise ValueError("Invalid boolean value: {}".format(value))
+    # Filter the RNA matrix
+    rna_data.obs["n_genes"] = rna_data.X.getnnz(axis=1)
+    rna_data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
     if(filter):
         print("Filtering RNA matrix")
-        # Filter the RNA matrix
-        rna_data.obs["n_genes"] = rna_data.X.getnnz(axis=1)
-        rna_data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
         obs_index = np.logical_and.reduce(
             (
                 rna_data.obs["n_genes"] >= args.min_num_genes,
