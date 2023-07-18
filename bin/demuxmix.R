@@ -71,31 +71,41 @@ hto_counts <- as.matrix(GetAssayData(hashtag[[args$assay]], slot = "counts"))
 hashtags_object <- GetAssayData(hashtag[[args$assay]], slot = "counts")
 hashtag_list<-hashtags_object@Dimnames
 
-
+tryCatch({
 #Demultiplexing process
-if(args$model != 'naive' && as.logical(args$rna_available)){
-    rna_counts <- hashtag$nCount_RNA
-    demuxmix_demul <- demuxmix(hto_counts,rna= rna_counts, model = args$model, alpha= args$alpha_demuxmix,beta= args$beta_demuxmix,maxIter=args$maxIter_demuxmix,k.hto=args$k_hto, correctTails = as.logical(args$correctTails))
+    if(args$model != 'naive' && as.logical(args$rna_available)){
+        rna_counts <- hashtag$nCount_RNA
+        demuxmix_demul <- demuxmix(hto_counts,rna= rna_counts, model = args$model, alpha= args$alpha_demuxmix,beta= args$beta_demuxmix,maxIter=args$maxIter_demuxmix,k.hto=args$k_hto, correctTails = as.logical(args$correctTails))
 
-}else{
-    print("Executing naive mode for Demuxmix")
-    demuxmix_demul <- demuxmix(hto_counts, model = args$model, alpha= args$alpha_demuxmix,beta= args$beta_demuxmix,maxIter=args$maxIter_demuxmix,k.hto=args$k_hto)
-}
+    }else{
+        print("Executing naive mode for Demuxmix")
+        demuxmix_demul <- demuxmix(hto_counts, model = args$model, alpha= args$alpha_demuxmix,beta= args$beta_demuxmix,maxIter=args$maxIter_demuxmix,k.hto=args$k_hto)
+    }
+    demuxmix_classify <- dmmClassify(demuxmix_demul)
+    sumary_demuxmix <- summary(demuxmix_demul)
+    demuxmix_classify$Barcode <- hashtag_list[[2]]
 
-demuxmix_classify <- dmmClassify(demuxmix_demul)
-sumary_demuxmix <- summary(demuxmix_demul)
-demuxmix_classify$Barcode <- hashtag_list[[2]]
+    res_dt <- as.data.table(demuxmix_classify)
+    res_dt[, Classification := Type]
+    res_dt[Classification == "multiplet", Classification := "doublet"]
+    res_dt[Classification == "uncertain", Classification := "negative"]
+    
+    res_dt$HTO <- gsub(',', '_', res_dt$HTO)
+    write.csv(res_dt, paste0(args$outputdir, "/", args$assignmentOutDemuxmix, "_assignment_demuxmix.csv"), row.names=FALSE)
+    write.csv(sumary_demuxmix, paste0(args$outputdir, "/", args$assignmentOutDemuxmix, "_summary_results.csv"), row.names=FALSE)
 
-res_dt <- as.data.table(demuxmix_classify)
-res_dt[, Classification := Type]
-res_dt[Classification == "multiplet", Classification := "doublet"]
-res_dt[Classification == "uncertain", Classification := "negative"]
- 
-res_dt$HTO <- gsub(',', '_', res_dt$HTO)
+}, error = function(e) {
+    print("Error for Demuxmix")
+    error_message <- conditionMessage(e)
+    writeLines(e, "error_log.txt")
+    df <- data.frame()
+    write.csv(df, paste0(args$outputdir, "/", args$assignmentOutDemuxmix, "_assignment_demuxmix.csv"), row.names=FALSE)
+},finally = {
+    write.csv(params, paste0(args$outputdir, "/params.csv"))
+})    
 
-write.csv(params, paste0(args$outputdir, "/params.csv"))
-write.csv(res_dt, paste0(args$outputdir, "/", args$assignmentOutDemuxmix, "_assignment_demuxmix.csv"), row.names=FALSE)
-write.csv(sumary_demuxmix, paste0(args$outputdir, "/", args$assignmentOutDemuxmix, "_summary_results.csv"), row.names=FALSE)
+
+
 
 
 

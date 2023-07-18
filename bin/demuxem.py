@@ -16,6 +16,7 @@ parser.add_argument('--alpha', help='The Dirichlet prior concentration parameter
 parser.add_argument('--alpha_noise', help='The Dirichlet prior concenration parameter on the background noise.', type=float, default=1.0)
 parser.add_argument('--tol', help='Threshold used for the EM convergence.', type=float, default=1e-6)
 parser.add_argument('--n_threads', help='Number of threads to use. Must be a positive integer.', type=int, default=1)
+parser.add_argument('--filter_demuxem', help='Use the filter for RNA, true or false', default='true')
 parser.add_argument('--generateGenderPlot', help='Generate violin plots using gender-specific genes (e.g. Xist). <gene> is a comma-separated list of gene names.', default='')
 parser.add_argument('--objectOutDemuxem', help='Output name of demultiplexing results. All outputs will use it as the prefix.', default="demuxem_res")
 parser.add_argument('--outputdir', help='Output directory')
@@ -36,16 +37,26 @@ if __name__ == '__main__':
     # Extract rna and hashing data
     rna_data = data.get_data(modality="rna")
     hashing_data = data.get_data(modality="hashing")
-    # Filter the RNA matrix
-    rna_data.obs["n_genes"] = rna_data.X.getnnz(axis=1)
-    rna_data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
-    obs_index = np.logical_and.reduce(
-        (
-            rna_data.obs["n_genes"] >= args.min_num_genes,
-            rna_data.obs["n_counts"] >= args.min_num_umis,
+    filter = ""
+    if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
+        filter = True
+    elif args.filter_demuxem.lower() in ['false', 'f', 'no', 'n', '0']:
+        filter = False
+    else:
+        raise ValueError("Invalid boolean value: {}".format(value))
+    if(filter ):
+        # Filter the RNA matrix
+        rna_data.obs["n_genes"] = rna_data.X.getnnz(axis=1)
+        rna_data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
+        obs_index = np.logical_and.reduce(
+            (
+                rna_data.obs["n_genes"] >= args.min_num_genes,
+                rna_data.obs["n_counts"] >= args.min_num_umis,
+            )
         )
-    )
-    rna_data._inplace_subset_obs(obs_index)
+        rna_data._inplace_subset_obs(obs_index)
+    else:
+        continue
     # run demuxEM
     demuxEM.estimate_background_probs(hashing_data, random_state=args.randomState)
     demuxEM.demultiplex(rna_data, hashing_data, min_signal=args.min_signal, alpha=args.alpha, alpha_noise=args.alpha_noise, tol=args.tol, n_threads=args.n_threads)

@@ -18,6 +18,7 @@ process demuxem{
         val random_state
         val generate_gender_plot
         val objectOutDemuxem
+        each filter_demuxem
     output:
         path "demuxem_${sampleId}"
         
@@ -28,7 +29,8 @@ process demuxem{
         demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \
             --randomState $random_state --min_signal $min_signal --tol $tol \
             --min_num_genes $min_num_genes --min_num_umis $min_num_umis --alpha $alpha --alpha_noise $alpha_noise \
-            --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId}
+            --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId} \
+            --filter_demuxem $filter_demuxem
         
         """
 
@@ -48,9 +50,10 @@ workflow demuxem_hashing{
         random_state = params.random_state
         generate_gender_plot = params.generate_gender_plot
         objectOutDemuxem = params.objectOutDemuxem
+        filter_demuxem = params.filter_demuxem
 
         demuxem(input_list, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
-                min_signal, random_state, generate_gender_plot, objectOutDemuxem)
+                min_signal, random_state, generate_gender_plot, objectOutDemuxem, filter_demuxem)
   
   emit:
         demuxem.out.collect()

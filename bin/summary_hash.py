@@ -252,27 +252,35 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
     for x in demuxmix_res:
         obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_assignment_demuxmix.csv")][0])
         demuxmix_asign = pd.read_csv(obs_res_dir)
-        dt_assign = demuxmix_asign[["Barcode", "HTO"]]
-        dt_assign.columns = ["Barcode", os.path.basename(x)]
-        assign.append(dt_assign)
+        if demuxmix_asign.empty:
+            #no results create empty dataframe for empty col
+            column_names = ['Barcode', os.path.basename(x)]
+            # Create an empty dataframe with only column names
+            df = pd.DataFrame(columns=column_names)
+            classi.append(df)
+            assign.append(df)
+        else:
+            dt_assign = demuxmix_asign[["Barcode", "HTO"]]
+            dt_assign.columns = ["Barcode", os.path.basename(x)]
+            assign.append(dt_assign)
 
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_index=True, how='left')
-            adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
-            adata.obs.donor = adata.obs.donor.fillna("negative")
-            adata.obs.donor = adata.obs.donor.astype(str)
-            adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+            if raw_adata is not None:
+                adata = raw_adata.copy()
+                adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_index=True, how='left')
+                adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
+                adata.obs.donor = adata.obs.donor.fillna("negative")
+                adata.obs.donor = adata.obs.donor.astype(str)
+                adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
-        demuxmix_classi = pd.read_csv(obs_res_dir)
-        dt_classi = demuxmix_classi[["Barcode", "Classification"]]
-        dt_classi.columns = ["Barcode", os.path.basename(x)]
-        classi.append(dt_classi) 
+            demuxmix_classi = pd.read_csv(obs_res_dir)
+            dt_classi = demuxmix_classi[["Barcode", "Classification"]]
+            dt_classi.columns = ["Barcode", os.path.basename(x)]
+            classi.append(dt_classi) 
 
-        params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-        params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-        params_res.columns = [os.path.basename(x)]
-        params.append(params_res)
+            params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
+            params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
+            params_res.columns = [os.path.basename(x)]
+            params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
     classi_df.to_csv("hash_summary" + "/demuxmix_classification.csv",index=False)
