@@ -84,23 +84,25 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
         obs_res.index.name='Barcode'
         hashsolo_assign = obs_res[["Classification"]]
         hashsolo_assign.columns = [os.path.basename(x)]
-        hashsolo_assign = hashsolo_assign.replace({"Doublet": "doublet", "Negative": "negative"}, inplace=True)
+        hashsolo_assign = hashsolo_assign.replace({"Doublet": "doublet", "Negative": "negative"})
         assign.append(hashsolo_assign)
         
         if raw_adata is not None:
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(hashsolo_assign, left_index=True, right_index=True, how='left')
-            adata.obs = adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
+            adata.obs = adata.obs.rename(columns={adata.obs.columns[0]: 'donor'})
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 0 , "most_likely_hypothesis"] = "negative"
-        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 1 , "most_likely_hypothesis"] = "singlet"
-        hashsolo_classi.loc[hashsolo_classi["most_likely_hypothesis"] == 2 , "most_likely_hypothesis"] = "doublet"
-        hashsolo_classi.columns = [os.path.basename(x)]
-        classi.append(hashsolo_classi)
+        hashsolo_classi_copy = hashsolo_classi.copy()
+        hashsolo_classi_copy.loc[hashsolo_classi_copy["most_likely_hypothesis"] == 0.0 , "most_likely_hypothesis"] = "negative"
+        hashsolo_classi_copy.loc[hashsolo_classi_copy["most_likely_hypothesis"] == 1.0 , "most_likely_hypothesis"] = "singlet"
+        hashsolo_classi_copy.loc[hashsolo_classi_copy["most_likely_hypothesis"] == 2.0 , "most_likely_hypothesis"] = "doublet"
+        
+        hashsolo_classi_copy.columns = [os.path.basename(x)]
+        classi.append(hashsolo_classi_copy)
     
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
         params_res = pd.read_csv(params_dir, keep_default_na=False, index_col=0)
@@ -389,7 +391,8 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi = data_bff.copy()
             column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
-                dt_classi = dt_classi.drop([column], axis=1)
+                if column in dt_assign.columns:
+                    dt_classi = dt_classi.drop([column], axis=1)
             dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
