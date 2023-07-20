@@ -7,6 +7,7 @@ process matchDonor{
     
     input:
         path demultiplexing_result
+        val ndonor
         path barcode_whitelist
         val method1_name
         val method2_name
@@ -41,7 +42,7 @@ process matchDonor{
         outputdir=donor_match
         mkdir -p \$outputdir
         donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --findVariants $findVariants \
-                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count \
+                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count --ndonor $ndonor \
                 $two_method --outputdir \$outputdir $vireo_parent_path
                 
         if ([ "$findVariants" != "False" ]); then
@@ -95,7 +96,7 @@ workflow donor_match{
     take:
         demultiplexing_result
     main:
-        matchDonor(demultiplexing_result, params.barcodes, params.match_donor_method1, params.match_donor_method2, 
+        matchDonor(demultiplexing_result, params.nsample, params.barcodes, params.match_donor_method1, params.match_donor_method2, 
             params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
     emit:
         matchDonor.out

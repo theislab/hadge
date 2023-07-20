@@ -11,6 +11,7 @@ library(argparse)
 parser <- ArgumentParser("Parameters for donor matching based on Pearson coorelation. ")
 parser$add_argument("--result_csv", help = "The path to the csv file or the directory containing the demultiplexing assignment. ")
 parser$add_argument("--barcode", help = "The path to the tsv file containing the white list of barcodes. ", default = NULL)
+parser$add_argument("--ndonor", help = "The number of donors in the cell mixture. ", type="integer")
 parser$add_argument("--method1", help="The Name of the first method in the assignment file to map donors. ", default = NULL)
 parser$add_argument("--method2", help="The Name of the second method in the assignment file. We will use its donor names as reference.", default=NULL)
 parser$add_argument("--findVariants", help='How to find representative variants for each donor. ', default='default')
@@ -66,8 +67,8 @@ hashing_methods <- c("demuxem", "htodemux", "multiseq", "hashsolo", "hashedDrops
 genetic_methods <- c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
 
 best_result <- 0
-best_method1 <- NULL
-best_method2 <- NULL
+best_method1 <- "None"
+best_method2 <- "None"
 num_trial <- 1
 
 result_record <- data.frame(best_method1 = character(),
@@ -111,7 +112,6 @@ for (i in 1:length(method1_all)){
   write.csv(correlation_res, file.path(outputdir, "correlation_res.csv"))
 
   match_score <- 0
-  remain_na <- FALSE
   matched_donor <- 0
   geno_match <- as.data.frame(matrix(nrow = ncol(correlation_res), ncol = 3))
   colnames(geno_match) <- c("Method1", "Method2", "Correlation")
@@ -128,7 +128,6 @@ for (i in 1:length(method1_all)){
       matched_donor <- matched_donor + 1
     } else {
       geno_match[which(geno_match$Cluster1_ID == id)] <- c("unassigned", NA)
-      remain_na <- TRUE
     }
   }
   write.table(geno_match[,1:2],
@@ -140,6 +139,7 @@ for (i in 1:length(method1_all)){
     annoCol <- newCols(nrow(geno_match))
     names(annoCol) <- colnames(correlation_res)
     annoCol <- list(category = annoCol)
+    correlation_res <- correlation_res[!is.na(row.names(correlation_res)), ]
     correlation_res <- correlation_res[order(as.numeric(row.names(correlation_res))), ]
     pheatmap(correlation_res, treeheight_row = FALSE,
             treeheight_col = FALSE, display_numbers = TRUE, angle_col = "45",
@@ -148,22 +148,18 @@ for (i in 1:length(method1_all)){
             filename = file.path(outputdir, "concordance_heatmap.png"))
   }
 
-  if (grepl(paste(hashing_methods, collapse = "|"), method2) &&
+  if(grepl(paste(hashing_methods, collapse = "|"), method2) &&
     grepl(paste(genetic_methods, collapse = "|"), method1)) {
+      
+    remain_na <- (matched_donor != args$ndonor)
+    match_score <- match_score / args$ndonor
 
-    if (!remain_na){
-      print(paste0("All pairs are matched between ", method1, " and ", method2))
-      print(match_score)
-      print("------------------------------------------------------------------")
-    }
-
-    if (match_score > best_result & !remain_na){
+    if (match_score > best_result && !remain_na){
       write.table(geno_match[, 1:2],
                   file.path(args$outputdir, "donor_match.csv"),
                   row.names = FALSE, col.names = FALSE,
                   sep = " ", quote = FALSE)
     }
-
     best_method1 <- ifelse(match_score > best_result & !remain_na, method1, best_method1)
     best_method2 <- ifelse(match_score > best_result & !remain_na, method2, best_method2)
     best_result <- ifelse(match_score > best_result & !remain_na, match_score, best_result)
@@ -194,17 +190,19 @@ for (i in 1:length(method1_all)){
     write.csv(result_merge_new,
               file.path(outputdir, "intersect_assignment_after_match.csv"),
               row.names = FALSE)
-
-    print(paste0("Best score: ", best_result))
-    print(paste0("Best method pair: ", best_method1, " and ", best_method2))
-    write.csv(result_record, file.path(args$outputdir, "score_record.csv"), row.names = FALSE)
-
   }
   else{
-    print("No donor matching is performed since this is not the comparison between genotype-based and hashing-based deconvolution methods.")
+    print(paste0("Skip comparision between ", method1, " and ", method2))
   }
 
 }
+if (best_method1 != "None" && best_method2 != "None"){
+  print(paste0("Best method pair: ", best_method1, " and ", best_method2, " with score ",  best_result))
+  print("------------------------------------------------------------------")
+}
+
+write.csv(result_record, row.names = FALSE,
+  file.path(args$outputdir, "score_record.csv"))
 
 if (args$findVariants == "True" || args$findVariants == "default") {
   if (startsWith(best_method1, "vireo")) {
