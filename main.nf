@@ -82,13 +82,17 @@ workflow run_single{
         if (params.match_donor == "True"){
             donor_match(summary_all.out)
         }
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
+        if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
+            generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
                 params.rna_matrix_filtered, params.hto_matrix_filtered)
+        }
     }
     else if (params.mode == "donor_match"){
         donor_match(params.demultiplexing_result)
-        generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
-            params.rna_matrix_filtered, params.hto_matrix_filtered)
+        if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
+            generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
+                params.rna_matrix_filtered, params.hto_matrix_filtered)
+        }
     }
 }
 

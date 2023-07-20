@@ -6,7 +6,7 @@ process matchDonor{
     label 'big_mem'
     
     input:
-        tuple val (sampleId), path(barcode_whitelist), val(cell_genotype), val(vireo_parent_dir), path(demultiplexing_result)
+        tuple val (sampleId), val(ndonor), path(barcode_whitelist), val(cell_genotype), val(vireo_parent_dir), path(demultiplexing_result)
         val method1_name
         val method2_name
         val findVariants
@@ -35,7 +35,7 @@ process matchDonor{
         outputdir=donor_match_${sampleId}
         mkdir -p \$outputdir
         donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --findVariants $findVariants \
-                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count \
+                $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count --ndonor $ndonor \
                 $two_method --outputdir \$outputdir $vireo_parent_path
                 
         if ([ "$findVariants" != "False" ]); then
