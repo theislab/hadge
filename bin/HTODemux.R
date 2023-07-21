@@ -46,17 +46,10 @@ if(args$kfunc == "clara"){
 
 
 # Global classification results
-table(hashtag[[paste0(args$assay,"_classification.global")]])
+#table(hashtag[[paste0(args$assay,"_classification.global")]])
 
-table(hashtag[[paste0(args$assay,"_classification")]])
+#table(hashtag[[paste0(args$assay,"_classification")]])
 
-print("-----------------------------------------------")
-
-hashtag[[args$assay]]
-
-print("-----------------------------------------------")
-
-hashtag
 
 # Saving results
 

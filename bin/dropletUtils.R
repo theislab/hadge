@@ -54,10 +54,12 @@ parser$add_argument("--objectOutHashedDrops", default = "hashedDrops",
 parser$add_argument("--assignmentOutHashedDrops", default = "hashedDrops",
                     help = "prefex name for hashedDrops assignment CSV file")
 parser$add_argument("--outputdir", help = "Output directory")
+parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or features.tsv to use for gene names; default is 2", type="integer", default = 2)
+
 
 args <- parser$parse_args()
 
-hto <- Read10X(data.dir = args$raw_hto_matrix_dir)
+hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
 
 emptyDrops_out <- emptyDrops(hto, lower = args$lower, niters = args$niters,
                              test.ambient = args$testAmbient,

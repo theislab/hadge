@@ -30,6 +30,7 @@ process hashedDrops{
         each combinations
         val objectOutHashedDrops
         val assignmentOutHashedDrops
+        each gene_col
     output:
         path "hashedDrops_${task.index}"
         
@@ -47,7 +48,7 @@ process hashedDrops{
 
         """
         mkdir hashedDrops_${task.index}
-        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}
+        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb} --gene_col $gene_col
         """
 
 }
@@ -90,8 +91,9 @@ workflow hashedDrops_hashing{
         combinations = split_input(params.combinations)
         objectOutHashedDrops = params.objectOutHashedDrops
         assignmentOutHashedDrops = params.assignmentOutHashedDrops
+        gene_col = split_input(params.gene_col)
 
-        hashedDrops(hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops)
+        hashedDrops(hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops, gene_col)
         
     emit:
         hashedDrops.out.collect()

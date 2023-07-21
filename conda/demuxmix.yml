@@ -1,0 +1,10 @@
+name: demuxmix
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base>=4.2
+  - bioconductor-demuxmix
+  - r-seurat
+  - r-argparse
+  - r-data.table
