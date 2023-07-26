@@ -15,4 +15,4 @@ hadge: a comprehensive pipeline for donor deconvolution in single cell
 
 Fabiola Curion, Xichen Wu, Lukas Heumos, Mariana Gonzales Andre, Lennard Halle, Melissa Grant-Peters, Charlotte Rich-Griffin, Hing-Yuen Yeung, Calliope A. Dendrou, Herbert B. Schiller, Fabian J. Theis
 
-bioRxiv 2023.07.23.550061; doi: https://doi.org/10.1101/2023.07.23.550061 
+bioRxiv 2023.07.23.550061; doi: https://doi.org/10.1101/2023.07.23.550061
