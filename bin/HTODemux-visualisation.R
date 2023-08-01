@@ -56,24 +56,24 @@ hashtag <-readRDS(hash_file)
 
 # Ridge Plot
 # Group cells based on the max HTO signal
-if(args$ridgePlot == "TRUE"){
+if (args$ridgePlot == "TRUE") {
   Idents(hashtag) <- paste0(args$assay, "_maxID")
   RidgePlot(hashtag, assay = args$assay, features = rownames(hashtag[[args$assay]]), ncol = args$ridgeNCol)
   ggsave(paste0(args$outputdir, '/ridge.jpeg'), device = 'jpeg', dpi = 500) # height = 10, width = 10
 }
 
-if(args$featureScatter == "TRUE"){
+if (args$featureScatter == "TRUE") {
   FeatureScatter(hashtag, feature1 = args$scatterFeat1, feature2 = args$scatterFeat2)
   ggsave(paste0(args$outputdir, '/featureScatter.jpeg'), device = 'jpeg',dpi = 500)
 }
 
-if(args$vlnPlot == "TRUE"){
+if (args$vlnPlot == "TRUE") {
   Idents(hashtag) <- paste0(args$assay, "_classification.global")
   VlnPlot(hashtag, features = args$vlnFeatures, pt.size = 0.1, log = args$vlnLog)
   ggsave(paste0(args$outputdir, '/violinPlot.jpeg'), device = 'jpeg', dpi = 500)
 }
 
-if(args$tSNE == "TRUE"){
+if (args$tSNE == "TRUE") {
   hashtag.subset <- subset(hashtag, idents = args$tSNEIdents, invert = args$tSNEInvert)
   DefaultAssay(hashtag.subset) <- args$assay
   hashtag.subset <- ScaleData(hashtag.subset, features = rownames(hashtag.subset),
@@ -81,12 +81,12 @@ if(args$tSNE == "TRUE"){
   hashtag.subset <- RunPCA(hashtag.subset, features = rownames(hashtag.subset), approx = args$tSNEApprox)
   hashtag.subset <- RunTSNE(hashtag.subset, dims = 1:args$tSNEDimMax, perplexity = args$tSNEPerplexity, check_duplicates = FALSE)
   DimPlot(hashtag.subset)
-  ggsave(paste0(args$outputdir, '/tSNE.jpeg'), device = 'jpeg',dpi = 500)
+  ggsave(paste0(args$outputdir, '/tSNE.jpeg'), device = 'jpeg', dpi = 500)
 }
 
-if(args$heatMap == "TRUE"){
+if (args$heatMap == "TRUE") {
   HTOHeatmap(hashtag, assay = args$assay, ncells = args$heatMapNcells)
-  ggsave(paste0(args$outputdir, '/heatMap.jpeg'), device = 'jpeg',dpi = 500)
+  ggsave(paste0(args$outputdir, '/heatMap.jpeg'), device = 'jpeg', dpi = 500)
 }
 
 write.csv(params, paste0(args$outputdir, "/visual_params.csv"))

@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-#options(future.globals.maxSize = 4000 * 1024^5)
 library(pheatmap)
 library(data.table)
 library(ComplexUpset)
@@ -51,13 +50,13 @@ if (!is.null(args$barcode)) {
   result_csv <- result_csv[result_csv$Barcode %in% barcode_whitelist, ]
 }
 
+colname_with_singlet <- colnames(result_csv %>% select_if(~ any(. != "negative" & . != "doublet")))
+colname_with_singlet <- colname_with_singlet[colname_with_singlet != "Barcode"]
 if (!is.null(args$method1) && !is.null(args$method2)) {
-  method1_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method1)]
-  method2_all <- colnames(result_csv)[startsWith(colnames(result_csv), args$method2)]
+  method1_all <- colname_with_singlet[startsWith(colnames(result_csv), args$method1)]
+  method2_all <- colname_with_singlet[startsWith(colnames(result_csv), args$method2)]
 } else {
-  all_methods <- colnames(result_csv)
-  all_methods <- all_methods[all_methods != "Barcode"]
-  all_methods_pair <- combn(all_methods, 2, simplify = FALSE)
+  all_methods_pair <- combn(colname_with_singlet, 2, simplify = FALSE)
   method1_all <- sapply(all_methods_pair, "[", 1)
   method2_all <- sapply(all_methods_pair, "[", 2)
 }
@@ -96,7 +95,8 @@ for (i in 1:length(method1_all)){
 
   outputdir <- file.path(args$outputdir, paste0(method1, "_vs_", method2))
   ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
-  
+  print(method1)
+  print(method2)
   method1_res <- convert2binary(result_csv, method1)
   method2_res <- convert2binary(result_csv, method2)
   
@@ -201,8 +201,10 @@ if (best_method1 != "None" && best_method2 != "None"){
   print("------------------------------------------------------------------")
 }
 
-write.csv(result_record, row.names = FALSE,
-  file.path(args$outputdir, "score_record.csv"))
+if (nrow(result_record) > 1) {
+  write.csv(result_record, row.names = FALSE,
+    file.path(args$outputdir, "score_record.csv"))
+}
 
 if (args$findVariants == "True" || args$findVariants == "default") {
   if (startsWith(best_method1, "vireo")) {
