@@ -1,12 +1,12 @@
 version: 2
 
 sphinx:
-    configuration: docs/source/conf.py
+  configuration: docs/source/conf.py
 
 formats: []
 
 build:
-    os: ubuntu-22.04
+  os: ubuntu-22.04
 
 submodules:
-    include: all
+  include: all
