@@ -7,8 +7,4 @@ result/
 testing/
 testing*
 *.pyc
-TestData4PipelineSmall/
 docs/build/
-test_data/
-result_test
-result_test_adata

@@ -1,6 +1,6 @@
 # Download data for genotype-based deconvolution methods (popscle tutorial dataset)
-outputdir="test_data"
-mkdir $outputdir & cd $outputdir
+# outputdir="test_data"
+# mkdir $outputdir & cd $outputdir
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1xl9g3IPFNISa1Z2Uqj3nia4tDWtMDz5H' -O jurkat_293t_exons_only.vcf.withAF.vcf.gz
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1jlhEO1Z7YGYVnxv1YO9arjDwGFeZbfkr' -O jurkat_293t_downsampled_n500_full_bam.bai
 FILEID="13CV6CjP9VzmwG5MVHbJiVDMVdiIhGdJB"
