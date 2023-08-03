@@ -1,3 +1,4 @@
+
 # Genetics-based deconvolution workflow
 
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
