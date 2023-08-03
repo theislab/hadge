@@ -210,6 +210,7 @@ profiles{
 | assay         | Assay name for HTO modality. Default: HTO                                                       |
 | norm_method   | Method for normalization of HTO data. Default: CLR                                              |
 | margin        | If performing CLR normalization, normalize across features (1) or cells (2). Default: 2         |
+| gene_col      | Specify which column of genes.tsv or features.tsv to use for gene names; default is 2           |
 | preprocessOut | Name of the output Seurat object. Default: preprocessed                                         |
 
 ### Hashing-based: HTODemux
@@ -314,7 +315,9 @@ profiles{
 | tol                  | Threshold used for the EM convergence. Default: 1e-6                                                                          |
 | generate_gender_plot | Generate violin plots using gender-specific genes (e.g. Xist). Value is a comma-separated list of gene names. Default: None   |
 | random_state         | Random seed set for reproducing results. Default: 0                                                                           |
-| objectOutDemuxem     | Prefix of the output files. Default: demuxem_res                                                                              |
+| filter_demuxem       | Use the filter for RNA Default: True                                                                                          |
+
+| objectOutDemuxem | Prefix of the output files. Default: demuxem_res |
 
 ### Hashing-based: HashedDrops
 
@@ -343,7 +346,61 @@ profiles{
 | confidenMin              | The minimum threshold on the log-fold change to use to identify singlets. Default: 2                                                                                                                       |
 | combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL |
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
+| gene_col                 | Specify which column of genes.tsv or features.tsv to use for gene names; default is 2                                                                                                                      |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
+
+### Hashing-based: GMM-Demux
+
+|                      |                                                                                                                                                                  |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| gmmDemux             | Whether to perform GMM-Demux. Default: True                                                                                                                      |
+| hto_matrix_gmm_demux | Whether to use raw or filtered HTO count matrix. Default: filtered                                                                                               |
+| hto_name_gmm         | list of sample tags (HTOs) separated by ',' without whitespace. Default: None                                                                                    |
+| summary              | Generate the statstic summary of the dataset, receives an estimated total number of cells Default: 2000                                                          |
+| mode_GMM             | Specify the type of input, if tsv or csv files Default: tsv                                                                                                      |
+| extract              | Name of the hashes to extract, separated by ','. Joint hashes can be added using a '+' between the names Default: None                                           |
+| threshold_gmm        | Whether to use RNA counts for deconvolution. Default: False                                                                                                      |
+| ambiguous            | Chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Only used if the parameter extract is used. Default: 0.05. |
+| report_gmm           | Name for the summary report . Default: report.txt                                                                                                                |
+
+### Hashing-based: Demuxmix
+
+|                       |                                                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| demuxmix              | Whether to perform Demuxmix. Default: True                                                                                              |
+| hto_matrix_demuxmix   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                           |
+| rna_matrix_demuxmix   | Whether to use raw or filtered scRNA-seq count matrix. Optional, only if model requires RNA data Default: raw                           |
+| correctTails          | If True droplets meeting the threshold defined by alpha or beta, they are classified as either "negative" or "positive" . Default: TRUE |
+| rna_available         | Specify if RNA matrix is available, so that different models can be used                                                                |
+| model                 | Specify the type of mixture model to be used. Default: naive                                                                            |
+| alpha_demuxmix        | Threshold defining the left tail of the mixture distribution, where droplets should be classified as positive Default: 0.9              |
+| beta_demuxmix         | Threshold for defining the right tail of the mixture distribution where droplets should not be classified as "negative". Default: 0.9   |
+| tol_demuxmix          | Convergence criterion for the EM algorithm used to fit the mixture models. Default: 0.00001.                                            |
+| maxIter_demuxmix      | Whether to use RNA counts for deconvolution. Default: 1000                                                                              |
+| k_hto                 | Whether to use RNA counts for deconvolution. Default: 1.5                                                                               |
+| k_rna                 | Whether to use RNA counts for deconvolution. Default: 1.5                                                                               |
+| assignmentOutDemuxmix | Prefix of the output CSV files. Default: demuxmix                                                                                       |
+
+### Hashing-based: BFF
+
+|                             |                                                                                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bff                         | Whether to perform BFF. Default: True                                                                                                                       |
+| hto_matrix_bff              | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                               |
+| rna_matrix_bff              | Whether to use raw or filtered scRNA-seq count matrix. Optional, only if model requires RNA data Default: raw                                               |
+| preprocess_bff              | If TRUE, ProcessCountMatrix from cellHashR is used to preprocess the dat                                                                                    |
+| methods                     | Whether to use bff_raw, bff_cluster or both methods combined: combined_bff Default: combined_bff                                                            |
+| methodsForConsensus         | By default, a consensus call will be generated using all methods used. In this case a consensus between all Bff versions is accepted. Default: NULL         |
+| cellbarcodeWhitelist        | A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix. Default: NULL |
+| metricsFile                 | If provided, summary metrics will be written to this file. Default: metrics_bff.csv                                                                         |
+| doTSNE                      | If true, tSNE will be run on the resulting hashing calls after each caller. Default: TRUE                                                                   |
+| doHeatmap                   | If true, tSNE will be run on the resulting hashing calls after each caller. Default: TRUE                                                                   |
+| perCellSaturation           | An optional dataframe with the columns cellbarcode and saturation. Default: NULL                                                                            |
+| majorityConsensusThreshold  | This applies to calculating a consensus call when multiple algorithms are used. Default: NULL                                                               |
+| chemistry                   | This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3. Default: 10xV3                                                             |
+| callerDisagreementThreshold | If provided, the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells. Default: NULL   |
+| barcodeWhitelist            | A vector of barcode names to retain. Parameter for the Preprocess step Default: TRUE                                                                        |
+| assignmentOutBFF            | Prefix of the output CSV files. Default: bff                                                                                                                |
 
 ### Genotype-based: Demuxlet and dsc-pileup
 
