@@ -87,7 +87,7 @@ if (!is.null(args$methodsForConsensus)) {
   substring_vector <- strsplit(consensus_methods, ",")[[1]]
 }
 
-if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="combined_bff" || is.null(args$methodsForConsensus)  )
+if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if (args$methods == "bff_raw") {
     print("Executing BFF raw")
