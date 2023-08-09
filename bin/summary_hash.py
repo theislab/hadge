@@ -450,18 +450,16 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
                     dt_assign = dt_assign.drop([column], axis=1)
             dt_assign.loc[dt_assign["consensuscall"] == "Singlet", "consensuscall"] = "singlet"
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
-            dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = "negative"
-            dt_assign['consensuscall'] = dt_assign['consensuscall'].astype('category')
             dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
             assign.append(dt_assign)
+
             if raw_adata is not None:
                 adata = raw_adata.copy()
                 adata.obs = adata.obs.merge(dt_assign, left_index=True, right_index=True, how='left')
                 adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
                 adata.obs.donor = adata.obs.donor.fillna("negative")
                 adata.obs.donor = adata.obs.donor.astype(str)
-                adata.write_h5ad("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
-                
+                adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
             if raw_mudata is not None:
                 mudata = raw_mudata.copy()
