@@ -4,7 +4,7 @@ import os
 import scanpy as sc
 import argparse
 import numpy as np
-import muon as mu
+from mudata import MuData
 
 parser = argparse.ArgumentParser(description="Parameters for summary process")
 parser.add_argument("--demuxem", help="Folder containing output files of demuxem", default=None)
@@ -46,7 +46,14 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
-        # TODO: add mudata
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(demuxem_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
         demuxem_classi = obs_res[["Barcode", "demux_type"]]
         demuxem_classi.rename(columns={"demux_type": os.path.basename(x)}, inplace=True)
@@ -95,6 +102,15 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(hashsolo_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
         hashsolo_classi_copy = hashsolo_classi.copy()
         hashsolo_classi_copy.loc[hashsolo_classi_copy["most_likely_hypothesis"] == 0.0 , "most_likely_hypothesis"] = "negative"
@@ -143,6 +159,17 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(hasheddrops_res, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
+
         hasheddrops_classi = obs_res[["Barcode", "Classification"]]
         hasheddrops_classi = hasheddrops_classi.rename(columns={"Classification": os.path.basename(x)})
         classi.append(hasheddrops_classi)
@@ -182,6 +209,16 @@ def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(multiseq_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
+
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
         params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)
         params_res.columns = [os.path.basename(x)]
@@ -218,6 +255,17 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(htodemux_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            print(mudata)
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
 
         obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_classification_htodemux.csv")][0])
         htodemux_classi = pd.read_csv(obs_res_dir)
@@ -266,11 +314,20 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
 
             if raw_adata is not None:
                 adata = raw_adata.copy()
-                adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_index=True, how='left')
+                adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
                 adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
                 adata.obs.donor = adata.obs.donor.fillna("negative")
                 adata.obs.donor = adata.obs.donor.astype(str)
                 adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+
+            if raw_mudata is not None:
+                mudata = raw_mudata.copy()
+                mudata['rna'].obs = mudata['rna'].obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+                mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+                mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+                mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+                mudata.update()
+                mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
             demuxmix_classi = pd.read_csv(obs_res_dir)
             dt_classi = demuxmix_classi[["Barcode", "Classification"]]
@@ -330,12 +387,21 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
 
         if raw_adata is not None:
             adata = raw_adata.copy()
-            adata.obs = adata.obs.merge(gmm_dt_assign, left_index=True, right_index=True, how='left')
+            adata.obs = adata.obs.merge(gmm_dt_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(gmm_dt_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
         #Classification for GMM-Demux
         gmm_dt_classi = gmm_dt.drop(['Cluster_id','Confidence','Assignment' ], axis=1)
         gmm_dt_classi.columns =["Barcode", os.path.basename(x)]
@@ -349,10 +415,8 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi_df = pd.concat(classi, axis=1, join="outer")
     classi_df.to_csv("hash_summary"  +"/GMM_classification.csv", index=False)
     
-    
     assign_df = pd.concat(assign, axis=1, join="outer")
     assign_df.to_csv("hash_summary"  +"/GMM_assignment.csv", index=False, sep=",")
-    
     
     params_df = pd.concat(params, axis=1, join="outer")
     params_df.to_csv("hash_summary"  +"/GMM_params.csv", index=False)    
@@ -389,13 +453,22 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
             if raw_adata is not None:
                 adata = raw_adata.copy()
-                adata.obs = adata.obs.merge(bff_assign, left_index=True, right_index=True, how='left')
+                adata.obs = adata.obs.merge(bff_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
                 adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
                 adata.obs.donor = adata.obs.donor.fillna("negative")
                 adata.obs.donor = adata.obs.donor.astype(str)
                 adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
 
-            
+            if raw_mudata is not None:
+                mudata = raw_mudata.copy()
+                mudata['rna'].obs = mudata['rna'].obs.merge(bff_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+                mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+                mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+                mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+                mudata.update()
+                mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
+
+                
             dt_classi = data_bff.copy()
             column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
@@ -424,19 +497,21 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 if __name__ == '__main__':
     adata = None
     mudata = None
-    
+
     if not os.path.exists("hash_summary"):
         os.mkdir("hash_summary")
 
     if args.generate_anndata is True:
         os.mkdir("hash_summary/adata")
         adata = sc.read_10x_mtx(args.read_rna_mtx)
-    
-    if args.generate_mudata is True:
-        # TODO
-        os.mkdir("hash_summary/mudata")
-        pass
 
+    if args.generate_mudata is True:
+        os.mkdir("hash_summary/mudata")
+        rna_data = sc.read_10x_mtx(args.read_rna_mtx)
+        path_hto = args.read_hto_mtx
+        hto_data = sc.read_10x_mtx(args.read_hto_mtx, gex_only=False)
+        mudata = MuData({"rna": rna_data, "atac": hto_data })
+        
     if args.hashedDrops is not None:
         hashedDrops_res = args.hashedDrops.split(':')
         hasheddrops_summary(hashedDrops_res, adata, mudata)

@@ -9,4 +9,5 @@ dependencies:
       - scanpy
       - argparse
       - muon
+      - mudata
       - numpy

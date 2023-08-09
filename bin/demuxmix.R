@@ -1,10 +1,4 @@
 #!/usr/bin/env Rscript
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager",repos = "http://cran.us.r-project.org")
-is_demuxmix<-require("demuxmix")
-if (!require("demuxmix", quietly = TRUE))
-    BiocManager::install("demuxmix")
-
 library(Seurat)
 library(demuxmix)
 library(argparse)
@@ -36,11 +30,10 @@ args <- parser$parse_args()
 if(as.logical(args$rna_available)){ 
     
     umi <- Read10X(data.dir = args$fileUmi, gene.column=args$gene_col, strip.suffix = TRUE)
-    #umi <- readRDS(args$fileUmi)
+    
 }
 counts <- Read10X(data.dir = args$fileHto, gene.column=args$gene_col, strip.suffix = TRUE)
-#counts <- Read10X_h5(args$fileHto)
-#counts <- readRDS(args$fileHto)
+
 
 if(as.logical(args$rna_available)){
     Argument <- c("fileUmi", "fileHto")
