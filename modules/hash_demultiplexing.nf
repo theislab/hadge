@@ -2,8 +2,6 @@
 nextflow.enable.dsl=2
 include { preprocessing_hashing as preprocessing_hashing_htodemux } from './hash_demulti/preprocess'
 include { preprocessing_hashing as preprocessing_hashing_multiseq } from './hash_demulti/preprocess'
-include { preprocessing_hashing as preprocessing_hashing_demuxmix } from './hash_demulti/preprocess'
-include { preprocessing_hashing as preprocessing_hashing_bff } from './hash_demulti/preprocess'
 include { multiseq_hashing } from './hash_demulti/multiseq'
 include { htodemux_hashing } from './hash_demulti/htodemux'
 include { hash_solo_hashing } from './hash_demulti/hashsolo'
@@ -99,7 +97,6 @@ process summary{
 }
 
 
-
 workflow hash_demultiplexing{
     if (params.htodemux == "True"){
         Channel.fromPath(params.multi_input) \
@@ -170,30 +167,31 @@ workflow hash_demultiplexing{
                 | hashedDrops_hashing
         hashedDrops_out = hashedDrops_hashing.out
     }
-    else{
+    else{ 
         hashedDrops_out = channel.value("no_result")
     }
     
+
     if (params.demuxmix == "True"){
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, params.hto_matrix_demuxmix == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
-                                    params.rna_matrix_demuxmix == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered)}
-                | set {input_list_preprocess_demuxmix}
-                preprocessing_hashing_demuxmix(input_list_preprocess_demuxmix, params.hto_matrix_demuxmix, params.rna_matrix_demuxmix) 
-                demuxmix_preprocess_out = preprocessing_hashing_demuxmix.out
-                demuxmix_hashing(demuxmix_preprocess_out)
-                demuxmix_out = demuxmix_hashing.out
+                                    params.rna_matrix_demuxmix == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered, 
+                                    params.hto_matrix_demuxmix,params.rna_matrix_demuxmix)}
+                |set {input_list_demuxmix}   
+                demuxmix_hashing (input_list_demuxmix,params.rna_available)
+        demuxmix_out = demuxmix_hashing.out
     }
-        else{
-            demuxmix_out = channel.value("no_result")
+    else{
+        demuxmix_out = channel.value("no_result")
     }
+
     if (params.bff == "True"){
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
                 | bff_hashing
-        bff_out= bff_hashing.out
+        bff_out = bff_hashing.out
     }
     else{
         bff_out = channel.value("no_result")
@@ -217,7 +215,7 @@ workflow hash_demultiplexing{
                 | map { row-> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
                 | set {input_list_summary}
     summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,
-            demuxmix_out,bff_out, params.generate_anndata, params.generate_mudata)
+            demuxmix_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
             
     emit:
         summary.out

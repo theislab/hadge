@@ -510,7 +510,7 @@ if __name__ == '__main__':
         rna_data = sc.read_10x_mtx(args.read_rna_mtx)
         path_hto = args.read_hto_mtx
         hto_data = sc.read_10x_mtx(args.read_hto_mtx, gex_only=False)
-        mudata = MuData({"rna": rna_data, "atac": hto_data })
+        mudata = MuData({"rna": rna_data, "hto": hto_data })
         
     if args.hashedDrops is not None:
         hashedDrops_res = args.hashedDrops.split(':')
