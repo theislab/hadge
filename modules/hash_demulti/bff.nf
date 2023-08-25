@@ -6,7 +6,7 @@ process bff{
     label 'small_mem'
     input:
        
-        tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'),
+        tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data')
         val methods
         val methodsForConsensus
         val cellbarcodeWhitelist
