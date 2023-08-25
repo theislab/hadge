@@ -87,7 +87,7 @@ Similar as in the genetic demultiplexing workflow, we provide a pre-processing s
 The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet should have e.g. following columns depending on the methods you want to run:
 
 - sampleId
-- na_matrix_raw
+- rna_matrix_raw
 - rna_matrix_filtered
 - hto_matrix_raw
 - hto_matrix_filtered
