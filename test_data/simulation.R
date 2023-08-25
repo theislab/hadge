@@ -3,9 +3,10 @@ library(tidyr)
 library(Matrix)
 library(Seurat)
 library(DropletUtils)
-# use demuxlet tutorial dataset to simulate hashing and rna expression matrix
+# Use demuxlet tutorial dataset to simulate hashing and rna expression matrix
+# The simulation based on the classification of demuxlet
 test_data_barcode <- fread("jurkat_293t_demuxlet.best")
-test_data_barcode <- test_data_barcode[,c("BARCODE", "BEST")]
+test_data_barcode <- test_data_barcode[, c("BARCODE", "BEST")]
 write(x=test_data_barcode$BARCODE, "barcodes.tsv")
 test_data_barcode <- separate(test_data_barcode, col = BEST, into = c("classification", "identity"), sep = "\\-")
 test_data_barcode_singlet <- test_data_barcode[test_data_barcode$classification == "SNG",]$BARCODE
@@ -17,14 +18,14 @@ test_data_barcode_doublet <- test_data_barcode[test_data_barcode$classification 
 
 set.seed(10000)
 # Simulation is adapted from the tutorial of DropletUtils
-# Simulating empty droplets:
+# Simulating empty droplets
 nbarcodes <- 500
 nhto <- 2
 ngene <- 300
 count_matrix_hto <- matrix(rpois(nbarcodes*nhto, 20), nrow=nhto)
 count_matrix_rna <- matrix(rpois(nbarcodes*ngene, 20), nrow=ngene)
 
-# Simulating cells:
+# Simulating cells
 ncells <- 400
 ndoub <- ncells/10
 
@@ -32,7 +33,7 @@ cell_index <- sample(nhto, ncells, replace=TRUE)
 cell_index[(ndoub+1):ncells] <- sort(cell_index[(ndoub+1):ncells])
 count_matrix_hto[cbind(cell_index, seq_len(ncells))] <- 1000
 
-# Simulating doublets:
+# Simulating doublets
 doublet_index <- (cell_index[1:ndoub] + 1) %% nrow(count_matrix_hto)
 doublet_index[doublet_index==0] <- nrow(count_matrix_hto)
 count_matrix_hto[cbind(doublet_index, seq_len(ndoub))] <- 500
@@ -66,7 +67,7 @@ write10xCounts("hto",sparse.count_matrix_hto)
 rownames(count_matrix_rna) <- paste0("gene_", 1:ngene)
 colnames(count_matrix_rna) <- barcodes$barcode
 sparse.count_matrix_rna <- Matrix(count_matrix_rna, sparse = T)
-write10xCounts("rna",sparse.count_matrix_rna)
+write10xCounts("rna", sparse.count_matrix_rna)
 
 # Check output
 rna_data <- Read10X("rna")

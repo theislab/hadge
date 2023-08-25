@@ -204,7 +204,7 @@ def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
         
         if raw_adata is not None:
             adata = raw_adata.copy()
-            adata.obs = adata.obs.merge(multiseq_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            adata.obs = adata.obs.merge(multiseq_assign, left_index=True, right_index=True, how='left')
             adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
