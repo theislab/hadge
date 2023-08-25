@@ -6,23 +6,23 @@ process demuxmix{
     label 'small_mem'
     
     input:
-        path hto_matrix, stageAs: 'hto_data'
-        path umi_matrix, stageAs: 'rna_data'
+        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxmix}"), 
+                             path(raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxmix}")
         val hto_raw_or_filtered
         val rna_raw_or_filtered
-        each rna_available
-        each assay
+        val rna_available
+        val assay
         val ndelim
-        each model
-        each alpha_demuxmix
-        each beta_demuxmix
-        each tol_demuxmix
-        each maxIter_demuxmix
-        each k_hto
-        each k_rna
-        each correctTails
-        each assignmentOutDemuxmix
-        each gene_col
+        val model
+        val alpha_demuxmix
+        val beta_demuxmix
+        val tol_demuxmix
+        val maxIter_demuxmix
+        val k_hto
+        val k_rna
+        val correctTails
+        val assignmentOutDemuxmix
+        val gene_col
         
     output:
         path "demuxmix_${sampleId}"
@@ -33,9 +33,10 @@ process demuxmix{
         """
         mkdir demuxmix_${sampleId}
 
-        demuxmix.R --fileUmi rna_data --fileHto hto_data --rna_available $rna_available --assay $assay --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix \
-            --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails\
-            --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${sampleId} --assignmentOutDemuxmix $assignmentOutDemuxmix --gene_col $gene_col
+        demuxmix.R --fileUmi rna_data_${params.rna_matrix_demuxmix} --fileHto hto_data_${params.hto_matrix_demuxmix} --rna_available $rna_available --assay $assay \
+                    --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix  \
+                    --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${sampleId} \
+                    --assignmentOutDemuxmix $assignmentOutDemuxmix --gene_col $gene_col
         """
 
 }
