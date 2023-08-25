@@ -32,8 +32,9 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
         obs_res = pd.read_csv(obs_res_dir)
         obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
         demuxem_assign = obs_res[["Barcode", "assignment"]]
-        demuxem_assign.rename(columns={"assignment": os.path.basename(x)}, inplace=True)
-        demuxem_assign["Barcode"] = demuxem_assign["Barcode"].astype(str) + "-1"
+        demuxem_assign.columns = ["Barcode", os.path.basename(x)]
+        demuxem_assign.loc[:, "Barcode"] = demuxem_assign["Barcode"].apply(lambda x: x + "-1")
+        #demuxem_assign["Barcode"] = demuxem_assign["Barcode"].astype(str) + "-1"
         demuxem_assign.index = demuxem_assign.Barcode
         demuxem_assign = demuxem_assign.drop(columns=['Barcode'])
         assign.append(demuxem_assign)
@@ -56,9 +57,9 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
             mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
         demuxem_classi = obs_res[["Barcode", "demux_type"]]
-        demuxem_classi.rename(columns={"demux_type": os.path.basename(x)}, inplace=True)
+        demuxem_classi.columns = ["Barcode", os.path.basename(x)]
         demuxem_classi = demuxem_classi.replace("unknown", "negative")
-        demuxem_classi["Barcode"] = demuxem_classi["Barcode"].astype(str) + "-1"
+        demuxem_classi.loc[:, "Barcode"] = demuxem_classi["Barcode"].apply(lambda x: x + '-1')
         demuxem_classi.index = demuxem_classi.Barcode
         demuxem_classi = demuxem_classi.drop(columns=['Barcode'])
         classi.append(demuxem_classi)
