@@ -49,7 +49,7 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
         
         if raw_mudata is not None:
             mudata = raw_mudata.copy()
-            mudata['rna'].obs = mudata['rna'].obs.merge(demuxem_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs = mudata['rna'].obs.merge(demuxem_assign, left_index=True, right_index=True, how='left')
             mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
@@ -105,7 +105,7 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
         
         if raw_mudata is not None:
             mudata = raw_mudata.copy()
-            mudata['rna'].obs = mudata['rna'].obs.merge(hashsolo_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs = mudata['rna'].obs.merge(hashsolo_assign, left_index=True, right_index=True, how='left')
             mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
