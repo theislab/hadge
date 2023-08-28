@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process demuxmix{
-    publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/demuxmix", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxmix", mode:'copy'
     label 'small_mem'
     
     input:
