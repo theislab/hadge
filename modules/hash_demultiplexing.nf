@@ -22,9 +22,9 @@ process summary{
         val htodemux_result
         val multiseq_result
         val hashedDrops_result
-        val gmmDemux_result
         val demuxmix_result
         val bff_result
+        val gmmDemux_result
         val generate_anndata
         val generate_mudata
         
@@ -193,6 +193,7 @@ workflow hash_demultiplexing{
                 | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
                 | bff_hashing
         bff_out = bff_hashing.out
+        print("BFF path to output")
         print(bff_out)
     }
     else{
@@ -216,8 +217,7 @@ workflow hash_demultiplexing{
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
                 | set {input_list_summary}
-    summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,
-            demuxmix_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
+    summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,demuxmix_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
             
     emit:
         summary.out
