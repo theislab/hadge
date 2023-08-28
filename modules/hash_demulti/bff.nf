@@ -26,8 +26,7 @@ process bff{
         
         
     script:
-        def sampleId = seurat_object.name.tokenize( '_' )[1]
-
+        
         """
         mkdir bff_${sampleId}
         bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
