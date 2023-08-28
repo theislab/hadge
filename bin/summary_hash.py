@@ -350,6 +350,8 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
 
         params = pd.concat(params, axis=1)
         params.to_csv("hash_summary"  +"/demuxmix_params.csv",index=False)
+    else:
+        print("No results found for Demuxmix")
 
 def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []

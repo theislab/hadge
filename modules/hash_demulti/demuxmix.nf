@@ -28,8 +28,6 @@ process demuxmix{
         path "demuxmix_${sampleId}"
         
     script:
-        def sampleId = seurat_object.name.tokenize( '_' )[1]
-
         """
         mkdir demuxmix_${sampleId}
 
