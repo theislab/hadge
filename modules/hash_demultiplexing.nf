@@ -92,7 +92,7 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $generate_adata $generate_mdata $demuxmix_files $gmmDemux_files $bff_files --sampleId $sampleId
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
         """
 }
 
@@ -181,6 +181,7 @@ workflow hash_demultiplexing{
                 |set {input_list_demuxmix}   
                 demuxmix_hashing (input_list_demuxmix,params.rna_available)
         demuxmix_out = demuxmix_hashing.out
+        print(demuxmix_out)
     }
     else{
         demuxmix_out = channel.value("no_result")
@@ -192,6 +193,7 @@ workflow hash_demultiplexing{
                 | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
                 | bff_hashing
         bff_out = bff_hashing.out
+        print(bff_out)
     }
     else{
         bff_out = channel.value("no_result")

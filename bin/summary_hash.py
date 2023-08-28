@@ -264,7 +264,6 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
             mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
             mudata.update()
-            print(mudata)
             mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
 
