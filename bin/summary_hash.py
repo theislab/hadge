@@ -349,7 +349,7 @@ def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
         assign_df.to_csv("hash_summary"  +"/demuxmix_assignment.csv",index=False)
 
         params = pd.concat(params, axis=1)
-        params.to_csv("hash_summary"  +"/demuxmix_params.csv",index=False)`
+        params.to_csv("hash_summary"  +"/demuxmix_params.csv",index=False)
 
 def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []
