@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process bff{
-    publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/bff", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
     input:
        
@@ -26,8 +26,7 @@ process bff{
         
         
     script:
-        def sampleId = seurat_object.name.tokenize( '_' )[1]
-
+        
         """
         mkdir bff_${sampleId}
         bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \

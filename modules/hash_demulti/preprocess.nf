@@ -15,7 +15,7 @@ process preprocess{
         val number_features
         val assay
         val margin
-        val normalisation_methodx
+        val normalisation_method
         val preprocess_out
         val gene_col
     output:
@@ -46,7 +46,7 @@ workflow preprocessing_hashing{
         out_file = params.preprocessOut
         gene_col = params.gene_col
 
-        preprocess(input_list, hto_raw_or_filtered, rna_raw_or_filtered,sel_method, ndelim, n_features, assay, margin, norm_method, out_file, gene_col)
+        preprocess(input_list, hto_raw_or_filtered, rna_raw_or_filtered,ndelim,sel_method, n_features, assay, margin, norm_method, out_file, gene_col)
     emit:
         preprocess.out.collect()
 }
