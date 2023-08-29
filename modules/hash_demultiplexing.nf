@@ -181,7 +181,6 @@ workflow hash_demultiplexing{
                 |set {input_list_demuxmix}   
                 demuxmix_hashing (input_list_demuxmix,params.rna_available)
         demuxmix_out = demuxmix_hashing.out
-        print(demuxmix_out)
     }
     else{
         demuxmix_out = channel.value("no_result")
@@ -194,7 +193,6 @@ workflow hash_demultiplexing{
                 | bff_hashing
         bff_out = bff_hashing.out
         print("BFF path to output")
-        print(bff_out)
     }
     else{
         bff_out = channel.value("no_result")
