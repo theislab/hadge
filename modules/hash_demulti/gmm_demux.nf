@@ -59,8 +59,8 @@ process gmm_demux{
 workflow gmm_demux_hashing{
 take: 
         hto_matrix
+        hto_name_gmm
   main:
-        hto_name_gmm = params.hto_name_gmm
         summary = params.summary
         report_gmm = params.report_gmm
         mode = params.mode_GMM
