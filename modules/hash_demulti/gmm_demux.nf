@@ -60,7 +60,6 @@ workflow gmm_demux_hashing{
 take: 
         hto_matrix
   main:
-        hto_name_gmm = params.hto_name_gmm
         summary = params.summary
         report_gmm = params.report_gmm
         mode = params.mode_GMM
@@ -68,7 +67,7 @@ take:
         threshold_gmm = params.threshold_gmm
         ambiguous = params.ambiguous
 
-        gmm_demux(hto_matrix,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
+        gmm_demux(hto_matrix,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()
