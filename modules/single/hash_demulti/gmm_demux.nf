@@ -68,8 +68,8 @@ def split_input(input){
 workflow gmm_demux_hashing{
     take:   
         hto_matrix
+        hto_name_gmm
     main:
-            hto_name_gmm = split_input(params.hto_name_gmm)
             summary = split_input(params.summary)
             report_gmm = split_input(params.report_gmm)
             mode = split_input(params.mode_GMM)
