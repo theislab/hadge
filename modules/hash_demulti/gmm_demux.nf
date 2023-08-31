@@ -5,9 +5,9 @@ process gmm_demux{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/gmm_demux", mode:'copy'
     label 'small_mem'
     input:
-        tuple val(sampleId), path(filtered_hto_matrix_dir)
+        tuple val(sampleId), path(filtered_hto_matrix_dir), val (hto_name_gmm)
         //HTO names as string separated by commas
-        val hto_name_gmm
+        //val hto_name_gmm
         //mode 2
         //need estimate number of cells in the single cell assay
         //obligatory
