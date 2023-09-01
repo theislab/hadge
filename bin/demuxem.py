@@ -30,8 +30,7 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    #data = pg.read_input(args.rna_matrix_dir, modality="rna")
-    data = sc.read_10x_mtx(args.rna_matrix_dir)
+    data = pg.read_input(args.rna_matrix_dir, modality="rna")
     data.subset_data(modality_subset=['rna'])
     data.concat_data() # in case of multi-organism mixing data
     # load input hashing data
