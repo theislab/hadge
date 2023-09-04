@@ -3,7 +3,6 @@ import pegasus as pg
 import demuxEM
 import numpy as np
 import argparse
-import scanpy as sc
 import pandas as pd
 
 parser = argparse.ArgumentParser(description='Parser for DemuxEM - Demultiplexing')
