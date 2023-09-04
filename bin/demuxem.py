@@ -5,6 +5,7 @@ import numpy as np
 import scanpy as sc
 import argparse
 import pandas as pd
+from mudata import MuData
 
 parser = argparse.ArgumentParser(description='Parser for DemuxEM - Demultiplexing')
 parser.add_argument('--rna_matrix_dir', help= 'cellranger output folder which contains raw RNA count matrix in mtx format.')
@@ -89,8 +90,9 @@ if __name__ == '__main__':
                 title="{gene_name}: a gender-specific gene".format(gene_name=gene_name),
             )
     # output results
+    mudata = MuData({"rna": rna_data, "hto": hashing_data })
     pg.write_output(demux_results, output_name + "_demux.zarr.zip")
-    pg.write_output(data, output_name + ".out.demuxEM.zarr.zip")
+    pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
     print("total\t{}".format(rna_data.shape[0]))
     for name, value in rna_data.obs["demux_type"].value_counts().iteritems():
