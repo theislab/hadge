@@ -8,7 +8,6 @@ import pandas as pd
 import pegasusio as io
 from mudata import MuData
 
-
 parser = argparse.ArgumentParser(description='Parser for DemuxEM - Demultiplexing')
 parser.add_argument('--rna_matrix_dir', help= 'cellranger output folder which contains raw RNA count matrix in mtx format.')
 parser.add_argument('--hto_matrix_dir', help= 'cellranger output folder which contains raw HTO (antibody tag) count matrix in mtx format.')
@@ -33,6 +32,7 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
+<<<<<<< HEAD
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
     #data.subset_data(modality_subset=['rna'])
@@ -92,11 +92,15 @@ if __name__ == '__main__':
             )
     # output results
 <<<<<<< HEAD
+<<<<<<< HEAD
     mudata = io.MultimodalData(rna_data)
     mudata.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
 =======
     mudata = MuData({"rna": rna_data, "hto": hashing_data })
 >>>>>>> ca667b6 (demuxem fix)
+=======
+    #mudata = io.MultimodalData(rna_data)
+>>>>>>> 3ceee99 (demusem io for input)
     pg.write_output(demux_results, output_name + "_demux.zarr.zip")
     pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
