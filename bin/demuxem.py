@@ -31,16 +31,16 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    data = io.read_input(args.rna_matrix_dir, modality="rna")
-    #rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
-    #hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
-    data.subset_data(modality_subset=['rna'])
-    data.concat_data() # in case of multi-organism mixing data
+    #data = io.read_input(args.rna_matrix_dir, modality="rna")
+    rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
+    hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
+    #data.subset_data(modality_subset=['rna'])
+    #data.concat_data() # in case of multi-organism mixing data
     # load input hashing data
-    data.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
+    #data.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
     # Extract rna and hashing data
-    rna_data = data.get_data(modality="rna")
-    hashing_data = data.get_data(modality="hashing")
+    #rna_data = data.get_data(modality="rna")
+    #hashing_data = data.get_data(modality="hashing")
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True
@@ -90,7 +90,8 @@ if __name__ == '__main__':
                 title="{gene_name}: a gender-specific gene".format(gene_name=gene_name),
             )
     # output results
-    #mudata = io.MultimodalData(rna_data)
+    mudata = io.MultimodalData(rna_data)
+    mudata.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
     pg.write_output(demux_results, output_name + "_demux.zarr.zip")
     pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
