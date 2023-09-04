@@ -4,7 +4,6 @@ import demuxEM
 import numpy as np
 import scanpy as sc
 import argparse
-import scanpy as sc
 import pandas as pd
 import pegasusio as io
 
