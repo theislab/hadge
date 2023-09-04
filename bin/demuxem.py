@@ -6,6 +6,8 @@ import scanpy as sc
 import argparse
 import pandas as pd
 import pegasusio as io
+from mudata import MuData
+
 
 parser = argparse.ArgumentParser(description='Parser for DemuxEM - Demultiplexing')
 parser.add_argument('--rna_matrix_dir', help= 'cellranger output folder which contains raw RNA count matrix in mtx format.')
@@ -89,8 +91,12 @@ if __name__ == '__main__':
                 title="{gene_name}: a gender-specific gene".format(gene_name=gene_name),
             )
     # output results
+<<<<<<< HEAD
     mudata = io.MultimodalData(rna_data)
     mudata.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
+=======
+    mudata = MuData({"rna": rna_data, "hto": hashing_data })
+>>>>>>> ca667b6 (demuxem fix)
     pg.write_output(demux_results, output_name + "_demux.zarr.zip")
     pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
