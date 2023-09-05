@@ -87,6 +87,9 @@ if (!is.null(args$methodsForConsensus)) {
   substring_vector <- strsplit(consensus_methods, ",")[[1]]
 }
 
+perCell_args <- args$perCellSaturation
+perCell <- ifelse(perCell_args == "null", NULL, perCell_args)
+
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if (args$methods == "bff_raw") {
@@ -97,7 +100,7 @@ if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster
     cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_cluster"), doTSNE = do_TSNE, doHeatmap = do_Heatmap,methodsForConsensus = substring_vector,cellbarcodeWhitelist = args$cellbarcodeWhitelist,metricsFile = args$metricsFile, perCellSaturation = args$perCellSaturation, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold)
   }else if (args$methods == "combined_bff") {
     print("Executing BFF combined")
-    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap,methodsForConsensus = substring_vector )
+    cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap,methodsForConsensus = substring_vector, cellbarcodeWhitelist = args$cellbarcodeWhitelist ,metricsFile = args$metricsFile, perCellSaturation = perCell )
     #cell_hash_R_res <- GenerateCellHashingCalls(barcodeMatrix = counts, methods = c("bff_raw", "bff_cluster") , doTSNE = do_TSNE, doHeatmap = do_Heatmap,methodsForConsensus = substring_vector,cellbarcodeWhitelist = args$cellbarcodeWhitelist, metricsFile = args$metricsFile, perCellSaturation = NULL, majorityConsensusThreshold = args$majorityConsensusThreshold, chemistry = args$chemistry, callerDisagreementThreshold = args$callerDisagreementThreshold )
   
   }else {
