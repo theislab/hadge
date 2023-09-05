@@ -41,6 +41,10 @@ if __name__ == '__main__':
     # Extract rna and hashing data
     #rna_data = data.get_data(modality="rna")
     #hashing_data = data.get_data(modality="hashing")
+    rna = args.rna_matrix_dir
+    print("-------------------")
+    print(rna)
+    print("-------------------")
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True
