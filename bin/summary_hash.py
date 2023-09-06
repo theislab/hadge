@@ -452,7 +452,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
             dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
             assign.append(dt_assign)
-
+            print(dt_assign)
             if raw_adata is not None:
                 adata = raw_adata.copy()
                 adata.obs = adata.obs.merge(dt_assign, left_index=True, right_index=True, how='left')
