@@ -467,11 +467,8 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
             if raw_mudata is not None:
                 mudata = raw_mudata.copy()
-<<<<<<< HEAD
+
                 mudata['rna'].obs = mudata['rna'].obs.merge(dt_assign, left_index=True, right_index=True, how='left')
-=======
-                mudata['rna'].obs = mudata['rna'].obs.merge(bff_assign, left_index=True, right_index=True, how='left')
->>>>>>> ec372d3 (bff added args)
                 mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
                 mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
                 mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
