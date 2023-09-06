@@ -102,7 +102,7 @@ print(perCell)
 print("---------------------")
 print(perCell)
 print("---------------------")
->>>>>>> 2f16c15 (bff problem with arg perCell)
+
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if (args$methods == "bff_raw") {
