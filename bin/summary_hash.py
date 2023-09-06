@@ -459,7 +459,8 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
                 adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
                 adata.obs.donor = adata.obs.donor.fillna("negative")
                 adata.obs.donor = adata.obs.donor.astype(str)
-                adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
+                print(adata)
+                adata.write("hash_summary/adata/adata_with_bff.h5ad")
 
             if raw_mudata is not None:
                 mudata = raw_mudata.copy()
