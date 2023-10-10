@@ -463,7 +463,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
                 adata.write_h5ad("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
                 
 
-
             if raw_mudata is not None:
                 mudata = raw_mudata.copy()
 
