@@ -1,6 +1,7 @@
 # Hashing demultiplexing
 
 ## **Hashing-based deconvolution (hash_demulti) in hadge**
+
 - Pre-processing
 - Multiseq
 - HTODemux
@@ -33,9 +34,11 @@ Similary as genotype-based deconvlution methods, hashing methods also have some 
 | Filtered HTO count matrix      | `params.hto_matrix_filtered` |
 
 #### Pre-processing
+
 Similar as in the genetic demultiplexing workflow, we provide a pre-processing step required before running HTODemux and Multiseq to load count matrices into a Seurat object. The input will be automatically loaded from the parameters set above.
 
 ## **Output**
+
 By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/hashing/hash_demulti`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/hashing/hash_demulti`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 ### Pre-processing
