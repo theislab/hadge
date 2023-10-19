@@ -81,6 +81,9 @@ The output of the donor-matching process can be found in the folder `donor_match
 :maxdepth: 3
 usage
 output
+general
+genetic
+hashing
 ```
 
 # Indices and tables
