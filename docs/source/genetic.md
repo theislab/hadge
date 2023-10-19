@@ -1,10 +1,20 @@
-# Usage
+# Genetics-based deconvolution workflow
+Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
+
+## **Genetics-based deconvolution (gene_demulti) in hadge**
+
+- Pre-processing: Samtools
+- Variant-calling: freebayes
+- Variant-filtering: BCFtools
+- Variant-calling: cellsnp-lite
+- Demuxlet
+- Freemuxlet
+- Vireo
+- Souporcell
+- scSplit
 
 ## **Input data preparation**
-
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
-
-### Genotype-based deconvolution methods:
 
 | Deconvolution methods | Input data                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------ |
@@ -59,350 +69,120 @@ When running genotype-based deconvolution methods without genotype reference, yo
 | Freemuxlet   | common_variants_freemuxlet | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
 | cellSNP-lite | common_variants_cellsnp    | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
 
-### Hashing-based deconvolution workflow
+## **Output**
 
-| Deconvolution method | Input data                                                                                                         | Parameter                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_htodemux` <br> `params.hto_matrix_htodemux` |
-| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_multiseq` <br> `params.hto_matrix_multiseq` |
-| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                 | `params.hto_matrix_hashsolo` <br> `params.rna_matrix_hashsolo` |
-| HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                          | `params.hto_matrix_hashedDrops`                                |
-| Demuxem              | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem`     |
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/genetic/gene_demulti`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/genetic/gene_demulti`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
-The parameters `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method. Similary as genotype-based deconvlution methods, hashing methods also utilize common input parameters to store count matrices for better control.
+### Samtools
 
-| Input data                     | Parameter                    |
-| ------------------------------ | ---------------------------- |
-| Raw scRNAseq count matrix      | `params.rna_matrix_raw`      |
-| Filtered scRNAseq count matrix | `params.rna_matrix_filtered` |
-| Raw HTO count matrix           | `params.hto_matrix_raw`      |
-| Filtered HTO count matrix      | `params.hto_matrix_filtered` |
+output directory: `$pipeline_output_folder/samtools/samtools_[task_ID/sampleId]`
 
-#### Pre-processing
+- `filtered.bam`: processed BAM in a way that reads with any of following patterns be removed: read quality lower than 10, being unmapped segment, being secondary alignment, not passing filters, being PCR or optical duplicate, or being supplementary alignment
+- `filtered.bam.bai`: index of filtered bam
+- `no_dup.bam`: processed BAM after removing duplicated reads based on UMI
+- `sorted.bam`: sorted BAM
+- `sorted.bam.bai`: index of sorted BAM
 
-Similar as in the genetic demultiplexing workflow, we provide a pre-processing step required before running HTODemux and Multiseq to load count matrices into a Seurat object. The input will be automatically loaded from the parameters mentioned above.
+### cellSNP-lite
 
-### **Running on multiple samples**
+output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 
-The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet should have e.g. following columns depending on the methods you want to run:
+- `cellSNP.base.vcf.gz`: a VCF file listing genotyped SNPs and aggregated AD & DP infomation (without GT)
+- `cellSNP.samples.tsv`: a TSV file listing cell barcodes or sample IDs
+- `cellSNP.tag.AD.mtx`: a file in mtx format, containing the allele depths of the alternative (ALT) alleles
+- `cellSNP.tag.DP.mtx`: a file in mtx format, containing the sum of allele depths of the reference and alternative alleles (REF + ALT)
+- `cellSNP.tag.OTH.mtx`: a file in mtx format, containing the sum of allele depths of all the alleles other than REF and ALT.
+- `cellSNP.cells.vcf.gz`: a VCF file listing genotyped SNPs and AD & DP & genotype (GT) information for each cell or sample
+- `params.csv`: specified parameters in the cellsnp-lite task
 
-- sampleId
-- rna_matrix_raw
-- rna_matrix_filtered
-- hto_matrix_raw
-- hto_matrix_filtered
-- bam
-- bam_index
-- barcodes
-- nsample
-- celldata
-- vcf_mixed
-- vcf_donor
+### Freebayes
 
-### **scverse compatibility**
+- `${region}_${vcf_freebayes}`: a VCF file containing variants called from mixed samples in the given chromosome region
 
-To ensure scverse compatibility, the pipeline provides the option to generate anndata or mudata specifeid by `params.generate_anndata`. If set to True, the pipeline will generate an AnnData object in the folder `[workflow]_summary/adata` during the summary process of two workflows. This object contains the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. Additionlly, if `match_donor` is True, the pipeline also produces an AnnData object in the `data_output` folder which contains the assignment of the best-matched method pair after donor matching.
+### Bcftools
 
-## **Pipeline configuration**
+output directory: `$pipeline_output_folder/bcftools/bcftools_[task_ID/sampleId]`
 
-### **Conda environments:**
+- `total_chroms.vcf`: a VCF containing variants from all chromosomes
+- `sorted_total_chroms.vcf`: sorted VCF file
+- `filtered_sorted_total_chroms.vcf`: sorted VCF file containing variants with a quality score > 30
 
-We provide a `environment.yml` file for each process. But you can also use local Conda environments to run a process:
+### Demuxlet
 
-```
-// dont forget to enable conda
-conda.enable = true
-process {
-    // Use Conda environment files
-    withName:scSplit {
-        conda = './conda/scsplit.yml'
-    }
-    // Use Conda package names
-    withName:cellSNP {
-        conda = 'bioconda::cellsnp-lite'
-    }
-    // Use existing Conda environments
-    withName:summary {
-        conda = '/path/to/an/existing/env/directory'
-    }
-}
+output directory: `$pipeline_output_folder/demuxlet/demuxlet_[task_ID/sampleId]`
 
-```
+- `{demuxlet_out}.best`: result of demuxlet containing the best guess of the sample identity, with detailed statistics to reach to the best guess
+- `params.csv`: specified parameters in the Demuxlet task
 
-### Containers:
+Optionally:
 
-Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
+- `{demuxlet_out}.cel`: contains the relation between numerated barcode ID and barcode. Also, it contains the number of SNP and number of UMI for each barcoded droplet.
+- `{demuxlet_out}.plp`: contains the overlapping SNP and the corresponding read and base quality for each barcode ID.
+- `{demuxlet_out}.umi`: contains the position covered by each umi
+- `{demuxlet_out}.var`: contains the position, reference allele and allele frequency for each SNP.
 
-```
-process {
-    withName:foo {
-        container = 'image_name_1'
-    }
-    withName:bar {
-        container = 'image_name_2'
-    }
-}
-// do not forget to enable docker
+### Freemuxlet
 
-docker.enabled = true
+output directory: `$pipeline_output_folder/freemuxlet/freemuxlet_[task_ID/sampleId]`
 
-```
+- `{freemuxlet_out}.clust1.samples.gz`: contains the best guess of the sample identity, with detailed statistics to reach to the best guess.
+- `{freemuxlet_out}.clust1.vcf.gz`: VCF file for each sample inferred and clustered from freemuxlet
+- `{freemuxlet_out}.lmix`: contains basic statistics for each barcode
+- `params.csv`: specified parameters in the Freemuxlet task
 
-### Executor and resource specifications:
+Optionally:
 
-- The pipeline can be run either locally or on an HPC. You can set the executor by running the pipeline with `-profile standard` or `-profile cluster`. Of course, you can add other profiles if you want.
-- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
-- As default, the pipeline is run locally with the standard profile, where all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
+- `{freemuxlet_out}.cel`: contains the relation between numerated barcode ID and barcode. Also, it contains the number of SNP and number of UMI for each barcoded droplet.
+- `{freemuxlet_out}.plp`: contains the overlapping SNP and the corresponding read and base quality for each barcode ID.
+- `{freemuxlet_out}.umi`: contains the position covered by each umi
+- `{freemuxlet_out}.var`: contains the position, reference allele and allele frequency for each SNP.
+- `{freemuxlet_out}.clust0.samples.gz`: contains the best sample identity assuming all droplets are singlets
+- `{freemuxlet_out}.clust0.vcf.gz}`: VCF file for each sample inferred and clustered from freemuxlet assuming all droplets are singlets
+- `{freemuxlet_out}.ldist.gz`: contains the pairwise Bayes factor for each possible pair of droplets
 
-```
-profiles{
-    standard {
-        process {
-            executor = 'local'
-            withLabel: big_mem {
-                cpus = 4
-                memory = 16.GB
-            }
-            withLabel: small_mem {
-                cpus = 2
-                memory = 8.GB
-            }
-        }
+### Vireo
 
-    }
+output directory: `$pipeline_output_folder/vireo/vireo_[task_ID/sampleId]`
 
-    cluster {
-        process {
-            executor = 'slurm'
-             // queue = ...
-            withLabel: big_mem {
-                cpus = 32
-                memory = 64.GB
-            }
-            withLabel: small_mem {
-                cpus = 16
-                memory = 32.GB
-            }
-        }
-    }
-}
+- `donor_ids.tsv`: assignment of Vireo with detailed statistics
+- `summary.tsv`: summary of assignment
+- `prob_singlet.tsv.gz`: contains probability of classifing singlets
+- `prob_doublet.tsv.gz`: contains probability of classifing doublets
+- `GT_donors.vireo.vcf.gz`: contains estimated donor genotypes
+- `filtered_variants.tsv`: a minimal set of discriminatory variants
+- `GT_barcodes.png`: a figure for the identified genotype barcodes
+- `fig_GT_distance_estimated.pdf`: a plog showing estimated genotype distance
+- `_log.txt`: vireo log file
+- `params.csv`: specified parameters in the Vireo task
 
-```
+### scSplit
 
-## Parameters
+output directory: `$pipeline_output_folder/scSplit/scsplit_[task_ID/sampleId]`
 
-### General
+- `alt_filtered.csv`: count matrix of alternative alleles
+- `ref_filtered.csv`: count matrix of reference alleles
+- `scSplit_result.csv`: barcodes assigned to each of the N+1 cluster (N singlets and 1 doublet cluster), doublet marked as DBL-<n> (n stands for the cluster number), e.g SNG-0 means the cluster 0 is a singlet cluster.
+- `scSplit_dist_matrix.csv`: the ALT allele Presence/Absence (P/A) matrix on distinguishing variants for all samples as a reference in assigning sample to clusters, NOT including the doublet cluster, whose sequence number would be different every run (please pay enough attention to this)
+- `scSplit_dist_variants.txt`: the distinguishing variants that can be used to genotype and assign sample to clusters
+- `scSplit_PA_matrix.csv`: the full ALT allele Presence/Absence (P/A) matrix for all samples, NOT including the doublet cluster, whose sequence number would be different every run (please pay enough attention to this)
+- `scSplit_P_s_c.csv`: the probability of each cell belonging to each sample
+- `scSplit.log`: log file containing information for current run, iterations, and final Maximum Likelihood and doublet sample
+- `params.csv`: specified parameters in the scSplit task
 
-|                  |                                                                 |
-| :--------------: | :-------------------------------------------------------------: |
-|      outdir      |                Output directory of the pipeline                 |
-|       mode       |  Mode of the pipeline: genetic, hashing, rescue or donor_match  |
-| generate_anndata | Whether to generate anndata after demultiplexing. Default: True |
-| generate_mudata  | Whether to generate mudata after demultiplexing. Default: False |
+### Souporcell
 
-### Hashing-based: Preprocessing
+output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sampleId]`
 
-|               |                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------- |
-| ndelim        | For the initial identity calss for each cell, delimiter for the cell's column name. Default: \_ |
-| sel_method    | The selection method used to choose top variable features. Default: mean.var.plot               |
-| n_features    | Number of features to be used when finding variable features. Default: 2000                     |
-| assay         | Assay name for HTO modality. Default: HTO                                                       |
-| norm_method   | Method for normalization of HTO data. Default: CLR                                              |
-| margin        | If performing CLR normalization, normalize across features (1) or cells (2). Default: 2         |
-| gene_col      | Specify which column of genes.tsv or features.tsv to use for gene names; default is 2           |
-| preprocessOut | Name of the output Seurat object. Default: preprocessed                                         |
+- `alt.mtx`: count matrix of alternative alleles
+- `ref.mtx`: count matrix of reference alleles
+- `clusters.tsv`: assignment of Souporcell with the cell barcode, singlet/doublet status, cluster, log_loss_singleton, log_loss_doublet, followed by log loss for each cluster.
+- `cluster_genotypes.vcf`: VCF with genotypes for each cluster for each variant in the input vcf from freebayes
+- `ambient_rna.txt`: contains the ambient RNA percentage detected
+- `params.csv`: specified parameters in the Souporcell task
 
-### Hashing-based: HTODemux
+## **Parameter**
 
-|                     |                                                                                                                                |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| htodemux            | Whether to perform Multiseq. Default: True                                                                                     |
-| rna_matrix_htodemux | Whether to use raw or filtered scRNA-seq count matrix. Default: filtered                                                       |
-| hto_matrix_htodemux | Whether to use raw or filtered HTO count matrix. Default: filtered                                                             |
-| assay               | Name of the hashtag assay. Default: HTO                                                                                        |
-| quantile_htodemux   | The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99 |
-| kfunc               | Clustering function for initial hashtag grouping. Default: clara.                                                              |
-| nstarts             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                           |
-| nsamples            | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
-| seed                | Sets the random seed. Default: 42                                                                                              |
-| init                | Initial number of clusters for hashtags. Default: NULL, which means the # of hashtag oligo names + 1 to account for negatives. |
-| objectOutHTO        | Name of the output Seurat object. Default: htodemux                                                                            |
-| assignmentOutHTO    | Prefix of the output CSV files. Default: htodemux                                                                              |
-| ridgePlot           | Whether to generate a ridge plot to visualize enrichment for all HTOs. Default: TRUE                                           |
-| ridgeNCol           | Number of columns in the ridge plot. Default: 3                                                                                |
-| featureScatter      | Whether to generate a scatter plot to visualize pairs of HTO signals. Default: FALSE                                           |
-| scatterFeat1        | First feature to plot. Default: None                                                                                           |
-| scatterFeat2        | Second feature to plot. Default: None                                                                                          |
-| vlnplot             | Whether to generate a violin plot, e.g. to compare number of UMIs for singlets, doublets and negative cells. Default: TRUE     |
-| vlnFeatures         | Features to plot. Default: nCount_RNA                                                                                          |
-| vlnLog              | Whether to plot the feature axis on log scale. Default: TRUE                                                                   |
-| tsne                | Whether to generate a 2D tSNE embedding for HTOs. Default: TRUE                                                                |
-| tsneIdents          | Subset Seurat object based on identity class. Default: Negative                                                                |
-| tsneInvert          | Whether to keep or remove the identity class. Default: TRUE                                                                    |
-| tsneVerbose         | Whether to print the top genes associated with high/low loadings for the PCs when running PCA. Default: FALSE                  |
-| tsneApprox          | Whether to use truncated singular value decomposition to approximate PCA. Default: FALSE                                       |
-| tsneDimMax          | Number of dimensions to use as input features when running t-SNE dimensionality reduction. Default: 2                          |
-| tsnePerplexity      | Perplexity when running t-SNE dimensionality reduction. Default: 100                                                           |
-| heatmap             | Whether to generate an HTO heatmap. Default: TRUE                                                                              |
-| heatmapNcells       | Number of cells to plot. Default: 5000                                                                                         |
-
-### Hashing-based: Multiseq
-
-|                     |                                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| multiseq            | Whether to perform Multiseq. Default: True                                                              |
-| rna_matrix_multiseq | Whether to use raw or filtered scRNA-seq count matrix. Default: filtered                                |
-| hto_matrix_multiseq | Whether to use raw or filtered HTO count matrix. Default: filtered                                      |
-| assay               | Name of the hashtag assay, same as used for HTODemux. Default: HTO                                      |
-| quantile_multi      | The quantile to use for classification. Default: 0.7                                                    |
-| autoThresh          | Whether to perform automated threshold finding to define the best quantile. Default: TRUE               |
-| maxiter             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                    |
-| qrangeFrom          | The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.1                             |
-| qrangeTo            | The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.9                             |
-| qrangeBy            | The constant difference of a range of possible quantile values to try if autoThresh=TRUE. Default: 0.05 |
-| verbose_multiseq    | Wether to print the output. Default: TRUE                                                               |
-| assignmentOutMulti  | Prefix of the output CSV files. Default: multiseq                                                       |
-| objectOutMulti      | Name of the output Seurat object. Default: multiseq                                                     |
-
-### Hashing-based: Solo
-
-|                            |                                                                                                  |
-| -------------------------- | ------------------------------------------------------------------------------------------------ |
-| solo                       | Whether to perform Solo. Default: True                                                           |
-| rna_matrix_solo            | Input folder to RNA expression matrix in 10x format.                                             |
-| max_epochs                 | Number of epochs to train for. Default: 400                                                      |
-| lr                         | Learning rate for optimization. Default: 0.001                                                   |
-| train_size                 | Size of training set in the range between 0 and 1. Default: 0.9                                  |
-| validation_size            | Size of the test set. Default: 0.1                                                               |
-| batch_size                 | Minibatch size to use during training. Default: 128                                              |
-| early_stopping             | Adds callback for early stopping on validation_loss. Default: True                               |
-| early_stopping_patience    | Number of times early stopping metric can not improve over early_stopping_min_delta. Default: 30 |
-| early_stopping_min_delta   | Threshold for counting an epoch towards patience train(). Default: 10                            |
-| soft                       | Return probabilities instead of class label. Default: False                                      |
-| include_simulated_doublets | Return probabilities for simulated doublets as well.                                             |
-| assignmentOutSolo          | Prefix of the output CSV files. Default: solo_predict                                            |
-
-### Hashing-based: HashSolo
-
-|                          |                                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| hashsolo                 | Whether to perform HashSolo. Default: True                                                   |
-| rna_matrix_hashsolo      | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                          |
-| hto_matrix_hashsolo      | Whether to use raw or filtered HTO count matrix if use_rna_data is set to True. Default: raw |
-| priors_negative          | Prior for the negative hypothesis. Default: 1/3                                              |
-| priors_singlet           | Prior for the singlet hypothesis. Default: 1/3                                               |
-| priors_doublet           | Prior for the doublet hypothesis. Default: 1/3                                               |
-| pre_existing_clusters    | Column in the input data for how to break up demultiplexing. Default: None                   |
-| use_rna_data             | Whether to use RNA counts for deconvolution. Default: False                                  |
-| number_of_noise_barcodes | Number of barcodes to use to create noise distribution. Default: None                        |
-| assignmentOutHashSolo    | Prefix of the output CSV files. Default: hashsolo                                            |
-| plotOutHashSolo          | Prefix of the output figures. Default: hashsolo                                              |
-
-### Hashing-based: DemuxEm
-
-|                      |                                                                                                                               |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| demuxem              | Whether to perform Demuxem. Default: True                                                                                     |
-| rna_matrix_demuxem   | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                           |
-| hto_matrix_demuxem   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                 |
-| threads_demuxem      | Number of threads to use. Must be a positive integer. Default: 1                                                              |
-| alpha_demuxem        | The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse. Default: 0.0 |
-| alpha_noise          | The Dirichlet prior concenration parameter on the background noise. Default: 1.0                                              |
-| min_num_genes        | Filter cells/nuclei with at least specified number of expressed genes. Default: 100                                           |
-| min_num_umis         | Filter cells/nuclei with at least specified number of UMIs. Default: 100                                                      |
-| min_signal           | Any cell/nucleus with less than min_signal hashtags from the signal will be marked as unknown. Default: 10                    |
-| tol                  | Threshold used for the EM convergence. Default: 1e-6                                                                          |
-| generate_gender_plot | Generate violin plots using gender-specific genes (e.g. Xist). Value is a comma-separated list of gene names. Default: None   |
-| random_state         | Random seed set for reproducing results. Default: 0                                                                           |
-| filter_demuxem       | Use the filter for RNA Default: True                                                                                          |
-
-| objectOutDemuxem | Prefix of the output files. Default: demuxem_res |
-
-### Hashing-based: HashedDrops
-
-|                          |                                                                                                                                                                                                            |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| hashedDrops              | Whether to perform hashedDrops. Default: True                                                                                                                                                              |
-| hto_matrix_hashedDrops   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                                                                              |
-| lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100                                                                           |
-| niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000                                                                                                                   |
-| testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: TRUE                                                                                                     |
-| ignore_hashedDrops       | The lower bound on the total UMI count, at or below which barcodes will be ignored. Default: NULL                                                                                                          |
-| alpha_hashedDrops        | The scaling parameter for the Dirichlet-multinomial sampling scheme. Default: NULL                                                                                                                         |
-| round                    | Whether to check for non-integer values in m and, if present, round them for ambient profile estimation. Default: TRUE                                                                                     |
-| byRank                   | If set, this is used to redefine lower and any specified value for lower is ignored. Default: NULL                                                                                                         |
-| isCellFDR                | FDR Threshold to filter the cells for empty droplet detection. Default: 0.01                                                                                                                               |
-| objectOutEmptyDrops      | Prefix of the emptyDroplets output RDS object. Default: emptyDroplets                                                                                                                                      |
-| assignmentOutEmptyDrops  | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets                                                                                                                                        |
-| ambient                  | Whether to use the relative abundance of each HTO in the ambient solution from emptyDrops, set TRUE only when testAmbient=TRUE. Default: FALSE                                                             |
-| minProp                  | The ambient profile when ambient=NULL. Default: 0.05                                                                                                                                                       |
-| pseudoCount              | The minimum pseudo-count when computing logfold changes. Default: 5                                                                                                                                        |
-| constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: FALSE                                                                                          |
-| doubletNmads             | The number of median absolute deviations (MADs) to use to identify doublets. Default: 3                                                                                                                    |
-| doubletMin               | The minimum threshold on the log-fold change to use to identify doublets. Default: 2                                                                                                                       |
-| doubletMixture           | Wwhether to use a 2-component mixture model to identify doublets. Default: FALSE                                                                                                                           |
-| confidentNmads           | The number of MADs to use to identify confidently assigned singlets. Default: 3                                                                                                                            |
-| confidenMin              | The minimum threshold on the log-fold change to use to identify singlets. Default: 2                                                                                                                       |
-| combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL |
-| objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
-| gene_col                 | Specify which column of genes.tsv or features.tsv to use for gene names; default is 2                                                                                                                      |
-| assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
-
-### Hashing-based: GMM-Demux
-
-|                      |                                                                                                                                                                  |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| gmmDemux             | Whether to perform GMM-Demux. Default: True                                                                                                                      |
-| hto_matrix_gmm_demux | Whether to use raw or filtered HTO count matrix. Default: filtered                                                                                               |
-| hto_name_gmm         | list of sample tags (HTOs) separated by ',' without whitespace. Default: None                                                                                    |
-| summary              | Generate the statstic summary of the dataset, receives an estimated total number of cells Default: 2000                                                          |
-| mode_GMM             | Specify the type of input, if tsv or csv files Default: tsv                                                                                                      |
-| extract              | Name of the hashes to extract, separated by ','. Joint hashes can be added using a '+' between the names Default: None                                           |
-| threshold_gmm        | Whether to use RNA counts for deconvolution. Default: False                                                                                                      |
-| ambiguous            | Chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Only used if the parameter extract is used. Default: 0.05. |
-| report_gmm           | Name for the summary report . Default: report.txt                                                                                                                |
-
-### Hashing-based: Demuxmix
-
-|                       |                                                                                                                                         |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| demuxmix              | Whether to perform Demuxmix. Default: True                                                                                              |
-| hto_matrix_demuxmix   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                           |
-| rna_matrix_demuxmix   | Whether to use raw or filtered scRNA-seq count matrix. Optional, only if model requires RNA data Default: raw                           |
-| correctTails          | If True droplets meeting the threshold defined by alpha or beta, they are classified as either "negative" or "positive" . Default: TRUE |
-| rna_available         | Specify if RNA matrix is available, so that different models can be used                                                                |
-| model                 | Specify the type of mixture model to be used. Default: naive                                                                            |
-| alpha_demuxmix        | Threshold defining the left tail of the mixture distribution, where droplets should be classified as positive Default: 0.9              |
-| beta_demuxmix         | Threshold for defining the right tail of the mixture distribution where droplets should not be classified as "negative". Default: 0.9   |
-| tol_demuxmix          | Convergence criterion for the EM algorithm used to fit the mixture models. Default: 0.00001.                                            |
-| maxIter_demuxmix      | Whether to use RNA counts for deconvolution. Default: 1000                                                                              |
-| k_hto                 | Whether to use RNA counts for deconvolution. Default: 1.5                                                                               |
-| k_rna                 | Whether to use RNA counts for deconvolution. Default: 1.5                                                                               |
-| assignmentOutDemuxmix | Prefix of the output CSV files. Default: demuxmix                                                                                       |
-
-### Hashing-based: BFF
-
-|                             |                                                                                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bff                         | Whether to perform BFF. Default: True                                                                                                                       |
-| hto_matrix_bff              | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                               |
-| rna_matrix_bff              | Whether to use raw or filtered scRNA-seq count matrix. Optional, only if model requires RNA data Default: raw                                               |
-| preprocess_bff              | If TRUE, ProcessCountMatrix from cellHashR is used to preprocess the dat                                                                                    |
-| methods                     | Whether to use bff_raw, bff_cluster or both methods combined: combined_bff Default: combined_bff                                                            |
-| methodsForConsensus         | By default, a consensus call will be generated using all methods used. In this case a consensus between all Bff versions is accepted. Default: NULL         |
-| cellbarcodeWhitelist        | A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix. Default: NULL |
-| metricsFile                 | If provided, summary metrics will be written to this file. Default: metrics_bff.csv                                                                         |
-| doTSNE                      | If true, tSNE will be run on the resulting hashing calls after each caller. Default: TRUE                                                                   |
-| doHeatmap                   | If true, tSNE will be run on the resulting hashing calls after each caller. Default: TRUE                                                                   |
-| perCellSaturation           | An optional dataframe with the columns cellbarcode and saturation. Default: NULL                                                                            |
-| majorityConsensusThreshold  | This applies to calculating a consensus call when multiple algorithms are used. Default: NULL                                                               |
-| chemistry                   | This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3. Default: 10xV3                                                             |
-| callerDisagreementThreshold | If provided, the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells. Default: NULL   |
-| barcodeWhitelist            | A vector of barcode names to retain. Parameter for the Preprocess step Default: TRUE                                                                        |
-| assignmentOutBFF            | Prefix of the output CSV files. Default: bff                                                                                                                |
-
-### Genotype-based: Demuxlet and dsc-pileup
+### Demuxlet and dsc-pileup
 
 |                     |                                                                                                                                                              |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -439,7 +219,7 @@ profiles{
 | doublet-prior       | Prior of doublet. Default: 0.5                                                                                                                               |
 | demuxlet_out        | Prefix out the demuxlet and dsc-pileup output files. Default: demuxlet_res                                                                                   |
 
-### Genotype-based: Freemuxlet and dsc-pileup
+### Freemuxlet and dsc-pileup
 
 |                            |                                                                                                                                                                |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -476,7 +256,7 @@ profiles{
 | keep_init_missing          | Keep missing cluster assignment as missing in the initial iteration. Default: False                                                                            |
 | freemuxlet_out             | Prefix out the freemuxlet and dsc-pileup output files. Default: freemuxlet_out                                                                                 |
 
-### Genotype-based: Vireo
+### Vireo
 
 |                  |                                                                                                                                                                               |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -501,7 +281,7 @@ profiles{
 | nproc            | Number of subprocesses for computing, sacrifices memory for speedups. Default: 4                                                                                              |
 | vireo_out        | Dirtectory for output files. Default: vireo_out                                                                                                                               |
 
-### Genotype-based: scSplit
+### scSplit
 
 |                         |                                                                                                                                                                                                                                                            |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -524,7 +304,7 @@ profiles{
 | sample_geno             | Whether to generate sample genotypes based on the split result. Default: True                                                                                                                                                                              |
 | scsplit_out             | Dirtectory for scSplit output files. Default: scsplit_out                                                                                                                                                                                                  |
 
-### Genotype-based: Souporcell
+### Souporcell
 
 |                              |                                                                                                                                                                |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -549,7 +329,7 @@ profiles{
 | ignore                       | Set to True to ignore data error assertions. Default: False                                                                                                    |
 | souporcell_out               | Dirtectory for Souporcell output files. Default: souporcell_out                                                                                                |
 
-### Genotype-based: cellSNP-lite
+### cellSNP-lite
 
 |                         |                                                                                                                                                                                             |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -578,7 +358,7 @@ profiles{
 | countORPHAN             | If use, do not skip anomalous read pairs. Default: False                                                                                                                                    |
 | cellsnp_out             | Dirtectory for cellSNP-lite output files. Default: cellSNP_out                                                                                                                              |
 
-### Genotype-based: Freebayes
+### Freebayes
 
 |                                 |                                                                                                                                                                                                                                                            |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -657,16 +437,3 @@ profiles{
 | genotype_qualities              | Calculate the marginal probability of genotypes and report as GQ in each sample field in the VCF output Default: False                                                                                                                                     |
 | debug                           | Print debugging output. Default: False                                                                                                                                                                                                                     |
 | dd                              | Print more verbose debugging output (requires "make DEBUG"). Default: False                                                                                                                                                                                |
-
-### Donor matching
-
-|                       |                                                                                                                                                                                                                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| match_donor           | Whether to match donors. Default: True                                                                                                                                                                                                                                  |
-| demultiplexing_result | A CSV file with demultiplexing assignment when running in donor_match mode. In other modes, the input is passed by the pipeline automatically. Default: None                                                                                                            |
-| match_donor_method1   | The method name to match donors. If None, all genotype-based methods are compared. Default: None                                                                                                                                                                        |
-| match_donor_method2   | The method name to match donors. If None, all hashing-based methods are compared. Default: None                                                                                                                                                                         |
-| findVariants          | Whether to extract a subset of informative variants when best genotype-based method for donor matching is vireo. `default`: subset as described in paper; `vireo`: subset by Vireo; `True`: subset using both methods; `False`: not extracting variants. Default: False |
-| variant_count         | The threshold for the minimal read depth of a variant in the cell group when subseting the informative variants by default. Default: 10                                                                                                                                 |
-| variant_pct           | The threshold for the minimal frequency of the alternative or reference allele to determine the dominant allele of a variant in the cell group when subseting the informative variants by default. Default: 0.9                                                         |
-| vireo_parent_dir      | A parent folder which contains the output folder of vireo in the format of `vireo_[taskID/sampleId]` generated by hadge pipeline when running in donor_match mode. In other modes, the input is passed by the pipeline automatically. Default: None                     |
