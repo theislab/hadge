@@ -36,7 +36,9 @@ As next, please run the pipeline
 ```bash
 nextflow run http://github.com/theislab/hadge
 ```
+
 You can also:
+
 - Choose the mode: `--mode=<genetic/hashing/rescue>`
 - Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
 - Specify the input data for each process.
@@ -44,11 +46,11 @@ You can also:
 - Please also check [](usage) for more details.
 
 ## **Quick start**
+
 ```bash
 sh test_data/download_data.sh
 nextflow run main.nf
-``` 
-
+```
 
 ## **Pipeline output**
 

@@ -1,5 +1,7 @@
 # General
+
 ![Caption](_static/images/pipeline_v2.png)
+
 ## **Pipeline overview:**
 
 The mode of the pipeline is set by `params.mode`. hadge provides 4 modes in total: genetic, hashing, rescue or donor_match.
@@ -153,6 +155,6 @@ The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/h
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`. Details see section "scverse compatibility" above.
 - In the `rescue` mode, the pipeline generates some additional output files, details please check [](rescue).
 
-
 ## **Resources**
+
 - There is an [example sample sheet](../../multi_sample_input.csv) for `multi_sample` mode.
