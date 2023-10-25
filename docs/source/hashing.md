@@ -12,6 +12,7 @@
 - GMM-Demux
 - BFF
 
+![Caption](_static/images/hashing-based.png)
 ## **Input data preparation**
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.

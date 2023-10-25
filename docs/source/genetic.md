@@ -14,6 +14,8 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 - Souporcell
 - scSplit
 
+![Caption](_static/images/genotype-based.png)
+
 ## **Input data preparation**
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
