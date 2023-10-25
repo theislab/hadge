@@ -4,16 +4,6 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 
 ## **Genetics-based deconvolution (gene_demulti) in hadge**
 
-- Pre-processing: Samtools
-- Variant-calling: freebayes
-- Variant-filtering: BCFtools
-- Variant-calling: cellsnp-lite
-- Demuxlet
-- Freemuxlet
-- Vireo
-- Souporcell
-- scSplit
-
 ![Caption](_static/images/genotype-based.png)
 
 ## **Input data preparation**

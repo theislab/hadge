@@ -36,14 +36,19 @@ As next, please run the pipeline
 ```bash
 nextflow run http://github.com/theislab/hadge
 ```
-
-## **Quick start**
-
+You can also:
 - Choose the mode: `--mode=<genetic/hashing/rescue>`
 - Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
 - Specify the input data for each process.
 - The pipeline can be run either locally or on a HPC with different resource specifications. As default, the pipeline will run locally. You can also set the SLURM executor by running the pipeline with `-profile cluster`.
 - Please also check [](usage) for more details.
+
+## **Quick start**
+```bash
+sh test_data/download_data.sh
+nextflow run main.nf
+``` 
+
 
 ## **Pipeline output**
 

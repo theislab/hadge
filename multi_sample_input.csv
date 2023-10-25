@@ -1,0 +1,3 @@
+sampleId,rna_matrix_raw,rna_matrix_filtered,hto_matrix_raw,hto_matrix_filtered,bam,bam_index,barcodes,nsample,cell_data,vcf_mixed,vcf_donor,vireo_parent_dir,demultiplexing_result
+sample1,sample1/rna/raw_feature_bc_matrix,sample1/rna/filtered_feature_bc_matrix,sample1/hto/raw_feature_bc_matrix,sample1/hto/filtered_feature_bc_matrix,sample1/pooled.sorted.bam,sample1/pooled.sorted.bam.bai,sample1/rna/filtered_feature_bc_matrix/barcodes.tsv,2,None,None,None,None,None
+sample2,sample2/rna/raw_feature_bc_matrix,sample2/rna/filtered_feature_bc_matrix,sample2/hto/raw_feature_bc_matrix,sample2/hto/filtered_feature_bc_matrix,sample2/pooled.sorted.bam,sample2/pooled.sorted.bam.bai,sample2/rna/filtered_feature_bc_matrix/barcodes.tsv,2,None,None,None,None,None
