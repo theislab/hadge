@@ -1,5 +1,5 @@
 # General
-
+![Caption](_static/images/pipeline_v2.png)
 ## **Pipeline overview:**
 
 The mode of the pipeline is set by `params.mode`. hadge provides 4 modes in total: genetic, hashing, rescue or donor_match.
