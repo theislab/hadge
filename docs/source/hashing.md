@@ -1,16 +1,6 @@
 # Hashing demultiplexing
-
+Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
 ## **Hashing-based deconvolution (hash_demulti) in hadge**
-
-- Pre-processing
-- Multiseq
-- HTODemux
-- HashedDrops
-- DemuxEM
-- HashSolo
-- Demuxmix
-- GMM-Demux
-- BFF
 
 ![Caption](_static/images/hashing-based.png)
 ## **Input data preparation**

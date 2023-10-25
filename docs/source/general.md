@@ -99,7 +99,7 @@ profiles{
 
 ### **Running on multiple samples**
 
-The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet should have e.g. following columns depending on the methods you want to run:
+The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet (example file see the Resources section below) should have e.g. following columns depending on the methods you want to run:
 
 - sampleId
 - na_matrix_raw
@@ -152,3 +152,7 @@ The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/h
   | ... | ... | ... | ... |
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`. Details see section "scverse compatibility" above.
 - In the `rescue` mode, the pipeline generates some additional output files, details please check [](rescue).
+
+
+## **Resources**
+- There is an [example sample sheet](../../multi_sample_input.csv) for `multi_sample` mode.
