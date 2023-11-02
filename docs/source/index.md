@@ -34,7 +34,7 @@ The hadge pipeline is implemented in Nextflow. To get started, you need to insta
 As next, please run the pipeline
 
 ```bash
-nextflow run http://github.com/theislab/hadge
+nextflow run http://github.com/theislab/hadge -r main
 ```
 
 You can also:
