@@ -1,4 +1,4 @@
-name: demuxem_py_test
+name: demuxem_py
 channels:
   - bioconda
 dependencies:
