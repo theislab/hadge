@@ -118,11 +118,11 @@ The pipeline is able to run on multiple samples. In this scenario, the shared pa
 
 ### **scverse compatibility**
 
-To ensure scverse compatibility, the pipeline provides the option to generate anndata or mudata after demultiplexing specifeid by `params.generate_anndata` and `params.generate_mudata`. This object contains the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. Additionlly, if `match_donor` is True, the pipeline also produces an AnnData object which contains the assignment of the best-matched method pair after donor matching.
+To ensure scverse compatibility, the pipeline provides the option to generate AnnData or MuData objects after demultiplexing specified by `params.generate_anndata` and `params.generate_mudata`. The objects contain the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. Additionally, if `match_donor` is True, the pipeline also produces an AnnData object which contains the assignment of the best-matched method pair after donor matching.
 
 ## **Pipeline output**
 
-Output directory of the pipeline is set by `$params.outdir`. By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+The output directory of the pipeline is set by `$params.outdir`. By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/hash]_demulti`. The pipeline will also generate some TSV files to summarize the results in the folder `[gene/hash]_summary` under this directory.
 
@@ -153,6 +153,7 @@ The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/h
   |:---------: |:----------: |:----------: |:---: |
   | ... | ... | ... | ... |
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`. Details see section "scverse compatibility" above.
+- `mudata` folder: stores Mudata object with filtered scRNA-seq and HTO read counts and assignment of each deconvolution method if `params.generate_mudata` is `True`. Details see section "scverse compatibility" above.
 - In the `rescue` mode, the pipeline generates some additional output files, details please check [](rescue).
 
 ## **Resources**

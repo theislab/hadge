@@ -40,11 +40,13 @@ The following additional output can be found in `$pipeline_output_folder/donor_m
   - `donor_match.csv`: a map between hashtags and donor identities based on the donor matching of the optimal match
   - `score_record.csv`: a CSV file storing the matching score and the number of matched donors for each method pair
 
-### Optinal output: scverse compatibility
+### Optional output: scverse data structures
 
 Folder `data_output` with:
 
 - an Anndata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the assignment of the best-matched method pair after donor matching
+- an Mudata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the filtered HTO read counts from `params.hto_matrix_filered` with the assignment of the best-matched method pair after donor matching
+
 
 ### Optional output: Extracting donor-specific variants
 
