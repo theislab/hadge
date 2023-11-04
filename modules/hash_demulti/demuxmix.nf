@@ -35,7 +35,7 @@ process demuxmix{
         mkdir demuxmix_${sampleId}
 
         demuxmix.R --fileUmi rna_data --fileHto hto_data --rna_available $rna_available --assay $assay --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix \
-            --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails\
+            --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails \
             --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${sampleId} --assignmentOutDemuxmix $assignmentOutDemuxmix
         """
 

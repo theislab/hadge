@@ -53,7 +53,7 @@ process hashedDrops{
             --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount \
             --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads \
             --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops \
-            --outputdir hashedDrops_${sampleId} --assignmentOutHashedDrops ${assignmentOutHashedDrops}\
+            --outputdir hashedDrops_${sampleId} --assignmentOutHashedDrops ${assignmentOutHashedDrops} \
             ${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}
         """
 
