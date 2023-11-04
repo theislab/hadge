@@ -16,7 +16,9 @@ include { bff_hashing } from './hash_demulti/bff'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+        
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxem_result
@@ -208,9 +210,6 @@ workflow hash_demultiplexing{
     else{
         gmmDemux_out = channel.value("no_result")
     }
-    
-
-
 
     Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \

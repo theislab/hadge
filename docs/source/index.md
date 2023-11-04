@@ -49,7 +49,7 @@ You can also:
 
 ```bash
 sh test_data/download_data.sh
-nextflow run main.nf
+nextflow run main.nf -profile test,conda
 ```
 
 ## **Pipeline output**

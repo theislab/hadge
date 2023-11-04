@@ -47,7 +47,6 @@ Folder `data_output` with:
 - an Anndata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the assignment of the best-matched method pair after donor matching
 - an Mudata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the filtered HTO read counts from `params.hto_matrix_filered` with the assignment of the best-matched method pair after donor matching
 
-
 ### Optional output: Extracting donor-specific variants
 
 Only when 1) `best_method1` for the optimal match (`best_method1` and `best_method2`) is `vireo` and 2) identification of donor-specific or discriminatory variants is enabled, then in folder `donor_match/donor_match_[best_method1]_[best_method2]`:

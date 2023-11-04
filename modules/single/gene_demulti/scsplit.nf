@@ -5,6 +5,8 @@ process scSplit{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/scSplit", mode: 'copy'
     label 'big_mem'
 
+    conda "$projectDir/conda/scsplit.yml"
+    
     input:
         each vcf
         each bam

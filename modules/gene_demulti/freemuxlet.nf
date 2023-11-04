@@ -4,7 +4,9 @@ nextflow.enable.dsl=2
 process freemuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
-    
+
+    conda "bioconda::popscle"
+
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample)
         path vcf

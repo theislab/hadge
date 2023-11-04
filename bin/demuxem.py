@@ -16,7 +16,7 @@ parser.add_argument('--alpha', help='The Dirichlet prior concentration parameter
 parser.add_argument('--alpha_noise', help='The Dirichlet prior concenration parameter on the background noise.', type=float, default=1.0)
 parser.add_argument('--tol', help='Threshold used for the EM convergence.', type=float, default=1e-6)
 parser.add_argument('--n_threads', help='Number of threads to use. Must be a positive integer.', type=int, default=1)
-parser.add_argument('--filter_demuxem', help='Use the filter for RNA, true or false', default='true')
+parser.add_argument('--filter_demuxem', help='Use the filter for RNA, True or False', default='True')
 parser.add_argument('--generateGenderPlot', help='Generate violin plots using gender-specific genes (e.g. Xist). <gene> is a comma-separated list of gene names.', default='')
 parser.add_argument('--objectOutDemuxem', help='Output name of demultiplexing results. All outputs will use it as the prefix.', default="demuxem_res")
 parser.add_argument('--outputdir', help='Output directory')

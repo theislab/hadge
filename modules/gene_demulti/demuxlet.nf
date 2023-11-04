@@ -5,6 +5,8 @@ nextflow.enable.dsl=2
 process demuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
+    
+    conda "bioconda::popscle"
 
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(group_list), path(vcf_donor)

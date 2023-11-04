@@ -5,6 +5,8 @@ process souporcell{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/souporcell", mode: 'copy'
     label 'big_mem'
     
+    container "shub://wheaton5/souporcell"
+    
     input:
         each bam
         each barcodes

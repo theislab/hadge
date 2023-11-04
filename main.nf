@@ -8,7 +8,9 @@ include { donor_match } from './modules/single/donor_match'
 process summary_all{
     publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         path gene_demulti_result
         path hash_demulti_result
@@ -23,7 +25,9 @@ process summary_all{
 
 process generate_data{
     publishDir "$projectDir/$params.outdir/$params.mode/data_output", mode: 'copy'
-    label 'summary'
+
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         path assignment
         val generate_anndata
@@ -82,10 +86,10 @@ workflow run_single{
         summary_all(gene_summary, hash_summary)
         if (params.match_donor == "True"){
             donor_match(summary_all.out)
-        }
-        if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
-            generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
-                params.rna_matrix_filtered, params.hto_matrix_filtered)
+            if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
+                generate_data(donor_match.out, params.generate_anndata, params.generate_mudata, 
+                    params.rna_matrix_filtered, params.hto_matrix_filtered)
+            }
         }
     }
     else if (params.mode == "donor_match"){
@@ -98,7 +102,7 @@ workflow run_single{
 }
 
 workflow {
-    if (params.multi_input == "None"){
+    if (params.multi_input == null){
         run_single()
     }
     else{

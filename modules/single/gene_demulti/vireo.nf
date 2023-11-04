@@ -5,6 +5,8 @@ process vireo{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/vireo", mode: 'copy'
     label 'big_mem'
 
+    conda "aksarkar::vireosnp"
+
     input:
         each celldata
         each ndonor

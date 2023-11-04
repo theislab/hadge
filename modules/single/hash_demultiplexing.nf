@@ -14,7 +14,9 @@ include { bff_hashing } from './hash_demulti/bff'
 process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         val demuxem_result
         val hashsolo_result

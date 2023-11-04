@@ -5,6 +5,8 @@ process demuxmix{
     publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/demuxmix", mode:'copy'
     label 'small_mem'
     
+    conda "$projectDir/conda/demuxmix.yml"
+    
     input:
         path hto_matrix, stageAs: 'hto_data'
         path umi_matrix, stageAs: 'rna_data'

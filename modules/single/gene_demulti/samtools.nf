@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process samtools{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/samtools", mode: 'copy'
     label 'big_mem'
+    
+    conda "bioconda::samtools bioconda::umi_tools"
 
     input:
         file bam

@@ -23,7 +23,9 @@ def split_input(input){
 process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+    
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         val demuxlet_result
         val freemuxlet_result

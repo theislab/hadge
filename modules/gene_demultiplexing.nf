@@ -13,7 +13,9 @@ include { demultiplex_vireo } from './gene_demulti/vireo'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+
+    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxlet_result
@@ -57,16 +59,16 @@ process summary{
             scsplit_files =  "--scsplit ${scsplit_res}"
         }
         if (generate_anndata == "True"){
-            if(rna_matrix.name == "None"){
+            if(rna_matrix == "None"){
                 error "Error: RNA count matrix is not given."
             }
             generate_adata = "--generate_anndata --read_rna_mtx $rna_matrix"
         }
         if (generate_mudata == "True"){
-            if(rna_matrix.name == "None"){
+            if(rna_matrix == "None"){
                 error "Error: RNA count matrix is not given."
             }
-            if(hto_matrix.name == "None"){
+            if(hto_matrix == "None"){
                 error "Error: HTO count matrix is not given."
             }
             generate_mdata = "--generate_mudata --read_rna_mtx $rna_matrix --read_hto_mtx $hto_matrix"

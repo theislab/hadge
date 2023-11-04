@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process souporcell{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/souporcell", mode: 'copy'
     label 'big_mem'
+
+    container "shub://wheaton5/souporcell"
     
     input:
         tuple val(sampleId), path(bam), path(bam_index), path(barcodes), val(clusters), val(known_genotypes)

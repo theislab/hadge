@@ -13,54 +13,7 @@ The mode of the pipeline is set by `params.mode`. hadge provides 4 modes in tota
 
 ## **Pipeline configuration**
 
-### Conda environments:
-
-We provide a `environment.yml` file for each process. But you can also use local Conda environments to run a process:
-
-```
-// dont forget to enable conda
-conda.enable = true
-process {
-    // Use Conda environment files
-    withName:scSplit {
-        conda = './conda/scsplit.yml'
-    }
-    // Use Conda package names
-    withName:cellSNP {
-        conda = 'bioconda::cellsnp-lite'
-    }
-    // Use existing Conda environments
-    withName:summary {
-        conda = '/path/to/an/existing/env/directory'
-    }
-}
-
-```
-
-### Containers:
-
-Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
-
-```
-process {
-    withName:foo {
-        container = 'image_name_1'
-    }
-    withName:bar {
-        container = 'image_name_2'
-    }
-}
-// do not forget to enable docker
-
-docker.enabled = true
-
-```
-
-### Executor and resource specifications:
-
-- The pipeline can be run either locally or on an HPC. You can set the executor by running the pipeline with `-profile standard` or `-profile cluster`. Of course, you can add other profiles if you want.
-- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
-- As default, the pipeline is run locally with the standard profile, where all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
+The pipeline provides some pre-defined profiles. The standard profile is used by default when no profile is specified, where the pipeeline is run locall and all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
 
 ```
 profiles{
@@ -78,7 +31,64 @@ profiles{
         }
 
     }
+```
 
+### Conda environments:
+
+By using the `-profile conda` option, the pipeline executes each process within a Conda environment specified in the conda directive. Alternatively, you have the flexibility to add a new profile in the `nextflow.config` file, allowing you to use local Conda environments for running processes.
+
+```
+profiles{
+    my_conda_profile {
+        // dont forget to enable Conda
+        conda.enable = true
+        process {
+            // Use Conda environment files
+            withName:scSplit {
+                conda = './conda/scsplit.yml'
+            }
+            // Use Conda package names
+            withName:cellSNP {
+                conda = 'bioconda::cellsnp-lite'
+            }
+            // Use existing Conda environments
+            withName:summary {
+                conda = '/path/to/an/existing/env/directory'
+            }
+        }
+    }
+}
+```
+
+### Containers:
+
+Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
+
+```
+profiles{
+    my_docker_profile {
+        // dont forget to enable Docker
+        docker.enabled = true
+        process {
+            withName:foo {
+                container = 'image_name_1'
+            }
+            withName:bar {
+                container = 'image_name_2'
+            }
+        }
+    }
+}
+
+
+```
+
+### Executor and resource specifications:
+
+- The pipeline can also be run on an HPC. You can set the executor by running the pipeline with `-profile cluster`.
+- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
+
+```
     cluster {
         process {
             executor = 'slurm'
@@ -95,6 +105,14 @@ profiles{
     }
 }
 
+```
+
+### Customized profiles
+
+Configuration files can contain the definition of one or more profiles. Multiple configuration profiles can be specified by separating the profile names with a comma (no whitespace), for example:
+
+```
+nextflow run main.nf -profile standard,conda
 ```
 
 ## **Advanced usecases**
