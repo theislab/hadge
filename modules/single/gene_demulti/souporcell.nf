@@ -19,6 +19,7 @@ process souporcell{
         each max_loci
         each restarts
         each common_variants
+        each use_known_genotype
         each known_genotypes
         each known_genotypes_sample_names
         each skip_remap
@@ -39,11 +40,12 @@ process souporcell{
         def minref = "--min_ref ${min_ref}"
         def maxloci = "--max_loci ${max_loci}"
         def restart = restarts != 'None' ? "--restarts $restarts" : ''
-        def commonvariant = (common_variants != 'None' & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
-        def commonvariant_name = (common_variants != 'None' & known_genotypes == 'None' ) ? file(common_variants).baseName : 'no_common_variants'
+     
+        def commonvariant = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
+        def commonvariant_name = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' ) ? file(common_variants).baseName : 'no_common_variants'
 
-        def knowngenotype = known_genotypes != 'None' ? "--known_genotypes ${known_genotypes}" : ''
-        def knowngenotype_name = known_genotypes != 'None' ? file(known_genotypes).baseName : 'no_known_genotypes'
+        def knowngenotype = (use_known_genotype == "True" & known_genotypes != 'None') ? "--known_genotypes ${known_genotypes}" : ''
+        def knowngenotype_name = (use_known_genotype == "True" & known_genotypes != 'None') ? file(known_genotypes).baseName : 'no_known_genotypes'
 
         def knowngenotypes_sample = known_genotypes_sample_names != 'None' ? "--known_genotypes_sample_names ${known_genotypes_sample_names}" : ''
         def knowngenotype_sample_name = known_genotypes_sample_names != 'None' ? file(known_genotypes_sample_names).baseName : 'no_knowngenotypes_sample_names'
@@ -88,6 +90,7 @@ workflow demultiplex_souporcell{
         restarts = split_input(params.restarts)
 
         common_variants = split_input(params.common_variants_souporcell)
+        use_known_genotype = split_input(params.use_known_genotype)
         known_genotypes = split_input(params.vcf_donor)
         known_genotypes_sample_names = split_input(params.known_genotypes_sample_names)
         skip_remap = split_input(params.skip_remap)
@@ -95,7 +98,8 @@ workflow demultiplex_souporcell{
         souporcell_out = params.souporcell_out
      
         souporcell(bam, barcodes, fasta, threads, clusters, ploidy, min_alt, min_ref, max_loci, restarts, 
-            common_variants, known_genotypes, known_genotypes_sample_names, skip_remap, ignore, souporcell_out)
+            common_variants, use_known_genotype, known_genotypes, known_genotypes_sample_names, skip_remap, 
+            ignore, souporcell_out)
             
     emit:
         souporcell.out.collect()
