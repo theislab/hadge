@@ -317,6 +317,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | max_loci                     | Max loci per cell, affects speed. Default: 2048                                                                                                                |
 | restarts                     | Number of restarts in clustering, when there are > 12 clusters we recommend increasing this to avoid local minima. Default: None                               |
 | common_variants_souporcell   | Common variant loci or known variant loci vcf, must be vs same reference fasta.                                                                                |
+| use_known_genotype           | Whether to use known donor genotype. Default: True   |
 | vcf_donor                    | Known variants per clone in population vcf mode, must be VCF file.                                                                                             |
 | known_genotypes_sample_names | Which samples in population vcf from known genotypes option represent the donors in your sample. Default: None                                                 |
 | skip_remap                   | Don't remap with minimap2, not recommended unless in conjunction with comman variants. Default: True                                                           |

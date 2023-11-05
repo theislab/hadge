@@ -5,7 +5,6 @@ process bcftools{
     label 'big_mem'
 
     conda "bioconda::bcftools=1.9"
-    container "biocontainers/bcftools"
     
     input:
         val vcf

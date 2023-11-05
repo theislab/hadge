@@ -6,7 +6,6 @@ process freebayes{
     label 'big_mem'
 
     conda "bioconda::freebayes=1.2"
-    container "biocontainers/freebayes"
     
     input:
         tuple val(sampleId), path(bam_freebayes), path(bai_freebayes)

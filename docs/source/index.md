@@ -49,18 +49,20 @@ You can also:
 
 ```bash
 sh test_data/download_data.sh
-nextflow run main.nf -profile test,conda
+nextflow run main.nf -profile test
 ```
 
 ## **Pipeline output**
 
-By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode/`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. 
+When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode/`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 ### **Intermediate output**
 
 The pipeline saves the output of each process for two workflows separately, so you will find the results of hashing-based and genetics-based deconvolution methods in the folder `hash_demulti` and `gene_demulti` respectively.
 
-If the pipeline is run on single sample, each demultiplexing process will generate some intermediate files in the folder in the format `$pipeline_output_folder/[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. If the pipeline is run on multiple samples, the `task_ID` will be replaced by `sampleId`. In the folder, you can find following files:
+If the pipeline is run on single sample, each demultiplexing process will generate some intermediate files in the folder in the format `$pipeline_output_folder/[method]/[method]_[task_ID]`, e.g. `htodemux/htodemux_1`. 
+If the pipeline is run on multiple samples, the `task_ID` will be replaced by `sampleId`. In the folder, you can find following files:
 
 - `params.csv`: specified parameters in the task
 - Output of the task, check [](output) for more details.

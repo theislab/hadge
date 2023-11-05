@@ -21,7 +21,8 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ## **Output**
 
-By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/rescue`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/rescue`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/rescue`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/rescue`. 
+To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 In rescue mode, the genotype- and hashing-based demultiplexing workflow run in parallel. They save their output in `$pipeline_output_folder/[gene/hash]_demulti`. Before running the donor-matching preocess, the pipeline merges the results of two workflows into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
