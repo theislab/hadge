@@ -119,9 +119,9 @@ nextflow run main.nf -profile standard,conda
 
 ### **Running on multiple samples**
 
-The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. 
-Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. 
-However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. 
+The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default.
+Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample.
+However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed.
 The sample sheet (example file see the Resources section below) should have e.g. following columns depending on the methods you want to run:
 
 - sampleId
@@ -139,14 +139,14 @@ The sample sheet (example file see the Resources section below) should have e.g.
 
 ### **scverse compatibility**
 
-To ensure scverse compatibility, the pipeline provides the option to generate AnnData or MuData objects after demultiplexing specified by `params.generate_anndata` and `params.generate_mudata`. 
-The objects contain the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. 
+To ensure scverse compatibility, the pipeline provides the option to generate AnnData or MuData objects after demultiplexing specified by `params.generate_anndata` and `params.generate_mudata`.
+The objects contain the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`.
 Additionally, if `match_donor` is True, the pipeline also produces an AnnData object which contains the assignment of the best-matched method pair after donor matching.
 
 ## **Pipeline output**
 
-The output directory of the pipeline is set by `$params.outdir`. 
-By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. 
+The output directory of the pipeline is set by `$params.outdir`.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`.
 When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/hash]_demulti`. The pipeline will also generate some TSV files to summarize the results in the folder `[gene/hash]_summary` under this directory.
