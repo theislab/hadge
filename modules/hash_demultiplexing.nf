@@ -91,7 +91,7 @@ process summary{
             generate_mdata = "--generate_mudata --read_rna_mtx rna_data --read_hto_mtx hto_data"
         }
         
-        """
+          """
         summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
         """
 }
