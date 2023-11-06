@@ -160,9 +160,10 @@ workflow hash_demultiplexing{
         hashedDrops_out = channel.value("no_result")
     }
     if (params.demuxmix == "True"){
-        demuxmix_rna_input = params.hto_matrix_demuxmix == "raw" ? rna_matrix_raw : rna_matrix_filtered
-        demuxmix_hto_input = params.rna_matrix_demuxmix == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        demuxmix_hashing(demuxmix_hto_input,demuxmix_hto_input,params.hto_matrix_demuxmix, params.rna_matrix_demuxmix,params.rna_available)
+        demuxmix_rna_input = params.rna_available == "False" ? channel.value("None") :
+                            (params.rna_matrix_demuxmix == "raw" ? hto_matrix_raw : hto_matrix_filtered)
+        demuxmix_hto_input = params.hto_matrix_demuxmix == "raw" ? rna_matrix_raw : rna_matrix_filtered
+        demuxmix_hashing(demuxmix_hto_input,demuxmix_rna_input,params.hto_matrix_demuxmix, params.rna_matrix_demuxmix,params.rna_available)
         demuxmix_out = demuxmix_hashing.out
     }
     else{

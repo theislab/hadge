@@ -58,11 +58,7 @@ hashtag[[args$assay]]
 print("-----------------------------------------------")
 colnames(x = hashtag[[]])
 
-#Save Results
-print("------------------- Following Files are saved ----------------------------")
-print(paste0(args$assignmentOutMulti, "_res.csv"))
-print(paste0(args$objectOutMulti,".rds"))
-print("params.csv")
+
 write.csv(hashtag$MULTI_ID, paste0(args$outputdir, "/", args$assignmentOutMulti, "_res.csv"))
 write.csv(params, paste0(args$outputdir, "/params.csv"))
 saveRDS(hashtag, paste0(args$outputdir, "/", args$objectOutMulti, ".rds"))
