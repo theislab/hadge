@@ -7,6 +7,8 @@ dependencies:
   - r-seurat
   - bioconductor-dropletutils
   - bioconductor-demuxmix
+  - r-pdftools
+  - r-magick
   - bioconductor-preprocesscore
   - conda-forge::r-devtools
   - conda-forge::r-data.table

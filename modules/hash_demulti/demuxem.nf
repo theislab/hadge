@@ -18,7 +18,7 @@ process demuxem{
         val random_state
         val generate_gender_plot
         val objectOutDemuxem
-        each filter_demuxem
+        val filter_demuxem
     output:
         path "demuxem_${sampleId}"
         
