@@ -90,9 +90,9 @@ output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 - `cellSNP.cells.vcf.gz`: a VCF file listing genotyped SNPs and AD & DP & genotype (GT) information for each cell or sample
 - `params.csv`: specified parameters in the cellsnp-lite task
 
-<<<<<<< HEAD:docs/source/genetic.md
+
+
 ### Freebayes
-=======
 - sampleId
 - rna_matrix_raw
 - rna_matrix_filtered
@@ -105,7 +105,6 @@ output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 - celldata
 - vcf_mixed
 - vcf_donor
->>>>>>> a890059 (correction docs):docs/source/usage.md
 
 - `${region}_${vcf_freebayes}`: a VCF file containing variants called from mixed samples in the given chromosome region
 
