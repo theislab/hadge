@@ -6,6 +6,13 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 
 ![Caption](_static/images/genotype-based.png)
 
+## **Quick start**
+
+```bash
+cd hadge
+nextflow run main.nf -profile test --mode genetic
+```
+
 ## **Input data preparation**
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.

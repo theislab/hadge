@@ -43,11 +43,13 @@ You can also:
 - Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
 - Specify the input data for each process.
 - The pipeline can be run either locally or on a HPC with different resource specifications. As default, the pipeline will run locally. You can also set the SLURM executor by running the pipeline with `-profile cluster`.
-- Please also check [](usage) for more details.
+- Please also check [](general) for more details.
 
 ## **Quick start**
 
 ```bash
+git clone https://github.com/theislab/hadge.git
+cd hadge
 sh test_data/download_data.sh
 nextflow run main.nf -profile test
 ```
@@ -69,7 +71,7 @@ If the pipeline is run on single sample, each demultiplexing process will genera
 If the pipeline is run on multiple samples, the `task_ID` will be replaced by `sampleId`. In the folder, you can find following files:
 
 - `params.csv`: specified parameters in the task
-- Output of the task, check [](output) for more details.
+- Output of the task, check [](genetic) and [](hashing) for more details.
 
 ### **Final output**
 
@@ -86,17 +88,16 @@ After each demultiplexing workflow is complete, the pipeline will generate TSV f
 
 Before running the donor-matching preocess, the pipeline merges the results of hashing and genetic demultiplexing tools into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
-The output of the donor-matching process can be found in the folder `donor_match`, check [](output) for more details.
+The output of the donor-matching process can be found in the folder `donor_match`, check [](rescue) for more details.
 
 ```{toctree}
 :caption: 'Contents:'
 :hidden: true
 :maxdepth: 3
-usage
-output
 general
 genetic
 hashing
+rescue
 ```
 
 # Indices and tables

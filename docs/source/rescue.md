@@ -6,6 +6,13 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ![Caption](_static/images/rescue.png)
 
+## **Quick start**
+
+```bash
+cd hadge
+nextflow run main.nf -profile test
+```
+
 ## **Parameter**
 
 |                       |                                                                                                                                                                                                                                                                         |
