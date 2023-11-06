@@ -31,7 +31,8 @@ process demuxem{
         demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \
             --randomState $random_state --min_signal $min_signal --tol $tol \
             --min_num_genes $min_num_genes --min_num_umis $min_num_umis --alpha $alpha --alpha_noise $alpha_noise \
-            --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId} --filter_demuxem $filter_demuxem
+            --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId} \
+            --filter_demuxem $filter_demuxem
         
         """
 

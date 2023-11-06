@@ -59,16 +59,16 @@ process summary{
             scsplit_files =  "--scsplit ${scsplit_res}"
         }
         if (generate_anndata == "True"){
-            if(rna_matrix == "None"){
+            if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
             }
             generate_adata = "--generate_anndata --read_rna_mtx $rna_matrix"
         }
         if (generate_mudata == "True"){
-            if(rna_matrix == "None"){
+            if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
             }
-            if(hto_matrix == "None"){
+            if(hto_matrix.name == "None"){
                 error "Error: HTO count matrix is not given."
             }
             generate_mdata = "--generate_mudata --read_rna_mtx $rna_matrix --read_hto_mtx $hto_matrix"

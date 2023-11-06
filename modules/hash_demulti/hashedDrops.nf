@@ -36,11 +36,11 @@ process hashedDrops{
         path "hashedDrops_${sampleId}"
         
     script:
-	    def testAmb = testAmbient != 'False' ? " --testAmbient" : ''
+        def testAmb = testAmbient != 'False' ? " --testAmbient" : ''
         def rou = round != 'False' ? " --round" : ''
         def constantAmb = constantAmbient != 'False' ? " --constantAmbient" : ''
         def doubletMix = doubletMixture != 'False' ?  " --doubletMixture" : ''
-	    def ign = ignore != "None" ? " --ignore ${ignore}" : ''
+        def ign = ignore != "None" ? " --ignore ${ignore}" : ''
         def alp = alpha != "None" ? " --alpha ${alpha}" : ''
         def byR = byRank != "None" ? " --by.rank ${byRank}" : ''
         def amb = ambient != 'False' ? " --ambient" : ''
