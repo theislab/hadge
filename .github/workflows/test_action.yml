@@ -1,0 +1,24 @@
+name: hadge test workflow
+on: 
+  push
+  pull_request
+  release:
+    types: [published]
+jobs:
+  test: 
+    name: Run pipeline with test data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v3
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v1
+      - name: Install singularity to run Souporcell
+        uses: eWaterCycle/setup-singularity@v7
+      - name: Download test dataset
+        run:  bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
+      - name: Run pipeline with test data
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile test,conda_singularity
+
+      
