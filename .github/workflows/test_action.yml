@@ -12,6 +12,8 @@ jobs:
         uses: nf-core/setup-nextflow@v1
       - name: Install singularity to run Souporcell
         uses: eWaterCycle/setup-singularity@v7
+        with:
+          singularity-version: 3.8.3
       - name: Download test dataset
         run:  bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
