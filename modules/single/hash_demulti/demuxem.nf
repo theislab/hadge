@@ -5,7 +5,7 @@ process demuxem{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
     
-    conda "python=3.9 bioconda::pegasuspy 'pandas<2.0.0' demuxEM"
+    conda "python bioconda::pegasuspy pandas demuxEM scanpy"
 
     input:
         path raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}"

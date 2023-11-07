@@ -15,7 +15,7 @@ process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
         
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
@@ -94,7 +94,7 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         """
 }
 

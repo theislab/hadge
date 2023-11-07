@@ -5,7 +5,7 @@ process demuxem{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
 
-    conda "python=3.9 bioconda::pegasuspy pandas<2.0.0 demuxEM"
+    conda "python bioconda::pegasuspy pandas scanpy demuxEM"
     
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"), 

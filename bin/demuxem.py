@@ -31,16 +31,8 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    #data = io.read_input(args.rna_matrix_dir, modality="rna")
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
-    #data.subset_data(modality_subset=['rna'])
-    #data.concat_data() # in case of multi-organism mixing data
-    # load input hashing data
-    #data.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
-    # Extract rna and hashing data
-    #rna_data = data.get_data(modality="rna")
-    #hashing_data = data.get_data(modality="hashing")
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True
@@ -96,7 +88,7 @@ if __name__ == '__main__':
     pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
     print("total\t{}".format(rna_data.shape[0]))
-    for name, value in rna_data.obs["demux_type"].value_counts().iteritems():
+    for name, value in rna_data.obs["demux_type"].value_counts().items():
         print("{}\t{}".format(name, value))
     summary = rna_data.obs["demux_type"].value_counts().rename_axis('classification').reset_index(name='counts')
     total = ["total", rna_data.shape[0]]

@@ -24,7 +24,7 @@ process summary{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
     
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         val demuxlet_result

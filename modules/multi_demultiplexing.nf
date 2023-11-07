@@ -8,7 +8,7 @@ process generate_data{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/data_output", mode: 'copy'
     label 'small_mem'
 
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         tuple val(sampleId), val(hto_matrix), val(rna_matrix), path(assignment)
@@ -48,7 +48,7 @@ process summary_all{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
     label 'small_mem'
     
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         tuple val(sampleId), path(gene_demulti_result), path(hash_demulti_result)

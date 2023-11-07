@@ -9,7 +9,7 @@ process summary_all{
     publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
     label 'small_mem'
 
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         path gene_demulti_result
@@ -26,7 +26,7 @@ process summary_all{
 process generate_data{
     publishDir "$projectDir/$params.outdir/$params.mode/data_output", mode: 'copy'
 
-    conda "python=3.9 'pandas<2.0' scanpy muon numpy"
+    conda "pandas scanpy mudata"
 
     input:
         path assignment
