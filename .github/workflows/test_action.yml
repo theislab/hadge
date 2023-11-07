@@ -1,9 +1,6 @@
 name: hadge test workflow
 on: 
   push
-  pull_request:
-  release:
-    types: [published]
 jobs:
   test: 
     name: Run pipeline with test data
