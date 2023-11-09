@@ -7,6 +7,12 @@ jobs:
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v3
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          auto-update-conda: true
+          conda-channels: bioconda, conda-forge
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
       - name: Install singularity to run Souporcell
