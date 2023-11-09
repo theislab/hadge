@@ -1,8 +1,7 @@
 name: hadge test workflow
-on: 
-  push
+on: push
 jobs:
-  test: 
+  test:
     name: Run pipeline with test data
     runs-on: ubuntu-latest
     steps:
@@ -15,9 +14,7 @@ jobs:
         with:
           singularity-version: 3.8.3
       - name: Download test dataset
-        run:  bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
+        run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,conda_singularity
-
-      

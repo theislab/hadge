@@ -12,10 +12,14 @@ unzip final_res.zip
 rm final_res.zip
 mv final_res/jurkat_293t_demuxlet.best .
 rm -rf final_res
+# To run souporcell, unzip VCF file
+gzip -dk jurkat_293t_exons_only.vcf.withAF.vcf.gz
 
-# Download reference genome
-wget http://cf.10xgenomics.com/supp/cell-exp/refdata-cellranger-hg19-3.0.0.tar.gz
-tar -xzvf refdata-cellranger-hg19-3.0.0.tar.gz
+# Download subset reference genome
+wget --no-check-certificate https://figshare.com/ndownloader/files/43102459 -O genome_chr1.fa
+wget --no-check-certificate https://figshare.com/ndownloader/files/43102453 -O genome_chr1.fa.fai
+# source: http://cf.10xgenomics.com/supp/cell-exp/refdata-cellranger-hg19-3.0.0.tar.gz
+
 # Download common variants
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1lw4T6d7uXsm9dt39ZtEwpuB2VTY3wK1y' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1lw4T6d7uXsm9dt39ZtEwpuB2VTY3wK1y" -O common_variants_hg19.vcf && rm -rf /tmp/cookies.txt
 wget https://master.dl.sourceforge.net/project/cellsnp/SNPlist/genome1K.phase3.SNP_AF5e2.chr1toX.hg19.vcf.gz
@@ -36,5 +40,3 @@ unzip rna.zip
 rm hto.zip
 rm rna.zip
 
-# To run souporcell, unzip VCF file
-gzip -dk test_data/jurkat_293t_exons_only.vcf.withAF.vcf.gz
