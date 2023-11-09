@@ -5,7 +5,7 @@ process htodemux{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/htodemux", mode: 'copy'
     label 'small_mem'
     
-    conda "conda-forge::r-base=4.1 conda-forge::r-seurat conda-forge::r-argparse"
+    conda "conda-forge::r-seurat conda-forge::r-argparse"
    
     input:
         each seurat_object
