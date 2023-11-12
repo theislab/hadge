@@ -43,6 +43,15 @@ def demuxlet_summary(demuxlet_res, raw_adata, raw_mudata):
             adata.write("genetic_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
         assign.append(demuxlet_assign)
 
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(demuxlet_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("genetic_summary/mudata/mudata_with_"+ os.path.basename(x)+".h5mu") 
+
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
         params_res = pd.read_csv(params_dir, keep_default_na=False, index_col=0)
         params_res.columns = [os.path.basename(x)]
@@ -80,6 +89,16 @@ def freemuxlet_summary(freemuxlet_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("genetic_summary/adata/adata_with_"+ os.path.basename(x)+".h5ad")
+
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(freemuxlet_assign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("genetic_summary/mudata/mudata_with_"+ os.path.basename(x)+".h5mu")
+
         assign.append(freemuxlet_assign)
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
@@ -120,6 +139,16 @@ def souporcell_summary(souporcell_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("genetic_summary/adata/adata_with_"+ os.path.basename(x)+".h5ad")
+
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(obs_res, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("genetic_summary/mudata/mudata_with_"+ os.path.basename(x)+".h5mu")
+
         assign.append(obs_res)
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
@@ -160,6 +189,16 @@ def vireo_summary(vireo_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("genetic_summary/adata/adata_with_"+ os.path.basename(x)+".h5ad")
+
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(obs_res, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("genetic_summary/mudata/mudata_with_"+ os.path.basename(x)+".h5mu")
+
         assign.append(obs_res)
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
@@ -198,6 +237,16 @@ def scsplit_summary(scsplit_res, raw_adata, raw_mudata):
             adata.obs.donor = adata.obs.donor.fillna("negative")
             adata.obs.donor = adata.obs.donor.astype(str)
             adata.write("genetic_summary/adata/adata_with_"+ os.path.basename(x)+".h5ad")
+        
+        if raw_mudata is not None:
+            mudata = raw_mudata.copy()
+            mudata['rna'].obs = mudata['rna'].obs.merge(obs_res, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
+            mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+            mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+            mudata.update()
+            mudata.write("genetic_summary/mudata/mudata_with_"+ os.path.basename(x)+".h5mu")
+
         assign.append(obs_res)
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("params.csv")][0])
