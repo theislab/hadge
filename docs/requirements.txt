@@ -1,3 +1,4 @@
 sphinx
+nb-sphinx
 myst-parser
 furo
