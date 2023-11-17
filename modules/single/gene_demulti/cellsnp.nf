@@ -5,6 +5,8 @@ process cellSNP{
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP", mode: 'copy'
     label 'big_mem'
 
+    conda "bioconda::cellsnp-lite"
+
     input:
         path samFile_cellSNP
         path indexFile_cellSNP

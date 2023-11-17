@@ -4,6 +4,9 @@ nextflow.enable.dsl=2
 process bff{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
+
+    conda "$projectDir/conda/bff.yml"
+    
     input:
 
         path hto_matrix, stageAs: 'hto_data'

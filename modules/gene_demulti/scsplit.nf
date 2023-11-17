@@ -5,6 +5,8 @@ process scSplit{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/scSplit", mode: 'copy'
     label 'big_mem'
 
+    conda "$projectDir/conda/scsplit.yml"
+
     input:
         tuple val(sampleId), path(bam), path(bai), path(vcf), path(barcode), val(num), val(vcf_known)// file function not available, use val instead
         val tag

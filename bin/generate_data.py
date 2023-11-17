@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import scanpy as sc
 import argparse
-import muon as mu
 
 parser = argparse.ArgumentParser(description="Parameters for generating anndata and mudata")
 parser.add_argument("--assignment", help="Folder which contains cSV file with demultiplexing assignment", default=None)

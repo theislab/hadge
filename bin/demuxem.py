@@ -18,7 +18,7 @@ parser.add_argument('--alpha', help='The Dirichlet prior concentration parameter
 parser.add_argument('--alpha_noise', help='The Dirichlet prior concenration parameter on the background noise.', type=float, default=1.0)
 parser.add_argument('--tol', help='Threshold used for the EM convergence.', type=float, default=1e-6)
 parser.add_argument('--n_threads', help='Number of threads to use. Must be a positive integer.', type=int, default=1)
-parser.add_argument('--filter_demuxem', help='Use the filter for RNA, true or false', default='true')
+parser.add_argument('--filter_demuxem', help='Use the filter for RNA, True or False', default='True')
 parser.add_argument('--generateGenderPlot', help='Generate violin plots using gender-specific genes (e.g. Xist). <gene> is a comma-separated list of gene names.', default='')
 parser.add_argument('--objectOutDemuxem', help='Output name of demultiplexing results. All outputs will use it as the prefix.', default="demuxem_res")
 parser.add_argument('--outputdir', help='Output directory')
@@ -31,16 +31,8 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    #data = io.read_input(args.rna_matrix_dir, modality="rna")
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
-    #data.subset_data(modality_subset=['rna'])
-    #data.concat_data() # in case of multi-organism mixing data
-    # load input hashing data
-    #data.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
-    # Extract rna and hashing data
-    #rna_data = data.get_data(modality="rna")
-    #hashing_data = data.get_data(modality="hashing")
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True
@@ -96,7 +88,7 @@ if __name__ == '__main__':
     pg.write_output(mudata, output_name + ".out.demuxEM.zarr.zip")
     print("\nSummary statistics:")
     print("total\t{}".format(rna_data.shape[0]))
-    for name, value in rna_data.obs["demux_type"].value_counts().iteritems():
+    for name, value in rna_data.obs["demux_type"].value_counts().items():
         print("{}\t{}".format(name, value))
     summary = rna_data.obs["demux_type"].value_counts().rename_axis('classification').reset_index(name='counts')
     total = ["total", rna_data.shape[0]]

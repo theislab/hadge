@@ -5,6 +5,8 @@ process demuxem{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
     
+    conda "bioconda::pegasuspy demuxEM scanpy"
+
     input:
         path raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}"
         path raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"
@@ -23,7 +25,7 @@ process demuxem{
         path "demuxem_${task.index}"
         
     script:
-        def generateGenderPlot = generate_gender_plot != 'None' ? " --generateGenderPlot ${generate_gender_plot}" : ''
+        def generateGenderPlot = generate_gender_plot != "None" ? " --generateGenderPlot ${generate_gender_plot}" : ''
         """
         mkdir demuxem_${task.index}
         demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \
@@ -61,7 +63,7 @@ workflow demuxem_hashing{
         filter_demuxem = split_input(params.filter_demuxem)
 
         demuxem(rna_matrix, hto_matrix, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
-                min_signal, random_state, generate_gender_plot, objectOutDemuxem,filter_demuxem)
+                min_signal, random_state, generate_gender_plot, objectOutDemuxem, filter_demuxem)
   
   emit:
         demuxem.out.collect()

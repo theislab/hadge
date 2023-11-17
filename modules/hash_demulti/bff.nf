@@ -4,6 +4,9 @@ nextflow.enable.dsl=2
 process bff{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
+ 
+    conda "$projectDir/conda/bff.yml"
+    
     input:
        
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data')
@@ -33,7 +36,7 @@ process bff{
         --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${sampleId}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
         --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} \
-         --assignmentOutBff $assignmentOutBff --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
+        --assignmentOutBff $assignmentOutBff --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
         """
 
 }
@@ -57,7 +60,9 @@ workflow bff_hashing{
         preprocess_bff = params.preprocess_bff
         barcodeWhitelist = params.barcodeWhitelist
 
-        bff(hto_matrix, methods, methodsForConsensus, cellbarcodeWhitelist, metricsFile,doTSNE,doHeatmap,perCellSaturation,majorityConsensusThreshold,chemistry,callerDisagreementThreshold,assignmentOutBff,preprocess_bff,barcodeWhitelist)
+        bff(hto_matrix, methods, methodsForConsensus, cellbarcodeWhitelist, metricsFile, doTSNE,
+            doHeatmap, perCellSaturation, majorityConsensusThreshold, chemistry, callerDisagreementThreshold,
+            assignmentOutBff, preprocess_bff, barcodeWhitelist)
   
   emit:
         bff.out.collect()

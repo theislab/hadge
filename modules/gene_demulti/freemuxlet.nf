@@ -4,7 +4,9 @@ nextflow.enable.dsl=2
 process freemuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
-    
+
+    conda "bioconda::popscle"
+
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample)
         path vcf
@@ -73,7 +75,7 @@ process freemuxlet {
         mkdir freemuxlet_${sampleId}/plp
         touch freemuxlet_${sampleId}/params.csv
         barcode_num=\$(wc -l < "${group_list}")
-        echo -e "Argument,Value \n samfile,${sam} \n tag_group,${tag_group} \n tag_UMI,${tag_UMI} \n vcf_file,${vcf} \n sm,${sm} \n sm_list_file,${sm_list_file_name} \n sam_verbose,${sam_verbose} \n vcf_verbose,${vcf_verbose} \n skip_umi,${skip_umi} \n cap_BQ,${cap_BQ} \n min_BQ,${min_BQ} \n min_MQ,${min_MQ} \n min_TD,${min_TD} \n excl_flag,${excl_flag} \n grouplist,${grouplist_name}_\${barcode_num} \n min_total,${min_total} \n min_uniq,${min_uniq} \n min_umi,${min_umi} \n min_snp,${min_snp} \n init_cluster,${init_cluster} \n nsample,${nsample} \n aux_files,${aux_files} \n verbose,${verbose} \n doublet_prior,${doublet_prior} \n bf_thres,${bf_thres} \n frac_init_clust,${frac_init_clust} \n iter_init,${iter_init} \n keep_init_missing,${keep_init_missing}" >> freemuxlet_${sampleId}/params.csv
+        echo -e "Argument,Value \n samfile,${sam} \n tag_group,${tag_group} \n tag_UMI,${tag_UMI} \n vcf_file,${vcf} \n sm,${sm} \n sm_list_file,${sm_list_file_name} \n sam_verbose,${sam_verbose} \n vcf_verbose,${vcf_verbose} \n skip_umi,${skip_umi} \n cap_BQ,${cap_BQ} \n min_BQ,${min_BQ} \n min_MQ,${min_MQ} \n min_TD,${min_TD} \n excl_flag,${excl_flag} \n grouplist,${grouplist.name}_\${barcode_num} \n min_total,${min_total} \n min_uniq,${min_uniq} \n min_umi,${min_umi} \n min_snp,${min_snp} \n init_cluster,${init_cluster} \n nsample,${nsample} \n aux_files,${aux_files} \n verbose,${verbose} \n doublet_prior,${doublet_prior} \n bf_thres,${bf_thres} \n frac_init_clust,${frac_init_clust} \n iter_init,${iter_init} \n keep_init_missing,${keep_init_missing}" >> freemuxlet_${sampleId}/params.csv
         
         popscle dsc-pileup $samfile ${taggroup} ${tagUMI} $vcffile ${smlist} ${sm_list_file} ${samverbose} ${vcfverbose} \
             ${skipumi} ${capBQ} ${minBQ} ${minMQ} ${minTD} ${exclflag} ${grouplist} ${mintotal} ${minuniq} ${minsnp} \

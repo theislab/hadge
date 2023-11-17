@@ -13,7 +13,9 @@ include { demultiplex_vireo } from './gene_demulti/vireo'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+
+    conda "pandas scanpy mudata"
+
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxlet_result

@@ -5,6 +5,8 @@ process samtools{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/samtools", mode: 'copy'
     label 'big_mem'
 
+    conda "bioconda::samtools bioconda::umi_tools"
+
     input:
         tuple val(sampleId), path(bam)
 

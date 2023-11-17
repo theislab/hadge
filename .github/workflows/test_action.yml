@@ -1,0 +1,22 @@
+name: hadge test workflow
+on: push
+jobs:
+  test:
+    name: Run pipeline with test data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out pipeline code
+        uses: actions/checkout@v3
+      - name: Setup conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          miniconda-version: "latest"
+          channels: conda-forge, bioconda
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v1
+      - name: Download test dataset
+        run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
+      - name: Run pipeline with test data
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --souporcell False --generate_anndata False

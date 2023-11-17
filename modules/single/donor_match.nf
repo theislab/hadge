@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process matchDonor{
     publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
     label 'big_mem'
+
+    conda "$projectDir/conda/donor_match.yml"
     
     input:
         path demultiplexing_result
@@ -31,7 +33,7 @@ process matchDonor{
 
         def vireo_parent_path = ""
         if ( findVariants == 'vireo' | findVariants == 'True' ){
-            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != 'None') ? "--vireo_parent_dir $vireo_parent_dir" : \
+            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != "None") ? "--vireo_parent_dir $vireo_parent_dir" : \
                 "--vireo_parent_dir $projectDir/$params.outdir/$params.mode/gene_demulti/vireo/"
         }
 

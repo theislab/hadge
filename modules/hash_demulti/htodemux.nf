@@ -3,8 +3,9 @@ nextflow.enable.dsl=2
 
 process htodemux{
     publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/htodemux", mode: 'copy'
-    label 'seurat'
     label 'small_mem'
+
+    conda "conda-forge::r-seurat conda-forge::r-argparse"
     
     input:
         each seurat_object
@@ -46,11 +47,11 @@ process htodemux{
         
     script:
         def sampleId = seurat_object.name.tokenize( '_' )[1]
-        def init_val = init != 'NULL' ? " --init $init" : ''
-        def vln_log = vlnLog != 'FALSE' ?  "--vlnLog" : ''
-        def invert = tsneInvert != 'FALSE' ?  "--tSNEInvert" : ''
-        def verbose = tsneVerbose != 'FALSE' ?  "--tSNEVerbose" : ''
-        def approx = tsneApprox != 'FALSE' ?  "--tSNEApprox" : ''
+        def init_val = init != 'None' ? " --init $init" : ''
+        def vln_log = vlnLog != 'False' ?  "--vlnLog" : ''
+        def invert = tsneInvert != 'False' ?  "--tSNEInvert" : ''
+        def verbose = tsneVerbose != 'False' ?  "--tSNEVerbose" : ''
+        def approx = tsneApprox != 'False' ?  "--tSNEApprox" : ''
         
         """
         mkdir htodemux_${sampleId}

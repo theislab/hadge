@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process hashedDrops{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashedDrops", mode:'copy'
     label 'small_mem'
+
+    conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-dropletutils"
     
     input:
         path raw_hto_matrix_dir
@@ -35,16 +37,15 @@ process hashedDrops{
         path "hashedDrops_${task.index}"
         
     script:
-	    def testAmb = testAmbient != 'FALSE' ? " --testAmbient" : ''
-        def rou = round != 'FALSE' ? " --round" : ''
-        def constantAmb = constantAmbient != 'FALSE' ? " --constantAmbient" : ''
-        def doubletMix = doubletMixture != 'FALSE' ?  " --doubletMixture" : ''
-
-	    def ign = ignore != 'NULL' ? " --ignore ${ignore}" : ''
-        def alp = alpha != 'NULL' ? " --alpha ${alpha}" : ''
-        def byR = byRank != 'NULL' ? " --by.rank ${byRank}" : ''
+	    def testAmb = testAmbient != 'False' ? " --testAmbient" : ''
+        def rou = round != 'False' ? " --round" : ''
+        def constantAmb = constantAmbient != 'False' ? " --constantAmbient" : ''
+        def doubletMix = doubletMixture != 'False' ?  " --doubletMixture" : ''
+	    def ign = ignore != "None" ? " --ignore ${ignore}" : ''
+        def alp = alpha != "None" ? " --alpha ${alpha}" : ''
+        def byR = byRank != "None" ? " --by.rank ${byRank}" : ''
         def amb = ambient != 'False' ? " --ambient" : ''
-        def comb = combinations != 'NULL' ? " --combinations ${combinations}" : ''
+        def comb = combinations != "None" ? " --combinations ${combinations}" : ''
 
         """
         mkdir hashedDrops_${task.index}
