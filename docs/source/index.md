@@ -56,7 +56,7 @@ nextflow run main.nf -profile test
 
 ## Notebook
 
-Check[](../../notebook.ipynb) to get familiar with the output of hadge.
+Check[](hadge_output.ipynb) to get familiar with the output of hadge.
 
 ## **Pipeline output**
 
@@ -98,6 +98,7 @@ general
 genetic
 hashing
 rescue
+hadge_output
 ```
 
 # Indices and tables

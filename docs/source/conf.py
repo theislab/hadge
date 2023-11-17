@@ -14,7 +14,7 @@ source_suffix = {
 
 templates_path = ['_templates']
 
-exclude_patterns = []
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
 html_theme = "furo"
 html_static_path = ['_static']
