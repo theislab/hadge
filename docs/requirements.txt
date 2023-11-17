@@ -1,4 +1,4 @@
 sphinx
-nb-sphinx
+nbsphinx
 myst-parser
 furo
