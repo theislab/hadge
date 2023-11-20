@@ -3,6 +3,8 @@ nextflow.enable.dsl=2
 process bcftools{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/bcftools", mode: 'copy'
     label 'big_mem'
+
+    conda "bioconda::bcftools=1.9"
     
     input:
         tuple val(sampleId), val(vcf_list)

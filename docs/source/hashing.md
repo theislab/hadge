@@ -6,6 +6,13 @@ Cell hashing is a sample processing technique that requires processing individua
 
 ![Caption](_static/images/hashing-based.png)
 
+## **Quick start**
+
+```bash
+cd hadge
+nextflow run main.nf -profile test --mode hashing
+```
+
 ## **Input data preparation**
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
@@ -164,25 +171,25 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | nstarts             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                           |
 | nsamples            | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
 | seed                | Sets the random seed. Default: 42                                                                                              |
-| init                | Initial number of clusters for hashtags. Default: NULL, which means the # of hashtag oligo names + 1 to account for negatives. |
+| init                | Initial number of clusters for hashtags. Default: None, which means the # of hashtag oligo names + 1 to account for negatives. |
 | objectOutHTO        | Name of the output Seurat object. Default: htodemux                                                                            |
 | assignmentOutHTO    | Prefix of the output CSV files. Default: htodemux                                                                              |
-| ridgePlot           | Whether to generate a ridge plot to visualize enrichment for all HTOs. Default: TRUE                                           |
+| ridgePlot           | Whether to generate a ridge plot to visualize enrichment for all HTOs. Default: True                                           |
 | ridgeNCol           | Number of columns in the ridge plot. Default: 3                                                                                |
-| featureScatter      | Whether to generate a scatter plot to visualize pairs of HTO signals. Default: FALSE                                           |
+| featureScatter      | Whether to generate a scatter plot to visualize pairs of HTO signals. Default: False                                           |
 | scatterFeat1        | First feature to plot. Default: None                                                                                           |
 | scatterFeat2        | Second feature to plot. Default: None                                                                                          |
-| vlnplot             | Whether to generate a violin plot, e.g. to compare number of UMIs for singlets, doublets and negative cells. Default: TRUE     |
+| vlnplot             | Whether to generate a violin plot, e.g. to compare number of UMIs for singlets, doublets and negative cells. Default: True     |
 | vlnFeatures         | Features to plot. Default: nCount_RNA                                                                                          |
-| vlnLog              | Whether to plot the feature axis on log scale. Default: TRUE                                                                   |
-| tsne                | Whether to generate a 2D tSNE embedding for HTOs. Default: TRUE                                                                |
+| vlnLog              | Whether to plot the feature axis on log scale. Default: True                                                                   |
+| tsne                | Whether to generate a 2D tSNE embedding for HTOs. Default: True                                                                |
 | tsneIdents          | Subset Seurat object based on identity class. Default: Negative                                                                |
-| tsneInvert          | Whether to keep or remove the identity class. Default: TRUE                                                                    |
-| tsneVerbose         | Whether to print the top genes associated with high/low loadings for the PCs when running PCA. Default: FALSE                  |
-| tsneApprox          | Whether to use truncated singular value decomposition to approximate PCA. Default: FALSE                                       |
+| tsneInvert          | Whether to keep or remove the identity class. Default: True                                                                    |
+| tsneVerbose         | Whether to print the top genes associated with high/low loadings for the PCs when running PCA. Default: False                  |
+| tsneApprox          | Whether to use truncated singular value decomposition to approximate PCA. Default: False                                       |
 | tsneDimMax          | Number of dimensions to use as input features when running t-SNE dimensionality reduction. Default: 2                          |
 | tsnePerplexity      | Perplexity when running t-SNE dimensionality reduction. Default: 100                                                           |
-| heatmap             | Whether to generate an HTO heatmap. Default: TRUE                                                                              |
+| heatmap             | Whether to generate an HTO heatmap. Default: True                                                                              |
 | heatmapNcells       | Number of cells to plot. Default: 5000                                                                                         |
 
 ### Multiseq
@@ -194,12 +201,12 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | hto_matrix_multiseq | Whether to use raw or filtered HTO count matrix. Default: filtered                                      |
 | assay               | Name of the hashtag assay, same as used for HTODemux. Default: HTO                                      |
 | quantile_multi      | The quantile to use for classification. Default: 0.7                                                    |
-| autoThresh          | Whether to perform automated threshold finding to define the best quantile. Default: TRUE               |
+| autoThresh          | Whether to perform automated threshold finding to define the best quantile. Default: True               |
 | maxiter             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                    |
-| qrangeFrom          | The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.1                             |
-| qrangeTo            | The minimal possible quantile value to try if autoThresh=TRUE. Default: 0.9                             |
-| qrangeBy            | The constant difference of a range of possible quantile values to try if autoThresh=TRUE. Default: 0.05 |
-| verbose_multiseq    | Wether to print the output. Default: TRUE                                                               |
+| qrangeFrom          | The minimal possible quantile value to try if autoThresh=True. Default: 0.1                             |
+| qrangeTo            | The minimal possible quantile value to try if autoThresh=True. Default: 0.9                             |
+| qrangeBy            | The constant difference of a range of possible quantile values to try if autoThresh=True. Default: 0.05 |
+| verbose_multiseq    | Wether to print the output. Default: True                                                               |
 | assignmentOutMulti  | Prefix of the output CSV files. Default: multiseq                                                       |
 | objectOutMulti      | Name of the output Seurat object. Default: multiseq                                                     |
 
@@ -263,24 +270,24 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | hto_matrix_hashedDrops   | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                                                                              |
 | lower                    | The lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets. Default: 100                                                                           |
 | niters                   | The number of iterations to use for the Monte Carlo p-value calculations. Default: 10000                                                                                                                   |
-| testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: TRUE                                                                                                     |
-| ignore_hashedDrops       | The lower bound on the total UMI count, at or below which barcodes will be ignored. Default: NULL                                                                                                          |
-| alpha_hashedDrops        | The scaling parameter for the Dirichlet-multinomial sampling scheme. Default: NULL                                                                                                                         |
-| round                    | Whether to check for non-integer values in m and, if present, round them for ambient profile estimation. Default: TRUE                                                                                     |
-| byRank                   | If set, this is used to redefine lower and any specified value for lower is ignored. Default: NULL                                                                                                         |
+| testAmbient              | Whether results should be returned for barcodes with totals less than or equal to lower. Default: True                                                                                                     |
+| ignore_hashedDrops       | The lower bound on the total UMI count, at or below which barcodes will be ignored. Default: None                                                                                                          |
+| alpha_hashedDrops        | The scaling parameter for the Dirichlet-multinomial sampling scheme. Default: None                                                                                                                         |
+| round                    | Whether to check for non-integer values in m and, if present, round them for ambient profile estimation. Default: True                                                                                     |
+| byRank                   | If set, this is used to redefine lower and any specified value for lower is ignored. Default: None                                                                                                         |
 | isCellFDR                | FDR Threshold to filter the cells for empty droplet detection. Default: 0.01                                                                                                                               |
 | objectOutEmptyDrops      | Prefix of the emptyDroplets output RDS object. Default: emptyDroplets                                                                                                                                      |
 | assignmentOutEmptyDrops  | Prefix of the emptyDroplets output CSV file. Default: emptyDroplets                                                                                                                                        |
-| ambient                  | Whether to use the relative abundance of each HTO in the ambient solution from emptyDrops, set TRUE only when testAmbient=TRUE. Default: FALSE                                                             |
-| minProp                  | The ambient profile when ambient=NULL. Default: 0.05                                                                                                                                                       |
+| ambient                  | Whether to use the relative abundance of each HTO in the ambient solution from emptyDrops, set True only when testAmbient=True. Default: False                                                             |
+| minProp                  | The ambient profile when ambient=None. Default: 0.05                                                                                                                                                       |
 | pseudoCount              | The minimum pseudo-count when computing logfold changes. Default: 5                                                                                                                                        |
-| constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: FALSE                                                                                          |
+| constantAmbient          | Whether a constant level of ambient contamination should be used to estimate LogFC2 for all cells. Default: False                                                                                          |
 | doubletNmads             | The number of median absolute deviations (MADs) to use to identify doublets. Default: 3                                                                                                                    |
 | doubletMin               | The minimum threshold on the log-fold change to use to identify doublets. Default: 2                                                                                                                       |
-| doubletMixture           | Wwhether to use a 2-component mixture model to identify doublets. Default: FALSE                                                                                                                           |
+| doubletMixture           | Wwhether to use a 2-component mixture model to identify doublets. Default: False                                                                                                                           |
 | confidentNmads           | The number of MADs to use to identify confidently assigned singlets. Default: 3                                                                                                                            |
 | confidenMin              | The minimum threshold on the log-fold change to use to identify singlets. Default: 2                                                                                                                       |
-| combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: NULL |
+| combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: None |
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
 ### GMM-Demux

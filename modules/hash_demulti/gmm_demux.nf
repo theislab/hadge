@@ -4,6 +4,9 @@ nextflow.enable.dsl=2
 process gmm_demux{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/gmm_demux", mode:'copy'
     label 'small_mem'
+
+    conda "$projectDir/conda/gmm_demux.yml"
+    
     input:
         tuple val(sampleId), path(filtered_hto_matrix_dir), val(hto_name_gmm)
         //HTO names as string separated by commas

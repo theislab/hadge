@@ -3,8 +3,9 @@ nextflow.enable.dsl=2
 
 process multi_seq{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/multiseq", mode:'copy'
-    label 'seurat'
     label 'small_mem'
+    
+    conda "conda-forge::r-seurat conda-forge::r-argparse"
     
     input:
         each rdsObject
@@ -23,8 +24,8 @@ process multi_seq{
         path "multiseq_${task.index}"
 
     script:
-        def autoThr = autoThresh != 'FALSE' ? " --autoThresh" : ''
-        def verb = verbose != 'FALSE' ? " --verbose" : ''
+        def autoThr = autoThresh != 'False' ? " --autoThresh" : ''
+        def verb = verbose != 'False' ? " --verbose" : ''
                 
         """
         mkdir multiseq_${task.index}

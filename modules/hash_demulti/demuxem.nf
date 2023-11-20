@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process demuxem{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
+
+    conda "bioconda::pegasuspy bioconda::scanpy bioconda::demuxEM" 
     
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"), 
@@ -23,7 +25,7 @@ process demuxem{
         path "demuxem_${sampleId}"
         
     script:
-        def generateGenderPlot = generate_gender_plot != 'None' ? " --generateGenderPlot ${generate_gender_plot}" : ''
+        def generateGenderPlot = generate_gender_plot != "None" ? " --generateGenderPlot ${generate_gender_plot}" : ''
         """
         mkdir demuxem_${sampleId}
         demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \

@@ -1,4 +1,3 @@
-
 # Genetics-based deconvolution workflow
 
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
@@ -6,6 +5,13 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 ## **Genetics-based deconvolution (gene_demulti) in hadge**
 
 ![Caption](_static/images/genotype-based.png)
+
+## **Quick start**
+
+```bash
+cd hadge
+nextflow run main.nf -profile test --mode genetic
+```
 
 ## **Input data preparation**
 
@@ -90,9 +96,8 @@ output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 - `cellSNP.cells.vcf.gz`: a VCF file listing genotyped SNPs and AD & DP & genotype (GT) information for each cell or sample
 - `params.csv`: specified parameters in the cellsnp-lite task
 
-
-
 ### Freebayes
+
 - sampleId
 - rna_matrix_raw
 - rna_matrix_filtered
@@ -332,6 +337,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | max_loci                     | Max loci per cell, affects speed. Default: 2048                                                                                                                |
 | restarts                     | Number of restarts in clustering, when there are > 12 clusters we recommend increasing this to avoid local minima. Default: None                               |
 | common_variants_souporcell   | Common variant loci or known variant loci vcf, must be vs same reference fasta.                                                                                |
+| use_known_genotype           | Whether to use known donor genotype. Default: True                                                                                                             |
 | vcf_donor                    | Known variants per clone in population vcf mode, must be VCF file.                                                                                             |
 | known_genotypes_sample_names | Which samples in population vcf from known genotypes option represent the donors in your sample. Default: None                                                 |
 | skip_remap                   | Don't remap with minimap2, not recommended unless in conjunction with comman variants. Default: True                                                           |

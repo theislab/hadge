@@ -6,6 +6,8 @@ process demuxlet {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
 
+    conda "bioconda::popscle"
+
     input:
         each sam
         each tag_group

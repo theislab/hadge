@@ -5,6 +5,8 @@ process demuxmix{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxmix", mode:'copy'
     label 'small_mem'
     
+    conda "$projectDir/conda/demuxmix.yml"
+    
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxmix}"), 
                              path(raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxmix}")
@@ -32,8 +34,8 @@ process demuxmix{
         mkdir demuxmix_${sampleId}
 
         demuxmix.R --fileUmi rna_data_${params.rna_matrix_demuxmix} --fileHto hto_data_${params.hto_matrix_demuxmix} --rna_available $rna_available --assay $assay \
-                    --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix  \
-                    --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails --k_hto $k_hto  --k_rna $k_rna --outputdir demuxmix_${sampleId} \
+                    --ndelim $ndelim --model $model --alpha_demuxmix $alpha_demuxmix --beta_demuxmix $beta_demuxmix --tol_demuxmix $tol_demuxmix \
+                    --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails --k_hto $k_hto --k_rna $k_rna --outputdir demuxmix_${sampleId} \
                     --assignmentOutDemuxmix $assignmentOutDemuxmix --gene_col $gene_col
         """
 

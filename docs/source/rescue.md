@@ -6,6 +6,13 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ![Caption](_static/images/rescue.png)
 
+## **Quick start**
+
+```bash
+cd hadge
+nextflow run main.nf -profile test
+```
+
 ## **Parameter**
 
 |                       |                                                                                                                                                                                                                                                                         |
@@ -21,7 +28,8 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ## **Output**
 
-By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/rescue`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/rescue`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/rescue`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/rescue`.
+To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 In rescue mode, the genotype- and hashing-based demultiplexing workflow run in parallel. They save their output in `$pipeline_output_folder/[gene/hash]_demulti`. Before running the donor-matching preocess, the pipeline merges the results of two workflows into `classification_all_genetic_and_hash.csv` and `assignment_all_genetic_and_hash.csv` in the `$pipeline_output_folder/summary` folder.
 
@@ -40,11 +48,12 @@ The following additional output can be found in `$pipeline_output_folder/donor_m
   - `donor_match.csv`: a map between hashtags and donor identities based on the donor matching of the optimal match
   - `score_record.csv`: a CSV file storing the matching score and the number of matched donors for each method pair
 
-### Optinal output: scverse compatibility
+### Optional output: scverse data structures
 
 Folder `data_output` with:
 
 - an Anndata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the assignment of the best-matched method pair after donor matching
+- an Mudata object which contains the filtered scRNA-seq counts from `params.rna_matrix_filered` and the filtered HTO read counts from `params.hto_matrix_filered` with the assignment of the best-matched method pair after donor matching
 
 ### Optional output: Extracting donor-specific variants
 

@@ -4,6 +4,9 @@ nextflow.enable.dsl=2
 process demuxmix{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/demuxmix", mode:'copy'
     label 'small_mem'
+
+    conda "$projectDir/conda/demuxmix.yml"
+    
     input:
         path hto_matrix, stageAs: 'hto_data'
         path umi_matrix, stageAs: 'rna_data'

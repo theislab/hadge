@@ -13,54 +13,7 @@ The mode of the pipeline is set by `params.mode`. hadge provides 4 modes in tota
 
 ## **Pipeline configuration**
 
-### Conda environments:
-
-We provide a `environment.yml` file for each process. But you can also use local Conda environments to run a process:
-
-```
-// dont forget to enable conda
-conda.enable = true
-process {
-    // Use Conda environment files
-    withName:scSplit {
-        conda = './conda/scsplit.yml'
-    }
-    // Use Conda package names
-    withName:cellSNP {
-        conda = 'bioconda::cellsnp-lite'
-    }
-    // Use existing Conda environments
-    withName:summary {
-        conda = '/path/to/an/existing/env/directory'
-    }
-}
-
-```
-
-### Containers:
-
-Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
-
-```
-process {
-    withName:foo {
-        container = 'image_name_1'
-    }
-    withName:bar {
-        container = 'image_name_2'
-    }
-}
-// do not forget to enable docker
-
-docker.enabled = true
-
-```
-
-### Executor and resource specifications:
-
-- The pipeline can be run either locally or on an HPC. You can set the executor by running the pipeline with `-profile standard` or `-profile cluster`. Of course, you can add other profiles if you want.
-- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
-- As default, the pipeline is run locally with the standard profile, where all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
+The pipeline provides some pre-defined profiles. The standard profile is used by default when no profile is specified, where the pipeeline is run locall and all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
 
 ```
 profiles{
@@ -78,7 +31,64 @@ profiles{
         }
 
     }
+```
 
+### Conda environments:
+
+By using the `-profile conda` option, the pipeline executes each process within a Conda environment specified in the conda directive. Alternatively, you have the flexibility to add a new profile in the `nextflow.config` file, allowing you to use local Conda environments for running processes.
+
+```
+profiles{
+    my_conda_profile {
+        // dont forget to enable Conda
+        conda.enable = true
+        process {
+            // Use Conda environment files
+            withName:scSplit {
+                conda = './conda/scsplit.yml'
+            }
+            // Use Conda package names
+            withName:cellSNP {
+                conda = 'bioconda::cellsnp-lite'
+            }
+            // Use existing Conda environments
+            withName:summary {
+                conda = '/path/to/an/existing/env/directory'
+            }
+        }
+    }
+}
+```
+
+### Containers:
+
+Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
+
+```
+profiles{
+    my_docker_profile {
+        // dont forget to enable Docker
+        docker.enabled = true
+        process {
+            withName:foo {
+                container = 'image_name_1'
+            }
+            withName:bar {
+                container = 'image_name_2'
+            }
+        }
+    }
+}
+
+
+```
+
+### Executor and resource specifications:
+
+- The pipeline can also be run on an HPC. You can set the executor by running the pipeline with `-profile cluster`.
+- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
+
+```
     cluster {
         process {
             executor = 'slurm'
@@ -97,11 +107,22 @@ profiles{
 
 ```
 
+### Customized profiles
+
+Configuration files can contain the definition of one or more profiles. Multiple configuration profiles can be specified by separating the profile names with a comma (no whitespace), for example:
+
+```
+nextflow run main.nf -profile standard,conda
+```
+
 ## **Advanced usecases**
 
 ### **Running on multiple samples**
 
-The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default. Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample. However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed. The sample sheet (example file see the Resources section below) should have e.g. following columns depending on the methods you want to run:
+The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default.
+Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample.
+However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed.
+The sample sheet (example file see the Resources section below) should have e.g. following columns depending on the methods you want to run:
 
 - sampleId
 - na_matrix_raw
@@ -118,11 +139,15 @@ The pipeline is able to run on multiple samples. In this scenario, the shared pa
 
 ### **scverse compatibility**
 
-To ensure scverse compatibility, the pipeline provides the option to generate anndata or mudata after demultiplexing specifeid by `params.generate_anndata` and `params.generate_mudata`. This object contains the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`. Additionlly, if `match_donor` is True, the pipeline also produces an AnnData object which contains the assignment of the best-matched method pair after donor matching.
+To ensure scverse compatibility, the pipeline provides the option to generate AnnData or MuData objects after demultiplexing specified by `params.generate_anndata` and `params.generate_mudata`.
+The objects contain the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`.
+Additionally, if `match_donor` is True, the pipeline also produces an AnnData object which contains the assignment of the best-matched method pair after donor matching.
 
 ## **Pipeline output**
 
-Output directory of the pipeline is set by `$params.outdir`. By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`. When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
+The output directory of the pipeline is set by `$params.outdir`.
+By default, the pipeline is run on a single sample. In this case, all pipeline output will be saved in the folder `$projectDir/$params.outdir/$params.mode`.
+When running the pipeline on multiple samples, the pipeline output will be found in the folder `"$projectDir/$params.outdir/$sampleId/$params.mode`. To simplify this, we'll refer to this folder as `$pipeline_output_folder` from now on.
 
 The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/hash]_demulti`. The pipeline will also generate some TSV files to summarize the results in the folder `[gene/hash]_summary` under this directory.
 
@@ -153,6 +178,7 @@ The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/h
   |:---------: |:----------: |:----------: |:---: |
   | ... | ... | ... | ... |
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`. Details see section "scverse compatibility" above.
+- `mudata` folder: stores Mudata object with filtered scRNA-seq and HTO read counts and assignment of each deconvolution method if `params.generate_mudata` is `True`. Details see section "scverse compatibility" above.
 - In the `rescue` mode, the pipeline generates some additional output files, details please check [](rescue).
 
 ## **Resources**
