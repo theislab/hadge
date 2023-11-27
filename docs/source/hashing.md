@@ -18,7 +18,6 @@ The input data depends heavily on the deconvolution tools. In the following tabl
 | HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                          | `params.hto_matrix_hashedDrops`                                |
 | Demuxem              | - 10x mtx directory with UMI count matrix (Directory) <br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem`     |
 | GMM - Demux              | - 10x mtx directory with UMI count matrix (Directory)<br> - 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_gmm_demux`    |
-| Demuxmix            | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxmix`<br>`params.rna_matrix_demuxmix`     |
 | BFF             | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_bff`     |
 
 
@@ -111,12 +110,6 @@ output directory: `$pipeline_output_folder/hashedDrops/hashedDrops_[task_ID/samp
 - `${params.objectOutHashedDrops}_LogFC.png`: a diagnostic plot comparing the log-fold change between the second HTO's abundance and the ambient contamination
 - `params.csv`: specified parameters in the HashedDrops task
 
-### Demuxmix
-
-output directory: `$pipeline_output_folder/demuxmix/demuxmix_[task_ID/sampleId]`
-
-- `${params.assignmentOutDemuxmix}_assignment_demuxmix.csv`: the assignment and classification results produced by Demuxmix
-- `params.csv`: specified parameters in the Demuxmix task
 
 ### GMM-Demux
 
@@ -318,22 +311,6 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | preprocess_bff     | When True, the data is preprocess using the method ProcessCountMatrix from CellHashR. Default: False    |
 | barcodeWhitelist     | A vector of barcode names to retain. This parameter is used only when the pre-processing step is executed. Default: NULL    |
 
-### Demuxmix
-|                          |                                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| demuxmix                 | Whether to perform Demuxmix. Default: False                                                   |
-| hto_matrix_demuxmix      | Whether to use raw or filtered HTO count matrix. Default: raw                                                            |
-| rna_matrix_demuxmix   | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                           |
-| assignmentOutDemuxmix      | Name for the folder output. Default: demuxmix|
-| correctTails | If TRUE, droplets meeting the threshold defined by alpha (beta) are classified as "negative" ("positive") even if the mixture model suggests a different classification.  Default: True   |
-| rna_available           | If TRUE, it indicates that RNA data is available and some modes are execuatble with Demuxmix. Default: TRUE     |
-| model   | A character specifying the type of mixture model to be used. Either "naive", "regpos", "reg" or "auto". The last three options require parameter rna to be specified. Default:naive  |
-| alpha_demuxmix    | Threshold defining the left tail of the mixture distribution where droplets should not be classified as "positive". Threshold must be between 0 and 1 Default: 0.9  |
-| beta_demuxmix  | Threshold for defining the right tail of the mixture distribution where droplets should not be classified as "negative"  Default: 0.9       |
-| tol_demuxmix | Convergence criterion for the EM algorithm used to fit the mixture models.  Default: 0.00001   |
-| maxIter_demuxmix    | Maximum number of iterations for the EM algorithm and for the alternating iteration process fitting the NB regression models Default:1000           |
-| k_hto   |Factor to define outliers in the HTO count Default: 1.5       |
-| k_rna   |Factor to define outliers in the numbers of detected genes. Default: 1.5       |
 
 ### General Use
 
@@ -349,5 +326,5 @@ Besides, the method or methods for consensus must be given under the parameter `
 
 ```bash
 nextflow run main.nf --mode hashing --match_donor False  --hto_matrix_raw /data_folder/raw_hto_data 
---hto_matrix_filtered /data_folder/filtered_hto_data --barcodes /data_folder/filtered_hto_data/barcodes.tsv.gz --rna_matrix_raw /data_folder/raw_rna_data --rna_matrix_filtered /data_folder/filtered_rna_data --hto_name_gmm "hto_name_1,hto_name_2,hto_name_3" --methods bff_cluster  --methodsForConsensus bff_cluster  --demuxmix False
+--hto_matrix_filtered /data_folder/filtered_hto_data --barcodes /data_folder/filtered_hto_data/barcodes.tsv.gz --rna_matrix_raw /data_folder/raw_rna_data --rna_matrix_filtered /data_folder/filtered_rna_data --hto_name_gmm "hto_name_1,hto_name_2,hto_name_3" --methods bff_cluster  --methodsForConsensus bff_cluster
 ```

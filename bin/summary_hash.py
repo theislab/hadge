@@ -12,7 +12,6 @@ parser.add_argument("--htodemux", help="Folder containing output files of htodem
 parser.add_argument("--multiseq", help="Folder containing output files of multiseq", default=None)
 parser.add_argument("--hashsolo", help="Folder containing output files of hashsolo", default=None)
 parser.add_argument("--hashedDrops", help="Folder containing output files of hashedDrops", default=None)
-parser.add_argument("--demuxmix", help="Folder containing output files of Demuxmix", default=None)
 parser.add_argument("--bff", help="Folder containing output files of BFF", default=None)
 parser.add_argument("--gmm_demux", help="Folder containing output files of GMM-Demux", default=None)
 parser.add_argument("--generate_anndata", help="Generate anndata", action='store_true')
@@ -291,66 +290,6 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
     
     params = pd.concat(params, axis=1)
     params.to_csv("hash_summary/htodemux_params.csv")
-        
-def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
-    classi = []
-    assign = []
-    params = []
-    files_in_folder = [item for item in demuxmix_res if os.path.isfile(os.path.join(demuxmix_res, item))]
-
-    if len(files_in_folder) > 0:
-        for x in demuxmix_res:
-            obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_assignment_demuxmix.csv")][0])
-            demuxmix_asign = pd.read_csv(obs_res_dir)
-            if demuxmix_asign.empty:
-                #no results create empty dataframe for empty col
-                column_names = ['Barcode', os.path.basename(x)]
-                # Create an empty dataframe with only column names
-                df = pd.DataFrame(columns=column_names)
-                classi.append(df)
-                assign.append(df)
-            else:
-                dt_assign = demuxmix_asign[["Barcode", "HTO"]]
-                dt_assign.columns = ["Barcode", os.path.basename(x)]
-                assign.append(dt_assign)
-
-                if raw_adata is not None:
-                    adata = raw_adata.copy()
-                    adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
-                    adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
-                    adata.obs.donor = adata.obs.donor.fillna("negative")
-                    adata.obs.donor = adata.obs.donor.astype(str)
-                    adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
-
-                if raw_mudata is not None:
-                    mudata = raw_mudata.copy()
-                    mudata['rna'].obs = mudata['rna'].obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
-                    mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
-                    mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
-                    mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
-                    mudata.update()
-                    mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
-
-                demuxmix_classi = pd.read_csv(obs_res_dir)
-                dt_classi = demuxmix_classi[["Barcode", "Classification"]]
-                dt_classi.columns = ["Barcode", os.path.basename(x)]
-                classi.append(dt_classi) 
-
-                params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-                params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-                params_res.columns = [os.path.basename(x)]
-                params.append(params_res)
-
-        classi_df = pd.concat(classi, axis=1, join="outer")
-        classi_df.to_csv("hash_summary" + "/demuxmix_classification.csv",index=False)
-        
-        assign_df = pd.concat(assign, axis=1, join="outer")
-        assign_df.to_csv("hash_summary"  +"/demuxmix_assignment.csv",index=False)
-
-        params = pd.concat(params, axis=1)
-        params.to_csv("hash_summary"  +"/demuxmix_params.csv",index=False)
-    else:
-        print("No results found for Demuxmix")
 
 def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []
@@ -535,10 +474,6 @@ if __name__ == '__main__':
     if args.htodemux is not None:
         htodemux_res = args.htodemux.split(':')
         htodemux_summary(htodemux_res, adata, mudata)
-    
-    if args.demuxmix is not None:
-        demuxmix_res = args.demuxmix.split(':')
-        demuxmix_summary(demuxmix_res, adata, mudata)
 
     if args.gmm_demux is not None:
         gmmDemux_res = args.gmm_demux.split(':')

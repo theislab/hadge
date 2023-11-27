@@ -7,7 +7,6 @@ include { htodemux_hashing } from './hash_demulti/htodemux'
 include { hash_solo_hashing } from './hash_demulti/hashsolo'
 include { hashedDrops_hashing } from './hash_demulti/hashedDrops'
 include { demuxem_hashing } from './hash_demulti/demuxem'
-include { demuxmix_hashing } from './hash_demulti/demuxmix'
 include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
 include { bff_hashing } from './hash_demulti/bff'
 
@@ -22,7 +21,6 @@ process summary{
         val htodemux_result
         val multiseq_result
         val hashedDrops_result
-        val demuxmix_result
         val bff_result
         val gmmDemux_result
         val generate_anndata
@@ -32,7 +30,6 @@ process summary{
         tuple val(sampleId), path("hash_summary")
 
     script:
-        def demuxem_files = ""
         def htodemux_files = ""
         def hashsolo_files = ""
         def multiseq_files = ""
@@ -43,10 +40,6 @@ process summary{
         def generate_adata = ""
         def generate_mdata = ""
         
-        if (demuxem_result != "no_result"){
-            demuxem_res = demuxem_result.find{it.name.contains(sampleId)}
-            demuxem_files = "--demuxem ${demuxem_res}"
-        }
         if (hashsolo_result != "no_result"){
             hashsolo_res = hashsolo_result.find{it.name.contains(sampleId)}
             hashsolo_files = "--hashsolo ${hashsolo_res}"
@@ -92,7 +85,7 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
         """
 }
 
@@ -172,20 +165,6 @@ workflow hash_demultiplexing{
     }
     
 
-    if (params.demuxmix == "True"){
-        Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, params.hto_matrix_demuxmix == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
-                                    params.rna_matrix_demuxmix == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered, 
-                                    params.hto_matrix_demuxmix,params.rna_matrix_demuxmix)}
-                |set {input_list_demuxmix}   
-                demuxmix_hashing (input_list_demuxmix,params.rna_available)
-        demuxmix_out = demuxmix_hashing.out
-    }
-    else{
-        demuxmix_out = channel.value("no_result")
-    }
-
     if (params.bff == "True"){
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -215,7 +194,7 @@ workflow hash_demultiplexing{
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
                 | set {input_list_summary}
-    summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,demuxmix_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
+    summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
             
     emit:
         summary.out
