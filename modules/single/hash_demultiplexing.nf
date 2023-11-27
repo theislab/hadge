@@ -39,7 +39,6 @@ process summary{
         def multiseq_files = ""
         def hashedDrops_files = ""
         def gmmDemux_files = ""
-        def demuxmix_files = ""
         def bff_files = ""
         def generate_adata = ""
         def generate_mdata = ""

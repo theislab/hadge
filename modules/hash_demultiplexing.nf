@@ -37,11 +37,15 @@ process summary{
         def multiseq_files = ""
         def hashedDrops_files = ""
         def gmmDemux_files = ""
-        def demuxmix_files = ""
+        def demuxem_files = ""
         def bff_files = ""
         def generate_adata = ""
         def generate_mdata = ""
         
+         if (demuxem_result != "no_result"){
+            demuxem_res = demuxem_result.find{it.name.contains(sampleId)}
+            demuxem_files = "--demuxem ${demuxem_res}"
+        }
         if (hashsolo_result != "no_result"){
             hashsolo_res = hashsolo_result.find{it.name.contains(sampleId)}
             hashsolo_files = "--hashsolo ${hashsolo_res}"
@@ -61,10 +65,6 @@ process summary{
         if (gmmDemux_result != "no_result"){
             gmmDemux_res = gmmDemux_result.find{it.name.contains(sampleId)}
             gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
-        }
-        if (demuxmix_result != "no_result"){
-            demuxmix_res = demuxmix_result.find{it.name.contains(sampleId)}
-            demuxmix_files = "--demuxmix ${demuxmix_res}"
         }
         if (bff_result != "no_result"){
             bff_res = bff_result.find{it.name.contains(sampleId)}
@@ -87,7 +87,6 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
         """
 }
