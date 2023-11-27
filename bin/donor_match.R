@@ -52,6 +52,10 @@ if (!is.null(args$barcode)) {
 
 colname_with_singlet <- colnames(result_csv %>% select_if(~ any(. != "negative" & . != "doublet")))
 colname_with_singlet <- colname_with_singlet[colname_with_singlet != "Barcode"]
+if (length(colname_with_singlet) < 2){
+  stop("Please choose more methods to run donor matching!")
+}
+
 if (!is.null(args$method1) && !is.null(args$method2)) {
   method1_all <- colname_with_singlet[startsWith(colnames(result_csv), args$method1)]
   method2_all <- colname_with_singlet[startsWith(colnames(result_csv), args$method2)]
