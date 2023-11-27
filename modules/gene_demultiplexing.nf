@@ -62,7 +62,7 @@ process summary{
             if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
             }
-            generate_adata = "--generate_anndata --read_rna_mtx $rna_matrix"
+            generate_adata = "--generate_anndata --read_rna_mtx rna_data"
         }
         if (generate_mudata == "True"){
             if(rna_matrix.name == "None"){
@@ -71,10 +71,10 @@ process summary{
             if(hto_matrix.name == "None"){
                 error "Error: HTO count matrix is not given."
             }
-            generate_mdata = "--generate_mudata --read_rna_mtx $rna_matrix --read_hto_mtx $hto_matrix"
+            generate_mdata = "--generate_mudata --read_rna_mtx rna_data --read_hto_mtx hto_data"
         }
         """
-        summary_gene.py $demuxlet_files $vireo_files $souporcell_files $scsplit_files $freemuxlet_files $generate_adata $generate_mdata --sampleId $sampleId
+        summary_gene.py $demuxlet_files $vireo_files $souporcell_files $scsplit_files $freemuxlet_files $generate_adata $generate_mdata
         """
 }
 
@@ -250,7 +250,7 @@ workflow gene_demultiplexing {
 
     Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
                 | set {input_list_summary}
     summary(input_list_summary, demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out, 
             params.generate_anndata, params.generate_mudata)
