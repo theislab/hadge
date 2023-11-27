@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process souporcell{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/souporcell", mode: 'copy'
     label 'big_mem'
+
+    container "shub://wheaton5/souporcell"
     
     input:
         tuple val(sampleId), path(bam), path(bam_index), path(barcodes), val(clusters), val(known_genotypes)
@@ -15,6 +17,7 @@ process souporcell{
         val max_loci
         val restarts
         val common_variants
+        val use_known_genotype
         val known_genotypes_sample_names
         val skip_remap
         val ignore
@@ -34,11 +37,11 @@ process souporcell{
         def minref = "--min_ref ${min_ref}"
         def maxloci = "--max_loci ${max_loci}"
         def restart = restarts != 'None' ? "--restarts $restarts" : ''
-        def commonvariant = (common_variants != 'None' & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
-        def commonvariant_name = (common_variants != 'None' & known_genotypes == 'None' ) ? common_variants : 'No common variants are given.'
+        def commonvariant = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
+        def commonvariant_name = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' ) ? common_variants : 'No common variants are given.'
 
-        def knowngenotype = known_genotypes != 'None' ? "--known_genotypes ${known_genotypes}" : ''
-        def knowngenotype_name = known_genotypes != 'None' ? known_genotypes : 'No known variants are given.'
+        def knowngenotype = (known_genotypes != 'None' & use_known_genotype == "True") ? "--known_genotypes ${known_genotypes}" : ''
+        def knowngenotype_name = (known_genotypes != 'None' & use_known_genotype == "True") ? known_genotypes : 'No known variants are given.'
 
         def knowngenotypes_sample = known_genotypes_sample_names != 'None' ? "--known_genotypes_sample_names ${known_genotypes_sample_names}" : ''
         def knowngenotype_sample_name = known_genotypes_sample_names != 'None' ? known_genotypes_sample_names : 'No known sample names are given.'
@@ -70,13 +73,14 @@ workflow demultiplex_souporcell{
         max_loci = params.max_loci
         restarts = params.restarts
         common_variants = params.common_variants_souporcell
+        use_known_genotype = params.use_known_genotype
         known_genotypes_sample_names = params.known_genotypes_sample_names
         skip_remap = params.skip_remap
         ignore = params.ignore
         souporcell_out = params.souporcell_out
      
         souporcell(input_list, fasta, threads, ploidy, min_alt, min_ref, max_loci, restarts, common_variants, 
-            known_genotypes_sample_names, skip_remap, ignore, souporcell_out)
+            use_known_genotype, known_genotypes_sample_names, skip_remap, ignore, souporcell_out)
             
     emit:
         souporcell.out.collect()

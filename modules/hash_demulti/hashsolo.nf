@@ -3,6 +3,8 @@ nextflow.enable.dsl=2
 process hash_solo{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/hashsolo", mode:'copy'
     label 'small_mem'
+
+    conda "$projectDir/conda/hashsolo_py.yml"
     
     input:
         tuple val(sampleId), path(hto_data, stageAs: "hto_data_${params.hto_matrix_hashsolo}"), path(rna_data, stageAs: "rna_data_${params.rna_matrix_hashsolo}")
@@ -19,8 +21,8 @@ process hash_solo{
         path "hashsolo_${sampleId}"
 
     script:
-        def noise_barcodes = number_of_noise_barcodes != 'None' ? "--number_of_noise_barcodes $number_of_noise_barcodes" : ''
-        def existing_clusters = pre_existing_clusters != 'None' ? "--pre_existing_clusters $pre_existing_clusters" : ''
+        def noise_barcodes = number_of_noise_barcodes != "None" ? "--number_of_noise_barcodes $number_of_noise_barcodes" : ''
+        def existing_clusters = pre_existing_clusters != "None" ? "--pre_existing_clusters $pre_existing_clusters" : ''
         def clustering_data = use_rna_data != 'False' ? "--clustering_data rna_data_$params.rna_matrix_hashsolo" : ''
         """
         mkdir hashsolo_${sampleId}

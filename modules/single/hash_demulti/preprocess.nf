@@ -1,7 +1,8 @@
 process preprocess{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/preprocess", mode:'copy'
-    label 'seurat'
     label 'small_mem'
+    
+    conda "conda-forge::r-seurat conda-forge::r-argparse"
     
     input:
         path hto_matrix, stageAs: 'hto_data'

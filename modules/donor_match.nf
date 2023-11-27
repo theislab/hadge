@@ -4,6 +4,8 @@ nextflow.enable.dsl=2
 process matchDonor{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
     label 'big_mem'
+
+    conda "$projectDir/conda/donor_match.yml"
     
     input:
         tuple val (sampleId), val(ndonor), path(barcode_whitelist), val(cell_genotype), val(vireo_parent_dir), path(demultiplexing_result)
@@ -27,7 +29,7 @@ process matchDonor{
 
         def vireo_parent_path = ""
         if ( findVariants == 'vireo' | findVariants == 'True' ){
-            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != 'None') ? "--vireo_parent_dir $vireo_parent_dir" : "--vireo_parent_dir $projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo/"
+            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != "None") ? "--vireo_parent_dir $vireo_parent_dir" : "--vireo_parent_dir $projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo/"
         }
         def barcode_whitelist_path = "--barcode $barcode_whitelist"
         """

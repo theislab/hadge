@@ -13,7 +13,9 @@ include { bff_hashing } from './hash_demulti/bff'
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
-    label 'summary'
+        
+    conda "pandas scanpy mudata"
+
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
         val demuxem_result
@@ -85,6 +87,7 @@ process summary{
         }
         
         """
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
         """
 }
@@ -186,9 +189,6 @@ workflow hash_demultiplexing{
     else{
         gmmDemux_out = channel.value("no_result")
     }
-    
-
-
 
     Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
