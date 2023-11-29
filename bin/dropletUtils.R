@@ -60,10 +60,10 @@ parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or f
 args <- parser$parse_args()
 
 hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
-
+ignore_transformed <- ifelse(tolower(args$ignore) == "null", NULL, args$ignore)
 emptyDrops_out <- emptyDrops(hto, lower = args$lower, niters = args$niters,
                              test.ambient = args$testAmbient,
-                             ignore = args$ignore,
+                             ignore = ignore_transformed,
                              alpha = args$alpha, round = args$round,
                              by.rank = args$byRank)
 
@@ -84,6 +84,7 @@ plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI 
 dev.off()
 
 combinations_transformed <- ifelse(tolower(args$combinations) == "null", NULL, args$combinations)
+
 if (args$ambient == TRUE) {
     hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = combinations_transformed)
 } else {
