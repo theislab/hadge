@@ -63,7 +63,7 @@ hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
 ignore_transformed <- ifelse(tolower(args$ignore) == "null", NULL, args$ignore)
 emptyDrops_out <- emptyDrops(hto, lower = args$lower, niters = args$niters,
                              test.ambient = args$testAmbient,
-                             ignore = ignore_transformed,
+                             ignore = NULL,
                              alpha = args$alpha, round = args$round,
                              by.rank = args$byRank)
 
