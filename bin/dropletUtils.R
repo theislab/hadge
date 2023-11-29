@@ -83,10 +83,11 @@ png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
 plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
 dev.off()
 
+combinations_transformed <- ifelse(tolower(args$combinations) == "null", NULL, args$combinations)
 if (args$ambient == TRUE) {
-    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = combinations_transformed)
 } else {
-    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = combinations_transformed)
 }
 
 print("------------------- hashedDrops finished ---------------------------------")
