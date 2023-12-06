@@ -134,7 +134,7 @@ output directory: `$pipeline_output_folder/gmm_demux/gmm_demux_[task_ID/sampleId
 
 output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 
-- `${params.assignmentOutBff}_assignment_demuxmix.csv`: the assignment and classification results produced by BFF
+- `${params.assignmentOutBff}_assignment_bff.csv`: the assignment and classification results produced by BFF
 - `params.csv`: specified parameters in the BFF task
 
 ## **Parameter**

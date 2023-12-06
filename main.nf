@@ -72,7 +72,7 @@ workflow run_single{
         }
     }
     else if (params.mode == "hashing"){
-
+        print("Running single sample")
         hash_demultiplexing(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered)
         if (params.match_donor == "True"){
             donor_match(hash_demultiplexing.out)
@@ -102,6 +102,7 @@ workflow run_single{
 }
 
 workflow {
+    print(params.multi_input)
     if (params.multi_input == null){
         run_single()
     }
