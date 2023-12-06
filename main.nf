@@ -102,7 +102,6 @@ workflow run_single{
 }
 
 workflow {
-    print(params.multi_input)
     if (params.multi_input == null){
         run_single()
     }
