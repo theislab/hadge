@@ -364,7 +364,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             for column in column_names:
                 if column in dt_assign.columns:
                     dt_assign = dt_assign.drop([column], axis=1)
-            dt_assign.loc[dt_assign["consensuscall"] == "Singlet", "consensuscall"] = "singlet"
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
             dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = "negative"
             dt_assign['consensuscall'] = dt_assign['consensuscall'].astype('category')
@@ -392,14 +391,14 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi = data_bff.copy()
             column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
-                if column in dt_assign.columns:
+                if column in dt_classi.columns:
                     dt_classi = dt_classi.drop([column], axis=1)
             dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
             dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
             classi.append(dt_classi)
-
+            
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
         params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
         params_res.columns = [os.path.basename(x)]

@@ -74,8 +74,8 @@ if(as.logical(args$preprocess)){
   # Step 3: Create a vector from the barcodesl
   vector <- unlist(words)
   print("Preprocessing")
-  #counts <- Read10X(args$fileHto) 
   counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
+  print("Preprocessing done")
 }else{
   print("No preprocessing")
   counts <- Read10X(args$fileHto) 
