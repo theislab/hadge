@@ -398,6 +398,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = "negative"
             dt_assign['consensuscall'] = dt_assign['consensuscall'].astype('category')
             dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
+            dt_assign['Barcode'] = dt_assign['Barcode'].apply(lambda x: str(x) + "-1")
             assign.append(dt_assign)
             if raw_adata is not None:
                 adata = raw_adata.copy()
@@ -427,6 +428,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
             dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
+            dt_classi['Barcode'] = dt_classi['Barcode'].apply(lambda x: str(x) + "-1")
             classi.append(dt_classi)
             
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
@@ -494,19 +496,23 @@ if __name__ == '__main__':
 
     # Read and combine assignment files
     assignment = [file for file in os.listdir("hash_summary") if file.endswith("_assignment.csv")]
-    assignment_all = pd.read_csv(os.path.join("hash_summary", assignment[0]))
-   
-    if len(assignment) > 1:
-        for df in assignment[1:]:
-            df = pd.read_csv(os.path.join("hash_summary", df))
-            assignment_all = pd.merge(assignment_all, df, on='Barcode', how='outer')
+    assignment_all = pd.DataFrame()
+    
+    for file in assignment:
+        file_path = os.path.join("hash_summary", file)
+        df = pd.read_csv(file_path, usecols=['Barcode', pd.read_csv(file_path).columns[1]])
+        assignment_all = pd.concat([assignment_all, df.set_index('Barcode')], axis=1, join='outer')
+
+    # Reset the index to have 'Barcode' as a regular column
+    assignment_all.reset_index(inplace=True)
+
     assignment_all.to_csv("hash_summary/hashing_assignment_all.csv", index=False)
 
     # Read and combine classification files
     classification = [file for file in os.listdir("hash_summary") if file.endswith("_classification.csv")]
     classification_all = pd.read_csv(os.path.join("hash_summary", classification[0]))
-
-    if len(classification) > 1:
+    
+    if len(classification) > 1: 
         for df in classification[1:]:
             df = pd.read_csv(os.path.join("hash_summary", df))
             classification_all = pd.merge(classification_all, df, on='Barcode', how='outer')
