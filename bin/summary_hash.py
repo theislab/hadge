@@ -104,7 +104,8 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
             mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-        hashsolo_classi.loc[:, "most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0.0: "negative", 1.0: "singlet", 2.0: "doublet"})
+        #hashsolo_classi.loc[:, "most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0.0: "negative", 1.0: "singlet", 2.0: "doublet"})
+        hashsolo_classi['most_likely_hypothesis'] = hashsolo_classi['most_likely_hypothesis'].apply(lambda x: 'negative' if x == 0.0 else ('singlet' if x == 1.0 else 'doublet'))
         hashsolo_classi.columns = [os.path.basename(x)]
         classi.append(hashsolo_classi)
     
