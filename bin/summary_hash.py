@@ -268,15 +268,33 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
     params = pd.concat(params, axis=1)
     params.to_csv("hash_summary/htodemux_params.csv")
 
+
+
 def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []
     assign = []
     params = []
     for x in gmmDemux_res:
         obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("GMM_full.csv")][0])
+         
+        #we get the number of hashes used for the experiment from the parameters
+        #so that we now how many kinds of singlets we could find in the assignment
+        params_dir = os.path.join(x, "params.csv")
+        params_res = pd.read_csv(params_dir,index_col=False)
+        params_res.columns = ["Argument", os.path.basename(x)]
+        params.append(params_res)
+
         
+        result_row = params_res[params_res['Argument'].str.contains('hto_name_gmm', case=False, na=False)]
+        hashes_used = ""
+        if not result_row.empty:
+            hashes_used = result_row[os.path.basename(x)].iloc[0]
+        else:
+            print("No row contains the number of hashes")
+        hashes = hashes_used.split(',')
+        number_of_hashes = len(hashes)
+        #GMM assignement file
         gmm_classi = pd.read_csv(obs_res_dir)
-        
         #GMM full is the name given by GMM_demux per default to all results
         classification_config = os.path.join(x, "GMM_full.config")
         classif_file = pd.read_csv(classification_config,header=None)
@@ -284,23 +302,39 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         #Classification and Assigment come from the same file
         gmm_dt = pd.DataFrame(gmm_classi)
         classification_dt = pd.DataFrame(classif_file)
+
         #change column names
         classification_dt = classification_dt.rename(columns={0: "Cluster_id", 1: "assignment"})
+
         gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
-        classification_dt["assignment_binary"] = classification_dt["assignment"].str.contains("-")
-        classification_dt["classification"] = classification_dt["assignment"].apply(lambda x: "doublet" if x else "singlet")
-        classification_dt.at[0, "classification"] = "negative"
+
+        ##Inner function
+        def classify_hash(row,number_hashes):
+            if row == 0:
+                return 'negative'
+            elif 0 > row <= number_hashes:
+                return 'singlet'
+            else:
+                return 'doublet'
+
+        classification_dt['Classification'] = classification_dt['Cluster_id'].apply(lambda x: classify_hash(x, number_of_hashes))
+
         #Compare classification guide file with classification found
         merged = pd.merge(classification_dt, gmm_dt, on='Cluster_id', how='left')
-
-        gmm_dt['Classification'] = merged['classification']
+        gmm_dt['Classification'] = merged['Classification']
         gmm_dt['Assignment'] = merged['assignment']
-        
+        #instead of multiple hashes, add doublet
+
+        gmm_dt["Assignment"] = gmm_dt["Assignment"].apply(lambda x: "doublet" if "-" in x else x)
+        classification_dt['Classification'] = classification_dt['Classification'].str.replace(' ', '')
         #Assigment for GMM-Demux
+        #'Cluster_id',
         gmm_dt_assign = gmm_dt.drop(['Cluster_id','Confidence','Classification' ], axis=1)
+        gmm_dt_assign['Assignment'] = gmm_dt_assign['Assignment'].str.replace(' ', '')
         gmm_dt_assign.columns = ["Barcode", os.path.basename(x)]
+   
         assign.append(gmm_dt_assign)
 
         if raw_adata is not None:
@@ -325,11 +359,7 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         gmm_dt_classi.columns =["Barcode", os.path.basename(x)]
         classi.append(gmm_dt_classi)
 
-        params_dir = os.path.join(x, "params.csv")
-        params_res = pd.read_csv(params_dir,index_col=False)
-        params_res.columns = ["Argument", os.path.basename(x)]
-        params.append(params_res)
-
+        
     classi_df = pd.concat(classi, axis=1, join="outer")
     classi_df.to_csv("hash_summary"  +"/GMM_classification.csv", index=False)
     
