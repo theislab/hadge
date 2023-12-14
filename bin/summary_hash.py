@@ -430,8 +430,10 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             classi.append(dt_classi)
             
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-        params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-        params_res.columns = [os.path.basename(x)]
+        params_res = pd.read_csv(params_dir,sep=';',index_col=None)
+        params_res = params_res.drop(['Unnamed: 0' ], axis=1)  
+        params_res = params_res.dropna(subset=['Argument', 'Value'], how='any') 
+        params_res.columns = ["Argument",os.path.basename(x)]
         params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
