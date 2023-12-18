@@ -51,7 +51,7 @@ process hashedDrops{
 
         """
         mkdir hashedDrops_${task.index}
-        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}${run_empty} --gene_col $gene_col --runEmptyDrops $runEmptyDrops
+        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}${run_empty} --gene_col $gene_col
         """
 
 }
