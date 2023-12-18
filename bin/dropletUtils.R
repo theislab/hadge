@@ -27,6 +27,8 @@ parser$add_argument("--objectOutEmptyDrops", default = "emptyDroplets",
                     help = "Prefix name for the emptyDrops RDS file")
 parser$add_argument("--assignmentOutEmptyDrops", default = "emptyDroplets",
                     help = "prefex name for emptyDrops assignment CSV file")
+parser$add_argument("--runEmptyDrops", action="store_true",
+                    help = "Executes emptyDrops function only when desired, recomended only for raw data")
 
 #for hashedDrops
 parser$add_argument("--ambient", action = "store_true",
@@ -60,29 +62,29 @@ parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or f
 args <- parser$parse_args()
 
 hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
-ignore_transformed <- ifelse(tolower(args$ignore) == "null", NULL, args$ignore)
-emptyDrops_out <- emptyDrops(hto, lower = args$lower, niters = args$niters,
-                             test.ambient = args$testAmbient,
-                             ignore = ignore_transformed,
-                             alpha = args$alpha, round = args$round,
-                             by.rank = args$byRank)
-print("-------------")
-print(emptyDrops_out)
-print("------------------- emptyDrops finished ---------------------------------")
+rna <- Read10X(data.dir = args$raw_rna_matrix_dir, gene.column = args$gene_col)
+print(args$runEmptyDrops)
+#if (args$runEmptyDrops == TRUE) {
+    print("------------------- executing emptyDrops ---------------------------------")
+    ignore_transformed <- ifelse(tolower(args$ignore) == "null", NULL, args$ignore)
+    emptyDrops_out <- emptyDrops(rna, lower = args$lower, niters = args$niters,
+                                test.ambient = args$testAmbient,
+                                ignore = NULL,
+                                alpha = args$alpha, round = args$round,
+                                by.rank = args$byRank)
+                        
 
+    print("------------------- emptyDrops finished ---------------------------------")
+    write.csv(emptyDrops_out, paste0(args$outputdir, "/", args$assignmentOutEmptyDrops, ".csv"))
+    saveRDS(emptyDrops_out, file=paste0(args$outputdir, "/", args$objectOutEmptyDrops, ".rds"))
 
-print("-------- Following Files are saved in folder hashedDrops_out ------------")
-print(paste0(args$objectOutEmptyDrops, ".rds"))
-print(paste0(args$assignmentOutEmptyDrops, ".csv"))
-write.csv(emptyDrops_out, paste0(args$outputdir, "/", args$assignmentOutEmptyDrops, ".csv"))
-saveRDS(emptyDrops_out, file=paste0(args$outputdir, "/", args$objectOutEmptyDrops, ".rds"))
-
-print("------------------- filtering empty droplets ----------------------------")
-is.cell <- emptyDrops_out$FDR <= args$isCellFDR
-colors <- ifelse(is.cell, "red", "black")
-png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
-plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
-dev.off()
+    print("------------------- filtering empty droplets ----------------------------")
+    is.cell <- emptyDrops_out$FDR <= args$isCellFDR
+    colors <- ifelse(is.cell, "red", "black")
+    png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
+    plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
+    dev.off()
+#}
 
 combinations_transformed <- ifelse(tolower(args$combinations) == "null", NULL, args$combinations)
 
