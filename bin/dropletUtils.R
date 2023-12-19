@@ -64,9 +64,6 @@ args <- parser$parse_args()
 hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
 combinations_transformed <- ifelse(tolower(args$combinations) == "null", NULL, args$combinations)
 
-print(args$constantAmbient)
-print("----------------")
-print(args$ambient)
 if (args$runEmptyDrops == TRUE) {
     rna <- Read10X(data.dir = args$raw_rna_matrix_dir,gene.column = args$gene_col)
     print("------------------- executing emptyDrops ---------------------------------")
@@ -78,7 +75,6 @@ if (args$runEmptyDrops == TRUE) {
                                 by.rank = args$byRank)
                         
 
-    print("------------------- emptyDrops finished ---------------------------------")
     write.csv(emptyDrops_out, paste0(args$outputdir, "/", args$assignmentOutEmptyDrops, ".csv"))
     saveRDS(emptyDrops_out, file=paste0(args$outputdir, "/", args$objectOutEmptyDrops, ".rds"))
 
@@ -100,7 +96,6 @@ if (args$runEmptyDrops == TRUE) {
    
 }
 
-print("------------------- hashedDrops finished ---------------------------------")
 
 ignore <- args$ignore
 if (is.null(ignore)) {
