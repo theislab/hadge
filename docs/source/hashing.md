@@ -17,16 +17,15 @@ nextflow run main.nf -profile test --mode hashing
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
 
-| Deconvolution method | Input data                                                                                                         | Parameter                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_htodemux` <br> `params.hto_matrix_htodemux` |
-| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                       | `params.rna_matrix_multiseq` <br> `params.hto_matrix_multiseq` |
-| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                 | `params.hto_matrix_hashsolo` <br> `params.rna_matrix_hashsolo` |
-| HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                          | `params.hto_matrix_hashedDrops`                                |
+| Deconvolution method | Input data                                                                                                          | Parameter                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                        | `params.rna_matrix_htodemux` <br> `params.hto_matrix_htodemux` |
+| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                        | `params.rna_matrix_multiseq` <br> `params.hto_matrix_multiseq` |
+| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                  | `params.hto_matrix_hashsolo` <br> `params.rna_matrix_hashsolo` |
+| HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                           | `params.hto_matrix_hashedDrops`                                |
 | Demuxem              | - 10x mtx directory with UMI count matrix (Directory) <br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem`     |
-| GMM - Demux              | - 10x mtx directory with UMI count matrix (Directory)<br> - 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_gmm_demux`    |
-| BFF             | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_bff`     |
-
+| GMM - Demux          | - 10x mtx directory with UMI count matrix (Directory)<br> - 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_gmm_demux`                                  |
+| BFF                  | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory)  | `params.hto_matrix_bff`                                        |
 
 Similary as genotype-based deconvlution methods, hashing methods also have some input in common. So we also try to utilize common input parameters `params.[rna/hto]_matrix_[raw/filtered]` to store count matrices for better control and `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method.
 
@@ -116,7 +115,6 @@ output directory: `$pipeline_output_folder/hashedDrops/hashedDrops_[task_ID/samp
 - `${params.assignmentOutHashedDrops}_res.csv`: the assignment of HashSolo
 - `${params.objectOutHashedDrops}_LogFC.png`: a diagnostic plot comparing the log-fold change between the second HTO's abundance and the ambient contamination
 - `params.csv`: specified parameters in the HashedDrops task
-
 
 ### GMM-Demux
 
@@ -283,55 +281,61 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | combinations             | An integer matrix specifying valid combinations of HTOs. Each row corresponds to a single sample and specifies the indices of rows in x corresponding to the HTOs used to label that sample. Default: None |
 | objectOutHashedDrops     | Prefix of the hashedDrops output RDS object. Default: hashedDrops                                                                                                                                          |
 | assignmentOutHashedDrops | Prefix of the hashedDrops output CSV file. Default: hashedDrops                                                                                                                                            |
+
 ### GMM-Demux
-|                          |                                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| gmmDemux                 | Whether to perform GMMDemux. Default: True                                                   |
-| hto_matrix_gmm_demux      | Whether to use raw or filtered HTO count matrix. Default: filtered                                                            |
-| assignmentOutGmmDemux      | Name for the folder output. Default: gmm_demux|
-| hto_name_gmm          |   list of sample tags (HTOs) separated by ',' without whitespace. Default: None   |
-| summary           |  the estimated total count of cells in the single cell assay. Default: 2000     |
-| report_gmm           | Name for the file generated by the summary. Default:report.txt            |
-| mode_GMM    | Format of the input, either tsv or csv. Default: tsv                 |
-| extract             | extract names of the sample barcoding tag(s) to extract, separated by ','. Joint tags are linked with '+'.  Default: None       |
-| threshold_gmm | Provide the confidence threshold value. Requires a float in (0,1). Default: 0.8    |
-| ambiguous    | The estimated chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Default: 0.5.            |
-| plotOutHashSolo          | Prefix of the output figures. Default: hashsolo                                              |
+
+|                       |                                                                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| gmmDemux              | Whether to perform GMMDemux. Default: True                                                                                        |
+| hto_matrix_gmm_demux  | Whether to use raw or filtered HTO count matrix. Default: filtered                                                                |
+| assignmentOutGmmDemux | Name for the folder output. Default: gmm_demux                                                                                    |
+| hto_name_gmm          | list of sample tags (HTOs) separated by ',' without whitespace. Default: None                                                     |
+| summary               | the estimated total count of cells in the single cell assay. Default: 2000                                                        |
+| report_gmm            | Name for the file generated by the summary. Default:report.txt                                                                    |
+| mode_GMM              | Format of the input, either tsv or csv. Default: tsv                                                                              |
+| extract               | extract names of the sample barcoding tag(s) to extract, separated by ','. Joint tags are linked with '+'. Default: None          |
+| threshold_gmm         | Provide the confidence threshold value. Requires a float in (0,1). Default: 0.8                                                   |
+| ambiguous             | The estimated chance of having a phony GEM getting included in a pure type GEM cluster by the clustering algorithm. Default: 0.5. |
+| plotOutHashSolo       | Prefix of the output figures. Default: hashsolo                                                                                   |
 
 ### BFF
-|                          |                                                                                              |
-| ------------------------ | -------------------------------------------------------------------------------------------- |
-| BFF                 | Whether to perform BFF. Default: False                                                   |
-| hto_matrix_bff      | Whether to use raw or filtered HTO count matrix. Default: raw                                                            |
-| rna_matrix_bff   | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                           |
-| assignmentOutBff      | Name for the folder output. Default: bff|
-| methods          |   method or list of methods to be used. Default: combined_bff   |
-| methodsForConsensus           | a consensus call will be generated using all methods especified. Default: NULL   |
-| cellbarcodeWhitelist           | 	A vector of expected cell barcodes. Default:NULL            |
-| metricsFile    | summary metrics will be written to this file. Default: metrics_bff.cvs                 |
-| doTSNE             |  tSNE will be run on the resulting hashing calls after each caller.  Default: True       |
-| doHeatmap | if true, Seurat::HTOHeatmap will be run on the results of each calle Default: True   |
-| perCellSaturation    | An optional dataframe with the columns cellbarcode and saturation. Default: NULL            |
-| majorityConsensusThreshold | This applies to calculating a consensus call when multiple algorithms are used. Default: NULL    |
-| chemistry     | This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3. Default: 10xV3      |
-| callerDisagreementThreshold     | If provided, the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells. Default: NULL      |
-| preprocess_bff     | When True, the data is preprocess using the method ProcessCountMatrix from CellHashR. Default: False    |
-| barcodeWhitelist     | A vector of barcode names to retain. This parameter is used only when the pre-processing step is executed. Default: NULL    |
 
+|                             |                                                                                                                                                           |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BFF                         | Whether to perform BFF. Default: False                                                                                                                    |
+| hto_matrix_bff              | Whether to use raw or filtered HTO count matrix. Default: raw                                                                                             |
+| rna_matrix_bff              | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                                                                                       |
+| assignmentOutBff            | Name for the folder output. Default: bff                                                                                                                  |
+| methods                     | method or list of methods to be used. Default: combined_bff                                                                                               |
+| methodsForConsensus         | a consensus call will be generated using all methods especified. Default: NULL                                                                            |
+| cellbarcodeWhitelist        | A vector of expected cell barcodes. Default:NULL                                                                                                          |
+| metricsFile                 | summary metrics will be written to this file. Default: metrics_bff.cvs                                                                                    |
+| doTSNE                      | tSNE will be run on the resulting hashing calls after each caller. Default: True                                                                          |
+| doHeatmap                   | if true, Seurat::HTOHeatmap will be run on the results of each calle Default: True                                                                        |
+| perCellSaturation           | An optional dataframe with the columns cellbarcode and saturation. Default: NULL                                                                          |
+| majorityConsensusThreshold  | This applies to calculating a consensus call when multiple algorithms are used. Default: NULL                                                             |
+| chemistry                   | This string is passed to EstimateMultipletRate. Should be either 10xV2 or 10xV3. Default: 10xV3                                                           |
+| callerDisagreementThreshold | If provided, the agreement rate will be calculated between each caller and the simple majority call, ignoring discordant and no-call cells. Default: NULL |
+| preprocess_bff              | When True, the data is preprocess using the method ProcessCountMatrix from CellHashR. Default: False                                                      |
+| barcodeWhitelist            | A vector of barcode names to retain. This parameter is used only when the pre-processing step is executed. Default: NULL                                  |
 
 ### General Use
 
 #### Single sample use
+
 The use of the pipeline for a single samples require the definition of certain parameters in order to run the tools under default configuration.
 The parameter `--mode hashing` must be included with the purpose of running the hashing tools only.
-##### GMM-Demux
-The names of the hashtags must be given as a list of string, separated by ','. This list is given under the parameter `--hto_name_gmm`
-##### BFF
-The demultiplexing method for the experiment must be given under the parameter `--methods`. Multiple methods can be given as a list, separated by ','. 
-Besides, the method or methods for consensus must be given under the parameter `--methodsForConsensus`. 
 
+##### GMM-Demux
+
+The names of the hashtags must be given as a list of string, separated by ','. This list is given under the parameter `--hto_name_gmm`
+
+##### BFF
+
+The demultiplexing method for the experiment must be given under the parameter `--methods`. Multiple methods can be given as a list, separated by ','.
+Besides, the method or methods for consensus must be given under the parameter `--methodsForConsensus`.
 
 ```bash
-nextflow run main.nf --mode hashing --match_donor False  --hto_matrix_raw /data_folder/raw_hto_data 
+nextflow run main.nf --mode hashing --match_donor False  --hto_matrix_raw /data_folder/raw_hto_data
 --hto_matrix_filtered /data_folder/filtered_hto_data --barcodes /data_folder/filtered_hto_data/barcodes.tsv.gz --rna_matrix_raw /data_folder/raw_rna_data --rna_matrix_filtered /data_folder/filtered_rna_data --hto_name_gmm "hto_name_1,hto_name_2,hto_name_3" --methods bff_cluster  --methodsForConsensus bff_cluster
 ```
