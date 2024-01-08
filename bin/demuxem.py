@@ -33,17 +33,7 @@ if __name__ == '__main__':
     # load input rna data
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
-    #data.subset_data(modality_subset=['rna'])
-    #data.concat_data() # in case of multi-organism mixing data
-    # load input hashing data
-    #data.update(io.read_input(args.hto_matrix_dir, modality="hashing"))
-    # Extract rna and hashing data
-    #rna_data = data.get_data(modality="rna")
-    #hashing_data = data.get_data(modality="hashing")
     rna = args.rna_matrix_dir
-    print("-------------------")
-    print(rna)
-    print("-------------------")
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True

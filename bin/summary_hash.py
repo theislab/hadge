@@ -104,7 +104,6 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
             mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-        #hashsolo_classi.loc[:, "most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0.0: "negative", 1.0: "singlet", 2.0: "doublet"})
         hashsolo_classi['most_likely_hypothesis'] = hashsolo_classi['most_likely_hypothesis'].apply(lambda x: 'negative' if x == 0.0 else ('singlet' if x == 1.0 else 'doublet'))
         hashsolo_classi.columns = [os.path.basename(x)]
         classi.append(hashsolo_classi)
@@ -310,9 +309,7 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
-
-        ##Inner function
-        def classify_hash(row,number_hashes):
+        def _classify_hash(row,number_hashes):
             if row == 0:
                 return 'negative'
             elif 0 > row <= number_hashes:
@@ -320,7 +317,7 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
             else:
                 return 'doublet'
 
-        classification_dt['Classification'] = classification_dt['Cluster_id'].apply(lambda x: classify_hash(x, number_of_hashes))
+        classification_dt['Classification'] = classification_dt['Cluster_id'].apply(lambda x: _classify_hash(x, number_of_hashes))
 
         #Compare classification guide file with classification found
         merged = pd.merge(classification_dt, gmm_dt, on='Cluster_id', how='left')
