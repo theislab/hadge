@@ -16,14 +16,13 @@ The genetics-based deconvolution workflow includes 5 methods:
 - Souporcell
 - scSplit
 
-The hashing-based deconvolution includes 8 methods:
+The hashing-based deconvolution includes 7 methods:
 
 - hashedDrops
 - Multiseq
 - HTODemux
 - Demuxem
 - HashSolo
-- Demuxmix
 - BFF
 - GMM_Demux
 

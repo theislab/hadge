@@ -12,7 +12,6 @@ parser.add_argument("--htodemux", help="Folder containing output files of htodem
 parser.add_argument("--multiseq", help="Folder containing output files of multiseq", default=None)
 parser.add_argument("--hashsolo", help="Folder containing output files of hashsolo", default=None)
 parser.add_argument("--hashedDrops", help="Folder containing output files of hashedDrops", default=None)
-parser.add_argument("--demuxmix", help="Folder containing output files of Demuxmix", default=None)
 parser.add_argument("--bff", help="Folder containing output files of BFF", default=None)
 parser.add_argument("--gmm_demux", help="Folder containing output files of GMM-Demux", default=None)
 parser.add_argument("--generate_anndata", help="Generate anndata", action='store_true')
@@ -105,7 +104,7 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
             mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
 
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-        hashsolo_classi.loc[:, "most_likely_hypothesis"] = hashsolo_classi["most_likely_hypothesis"].replace({0.0: "negative", 1.0: "singlet", 2.0: "doublet"})
+        hashsolo_classi['most_likely_hypothesis'] = hashsolo_classi['most_likely_hypothesis'].apply(lambda x: 'negative' if x == 0.0 else ('singlet' if x == 1.0 else 'doublet'))
         hashsolo_classi.columns = [os.path.basename(x)]
         classi.append(hashsolo_classi)
     
@@ -268,66 +267,8 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
     
     params = pd.concat(params, axis=1)
     params.to_csv("hash_summary/htodemux_params.csv")
-        
-def demuxmix_summary(demuxmix_res,raw_adata, raw_mudata):
-    classi = []
-    assign = []
-    params = []
-    files_in_folder = [item for item in demuxmix_res if os.path.isfile(os.path.join(demuxmix_res, item))]
 
-    if len(files_in_folder) > 0:
-        for x in demuxmix_res:
-            obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("_assignment_demuxmix.csv")][0])
-            demuxmix_asign = pd.read_csv(obs_res_dir)
-            if demuxmix_asign.empty:
-                #no results create empty dataframe for empty col
-                column_names = ['Barcode', os.path.basename(x)]
-                # Create an empty dataframe with only column names
-                df = pd.DataFrame(columns=column_names)
-                classi.append(df)
-                assign.append(df)
-            else:
-                dt_assign = demuxmix_asign[["Barcode", "HTO"]]
-                dt_assign.columns = ["Barcode", os.path.basename(x)]
-                assign.append(dt_assign)
 
-                if raw_adata is not None:
-                    adata = raw_adata.copy()
-                    adata.obs = adata.obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
-                    adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
-                    adata.obs.donor = adata.obs.donor.fillna("negative")
-                    adata.obs.donor = adata.obs.donor.astype(str)
-                    adata.write("hash_summary/adata/adata_with_"+os.path.basename(x)+".h5ad")
-
-                if raw_mudata is not None:
-                    mudata = raw_mudata.copy()
-                    mudata['rna'].obs = mudata['rna'].obs.merge(demuxmix_asign, left_index=True, right_on='Barcode', how='left').set_index('Barcode')
-                    mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
-                    mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
-                    mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
-                    mudata.update()
-                    mudata.write("hash_summary/mudata/mudata_with_mudata_"+ os.path.basename(x)+".h5mu") 
-
-                demuxmix_classi = pd.read_csv(obs_res_dir)
-                dt_classi = demuxmix_classi[["Barcode", "Classification"]]
-                dt_classi.columns = ["Barcode", os.path.basename(x)]
-                classi.append(dt_classi) 
-
-                params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-                params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-                params_res.columns = [os.path.basename(x)]
-                params.append(params_res)
-
-        classi_df = pd.concat(classi, axis=1, join="outer")
-        classi_df.to_csv("hash_summary" + "/demuxmix_classification.csv",index=False)
-        
-        assign_df = pd.concat(assign, axis=1, join="outer")
-        assign_df.to_csv("hash_summary" + "/demuxmix_assignment.csv",index=False)
-
-        params = pd.concat(params, axis=1)
-        params.to_csv("hash_summary" + "/demuxmix_params.csv",index=False)
-    else:
-        print("No results found for Demuxmix")
 
 def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     classi = []
@@ -335,9 +276,25 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
     params = []
     for x in gmmDemux_res:
         obs_res_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename.endswith("GMM_full.csv")][0])
+         
+        #we get the number of hashes used for the experiment from the parameters
+        #so that we now how many kinds of singlets we could find in the assignment
+        params_dir = os.path.join(x, "params.csv")
+        params_res = pd.read_csv(params_dir,index_col=False)
+        params_res.columns = ["Argument", os.path.basename(x)]
+        params.append(params_res)
+
         
+        result_row = params_res[params_res['Argument'].str.contains('hto_name_gmm', case=False, na=False)]
+        hashes_used = ""
+        if not result_row.empty:
+            hashes_used = result_row[os.path.basename(x)].iloc[0]
+        else:
+            print("No row contains the number of hashes")
+        hashes = hashes_used.split(',')
+        number_of_hashes = len(hashes)
+        #GMM assignement file
         gmm_classi = pd.read_csv(obs_res_dir)
-        
         #GMM full is the name given by GMM_demux per default to all results
         classification_config = os.path.join(x, "GMM_full.config")
         classif_file = pd.read_csv(classification_config,header=None)
@@ -345,23 +302,37 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         #Classification and Assigment come from the same file
         gmm_dt = pd.DataFrame(gmm_classi)
         classification_dt = pd.DataFrame(classif_file)
+
         #change column names
         classification_dt = classification_dt.rename(columns={0: "Cluster_id", 1: "assignment"})
+
         gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
-        classification_dt["assignment_binary"] = classification_dt["assignment"].str.contains("-")
-        classification_dt["classification"] = classification_dt["assignment"].apply(lambda x: "doublet" if x else "singlet")
-        classification_dt.at[0, "classification"] = "negative"
+        def _classify_hash(row,number_hashes):
+            if row == 0:
+                return 'negative'
+            elif 0 > row <= number_hashes:
+                return 'singlet'
+            else:
+                return 'doublet'
+
+        classification_dt['Classification'] = classification_dt['Cluster_id'].apply(lambda x: _classify_hash(x, number_of_hashes))
+
         #Compare classification guide file with classification found
         merged = pd.merge(classification_dt, gmm_dt, on='Cluster_id', how='left')
-
-        gmm_dt['Classification'] = merged['classification']
+        gmm_dt['Classification'] = merged['Classification']
         gmm_dt['Assignment'] = merged['assignment']
-        
+        #instead of multiple hashes, add doublet
+
+        gmm_dt["Assignment"] = gmm_dt["Assignment"].apply(lambda x: "doublet" if "-" in x else x)
+        classification_dt['Classification'] = classification_dt['Classification'].str.replace(' ', '')
         #Assigment for GMM-Demux
+        #'Cluster_id',
         gmm_dt_assign = gmm_dt.drop(['Cluster_id','Confidence','Classification' ], axis=1)
+        gmm_dt_assign['Assignment'] = gmm_dt_assign['Assignment'].str.replace(' ', '')
         gmm_dt_assign.columns = ["Barcode", os.path.basename(x)]
+   
         assign.append(gmm_dt_assign)
 
         if raw_adata is not None:
@@ -386,11 +357,7 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         gmm_dt_classi.columns =["Barcode", os.path.basename(x)]
         classi.append(gmm_dt_classi)
 
-        params_dir = os.path.join(x, "params.csv")
-        params_res = pd.read_csv(params_dir,index_col=False)
-        params_res.columns = ["Argument", os.path.basename(x)]
-        params.append(params_res)
-
+        
     classi_df = pd.concat(classi, axis=1, join="outer")
     classi_df.to_csv("hash_summary"  +"/GMM_classification.csv", index=False)
     
@@ -425,15 +392,15 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             for column in column_names:
                 if column in dt_assign.columns:
                     dt_assign = dt_assign.drop([column], axis=1)
-            dt_assign.loc[dt_assign["consensuscall"] == "Singlet", "consensuscall"] = "singlet"
             dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = "doublet"
+            dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = "negative"
+            dt_assign['consensuscall'] = dt_assign['consensuscall'].astype('category')
             dt_assign = dt_assign.rename(columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)})
+            dt_assign['Barcode'] = dt_assign['Barcode'].apply(lambda x: str(x) + "-1")
             assign.append(dt_assign)
             if raw_adata is not None:
                 adata = raw_adata.copy()
-
                 adata.obs = adata.obs.merge(dt_assign, left_index=True, right_index=True, how='left')
-
                 adata.obs.rename(columns={adata.obs.columns[0]: 'donor'}, inplace=True)
                 adata.obs.donor = adata.obs.donor.fillna("negative")
                 adata.obs.donor = adata.obs.donor.astype(str)
@@ -442,7 +409,6 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
 
             if raw_mudata is not None:
                 mudata = raw_mudata.copy()
-
                 mudata['rna'].obs = mudata['rna'].obs.merge(dt_assign, left_index=True, right_index=True, how='left')
                 mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
                 mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
@@ -454,17 +420,20 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi = data_bff.copy()
             column_names_class = ["bff_raw","bff_cluster","consensuscall"]
             for column in column_names_class:
-                if column in dt_assign.columns:
+                if column in dt_classi.columns:
                     dt_classi = dt_classi.drop([column], axis=1)
             dt_classi.loc[dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"] = "singlet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"] = "doublet"
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
             dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
+            dt_classi['Barcode'] = dt_classi['Barcode'].apply(lambda x: str(x) + "-1")
             classi.append(dt_classi)
-
+            
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])
-        params_res = pd.read_csv(params_dir, usecols=[1, 2], keep_default_na=False, index_col=0)     
-        params_res.columns = [os.path.basename(x)]
+        params_res = pd.read_csv(params_dir,sep=';',index_col=None)
+        params_res = params_res.drop(['Unnamed: 0' ], axis=1)  
+        params_res = params_res.dropna(subset=['Argument', 'Value'], how='any') 
+        params_res.columns = ["Argument",os.path.basename(x)]
         params.append(params_res)
 
     classi_df = pd.concat(classi, axis=1, join="outer")
@@ -514,10 +483,6 @@ if __name__ == '__main__':
     if args.htodemux is not None:
         htodemux_res = args.htodemux.split(':')
         htodemux_summary(htodemux_res, adata, mudata)
-    
-    if args.demuxmix is not None:
-        demuxmix_res = args.demuxmix.split(':')
-        demuxmix_summary(demuxmix_res, adata, mudata)
 
     if args.gmm_demux is not None:
         gmmDemux_res = args.gmm_demux.split(':')
@@ -529,19 +494,23 @@ if __name__ == '__main__':
 
     # Read and combine assignment files
     assignment = [file for file in os.listdir("hash_summary") if file.endswith("_assignment.csv")]
-    assignment_all = pd.read_csv(os.path.join("hash_summary", assignment[0]))
-   
-    if len(assignment) > 1:
-        for df in assignment[1:]:
-            df = pd.read_csv(os.path.join("hash_summary", df))
-            assignment_all = pd.merge(assignment_all, df, on='Barcode', how='outer')
+    assignment_all = pd.DataFrame()
+    
+    for file in assignment:
+        file_path = os.path.join("hash_summary", file)
+        df = pd.read_csv(file_path, usecols=['Barcode', pd.read_csv(file_path).columns[1]])
+        assignment_all = pd.concat([assignment_all, df.set_index('Barcode')], axis=1, join='outer')
+
+    # Reset the index to have 'Barcode' as a regular column
+    assignment_all.reset_index(inplace=True)
+
     assignment_all.to_csv("hash_summary/hashing_assignment_all.csv", index=False)
 
     # Read and combine classification files
     classification = [file for file in os.listdir("hash_summary") if file.endswith("_classification.csv")]
     classification_all = pd.read_csv(os.path.join("hash_summary", classification[0]))
-
-    if len(classification) > 1:
+    
+    if len(classification) > 1: 
         for df in classification[1:]:
             df = pd.read_csv(os.path.join("hash_summary", df))
             classification_all = pd.merge(classification_all, df, on='Barcode', how='outer')

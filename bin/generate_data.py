@@ -26,5 +26,17 @@ if __name__ == '__main__':
         adata.write("adata_with_donor_matching.h5ad")
     
     if args.generate_mudata:
-        # write mudata_with_donor_matching.h5mu data
-        pass
+        rna_data = sc.read_10x_mtx(args.read_rna_mtx)
+        hto_data = sc.read_10x_mtx(args.read_hto_mtx, gex_only=False)
+        assignment_dir = os.path.join(args.assignment, 
+                                    [filename for filename in os.listdir(args.assignment) if filename == "all_assignment_after_match.csv"][0])
+
+        assignment = pd.read_csv(assignment_dir, index_col = 0)
+        mudata = MuData({"rna": rna_data, "hto": hto_data })
+
+        mudata['rna'].obs = mudata['rna'].obs.merge(args.assignment, left_index=True, right_index=True, how='left')
+        mudata['rna'].obs.rename(columns={mudata['rna'].obs.columns[0]: 'donor'}, inplace=True)
+        mudata['rna'].obs.donor = mudata['rna'].obs.donor.fillna("negative")
+        mudata['rna'].obs.donor = mudata['rna'].obs.donor.astype(str)
+        mudata.update()
+        mudata.write("mudata_with_donor_matching.h5mu") 

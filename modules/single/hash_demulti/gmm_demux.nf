@@ -2,34 +2,33 @@
 nextflow.enable.dsl=2
 
 process gmm_demux{
-    publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/gmm_demux", mode:'copy'
+    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/gmm_demux", mode:'copy'
     label 'small_mem'
     conda "$projectDir/conda/gmm_demux.yml"
     
     input:
-        path path_hto
+        tuple val(sampleId), path(filtered_hto_matrix_dir), val(hto_name_gmm)
         //HTO names as string separated by commas
-        each hto_name_gmm
-        //5 cases are available for the tool it all depends on the vars given
+        //val hto_name_gmm
         //mode 2
         //need estimate number of cells in the single cell assay
         //obligatory
-        each summary
+        val summary
         //need to be combined with summary to get a report as file
-        each report_gmm 
+        val report_gmm 
         //mode 4
         // write csv or tsv - type of input
-        each mode_GMM
+        val mode_GMM
         //case 5
-        each extract 
+        val extract 
         //float between 0 and 1
-        each threshold_gmm
-        each ambiguous
+        val threshold_gmm
+        val ambiguous
         
         
     
     output:
-        path "gmm_demux_${task.index}"
+        path "gmm_demux_${sampleId}"
         
     script:
         def extract_droplets = extract != 'None' ? " -x ${extract}" : ''
@@ -37,20 +36,20 @@ process gmm_demux{
 
         if(mode_GMM=="csv"){
             """
-            mkdir gmm_demux_${task.index}
-            touch gmm_demux_${task.index}_$report_gmm
+            mkdir gmm_demux_${sampleId}
+            touch gmm_demux_${sampleId}_$report_gmm
             
-            GMM-demux -c $path_hto $hto_name_gmm -u $summary --report gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            gmm_demux_params.py --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm   --mode $mode_GMM  $extract_droplets --threshold_gmm $threshold_gmm $ambiguous_droplets  --outputdir gmm_demux_${task.index}
+            GMM-demux -c $filtered_hto_matrix_dir $hto_name_gmm -u $summary --report gmm_demux_${sampleId}_$report_gmm --full gmm_demux_${sampleId} $extract_droplets -t $threshold_gmm
+            gmm_demux_params.py --path_hto $filtered_hto_matrix_dir --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${sampleId}_$report_gmm   --mode $mode_GMM  $extract_droplets --threshold_gmm $threshold_gmm $ambiguous_droplets  --outputdir gmm_demux_${sampleId}
             
             """
         }else {
             """
-            mkdir gmm_demux_${task.index}
-            touch gmm_demux_${task.index}_$report_gmm
+            mkdir gmm_demux_${sampleId}
+            touch gmm_demux_${sampleId}_$report_gmm
             
-            GMM-demux $path_hto $hto_name_gmm -u $summary -r gmm_demux_${task.index}_$report_gmm --full gmm_demux_${task.index} -o gmm_demux_${task.index} $extract_droplets -t $threshold_gmm
-            gmm_demux_params.py --path_hto $path_hto --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${task.index}_$report_gmm --mode $mode_GMM $extract_droplets  --threshold_gmm $threshold_gmm $ambiguous_droplets --outputdir gmm_demux_${task.index}
+            GMM-demux $filtered_hto_matrix_dir $hto_name_gmm -u $summary -r gmm_demux_${sampleId}_$report_gmm --full gmm_demux_${sampleId} -o gmm_demux_${sampleId} $extract_droplets -t $threshold_gmm
+            gmm_demux_params.py --path_hto $filtered_hto_matrix_dir --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${sampleId}_$report_gmm --mode $mode_GMM $extract_droplets  --threshold_gmm $threshold_gmm $ambiguous_droplets --outputdir gmm_demux_${sampleId}
             
             """
         }
@@ -58,28 +57,19 @@ process gmm_demux{
 
 }
 
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
-    }
-    else{
-        Channel.from(input)
-    }
-}
 
 workflow gmm_demux_hashing{
-    take:   
+take: 
         hto_matrix
-    main:
-            hto_name_gmm = split_input(params.hto_name_gmm)
-            summary = split_input(params.summary)
-            report_gmm = split_input(params.report_gmm)
-            mode = split_input(params.mode_GMM)
-            extract = split_input(params.extract)
-            threshold_gmm = split_input(params.threshold_gmm)
-            ambiguous = split_input(params.ambiguous)
+  main:
+        summary = params.summary
+        report_gmm = params.report_gmm
+        mode = params.mode_GMM
+        extract = params.extract
+        threshold_gmm = params.threshold_gmm
+        ambiguous = params.ambiguous
 
-            gmm_demux(hto_matrix,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
+        gmm_demux(hto_matrix,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()

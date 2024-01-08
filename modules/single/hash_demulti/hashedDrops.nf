@@ -19,6 +19,7 @@ process hashedDrops{
         each isCellFDR
         val objectOutEmptyDrops
         val assignmentOutEmptyDrops
+        each runEmptyDrops
 	   
         each ambient
         each minProp
@@ -45,11 +46,12 @@ process hashedDrops{
         def alp = alpha != "None" ? " --alpha ${alpha}" : ''
         def byR = byRank != "None" ? " --by.rank ${byRank}" : ''
         def amb = ambient != 'False' ? " --ambient" : ''
+        def run_empty = runEmptyDrops != 'False' ? " --runEmptyDrops" : ''
         def comb = combinations != "None" ? " --combinations ${combinations}" : ''
 
         """
         mkdir hashedDrops_${task.index}
-        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb} --gene_col $gene_col
+        dropletUtils.R --raw_hto_matrix_dir $raw_hto_matrix_dir --lower $lower --niters $niters --isCellFDR $isCellFDR --objectOutEmptyDrops $objectOutEmptyDrops --assignmentOutEmptyDrops $assignmentOutEmptyDrops --minProp $minProp --pseudoCount $pseudoCount --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops --outputdir hashedDrops_${task.index} --assignmentOutHashedDrops ${assignmentOutHashedDrops}${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}${run_empty} --gene_col $gene_col
         """
 
 }
@@ -79,6 +81,7 @@ workflow hashedDrops_hashing{
         isCellFDR = split_input(params.isCellFDR)
         objectOutEmptyDrops = params.objectOutEmptyDrops
         assignmentOutEmptyDrops = params.assignmentOutEmptyDrops
+        runEmptyDrops = split_input(params.runEmptyDrops)
        
         ambient = split_input(params.ambient)
         minProp = split_input(params.minProp)
@@ -94,7 +97,7 @@ workflow hashedDrops_hashing{
         assignmentOutHashedDrops = params.assignmentOutHashedDrops
         gene_col = split_input(params.gene_col)
 
-        hashedDrops(hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops, gene_col)
+        hashedDrops(hto_matrix, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, objectOutEmptyDrops, assignmentOutEmptyDrops,runEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, assignmentOutHashedDrops, gene_col)
         
     emit:
         hashedDrops.out.collect()

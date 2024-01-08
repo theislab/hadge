@@ -7,7 +7,6 @@ include { htodemux_hashing } from './hash_demulti/htodemux'
 include { hash_solo_hashing } from './hash_demulti/hashsolo'
 include { hashedDrops_hashing } from './hash_demulti/hashedDrops'
 include { demuxem_hashing } from './hash_demulti/demuxem'
-include { demuxmix_hashing } from './hash_demulti/demuxmix'
 include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
 include { bff_hashing } from './hash_demulti/bff'
 
@@ -24,7 +23,6 @@ process summary{
         val multiseq_result
         val hashedDrops_result
         val gmmDemux_result
-        val demuxmix_result
         val bff_result
         val generate_anndata
         val generate_mudata
@@ -41,7 +39,6 @@ process summary{
         def multiseq_files = ""
         def hashedDrops_files = ""
         def gmmDemux_files = ""
-        def demuxmix_files = ""
         def bff_files = ""
         def generate_adata = ""
         def generate_mdata = ""
@@ -64,9 +61,6 @@ process summary{
         if (gmmDemux_result != "no_result"){
             gmmDemux_files = "--gmm_demux ${gmmDemux_result.join(":")}"
         }
-        if (demuxmix_result != "no_result"){
-            demuxmix_files = "--demuxmix ${demuxmix_result.join(":")}"
-        }
         if (bff_result != "no_result"){
             bff_files = "--bff ${bff_result.join(":")}"
         }
@@ -87,7 +81,7 @@ process summary{
         }
         
         """
-        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $demuxmix_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
+        summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         """
 }
 
@@ -159,16 +153,6 @@ workflow hash_demultiplexing{
     else{
         hashedDrops_out = channel.value("no_result")
     }
-    if (params.demuxmix == "True"){
-        demuxmix_rna_input = params.rna_available == "False" ? channel.value("None") :
-                            (params.rna_matrix_demuxmix == "raw" ? hto_matrix_raw : hto_matrix_filtered)
-        demuxmix_hto_input = params.hto_matrix_demuxmix == "raw" ? rna_matrix_raw : rna_matrix_filtered
-        demuxmix_hashing(demuxmix_hto_input,demuxmix_rna_input,params.hto_matrix_demuxmix, params.rna_matrix_demuxmix,params.rna_available)
-        demuxmix_out = demuxmix_hashing.out
-    }
-    else{
-        demuxmix_out = channel.value("no_result")
-    }
     if (params.bff == "True"){
         bff_hto_input = params.hto_matrix_bff == "raw" ? hto_matrix_raw : hto_matrix_filtered
         bff_hashing(bff_hto_input)
@@ -187,7 +171,7 @@ workflow hash_demultiplexing{
     }
 
 
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,gmmDemux_out, demuxmix_out,bff_out,
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,gmmDemux_out,bff_out,
             params.generate_anndata, params.generate_mudata, rna_matrix_filtered, hto_matrix_filtered)
     emit:
         summary.out

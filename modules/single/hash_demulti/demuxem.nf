@@ -6,7 +6,7 @@ process demuxem{
     label 'small_mem'
     
     conda "bioconda::pegasuspy demuxEM scanpy"
-
+    
     input:
         path raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}"
         path raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"

@@ -27,9 +27,11 @@ parser$add_argument("--objectOutEmptyDrops", default = "emptyDroplets",
                     help = "Prefix name for the emptyDrops RDS file")
 parser$add_argument("--assignmentOutEmptyDrops", default = "emptyDroplets",
                     help = "prefex name for emptyDrops assignment CSV file")
+parser$add_argument("--runEmptyDrops", action="store_false",
+                    help = "Executes emptyDrops function only when desired, recomended only for raw data")
 
 #for hashedDrops
-parser$add_argument("--ambient", action = "store_true",
+parser$add_argument("--ambient", action = "store_false",
                     help = "Whether to use the relative abundance of each HTO in the ambient solution from emtpyDrops, set TRUE only when test_ambient is TRUE.")
 parser$add_argument("--minProp", default = 0.05, type = "double",
                     help = "Numeric scalar to be used to infer the ambient profile when ambient=NULL,")
@@ -60,36 +62,40 @@ parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or f
 args <- parser$parse_args()
 
 hto <- Read10X(data.dir = args$raw_hto_matrix_dir, gene.column = args$gene_col)
+combinations_transformed <- ifelse(tolower(args$combinations) == "null", NULL, args$combinations)
 
-emptyDrops_out <- emptyDrops(hto, lower = args$lower, niters = args$niters,
-                             test.ambient = args$testAmbient,
-                             ignore = args$ignore,
-                             alpha = args$alpha, round = args$round,
-                             by.rank = args$byRank)
+if (args$runEmptyDrops == TRUE) {
+    rna <- Read10X(data.dir = args$raw_rna_matrix_dir,gene.column = args$gene_col)
+    print("------------------- executing emptyDrops ---------------------------------")
+    ignore_transformed <- ifelse(tolower(args$ignore) == "null", NULL, args$ignore)
+    emptyDrops_out <- emptyDrops(rna, lower = args$lower, niters = args$niters,
+                                test.ambient = args$testAmbient,
+                                ignore = NULL,
+                                alpha = args$alpha, round = args$round,
+                                by.rank = args$byRank)
+                        
 
-print("------------------- emptyDrops finished ---------------------------------")
+    write.csv(emptyDrops_out, paste0(args$outputdir, "/", args$assignmentOutEmptyDrops, ".csv"))
+    saveRDS(emptyDrops_out, file=paste0(args$outputdir, "/", args$objectOutEmptyDrops, ".rds"))
+
+    print("------------------- filtering empty droplets ----------------------------")
+    is.cell <- emptyDrops_out$FDR <= args$isCellFDR
+    colors <- ifelse(is.cell, "red", "black")
+    png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
+    plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
+    dev.off()
 
 
-print("-------- Following Files are saved in folder hashedDrops_out ------------")
-print(paste0(args$objectOutEmptyDrops, ".rds"))
-print(paste0(args$assignmentOutEmptyDrops, ".csv"))
-write.csv(emptyDrops_out, paste0(args$outputdir, "/", args$assignmentOutEmptyDrops, ".csv"))
-saveRDS(emptyDrops_out, file=paste0(args$outputdir, "/", args$objectOutEmptyDrops, ".rds"))
-
-print("------------------- filtering empty droplets ----------------------------")
-is.cell <- emptyDrops_out$FDR <= args$isCellFDR
-colors <- ifelse(is.cell, "red", "black")
-png(paste0(args$outputdir, "/", "plot_emptyDrops.png"))
-plot(emptyDrops_out$Total, -emptyDrops_out$LogProb, col=colors, xlab="Total UMI count", ylab="-Log Probability")
-dev.off()
-
-if (args$ambient == TRUE) {
-    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+    if (args$ambient == TRUE) {
+        hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, ambient = metadata(emptyDrops_out)$ambient, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = combinations_transformed)
+    } else {
+        hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = combinations_transformed)
+    }
 } else {
-    hashedDrops_out <- hashedDrops(hto[,which(is.cell)], min.prop = args$minProp, pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient, doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin, doublet.mixture = args$doubletMixture, confident.nmads = args$confidentNmads, confident.min = args$confidenMin, combinations = args$combinations)
+    hashedDrops_out <- hashedDrops(hto,min.prop = args$minProp,pseudo.count = args$pseudoCount, constant.ambient = args$constantAmbient,doublet.nmads = args$doubletNmads, doublet.min = args$doubletMin,confident.nmads = args$confidentNmads,confident.min = args$confidenMin)
+   
 }
 
-print("------------------- hashedDrops finished ---------------------------------")
 
 ignore <- args$ignore
 if (is.null(ignore)) {
