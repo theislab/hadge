@@ -191,7 +191,7 @@ workflow hash_demultiplexing{
 
     Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
+                | map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
                 | set {input_list_summary}
     summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
             
