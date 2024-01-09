@@ -10,22 +10,22 @@ hadge is a one-stop pipeline for demultiplexing single cell mixtures. It consist
 
 The genetics-based deconvolution workflow includes 5 methods:
 
-- Freemuxlet
 - Demuxlet
-- Vireo
-- Souporcell
+- Freemuxlet
 - scSplit
+- Souporcell
+- Vireo
 
-The hashing-based deconvolution includes 8 methods:
+The hashing-based deconvolution includes 7 methods:
 
-- hashedDrops
-- Multiseq
-- HTODemux
-- Demuxem
-- HashSolo
-- Demuxmix
 - BFF
+- Demuxem
 - GMM_Demux
+- hashedDrops
+- HashSolo
+- HTODemux
+- Multiseq
+
 
 ## **Installation**
 
@@ -56,7 +56,7 @@ nextflow run main.nf -profile test
 
 ## Notebook
 
-Check[](../../notebook.ipynb) to get familiar with the output of hadge.
+Check the [notebook](../../notebook.ipynb) to get familiar with the output of hadge.
 
 ## **Pipeline output**
 
@@ -98,6 +98,7 @@ general
 genetic
 hashing
 rescue
+notebook
 ```
 
 # Indices and tables

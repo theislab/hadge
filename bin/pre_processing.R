@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-#Libraries
+# Libraries
 library(Seurat)
 library(argparse)
 
@@ -14,21 +14,19 @@ parser$add_argument("--selectMethod", help = "Selection method", default = "mean
 parser$add_argument("--numberFeatures", help = "Number of features to be used when finding variable features", type = "integer", default = 2000)
 parser$add_argument("--assay", help = "Assay name for hashing modality", default = "HTO")
 parser$add_argument("--normalisationMethod", help = "Normalisation method", default = "CLR")
-parser$add_argument("--margin", help = "Margin for normalisation", type="integer", default = 2)
-parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or features.tsv to use for gene names; default is 2", type="integer", default = 2)
-parser$add_argument( "--OutputFile", help="Prefix of output files containing the output of HTODemux hashtag", default = "preprocessed")
-parser$add_argument("--outputdir", help='Output directory')
+parser$add_argument("--margin", help = "Margin for normalisation", type = "integer", default = 2)
+parser$add_argument("--gene_col", help = "Specify which column of genes.tsv or features.tsv to use for gene names; default is 2", type = "integer", default = 2)
+parser$add_argument("--OutputFile", help = "Prefix of output files containing the output of HTODemux hashtag", default = "preprocessed")
+parser$add_argument("--outputdir", help = "Output directory")
 args <- parser$parse_args()
 
 
 
-#Check if RNA data is available
-if(args$rdsObject){
+# Check if RNA data is available
+if (args$rdsObject) {
   umi <- readRDS(args$fileUmi)
   counts <- readRDS(args$fileHto)
-  
-}else{
-    
+} else {
   umi <- Read10X(data.dir = args$fileUmi, gene.column = args$gene_col)
   counts <- Read10X(data.dir = args$fileHto, gene.column = args$gene_col)
 }
@@ -53,13 +51,8 @@ hashtag <- ScaleData(hashtag, features = VariableFeatures(hashtag))
 hashtag[[args$assay]] <- CreateAssayObject(counts = counts)
 # Normalize HTO data
 hashtag <- NormalizeData(hashtag, assay = args$assay, normalization.method = args$normalisationMethod, margin = args$margin)
-  
 
-#Save Results
+
+# Save Results
 saveRDS(hashtag, file = paste0(args$outputdir, "/", args$OutputFile, ".rds"))
 write.csv(params, paste0(args$outputdir, "/params.csv"))
-
-
-
-
-

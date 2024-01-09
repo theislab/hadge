@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-#Libraries
+# Libraries
 library(Seurat)
 library(argparse)
 library(ggplot2)
@@ -15,54 +15,52 @@ parser$add_argument("--seed", help = "Sets the random seed.", type = "integer", 
 parser$add_argument("--init", help = "Initial number of clusters for hashtags.", default = NULL, type = "integer")
 parser$add_argument("--assay", help = "Assay name", default = "HTO")
 parser$add_argument("--objectOutHTOdemux", help = "Prefix name for the object containing the output of HTODemux object", type = "character", default = "htodemux")
-parser$add_argument("--assignmentOutHTOdemux", help="Prefeix name for the file containing the output of HTODemux assignment", type = "character", default = "htodemux")
-parser$add_argument("--outputdir", help='Output directory')
+parser$add_argument("--assignmentOutHTOdemux", help = "Prefeix name for the file containing the output of HTODemux assignment", type = "character", default = "htodemux")
+parser$add_argument("--outputdir", help = "Output directory")
 
 
 args <- parser$parse_args()
-if (!endsWith(args$seuratObject, ".rds")){
-    seuratObj <- list.files(args$seuratObject, pattern = "\\.rds$", full.names = TRUE)[1]
-}else{
-    seuratObj <- args$seuratObject
+if (!endsWith(args$seuratObject, ".rds")) {
+  seuratObj <- list.files(args$seuratObject, pattern = "\\.rds$", full.names = TRUE)[1]
+} else {
+  seuratObj <- args$seuratObject
 }
 
 init <- args$init
-if(is.null(init)){
-    init <- "NULL"
+if (is.null(init)) {
+  init <- "NULL"
 }
 Argument <- c("seuratObject", "quantile", "kfunc", "nstarts", "nsamples", "seed", "init", "assay")
 Value <- c(seuratObj, args$quantile, args$kfunc, args$nstarts, args$nsamples, args$seed, init, args$assay)
 
 params <- data.frame(Argument, Value)
 # Loading Seurat object
-hashtag <-readRDS(seuratObj)
+hashtag <- readRDS(seuratObj)
 
 # Demultiplex cells based on HTO enrichment
-if(args$kfunc == "clara"){
-    hashtag <- HTODemux(hashtag, assay = args$assay, positive.quantile = args$quantile, init = args$init, nsamples = args$nsamples, kfunc = "clara", seed = args$seed)
-}else{
-    hashtag <- HTODemux(hashtag, assay = args$assay, positive.quantile = args$quantile, init = args$init, nstarts = args$nstarts, kfunc = "kmeans", seed = args$seed)
+if (args$kfunc == "clara") {
+  hashtag <- HTODemux(hashtag, assay = args$assay, positive.quantile = args$quantile, init = args$init, nsamples = args$nsamples, kfunc = "clara", seed = args$seed)
+} else {
+  hashtag <- HTODemux(hashtag, assay = args$assay, positive.quantile = args$quantile, init = args$init, nstarts = args$nstarts, kfunc = "kmeans", seed = args$seed)
 }
 
 
 # Global classification results
-#table(hashtag[[paste0(args$assay,"_classification.global")]])
+# table(hashtag[[paste0(args$assay,"_classification.global")]])
 
-#table(hashtag[[paste0(args$assay,"_classification")]])
+# table(hashtag[[paste0(args$assay,"_classification")]])
 
 
 # Saving results
 
 donors <- rownames(hashtag[[args$assay]])
-assignment <- hashtag[[paste0(args$assay,"_classification")]]
-assignment[[paste0(args$assay,"_classification")]][!assignment[[paste0(args$assay,"_classification")]] %in% c(donors, 'Negative')] <- "Doublet"
+assignment <- hashtag[[paste0(args$assay, "_classification")]]
+assignment[[paste0(args$assay, "_classification")]][!assignment[[paste0(args$assay, "_classification")]] %in% c(donors, "Negative")] <- "Doublet"
 
 
 
 write.csv(params, paste0(args$outputdir, "/params.csv"))
 write.csv(assignment, paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))
-#write.csv(hashtag[[paste0(args$assay,"_classification")]], paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))
-write.csv(hashtag[[paste0(args$assay,"_classification.global")]], paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_classification_htodemux.csv"))
-saveRDS(hashtag, file=paste0(args$outputdir, "/", args$objectOutHTOdemux,".rds"))
-
-
+# write.csv(hashtag[[paste0(args$assay,"_classification")]], paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_assignment_htodemux.csv"))
+write.csv(hashtag[[paste0(args$assay, "_classification.global")]], paste0(args$outputdir, "/", args$assignmentOutHTOdemux, "_classification_htodemux.csv"))
+saveRDS(hashtag, file = paste0(args$outputdir, "/", args$objectOutHTOdemux, ".rds"))

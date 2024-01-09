@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
 process freemuxlet {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
 
-    conda "bioconda::popscle"
+    conda 'bioconda::popscle'
 
     input:
         each sam
@@ -48,10 +48,10 @@ process freemuxlet {
         def vcffile = "--vcf $vcf"
         def smlist = sm != 'None' ? "--sm $sm" : ''
         def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
-        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "No sm list file is given"
+        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : 'No sm list file is given'
         def samverbose = "--sam-verbose ${sam_verbose}"
         def vcfverbose = "--vcf-verbose ${vcf_verbose}"
-        def skipumi = skip_umi != "False" ? "--skip-umi" : ""
+        def skipumi = skip_umi != 'False' ? '--skip-umi' : ''
         def capBQ = "--cap-BQ ${cap_BQ}"
         def minBQ = "--min-BQ ${min_BQ}"
         def minMQ = "--min-MQ ${min_MQ}"
@@ -64,43 +64,40 @@ process freemuxlet {
         def minsnp = "--min-snp ${min_snp}"
         def initcluster = init_cluster != 'None' ? "--init-cluster ${init_cluster}" : ''
         def n_sample = "--nsample $nsample"
-        def auxfiles = aux_files != 'False' ? "--aux-files" : ''
+        def auxfiles = aux_files != 'False' ? '--aux-files' : ''
         def verbose_info = "--verbose $verbose"
         def doubletprior = "--doublet-prior ${doublet_prior}"
         def bfthres = "--bf-thres ${bf_thres}"
         def frac_init_cluster = "--frac-init-clust ${frac_init_clust}"
         def iterinit = "--iter-init ${iter_init}"
-        def keepinit_missing = keep_init_missing != "False" ? "--keep-init-missing" : ''
-        
+        def keepinit_missing = keep_init_missing != 'False' ? '--keep-init-missing' : ''
+
         """
         mkdir freemuxlet_${task.index}
         mkdir freemuxlet_${task.index}/plp
         touch freemuxlet_${task.index}/params.csv
         echo -e "Argument,Value \n samfile,${sam} \n tag_group,${tag_group} \n tag_UMI,${tag_UMI} \n vcf_file,${vcf} \n sm,${sm} \n sm_list_file,${sm_list_file_name} \n sam_verbose,${sam_verbose} \n vcf_verbose,${vcf_verbose} \n skip_umi,${skip_umi} \n cap_BQ,${cap_BQ} \n min_BQ,${min_BQ} \n min_MQ,${min_MQ} \n min_TD,${min_TD} \n excl_flag,${excl_flag} \n grouplist,${group_list} \n min_total,${min_total} \n min_uniq,${min_uniq} \n min_umi,${min_umi} \n min_snp,${min_snp} \n init_cluster,${init_cluster} \n nsample,${nsample} \n aux_files,${aux_files} \n verbose,${verbose} \n doublet_prior,${doublet_prior} \n bf_thres,${bf_thres} \n frac_init_clust,${frac_init_clust} \n iter_init,${iter_init} \n keep_init_missing,${keep_init_missing}" >> freemuxlet_${task.index}/params.csv
-        
+
         popscle dsc-pileup $samfile ${taggroup} ${tagUMI} $vcffile ${smlist} ${sm_list_file} ${samverbose} \
             ${vcfverbose} ${skipumi} ${capBQ} ${minBQ} ${minMQ} ${minTD} ${exclflag} ${grouplist} ${mintotal} ${minuniq} \
             ${minsnp} --out freemuxlet_${task.index}/plp/${freemuxlet_out}
         popscle freemuxlet --plp freemuxlet_${task.index}/plp/${freemuxlet_out} --out freemuxlet_${task.index}/${freemuxlet_out} \
             ${initcluster} ${n_sample} ${auxfiles} ${verbose_info} ${doubletprior} ${bfthres} ${frac_init_cluster} ${iterinit} \
             ${keepinit_missing} ${capBQ} ${minBQ} ${grouplist} ${mintotal} ${minumi} ${minsnp}
-            
+
         """
-        
 }
 
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }
 
-
-workflow demultiplex_freemuxlet{
+workflow demultiplex_freemuxlet {
     take:
         sam
     main:
@@ -113,7 +110,7 @@ workflow demultiplex_freemuxlet{
         sam_verbose = split_input(params.sam_verbose)
         vcf_verbose = split_input(params.vcf_verbose)
         skip_umi = split_input(params.skip_umi)
-         
+
         cap_BQ = split_input(params.cap_BQ)
         min_BQ = split_input(params.min_BQ)
         min_MQ = split_input(params.min_MQ)
@@ -124,7 +121,7 @@ workflow demultiplex_freemuxlet{
         min_umi = split_input(params.min_umi)
         min_snp = split_input(params.min_snp)
         init_cluster = split_input(params.init_cluster)
-        nsample = split_input(params.nsample)
+        nsample = split_input(params.nsamples_genetic)
         aux_files = split_input(params.aux_files)
         verbose = split_input(params.verbose)
         doublet_prior = split_input(params.doublet_prior)
@@ -135,9 +132,9 @@ workflow demultiplex_freemuxlet{
         freemuxlet_out = params.freemuxlet_out
 
         freemuxlet(sam, vcf, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ,
-            min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, min_snp, init_cluster, nsample, 
+            min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, min_snp, init_cluster, nsample,
             aux_files, verbose, doublet_prior, bf_thres, frac_init_clust, iter_init, keep_init_missing, freemuxlet_out)
-    
+
     emit:
         freemuxlet.out.collect()
 }

@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process demuxem{
+process demuxem {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
 
-    conda "bioconda::pegasuspy bioconda::scanpy bioconda::demuxEM" 
-    
+    conda 'bioconda::pegasuspy bioconda::scanpy bioconda::demuxEM'
+
     input:
-        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"), 
+        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"),
                              path(raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxem}")
         val threads
         val alpha
@@ -23,9 +23,9 @@ process demuxem{
         val filter_demuxem
     output:
         path "demuxem_${sampleId}"
-        
+
     script:
-        def generateGenderPlot = generate_gender_plot != "None" ? " --generateGenderPlot ${generate_gender_plot}" : ''
+        def generateGenderPlot = generate_gender_plot != 'None' ? " --generateGenderPlot ${generate_gender_plot}" : ''
         """
         mkdir demuxem_${sampleId}
         demuxem.py --rna_matrix_dir rna_data_${params.rna_matrix_demuxem} --hto_matrix_dir hto_data_${params.hto_matrix_demuxem} \
@@ -33,12 +33,11 @@ process demuxem{
             --min_num_genes $min_num_genes --min_num_umis $min_num_umis --alpha $alpha --alpha_noise $alpha_noise \
             --n_threads $threads $generateGenderPlot --objectOutDemuxem $objectOutDemuxem --outputdir demuxem_${sampleId} \
             --filter_demuxem $filter_demuxem
-        
-        """
 
+        """
 }
 
-workflow demuxem_hashing{
+workflow demuxem_hashing {
     take:
         input_list
     main:
@@ -54,9 +53,9 @@ workflow demuxem_hashing{
         objectOutDemuxem = params.objectOutDemuxem
         filter_demuxem = params.filter_demuxem
 
-        demuxem(input_list, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis, 
+        demuxem(input_list, threads, alpha, alpha_noise, tol, min_num_genes, min_num_umis,
                 min_signal, random_state, generate_gender_plot, objectOutDemuxem, filter_demuxem)
-  
+
   emit:
         demuxem.out.collect()
 }

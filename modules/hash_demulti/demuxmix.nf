@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process demuxmix{
+process demuxmix {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxmix", mode:'copy'
     label 'small_mem'
-    
+
     conda "$projectDir/conda/demuxmix.yml"
-    
+
     input:
-        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxmix}"), 
+        tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxmix}"),
                              path(raw_rna_matrix_dir, stageAs: "rna_data_${params.rna_matrix_demuxmix}")
         val hto_raw_or_filtered
         val rna_raw_or_filtered
@@ -25,10 +25,10 @@ process demuxmix{
         val correctTails
         val assignmentOutDemuxmix
         val gene_col
-        
+
     output:
         path "demuxmix_${sampleId}"
-        
+
     script:
         """
         mkdir demuxmix_${sampleId}
@@ -38,12 +38,11 @@ process demuxmix{
                     --maxIter_demuxmix $maxIter_demuxmix --correctTails $correctTails --k_hto $k_hto --k_rna $k_rna --outputdir demuxmix_${sampleId} \
                     --assignmentOutDemuxmix $assignmentOutDemuxmix --gene_col $gene_col
         """
-
 }
 
-workflow demuxmix_hashing{
+workflow demuxmix_hashing {
   take:
-      input_list
+    input_list
   main:
         assay = params.assay
         ndelim = params.ndelim
@@ -55,16 +54,15 @@ workflow demuxmix_hashing{
         k_hto = params.k_hto
         k_rna = params.k_rna
         correctTails = params.correctTails
-        assignmentOutDemuxmix = params.assignmentOutDemuxmix 
+        assignmentOutDemuxmix = params.assignmentOutDemuxmix
         gene_col = params.gene_col
-        
 
-        demuxmix(input_list, assay,ndelim,model,alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna,correctTails,assignmentOutDemuxmix, gene_col)
-  
+        demuxmix(input_list, assay, ndelim, model, alpha_demuxmix, beta_demuxmix, tol_demuxmix, maxIter_demuxmix, k_hto, k_rna, correctTails, assignmentOutDemuxmix, gene_col)
+
   emit:
         demuxmix.out.collect()
 }
 
-workflow{
+workflow {
     demuxmix_hashing()
 }

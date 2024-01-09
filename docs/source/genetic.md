@@ -2,9 +2,10 @@
 
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
 
-## **Genetics-based deconvolution (gene_demulti) in hadge**
-
-![Caption](_static/images/genotype-based.png)
+## **gene_demulti in hadge**
+<p align="center">
+<img src="_static/images/genotype.png" width="500">
+</p>
 
 ## **Quick start**
 
@@ -106,7 +107,7 @@ output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 - bam
 - bam_index
 - barcodes
-- nsample
+- nsamples_genetic
 - celldata
 - vcf_mixed
 - vcf_donor
@@ -242,7 +243,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | bam                        | Input SAM/BAM/CRAM file. Must be sorted by coordinates and indexed.                                                                                            |
 | bai                        | Index of Input SAM/BAM/CRAM file.                                                                                                                              |
 | barcodes                   | List of cell barcodes to consider.                                                                                                                             |
-| nsample                    | Number of samples multiplexed together                                                                                                                         |
+| nsamples_genetic           | Number of samples multiplexed together                                                                                                                         |
 | tag_group                  | Tag representing readgroup or cell barcodes, in the case to partition the BAM file into multiple groups. For 10x genomics, use CB Default: CB                  |
 | tag_UMI                    | Tag representing UMIs. For 10x genomiucs, use UB. Default: UB                                                                                                  |
 | common_variants_freemuxlet | Input VCF/BCF file for dsc-pileup, containing the AC and AN field.                                                                                             |
@@ -278,7 +279,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | vireo_preprocess | Whether to perform pre-processing on the input params.bam for cellSNP-lite. True: Perform pre-processing. Otherwise pre-processing is not called. Default: False              |
 | vireo_variant    | Whether to perform cellSNP-lite before running Vireo. True: Run cellSNP-lite. Otherwise cellSNP-lite is not called and params.celldata is used as input. Default: True        |
 | celldata         | The cell genotype file in VCF format or cellSNP folder with sparse matrices.                                                                                                  |
-| nsample          | Number of donors to demultiplex; can be larger than provided in vcf_donor                                                                                                     |
+| nsamples_genetic | Number of donors to demultiplex; can be larger than provided in vcf_donor                                                                                                     |
 | vartrixData      | The cell genotype files in vartrix outputs (three/four files, comma separated): alt.mtx,ref.mtx,barcodes.tsv,SNPs.vcf.gz. This will suppress cellData argument. Default: None |
 | vcf_donor        | The donor genotype file in VCF format. Default: None                                                                                                                          |
 | genoTag          | The tag for donor genotype: GT, GP, PL. Default: GT                                                                                                                           |
@@ -308,7 +309,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | barcodes                | Barcodes whitelist.                                                                                                                                                                                                                                        |
 | tag_group               | Tag for barcode. Default: CB                                                                                                                                                                                                                               |
 | common_variants_scSplit | Common SNVs for scSplit.                                                                                                                                                                                                                                   |
-| nsample                 | Expected number of mixed samples.                                                                                                                                                                                                                          |
+| nsamples_genetic        | Expected number of mixed samples.                                                                                                                                                                                                                          |
 | refscSplit              | Output Ref count matrix. Default: ref_filtered.csv                                                                                                                                                                                                         |
 | altscSplit              | Output Alt count matrix. Default: alt_filtered.csv                                                                                                                                                                                                         |
 | subscSplit              | The maximum number of subpopulations in autodetect mode. Default: 10                                                                                                                                                                                       |
@@ -329,7 +330,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | barcodes                     | Barcodes.tsv from cellranger                                                                                                                                   |
 | fasta                        | Reference fasta file.                                                                                                                                          |
 | fasta_index                  | Index of reference fasta file.                                                                                                                                 |
-| nsample                      | Number of clusters in the BAM file.                                                                                                                            |
+| nsamples_genetic        | Number of clusters in the BAM file.                                                                                                                            |
 | threads                      | Max threads to use. Default: 5                                                                                                                                 |
 | ploidy                       | Ploidy, must be 1 or 2. Default: 2                                                                                                                             |
 | min_alt                      | Min alt to use locus. Default: 10                                                                                                                              |

@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
-process hash_solo{
+nextflow.enable.dsl = 2
+process hash_solo {
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/hashsolo", mode:'copy'
     label 'small_mem'
 
@@ -17,13 +17,13 @@ process hash_solo{
         each number_of_noise_barcodes
         val assignmentOutHashSolo
         val plotOutHashSolo
-    
+
     output:
         path "hashsolo_${task.index}"
 
     script:
-        def noise_barcodes = number_of_noise_barcodes != "None" ? "--number_of_noise_barcodes $number_of_noise_barcodes" : ''
-        def existing_clusters = pre_existing_clusters != "None" ? "--pre_existing_clusters $pre_existing_clusters" : ''
+        def noise_barcodes = number_of_noise_barcodes != 'None' ? "--number_of_noise_barcodes $number_of_noise_barcodes" : ''
+        def existing_clusters = pre_existing_clusters != 'None' ? "--pre_existing_clusters $pre_existing_clusters" : ''
         def clustering_data = use_rna_data != 'False' ? "--clustering_data rna_data_${params.rna_matrix_hashsolo}" : ''
         """
         mkdir hashsolo_${task.index}
@@ -32,15 +32,13 @@ process hash_solo{
                     --assignmentOutHashSolo $assignmentOutHashSolo \
                     --plotOutHashSolo $plotOutHashSolo --outputdir hashsolo_${task.index}
         """
-
 }
 
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }

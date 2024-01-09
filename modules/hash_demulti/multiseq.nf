@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process multi_seq{
+process multi_seq {
     publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/multiseq", mode: 'copy'
     label 'small_mem'
-    
-    conda "conda-forge::r-seurat conda-forge::r-argparse"
+
+    conda 'conda-forge::r-seurat conda-forge::r-argparse'
 
     input:
         each seurat_object
@@ -24,10 +24,10 @@ process multi_seq{
         path "multiseq_${seurat_object.name.tokenize( '_' )[1]}"
 
     script:
-        def sampleId = seurat_object.name.tokenize( '_' )[1]
-        def autoThr = autoThresh != 'False' ? " --autoThresh" : ''
-        def verb = verbose != 'False' ? " --verbose" : ''
-                
+        def sampleId = seurat_object.name.tokenize('_')[1]
+        def autoThr = autoThresh != 'False' ? ' --autoThresh' : ''
+        def verb = verbose != 'False' ? ' --verbose' : ''
+
         """
         mkdir multiseq_${sampleId}
         MultiSeq.R --seuratObjectPath $seurat_object  --assay $assay --quantile $quantile $autoThr \
@@ -36,7 +36,7 @@ process multi_seq{
         """
 }
 
-workflow multiseq_hashing{
+workflow multiseq_hashing {
    take:
         seurat_object
    main:

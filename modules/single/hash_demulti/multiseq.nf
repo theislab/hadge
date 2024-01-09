@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process multi_seq{
+process multi_seq {
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/multiseq", mode:'copy'
     label 'small_mem'
-    
-    conda "conda-forge::r-seurat conda-forge::r-argparse"
-    
+
+    conda 'conda-forge::r-seurat conda-forge::r-argparse'
+
     input:
         each rdsObject
         each quantile
@@ -24,25 +24,25 @@ process multi_seq{
         path "multiseq_${task.index}"
 
     script:
-        def autoThr = autoThresh != 'False' ? " --autoThresh" : ''
-        def verb = verbose != 'False' ? " --verbose" : ''
-                
+        def autoThr = autoThresh != 'False' ? ' --autoThresh' : ''
+        def verb = verbose != 'False' ? ' --verbose' : ''
+
         """
         mkdir multiseq_${task.index}
         MultiSeq.R --seuratObjectPath $rdsObject  --assay $assay --quantile $quantile $autoThr --maxiter $maxiter --qrangeFrom $qrangeFrom --qrangeTo $qrangeTo --qrangeBy $qrangeBy $verb --objectOutMulti $objectOutMulti --assignmentOutMulti $assignmentOutMulti --outputdir multiseq_${task.index}
         """
 }
 
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }
 
-workflow multiseq_hashing{
+workflow multiseq_hashing {
    take:
         rdsObject
    main:

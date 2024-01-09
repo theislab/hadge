@@ -72,7 +72,6 @@ workflow run_single{
         }
     }
     else if (params.mode == "hashing"){
-
         hash_demultiplexing(params.rna_matrix_raw, params.rna_matrix_filtered, params.hto_matrix_raw, params.hto_matrix_filtered)
         if (params.match_donor == "True"){
             donor_match(hash_demultiplexing.out)

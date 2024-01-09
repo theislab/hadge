@@ -1,6 +1,10 @@
 # General
 
-![Caption](_static/images/pipeline_v2.png)
+## **hadge: a comprehensive pipeline for donor deconvolution in single cell**
+
+Preprint manuscript is available [here](https://www.biorxiv.org/content/10.1101/2023.07.23.550061v2)
+
+![Caption](_static/images/pipeline.png)
 
 ## **Pipeline overview:**
 

@@ -1,9 +1,9 @@
-process preprocess{
+process preprocess {
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/preprocess", mode:'copy'
     label 'small_mem'
-    
-    conda "conda-forge::r-seurat conda-forge::r-argparse"
-    
+
+    conda 'conda-forge::r-seurat conda-forge::r-argparse'
+
     input:
         path hto_matrix, stageAs: 'hto_data'
         path umi_matrix, stageAs: 'rna_data'
@@ -22,7 +22,7 @@ process preprocess{
         path "preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}"
 
     script:
-    
+
     """
         mkdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered}
         pre_processing.R --fileUmi rna_data --fileHto hto_data --ndelim $ndelim \
@@ -31,20 +31,18 @@ process preprocess{
                         --outputdir preprocess_${task.index}_hto_${hto_raw_or_filtered}_rna_${rna_raw_or_filtered} --gene_col $gene_col
     """
 
-
 }
 
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }
 
-workflow preprocessing_hashing{
+workflow preprocessing_hashing {
     take:
         hto_matrix
         rna_matrix
@@ -59,7 +57,7 @@ workflow preprocessing_hashing{
         norm_method = split_input(params.norm_method)
         out_file = params.preprocessOut
         gene_col = split_input(params.gene_col)
-        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method,out_file,gene_col)
+        preprocess(hto_matrix, rna_matrix, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method, out_file, gene_col)
     emit:
         preprocess.out.collect()
 }
