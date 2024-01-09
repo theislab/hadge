@@ -3,6 +3,7 @@
 Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
 
 ## **hash_demulti in hadge**
+
 <p align="center">
 <img src="_static/images/hashing.png" width="400">
 </p>
@@ -18,13 +19,13 @@ nextflow run main.nf -profile test --mode hashing
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
 
-| Deconvolution method | Input data |
-| -------------------- | ---------- |
-| HTODemux             | UMI and hashing count matrix    |
-| Multiseq             | UMI and hashing count matrix    |
+| Deconvolution method | Input data                                                    |
+| -------------------- | ------------------------------------------------------------- |
+| HTODemux             | UMI and hashing count matrix                                  |
+| Multiseq             | UMI and hashing count matrix                                  |
 | HashSolo             | - Required: Hashing count matrix - Optional: UMI count matrix |
-| HashedDrops          | Hashing count matrix            |
-| Demuxem              | Both UMI and hashing count matrix  |
+| HashedDrops          | Hashing count matrix                                          |
+| Demuxem              | Both UMI and hashing count matrix                             |
 
 Similary as genotype-based deconvlution methods, hashing methods also have some input in common. So we also try to utilize common input parameters `params.[rna/hto]_matrix_[raw/filtered]` to store count matrices for better control and `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method, e.g. `hto_matrix_hashedDrops = "raw"` means that raw HTO count matrix is used as input for HTODemux.
 
@@ -159,7 +160,7 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | quantile_htodemux   | The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99 |
 | kfunc               | Clustering function for initial hashtag grouping. Default: clara.                                                              |
 | nstarts             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                           |
-| nsamples_clustering            | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
+| nsamples_clustering | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
 | seed                | Sets the random seed. Default: 42                                                                                              |
 | init                | Initial number of clusters for hashtags. Default: None, which means the # of hashtag oligo names + 1 to account for negatives. |
 | objectOutHTO        | Name of the output Seurat object. Default: htodemux                                                                            |
@@ -199,7 +200,6 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | verbose_multiseq    | Wether to print the output. Default: True                                                               |
 | assignmentOutMulti  | Prefix of the output CSV files. Default: multiseq                                                       |
 | objectOutMulti      | Name of the output Seurat object. Default: multiseq                                                     |
-
 
 ### HashSolo
 

@@ -3,6 +3,7 @@
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
 
 ## **gene_demulti in hadge**
+
 <p align="center">
 <img src="_static/images/genotype.png" width="500">
 </p>
@@ -330,7 +331,7 @@ output directory: `$pipeline_output_folder/souporcell/souporcell_[task_ID/sample
 | barcodes                     | Barcodes.tsv from cellranger                                                                                                                                   |
 | fasta                        | Reference fasta file.                                                                                                                                          |
 | fasta_index                  | Index of reference fasta file.                                                                                                                                 |
-| nsamples_genetic        | Number of clusters in the BAM file.                                                                                                                            |
+| nsamples_genetic             | Number of clusters in the BAM file.                                                                                                                            |
 | threads                      | Max threads to use. Default: 5                                                                                                                                 |
 | ploidy                       | Ploidy, must be 1 or 2. Default: 2                                                                                                                             |
 | min_alt                      | Min alt to use locus. Default: 10                                                                                                                              |

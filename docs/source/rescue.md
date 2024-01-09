@@ -3,6 +3,7 @@
 The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy. hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct. In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously. Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP- based donor deconvolution tools.
 
 ## Overview
+
 <p align="center">
 <img src="_static/images/rescue.png" width="500">
 </p>

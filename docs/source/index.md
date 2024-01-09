@@ -26,7 +26,6 @@ The hashing-based deconvolution includes 7 methods:
 - HTODemux
 - Multiseq
 
-
 ## **Installation**
 
 The hadge pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
