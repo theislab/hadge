@@ -61,7 +61,7 @@ process gmm_demux{
 
 workflow gmm_demux_hashing{
 take: 
-        hto_matrix
+        input_list
   main:
         summary = params.summary
         report_gmm = params.report_gmm
@@ -70,7 +70,7 @@ take:
         threshold_gmm = params.threshold_gmm
         ambiguous = params.ambiguous
 
-        gmm_demux(hto_matrix,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
+        gmm_demux(input_list,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()

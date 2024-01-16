@@ -19,4 +19,4 @@ jobs:
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --souporcell False --generate_anndata False --hto_name_gmm hto_1,hto_2
+          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --souporcell False --generate_anndata False
