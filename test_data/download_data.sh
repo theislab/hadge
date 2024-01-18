@@ -8,7 +8,7 @@ FILEID="13CV6CjP9VzmwG5MVHbJiVDMVdiIhGdJB"
 FILENAME="jurkat_293t_downsampled_n500_full_bam.bam"
 # wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=$FILEID' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=$FILEID" -O $FILENAME && rm -rf /tmp/cookies.txt
 pip install gdown
-gdown --id $FILEID -o $FILENAME
+gdown --id $FILEID -O $FILENAME
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MmwEiOsdzEfRdXS6oXXBwMJXUovKWcni' -O final_res.zip
 unzip final_res.zip
 rm final_res.zip
