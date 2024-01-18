@@ -15,11 +15,12 @@ jobs:
           channels: conda-forge, bioconda
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
-      - name: Download test dataset
+      - name: Set up Python to install gdown
         uses: actions/setup-python@v5
         with:
           python-version: "3.9"
           cache: "pip"
+      - name: Download test dataset
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
