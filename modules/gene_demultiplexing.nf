@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-include { data_preprocess } from "$projectDir/gene_demulti/samtools"
-include { filter_variant } from "$projectDir/gene_demulti/bcftools"
-include { variant_cellSNP } from "$projectDir/gene_demulti/cellsnp"
-include { variant_freebayes } from "$projectDir/gene_demulti/freebayes"
-include { demultiplex_demuxlet } from "$projectDir/gene_demulti/demuxlet"
-include { demultiplex_freemuxlet } from "$projectDir/gene_demulti/freemuxlet"
-include { demultiplex_scSplit } from "$projectDir/gene_demulti/scsplit"
-include { demultiplex_souporcell } from "$projectDir/gene_demulti/souporcell"
-include { demultiplex_vireo } from "$projectDir/gene_demulti/vireo"
+include { data_preprocess } from './gene_demulti/samtools'
+include { filter_variant } from './gene_demulti/bcftools'
+include { variant_cellSNP } from './gene_demulti/cellsnp'
+include { variant_freebayes } from './gene_demulti/freebayes'
+include { demultiplex_demuxlet } from './gene_demulti/demuxlet'
+include { demultiplex_freemuxlet } from './gene_demulti/freemuxlet'
+include { demultiplex_scSplit } from './gene_demulti/scsplit'
+include { demultiplex_souporcell } from './gene_demulti/souporcell'
+include { demultiplex_vireo } from './gene_demulti/vireo'
 
 process summary {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'

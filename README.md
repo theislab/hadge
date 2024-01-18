@@ -5,7 +5,7 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
 
-![Caption](docs/source/_static/images/pipeline_v2.png)
+![Caption](docs/source/_static/images/pipeline.png)
 
 Read the [documentation](https://hadge.readthedocs.io/en/latest/) and the associated [manuscript](https://www.biorxiv.org/content/10.1101/2023.07.23.550061v1)
 

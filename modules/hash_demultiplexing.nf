@@ -1,15 +1,15 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-include { preprocessing_hashing as preprocessing_hashing_htodemux } from "$projectDir/hash_demulti/preprocess"
-include { preprocessing_hashing as preprocessing_hashing_multiseq } from "$projectDir/hash_demulti/preprocess"
-include { multiseq_hashing } from "$projectDir/hash_demulti/multiseq"
-include { htodemux_hashing } from "$projectDir/hash_demulti/htodemux"
-include { hash_solo_hashing } from "$projectDir/hash_demulti/hashsolo"
-include { hashedDrops_hashing } from "$projectDir/hash_demulti/hashedDrops"
-include { demuxem_hashing } from "$projectDir/hash_demulti/demuxem"
-include { demuxmix_hashing } from "$projectDir/hash_demulti/demuxmix"
-include { gmm_demux_hashing } from "$projectDir/hash_demulti/gmm_demux"
-include { bff_hashing } from "$projectDir/hash_demulti/bff"
+include { preprocessing_hashing as preprocessing_hashing_htodemux } from './hash_demulti/preprocess'
+include { preprocessing_hashing as preprocessing_hashing_multiseq } from './hash_demulti/preprocess'
+include { multiseq_hashing } from './hash_demulti/multiseq'
+include { htodemux_hashing } from './hash_demulti/htodemux'
+include { hash_solo_hashing } from './hash_demulti/hashsolo'
+include { hashedDrops_hashing } from './hash_demulti/hashedDrops'
+include { demuxem_hashing } from './hash_demulti/demuxem'
+include { demuxmix_hashing } from './hash_demulti/demuxmix'
+include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
+include { bff_hashing } from './hash_demulti/bff'
 
 process summary {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
