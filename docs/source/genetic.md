@@ -40,10 +40,10 @@ Case 4: Run scSplit without data pre-processing:
 nextflow run ${hadge_project_dir}/main.nf -profile conda --mode genetic --scSplit_preprocess False //additional paramters as in case 1
 ```
 
-Case 5: Run the pipeline with different combinations of parameter. This is only available in the single sample mode. The values should be separated by semicolumn, and double quoted if specified in a config file.
+Case 5: Run the pipeline with different combinations of parameter. This is only available in the single sample mode. The values should be separated by semicolumn and double quoted.
 
 ```bash
-nextflow run ${hadge_project_dir}/main.nf -profile conda_singularity --mode genetic --alpha 0.1;0.3;0.5 //additional paramters as in case 1
+nextflow run ${hadge_project_dir}/main.nf -profile conda_singularity --mode genetic --alpha "0.1;0.3;0.5" //additional paramters as in case 1
 ```
 
 ## **Input data preparation**
