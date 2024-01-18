@@ -16,10 +16,10 @@ jobs:
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v1
       - name: Download test dataset
-      - uses: actions/setup-python@v5
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
-          cache: 'pip'
+          python-version: "3.9"
+          cache: "pip"
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
