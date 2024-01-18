@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl = 2
-include { hash_demultiplexing } from './hash_demultiplexing'
-include { gene_demultiplexing } from './gene_demultiplexing'
-include { donor_match } from './donor_match'
+include { hash_demultiplexing } from "$projectDir/hash_demultiplexing"
+include { gene_demultiplexing } from "$projectDir/gene_demultiplexing"
+include { donor_match } from "$projectDir/donor_match"
 
 process generate_data {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/data_output", mode: 'copy'

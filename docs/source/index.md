@@ -30,27 +30,36 @@ The hashing-based deconvolution includes 7 methods:
 
 The hadge pipeline is implemented in Nextflow. To get started, you need to install Nextflow. Please refer to [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) for more details. Alternatively, you can also install Nextflow via [conda](https://anaconda.org/bioconda/nextflow).
 
-As next, please run the pipeline
+## **Quick start**
+
+To execute the pipeline locally, start by cloning the repository into a directory, for example, named ${hadge_project_dir}.
 
 ```bash
-nextflow run http://github.com/theislab/hadge -r main
+cd ${hadge_project_dir} && git clone https://github.com/theislab/hadge.git
+nextflow run ${hadge_project_dir}/hadge/main.nf -profile conda_singularity
 ```
 
-You can also:
+It is also allowed to run the pipeline from a directory outside the hadge project folder.
+
+Alternatively, you can also run the pipeline on the cloud:
+
+```bash
+nextflow run http://github.com/theislab/hadge -r main -profile conda_singularity
+```
+
+Please note:
 
 - Choose the mode: `--mode=<genetic/hashing/rescue>`
 - Specify the folder name `--outdir` to save the output files. This will create a folder automatically in the project directory.
-- Specify the input data for each process.
+- To run the pipeline with your own dataset, specify the input data and additional parrameters if needed.
 - The pipeline can be run either locally or on a HPC with different resource specifications. As default, the pipeline will run locally. You can also set the SLURM executor by running the pipeline with `-profile cluster`.
 - Please also check [](general) for more details.
 
-## **Quick start**
+To get familiar with hadge, we provide the test profile for a quick start. To access the test sample data, you can use the provided bash script to download the test data to the project directory of hadge and run the pipeline locally.
 
 ```bash
-git clone https://github.com/theislab/hadge.git
-cd hadge
-sh test_data/download_data.sh
-nextflow run main.nf -profile test
+cd ${hadge_project_dir}/hadge && sh test_data/download_data.sh
+nextflow run main.nf -profile test,conda_singularity
 ```
 
 ## Notebook

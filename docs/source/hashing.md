@@ -11,8 +11,27 @@ Cell hashing is a sample processing technique that requires processing individua
 ## **Quick start**
 
 ```bash
-cd hadge
-nextflow run main.nf -profile test --mode hashing
+nextflow run ${hadge_project_dir}/main.nf -profile test,conda --mode hashing
+```
+
+## **Example case**
+
+Case 1: Run the entire hashing-based mode:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --outputdir ${output_dir} --mode hashing --hto_matrix_raw ${hto_raw_dir} --hto_matrix_filtered ${hto_filtered_dir} --rna_matrix_raw ${rna_raw_dir} --rna_matrix_filtered ${rna_filtered_dir}
+```
+
+Case 2: Run Multiseq with raw counts :
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --outputdir ${output_dir} --mode hashing --rna_matrix_multiseq raw --hto_matrix_multiseq raw // additional parameters as in case 1
+```
+
+Case 3: Run the pipeline with different combinations of parameter. This is only available in the single sample mode. The values should be separated by semicolumn, and double quoted if specified in a config file.
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --mode hashing --quantile_multi 0.5;0.7 //additional paramters as in case 1
 ```
 
 ## **Input data preparation**

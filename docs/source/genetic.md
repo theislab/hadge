@@ -11,8 +11,39 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 ## **Quick start**
 
 ```bash
-cd hadge
-nextflow run main.nf -profile test --mode genetic
+nextflow run ${hadge_project_dir}/main.nf -profile test,conda_singularity --mode genetic
+```
+
+## **Example case**
+
+Case 1: Run the entire genotype-based mode without known donor genotype:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda_singularity --outputdir ${output_dir} --mode genetic --bam ${bam_dir} --bai ${bai_dir} --barcodes ${barcodes_dir}  --nsamples_genetic ${nsamples} --fasta ${fasta_dir} --fasta_index ${fasta_index_dir} --common_variants_scSplit ${common_variant_scsplit} --common_variants_souporcell ${common_variant_souporcell} --common_variants_freemuxlet ${common_variant_freemuxlet}  --common_variants_cellsnp ${common_variant_cellsnp} --demuxlet False
+```
+
+Case 2: Skip cellSNP and run Vireo with available cell genotype file in VCF format:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --mode genetic --vireo_variant False --celldata ${cell_data_dir}
+```
+
+Case 3: Run Demuxlet with donor genotype:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --mode genetic --outputdir ${output_dir} --bam ${bam_dir} --bai ${bai_dir} --barcodes ${barcodes_dir} --vcf_donor ${donor_genotype_dir}
+```
+
+Case 4: Run scSplit without data pre-processing:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --mode genetic --scSplit_preprocess False //additional paramters as in case 1
+```
+
+Case 5: Run the pipeline with different combinations of parameter. This is only available in the single sample mode. The values should be separated by semicolumn, and double quoted if specified in a config file.
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda_singularity --mode genetic --alpha 0.1;0.3;0.5 //additional paramters as in case 1
 ```
 
 ## **Input data preparation**
