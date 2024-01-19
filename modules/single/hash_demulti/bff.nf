@@ -30,6 +30,7 @@ process bff{
         
         
     script:
+        def run_preprocess = preprocess_bff != 'False' ? " --preprocess_bff" : ''
 
         """
         mkdir bff_${task.index}
@@ -37,7 +38,7 @@ process bff{
         --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${task.index}_$metricsFile \
         --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
         --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold  --outputdir bff_${task.index} --assignmentOutBff $assignmentOutBff \
-        --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
+        ${run_preprocess} --barcodeWhitelist $barcodeWhitelist
         """
 
 }
