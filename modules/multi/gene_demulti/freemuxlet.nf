@@ -1,6 +1,25 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 
+
+process subset_bam_and_sort_vcf_based_on_reference{
+    label 'small_mem'
+    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+
+    input:
+        tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample)
+        path vcf
+
+    output:
+        tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample), path("${sampleId}__samples.sorted_as_in_bam.vcf"), emit: input
+    
+    script:
+        """
+            
+            sort_vcf_same_as_bam.sh ${sam} ${vcf} > ${sampleId}__samples.sorted_as_in_bam.vcf        
+        """
+}
+
 process freemuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
@@ -8,8 +27,7 @@ process freemuxlet {
     conda "bioconda::popscle"
 
     input:
-        tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample)
-        path vcf
+        tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample), path(vcf)
         val tag_group
         val tag_UMI
         val sm
@@ -119,7 +137,11 @@ workflow demultiplex_freemuxlet{
         keep_init_missing = params.keep_init_missing
         freemuxlet_out = params.freemuxlet_out
 
-        freemuxlet(input_list, vcf, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ, min_BQ, min_MQ, 
+
+
+        subset_bam_and_sort_vcf_based_on_reference(input_list,vcf)
+        input_list = subset_bam_and_sort_vcf_based_on_reference.out.input
+        freemuxlet(input_list, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ, min_BQ, min_MQ, 
             min_TD, excl_flag, min_total, min_uniq, min_umi, min_snp, init_cluster,aux_files, verbose, doublet_prior, bf_thres, 
             frac_init_clust, iter_init, keep_init_missing, freemuxlet_out)
     

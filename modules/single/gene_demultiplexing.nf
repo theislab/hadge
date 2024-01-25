@@ -129,6 +129,7 @@ workflow gene_demultiplexing {
         }
         
         if (params.demuxlet == "True"){
+            // This will be only run if the genotype provided is not None
             bam = params.demuxlet_preprocess == 'True'? qc_bam: input_bam //qc_bam.mix(input_bam))
             demultiplex_demuxlet(bam)
             demuxlet_out = demultiplex_demuxlet.out
@@ -139,7 +140,10 @@ workflow gene_demultiplexing {
         
         
         if (params.freemuxlet == "True"){
+            // This will be run regardless if the genotype is provided to pipeline or not since freemuxlet is a genotype absent mode.
+
             bam = params.freemuxlet_preprocess == 'True'? qc_bam: input_bam // qc_bam.mix(input_bam))
+            
             demultiplex_freemuxlet(bam)
             freemuxlet_out = demultiplex_freemuxlet.out
         }

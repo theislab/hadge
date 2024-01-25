@@ -2,6 +2,25 @@
 
 nextflow.enable.dsl=2
 
+
+process subset_bam_and_sort_vcf_based_on_reference{
+    label 'small_mem'
+    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+
+    input:
+        tuple val(sampleId), path(sam), path(sam_index), path(barcodes), val(vcf)
+
+    output:
+        tuple val(sampleId), path("${sampleId}_dmx__filtered_bam_file.bam"), path("${sampleId}_dmx__filtered_bam_file.bam.csi"), path(barcodes), path("${sampleId}_dmx__samples.sorted_as_in_bam.vcf"), emit: input
+    when:
+         vcf !='None'
+    script:
+        """
+            filter_bam_file_for_popscle_dsc_pileup.sh ${sam} ${barcodes} ${vcf} ${sampleId}_dmx__filtered_bam_file.bam
+            sort_vcf_same_as_bam.sh ${sampleId}_dmx__filtered_bam_file.bam ${vcf} > ${sampleId}_dmx__samples.sorted_as_in_bam.vcf        
+        """
+}
+
 process demuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
@@ -9,7 +28,7 @@ process demuxlet {
     conda "bioconda::popscle"
 
     input:
-        tuple val(sampleId), path(sam), path(sam_index), path(group_list), path(vcf_donor)
+        tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(vcf_donor)
         val tag_group
         val tag_UMI
         val sm
@@ -44,6 +63,9 @@ process demuxlet {
 
     output:
         path "demuxlet_${sampleId}"
+
+    when:
+        vcf_donor !='None'
 
     script:
         def samfile = "--sam $sam"
@@ -136,6 +158,9 @@ workflow demultiplex_demuxlet{
         doublet_prior = params.doublet_prior
         demuxlet_out = params.demuxlet_out
 
+
+        subset_bam_and_sort_vcf_based_on_reference(input_list)
+        input_list = subset_bam_and_sort_vcf_based_on_reference.out.input
         demuxlet(input_list, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ, min_BQ, 
             min_MQ, min_TD, excl_flag, min_total, min_uniq, min_umi, min_snp, plp, field, geno_error_offset, geno_error_coeff, 
             r2_info, min_mac, min_callrate, alpha, doublet_prior, demuxlet_out)

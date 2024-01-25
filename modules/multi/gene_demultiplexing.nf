@@ -20,6 +20,28 @@ def split_input(input){
     }
 }
 
+
+process subset_bam_to_comon_variants{
+    
+    label 'small_mem'
+    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+
+    input:
+        tuple val(sampleId), path(sam), path(sam_index), path(barcodes)
+        path vcf
+
+    output:
+        tuple val(sampleId), path("${sampleId}__filtered_bam_file.bam"), path("${sampleId}__filtered_bam_file.bam.csi"), emit: input
+    
+    script:
+        """ 
+        
+            bcftools sort ${vcf} -Oz -o sorted.vcf.gz
+            filter_bam_file_for_popscle_dsc_pileup.sh ${sam} ${barcodes} sorted.vcf.gz ${sampleId}__filtered_bam_file.bam      
+        """
+
+}
+
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
@@ -103,7 +125,21 @@ workflow gene_demultiplexing {
                         | map { row-> tuple(row.sampleId, row.bam)}
                         | data_preprocess
                 qc_bam = data_preprocess.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/sorted.bam", it + "/sorted.bam.bai") }
+        }else{
+            qc_bam = Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
+
+
+
         }
+
+    input_param_cellsnp = Channel.fromPath(params.multi_input) \
+        | splitCsv(header:true) \
+        | map { row-> tuple(row.sampleId, row.barcodes) }
+    qc_bam_new = qc_bam.join(input_param_cellsnp)
+
+    qc_bam = subset_bam_to_comon_variants(qc_bam_new,params.common_variants_freemuxlet)
 
 
     //////////
@@ -115,29 +151,16 @@ workflow gene_demultiplexing {
         if (params.region != "None"){
             freebayes_region = split_input(params.region)
         }
-        if(params.scSplit_preprocess == "True"){
-            variant_freebayes(qc_bam, freebayes_region)
-        }
-        else{
-            input_list = Channel.fromPath(params.multi_input) \
-                            | splitCsv(header:true) \
-                            | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-            variant_freebayes(input_list, freebayes_region)
-        }
+
+        variant_freebayes(qc_bam, freebayes_region)
         filter_variant(variant_freebayes.out)
         freebayes_vcf = filter_variant.out.map{ it -> tuple(it[0], it[1] + "/filtered_sorted_total_chroms.vcf")}  
     }
 
     if (params.scSplit == "True"){
 
-        if (params.scSplit_preprocess == 'False'){
-            input_bam_scsplit = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-        }
-        else{
-            input_bam_scsplit = qc_bam
-        }
+
+        input_bam_scsplit = qc_bam
 
         if (params.scSplit_variant == 'True'){
             input_vcf_scsplit = freebayes_vcf
@@ -148,7 +171,7 @@ workflow gene_demultiplexing {
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.vcf_mixed)}
         }
-        // here if there are genotypes provided we need to ensure bam is sorted corectly and is subsampled on the regions needed.
+
         input_param_scsplit = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.barcodes, row.nsample, row.vcf_donor)}
@@ -168,19 +191,7 @@ workflow gene_demultiplexing {
     //////////
     if (params.vireo == "True" & params.vireo_variant == 'True'){
 
-        if(params.vireo_preprocess == 'True'){
-            input_param_cellsnp = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.barcodes) }
-            qc_bam_new = qc_bam.join(input_param_cellsnp)
-            variant_cellSNP(qc_bam_new)
-        }
-        else{
-            Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index, row.barcodes)}
-                | variant_cellSNP
-        }
+        variant_cellSNP(qc_bam_new)
         cellsnp_vcf = variant_cellSNP.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/*/cellSNP.cells.vcf") }
 
     }
@@ -209,18 +220,14 @@ workflow gene_demultiplexing {
 
 
     //////////
-    //Demuxlet
+    // Demuxlet/Freemuxlet
+    // demuxlet (with genotypes) or freemuxlet (without genotypes)
     //////////
 
     if (params.demuxlet == "True"){
-        if (params.demuxlet_preprocess == 'False'){
-            input_bam_demuxlet = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-        }
-        else{
-            input_bam_demuxlet = qc_bam
-        }
+
+        input_bam_demuxlet = qc_bam
+
         input_param_demuxlet = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.barcodes, row.vcf_donor)}
@@ -238,18 +245,15 @@ workflow gene_demultiplexing {
     //////////
 
     if (params.freemuxlet == "True"){
-        if (params.freemuxlet_preprocess == 'False'){
-            input_bam_freemuxlet = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-        }
-        else{
-            input_bam_freemuxlet = qc_bam
-        }
+
+        input_bam_freemuxlet = qc_bam
+        
         input_param_freemuxlet = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.barcodes, row.nsample)}
+
         input_list_freemuxlet = input_bam_freemuxlet.join(input_param_freemuxlet)
+
         demultiplex_freemuxlet(input_list_freemuxlet)
         freemuxlet_out = demultiplex_freemuxlet.out
     }
@@ -263,14 +267,9 @@ workflow gene_demultiplexing {
     //////////
 
      if (params.souporcell == "True"){
-        if (params.souporcell_preprocess == 'False'){
-            input_bam_souporcell = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-        }
-        else{
-            input_bam_souporcell = qc_bam
-        }
+        
+        input_bam_souporcell = qc_bam
+
         input_param_souporcell = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.barcodes, row.nsample, row.vcf_donor)}

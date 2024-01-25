@@ -56,7 +56,7 @@ process souporcell{
         touch souporcell_${sampleId}/params.csv
         echo -e "Argument,Value \n bamfile,${bam} \n barcode,${barcodes} \n fasta,${fasta} \n threads,${threads} \n clusters,${clusters} \n ploidy,${ploidy} \n min_alt,${min_alt} \n min_ref,${min_ref} \n max_loci,${max_loci} \n restarts,${restarts} \n common_variant,${commonvariant_name} \n known_genotype,${knowngenotype_name} \n known_genotype_sample,${knowngenotype_sample_name} \n skip_remap,${skip_remap} \n ignore,${ignore} " >> souporcell_${sampleId}/params.csv
         
-        souporcell_pipeline.py $bamfile $barcode $fastafile $thread $cluster $ploi $minalt $minref $maxloci $restart \
+        souporcell_pipeline.py --threads ${task.cpus} $bamfile $barcode $fastafile $thread $cluster $ploi $minalt $minref $maxloci $restart \
             $commonvariant $knowngenotype $knowngenotypes_sample $skipremap $ign -o $out
         """
 }
