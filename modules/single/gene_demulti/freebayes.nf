@@ -170,6 +170,7 @@ process freebayes{
     def dd = dd_freebayes != 'False' ? "-dd" : ''
 
     """
+    
     freebayes ${bam_freebayes} $stdin -f ${ref_freebayes} $targets $region $samples $populations ${cnv_map} \
     -v ${region_freebayes}_${vcf_freebayes} $gvcf ${gvcf_chunk} ${gvcf_dont_use_chunk} ${variant_input} ${only_use_input_alleles} ${haplotype_basis_alleles} ${report_all_haplotype_alleles} ${report_monomorphic} $pvar ${strict_vcf} \
     $theta $ploidy ${pooled_discrete} ${pooled_continuous} \

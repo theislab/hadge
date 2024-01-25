@@ -35,7 +35,8 @@ process vireo{
         def cell_data = "-c $celldata"
         def n_donor =  ndonor != 'None'? "-N $ndonor" : ''
         def n_donor_yesno =  ndonor != 'None'? "$ndonor" : "Number of donors are not given"
-        def donor = donorfile != 'None' ? "-d $donorfile" : ''
+        def donor = donorfile != 'None' ? "-d no_prefix.vcf" : ''
+        def donor_no_chr_cmd = donorfile != 'None' ? "zcat $donorfile | awk '{gsub(/^chr/,\"\"); print}' | awk '{gsub(/ID=chr/,\"ID=\"); print}' > no_prefix.vcf" : ''
         def donor_data_name = donorfile != 'None' ? donorfile : 'Donor file is not given'
         def geno_tag = donorfile != 'None' ? "--genoTag $genoTag" : ''
         def no_doublet = noDoublet != 'False' ? "--noDoublet" : ''
@@ -55,7 +56,10 @@ process vireo{
         mkdir vireo_${task.index}
         mkdir vireo_${task.index}/${vireo_out}
         touch vireo_${task.index}/params.csv
+        
+        ${donor_no_chr_cmd}
         echo -e "Argument,Value \n cell_data,${celldata} \n n_donor,${n_donor_yesno} \n donor_data,${donor_data_name} \n genoTag,${genoTag} \n noDoublet,${noDoublet} \n nInit,${nInit} \n extraDonor,${extraDonor} \n extraDonorMode,${extraDonorMode} \n learnGT,${learnGT_yesno} \n ASEmode,${ASEmode} \n noPlot,${noPlot} \n randSeed,${randSeed} \n cellRange,${cellRange} \n callAmbientRNAs,${callAmbientRNAs} \n nproc,${nproc}" >> vireo_${task.index}/params.csv
+        
         vireo ${cell_data} ${n_donor} $donor ${geno_tag} ${no_doublet} ${n_init} ${extra_donor} ${extradonor_mode} \
             $learnGT ${ase_mode} ${no_plot} ${random_seed} ${cell_range} ${call_ambient_rna} ${n_proc} \
             -o vireo_${task.index}/${vireo_out}

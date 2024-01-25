@@ -5,10 +5,11 @@ process freemuxlet {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
 
-    conda "bioconda::popscle"
+    conda "bioconda::popscle bioconda::samtools bioconda::bedtools bioconda::bcftools=1.9"
 
     input:
         each sam
+        path(barcodes)
         each vcf
         each tag_group
         each tag_UMI
@@ -42,10 +43,10 @@ process freemuxlet {
         path "freemuxlet_${task.index}"
 
     script:
-        def samfile = "--sam $sam"
+        def samfile = "--sam filtered_bam_file.bam"
         def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
         def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
-        def vcffile = "--vcf $vcf"
+        def vcffile = "--vcf samples.sorted_as_in_bam.vcf"
         def smlist = sm != 'None' ? "--sm $sm" : ''
         def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
         def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "No sm list file is given"
@@ -73,10 +74,14 @@ process freemuxlet {
         def keepinit_missing = keep_init_missing != "False" ? "--keep-init-missing" : ''
         
         """
+        echo 'test5'
+        filter_bam_file_for_popscle_dsc_pileup.sh ${sam} ${barcodes} ${vcf} filtered_bam_file.bam
+        sort_vcf_same_as_bam.sh filtered_bam_file.bam ${vcf} > samples.sorted_as_in_bam.vcf
+        
         mkdir freemuxlet_${task.index}
         mkdir freemuxlet_${task.index}/plp
         touch freemuxlet_${task.index}/params.csv
-        echo -e "Argument,Value \n samfile,${sam} \n tag_group,${tag_group} \n tag_UMI,${tag_UMI} \n vcf_file,${vcf} \n sm,${sm} \n sm_list_file,${sm_list_file_name} \n sam_verbose,${sam_verbose} \n vcf_verbose,${vcf_verbose} \n skip_umi,${skip_umi} \n cap_BQ,${cap_BQ} \n min_BQ,${min_BQ} \n min_MQ,${min_MQ} \n min_TD,${min_TD} \n excl_flag,${excl_flag} \n grouplist,${group_list} \n min_total,${min_total} \n min_uniq,${min_uniq} \n min_umi,${min_umi} \n min_snp,${min_snp} \n init_cluster,${init_cluster} \n nsample,${nsample} \n aux_files,${aux_files} \n verbose,${verbose} \n doublet_prior,${doublet_prior} \n bf_thres,${bf_thres} \n frac_init_clust,${frac_init_clust} \n iter_init,${iter_init} \n keep_init_missing,${keep_init_missing}" >> freemuxlet_${task.index}/params.csv
+        echo -e "Argument,Value \n samfile,filtered_bam_file.bam \n tag_group,${tag_group} \n tag_UMI,${tag_UMI} \n vcf_file,samples.sorted_as_in_bam.vcf \n sm,${sm} \n sm_list_file,${sm_list_file_name} \n sam_verbose,${sam_verbose} \n vcf_verbose,${vcf_verbose} \n skip_umi,${skip_umi} \n cap_BQ,${cap_BQ} \n min_BQ,${min_BQ} \n min_MQ,${min_MQ} \n min_TD,${min_TD} \n excl_flag,${excl_flag} \n grouplist,${group_list} \n min_total,${min_total} \n min_uniq,${min_uniq} \n min_umi,${min_umi} \n min_snp,${min_snp} \n init_cluster,${init_cluster} \n nsample,${nsample} \n aux_files,${aux_files} \n verbose,${verbose} \n doublet_prior,${doublet_prior} \n bf_thres,${bf_thres} \n frac_init_clust,${frac_init_clust} \n iter_init,${iter_init} \n keep_init_missing,${keep_init_missing}" >> freemuxlet_${task.index}/params.csv
         
         popscle dsc-pileup $samfile ${taggroup} ${tagUMI} $vcffile ${smlist} ${sm_list_file} ${samverbose} \
             ${vcfverbose} ${skipumi} ${capBQ} ${minBQ} ${minMQ} ${minTD} ${exclflag} ${grouplist} ${mintotal} ${minuniq} \
@@ -134,7 +139,7 @@ workflow demultiplex_freemuxlet{
         keep_init_missing = split_input(params.keep_init_missing)
         freemuxlet_out = params.freemuxlet_out
 
-        freemuxlet(sam, vcf, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ,
+        freemuxlet(sam, params.barcodes, vcf, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, cap_BQ,
             min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, min_snp, init_cluster, nsample, 
             aux_files, verbose, doublet_prior, bf_thres, frac_init_clust, iter_init, keep_init_missing, freemuxlet_out)
     

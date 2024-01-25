@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
+
 include { data_preprocess } from './gene_demulti/samtools'
 include { filter_variant } from './gene_demulti/bcftools'
 include { variant_cellSNP } from './gene_demulti/cellsnp'
@@ -9,6 +10,15 @@ include { demultiplex_freemuxlet } from './gene_demulti/freemuxlet'
 include { demultiplex_scSplit } from './gene_demulti/scsplit'
 include { demultiplex_souporcell } from './gene_demulti/souporcell'
 include { demultiplex_vireo } from './gene_demulti/vireo'
+
+def split_input(input){
+    if (input =~ /;/ ){
+        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+    }
+    else{
+        Channel.from(input)
+    }
+}
 
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
@@ -78,30 +88,29 @@ process summary{
         """
 }
 
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
-    }
-    else{
-        Channel.from(input)
-    }
-}
 
 
 workflow gene_demultiplexing {
-    if ((params.demuxlet == "True" & params.demuxlet_preprocess == "True")| \
-       (params.freemuxlet == "True" & params.freemuxlet_preprocess == "True")| \
-       (params.scSplit == "True" & params.scSplit_preprocess  == "True") | \
-       (params.vireo == "True" & params.vireo_preprocess == "True") | \
-       (params.souporcell == "True" & params.souporcell_preprocess == "True")){
-        Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam)}
-                | data_preprocess
-        qc_bam = data_preprocess.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/sorted.bam", it + "/sorted.bam.bai") }
-    }
 
+    if ((params.demuxlet == "True" & params.demuxlet_preprocess == "True")      | \
+       (params.freemuxlet == "True" & params.freemuxlet_preprocess == "True")   | \
+       (params.scSplit == "True" & params.scSplit_preprocess  == "True")        | \
+       (params.vireo == "True" & params.vireo_preprocess == "True")             | \
+       (params.souporcell == "True" & params.souporcell_preprocess == "True"))  {
+
+                Channel.fromPath(params.multi_input) \
+                        | splitCsv(header:true) \
+                        | map { row-> tuple(row.sampleId, row.bam)}
+                        | data_preprocess
+                qc_bam = data_preprocess.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/sorted.bam", it + "/sorted.bam.bai") }
+        }
+
+
+    //////////
+    //FreeBayes/ scSplit
+    //////////
     if (params.scSplit == "True" & params.scSplit_variant == 'True'){
+
         freebayes_region = Channel.from(1..22, "X","Y").flatten()
         if (params.region != "None"){
             freebayes_region = split_input(params.region)
@@ -117,10 +126,48 @@ workflow gene_demultiplexing {
         }
         filter_variant(variant_freebayes.out)
         freebayes_vcf = filter_variant.out.map{ it -> tuple(it[0], it[1] + "/filtered_sorted_total_chroms.vcf")}  
-             
     }
 
+    if (params.scSplit == "True"){
+
+        if (params.scSplit_preprocess == 'False'){
+            input_bam_scsplit = Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
+        }
+        else{
+            input_bam_scsplit = qc_bam
+        }
+
+        if (params.scSplit_variant == 'True'){
+            input_vcf_scsplit = freebayes_vcf
+        }
+        else{
+
+            input_vcf_scsplit = Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row-> tuple(row.sampleId, row.vcf_mixed)}
+        }
+        // here if there are genotypes provided we need to ensure bam is sorted corectly and is subsampled on the regions needed.
+        input_param_scsplit = Channel.fromPath(params.multi_input) \
+                | splitCsv(header:true) \
+                | map { row-> tuple(row.sampleId, row.barcodes, row.nsample, row.vcf_donor)}
+        
+        input_list_scsplit = input_bam_scsplit.join(input_vcf_scsplit)
+        input_list_scsplit = input_list_scsplit.join(input_param_scsplit)
+        demultiplex_scSplit(input_list_scsplit)
+        scSplit_out = demultiplex_scSplit.out
+    }
+    else{
+        scSplit_out = channel.value("no_result")
+    }
+
+
+    //////////
+    //CellSNP/Vireo
+    //////////
     if (params.vireo == "True" & params.vireo_variant == 'True'){
+
         if(params.vireo_preprocess == 'True'){
             input_param_cellsnp = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -135,39 +182,11 @@ workflow gene_demultiplexing {
                 | variant_cellSNP
         }
         cellsnp_vcf = variant_cellSNP.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/*/cellSNP.cells.vcf") }
-    }
 
-    if (params.scSplit == "True"){
-        if (params.scSplit_preprocess == 'False'){
-            input_bam_scsplit = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.bam, row.bam_index)}
-        }
-        else{
-            input_bam_scsplit = qc_bam
-        }
-        if (params.scSplit_variant == 'True'){
-            input_vcf_scsplit = freebayes_vcf
-        }
-        else{
-            input_vcf_scsplit = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.vcf_mixed)}
-        }
-        input_param_scsplit = Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.barcodes, row.nsample, row.vcf_donor)}
-        
-        input_list_scsplit = input_bam_scsplit.join(input_vcf_scsplit)
-        input_list_scsplit = input_list_scsplit.join(input_param_scsplit)
-        demultiplex_scSplit(input_list_scsplit)
-        scSplit_out = demultiplex_scSplit.out
-    }
-    else{
-        scSplit_out = channel.value("no_result")
     }
 
     if (params.vireo == "True"){
+
         if (params.vireo_variant == 'True'){
             input_vcf_vireo = cellsnp_vcf
         }
@@ -187,6 +206,11 @@ workflow gene_demultiplexing {
     else{
         vireo_out = channel.value("no_result")
     }
+
+
+    //////////
+    //Demuxlet
+    //////////
 
     if (params.demuxlet == "True"){
         if (params.demuxlet_preprocess == 'False'){
@@ -208,6 +232,11 @@ workflow gene_demultiplexing {
         demuxlet_out = channel.value("no_result")
     }
 
+
+    //////////
+    //Freemuxlet
+    //////////
+
     if (params.freemuxlet == "True"){
         if (params.freemuxlet_preprocess == 'False'){
             input_bam_freemuxlet = Channel.fromPath(params.multi_input) \
@@ -228,6 +257,11 @@ workflow gene_demultiplexing {
         freemuxlet_out = channel.value("no_result")
     }
 
+
+    //////////
+    //Souporcell
+    //////////
+
      if (params.souporcell == "True"){
         if (params.souporcell_preprocess == 'False'){
             input_bam_souporcell = Channel.fromPath(params.multi_input) \
@@ -240,6 +274,7 @@ workflow gene_demultiplexing {
         input_param_souporcell = Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, row.barcodes, row.nsample, row.vcf_donor)}
+                
         input_list_souporcell = input_bam_souporcell.join(input_param_souporcell)
         demultiplex_souporcell(input_list_souporcell)
         souporcell_out = demultiplex_souporcell.out
@@ -248,10 +283,15 @@ workflow gene_demultiplexing {
         souporcell_out = channel.value("no_result")
     }
 
+    //////////
+    //Summary
+    //////////
+    
     Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
                 | set {input_list_summary}
+
     summary(input_list_summary, demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out, 
             params.generate_anndata, params.generate_mudata)
     

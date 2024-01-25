@@ -1,8 +1,10 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
-include { hash_demultiplexing } from './hash_demultiplexing'
-include { gene_demultiplexing } from './gene_demultiplexing'
-include { donor_match } from './donor_match'
+
+include { hash_demultiplexing } from "$projectDir/modules/multi/hash_demultiplexing"
+include { gene_demultiplexing } from "$projectDir/modules/multi/gene_demultiplexing"
+include { donor_match } from "$projectDir/modules/multi/donor_match"
+
 
 process generate_data{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/data_output", mode: 'copy'
@@ -62,9 +64,18 @@ process summary_all{
 }
 
 workflow run_multi{
+
+    print("-----Running multiple samples-----")
+
     if (params.mode == "genetic"){
+
+        // Performing genetic demultiplexing methodologies
         gene_demultiplexing()
+        ////////////
+
         if (params.match_donor == "True"){
+
+
             gene_demultiplexing.out.view()
             Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -74,7 +85,11 @@ workflow run_multi{
         }
     }
     else if (params.mode == "hashing"){
+
+        // Performing hashing demultplexing
         hash_demultiplexing()
+        ////////////
+        
         if (params.match_donor == "True"){
             Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -84,12 +99,17 @@ workflow run_multi{
         }
     }
     else if (params.mode == "rescue"){
+
+        // Performing both hashing and genetic demultiplexing methods
         hash_demultiplexing()
         gene_demultiplexing()
+        ////////////
+
         gene_summary = gene_demultiplexing.out
         hash_summary = hash_demultiplexing.out
         input_summary_all = gene_summary.join(hash_summary)
         summary_all(input_summary_all)
+
         if (params.match_donor == "True"){
             Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
@@ -107,6 +127,8 @@ workflow run_multi{
         }
     }
     else if (params.mode == "donor_match"){
+
+        // Performing just donor matching
         Channel.fromPath(params.multi_input) \
                 | splitCsv(header:true) \
                 | map { row -> tuple(row.sampleId, row.nsample, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)} \

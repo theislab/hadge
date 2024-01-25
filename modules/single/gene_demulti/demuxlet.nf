@@ -5,8 +5,8 @@ nextflow.enable.dsl=2
 process demuxlet {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
-
-    conda "bioconda::popscle"
+    
+    conda "bioconda::popscle bioconda::samtools bioconda::bedtools "
 
     input:
         each sam
@@ -51,8 +51,9 @@ process demuxlet {
         def samfile = "--sam $sam"
         def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
         def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
-        def vcfref = plp == 'True' ? "--vcf ${vcf_donor}" : ""
-        def vcfref_name = plp == 'True' ? vcf_donor : "No VCF Ref is used because plp is not performed."
+        def vcfref = plp == 'True' ? "--vcf vcfref.vcf" : ""
+        def vcfref_sort ="sort_vcf_same_as_bam.sh ${sam} ${vcf_donor} > vcfref.vcf" 
+        def vcfref_name = plp == 'True' ? 'vcfref.vcf' : "No VCF Ref is used because plp is not performed."
         def smlist = sm != 'None' ? "--sm $sm" : ''
         def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
         def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "No sm list file is given"
@@ -70,7 +71,7 @@ process demuxlet {
         def minuniq = "--min-uniq ${min_uniq}"
         def minsnp = "--min-snp ${min_snp}"
         def plp_name = plp == 'True' ? "plp performed" : "plp not performed"
-        def vcfdonor = "--vcf ${vcf_donor}"
+        def vcfdonor = "--vcf vcfref.vcf"
         def fieldinfo = "--field $field"
         def genoerror_off = "--geno-error-offset ${geno_error_offset}"
         def genoerror_cof = "--geno-error-coeff ${geno_error_coeff}"
@@ -81,6 +82,7 @@ process demuxlet {
         def doubletprior = "--doublet-prior ${doublet_prior}"
       
         """
+        ${vcfref_sort}
         mkdir demuxlet_${task.index}
         touch demuxlet_${task.index}/params.csv
         barcode_num=\$(wc -l < "${group_list}")
