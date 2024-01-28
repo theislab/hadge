@@ -91,7 +91,7 @@ if (!is.null(args$methodsForConsensus)) {
 perCell_args <- args$perCellSaturation
 perCell <- ifelse(perCell_args == "null" || perCell_args == "Null", NULL, perCell_args)
 
-if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
+if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || args$methodsForConsensus=="bff_cluster,bff_raw"|| is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if (args$methods == "bff_raw") {
     print("Executing BFF raw")
