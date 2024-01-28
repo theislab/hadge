@@ -74,8 +74,8 @@ if(as.logical(args$preprocess)){
   # Step 3: Create a vector from the barcodesl
   vector <- unlist(words)
   print("Preprocessing")
-  #counts <- Read10X(args$fileHto) 
   counts <- ProcessCountMatrix(rawCountData = args$fileHto, barcodeBlacklist = vector)
+  print("Preprocessing done")
 }else{
   print("No preprocessing")
   counts <- Read10X(args$fileHto) 
@@ -89,19 +89,6 @@ if (!is.null(args$methodsForConsensus)) {
 
 perCell_args <- args$perCellSaturation
 perCell <- ifelse(perCell_args == "null" || perCell_args == "Null", NULL, perCell_args)
-<<<<<<< HEAD
-<<<<<<< HEAD
-print("---------------------")
-print(perCell)
-print("---------------------")
-=======
-print(perCell)
-
->>>>>>> c781241 (bff re-added problematic parameter)
-=======
-print("---------------------")
-print(perCell)
-print("---------------------")
 
 if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available

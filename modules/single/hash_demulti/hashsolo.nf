@@ -5,7 +5,7 @@ process hash_solo {
     label 'small_mem'
 
     conda "$projectDir/conda/hashsolo_py.yml"
-
+    
     input:
         path hto_data, stageAs: "hto_data_${params.hto_matrix_hashsolo}"
         each priors_negative

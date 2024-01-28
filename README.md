@@ -9,6 +9,14 @@
 
 Read the [documentation](https://hadge.readthedocs.io/en/latest/) and the associated [manuscript](https://www.biorxiv.org/content/10.1101/2023.07.23.550061v1)
 
+## Quickstart
+
+```bash
+git clone https://github.com/theislab/hadge.git
+sh hadge/test_data/download_data.sh
+nextflow run main.nf -profile test
+```
+
 ## Citation
 
 hadge: a comprehensive pipeline for donor deconvolution in single cell

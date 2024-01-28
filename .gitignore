@@ -7,6 +7,3 @@ testing/
 testing*
 *.pyc
 docs/build/
-test_data/
-res_gx12/
-res_gx38/

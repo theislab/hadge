@@ -33,6 +33,7 @@ if __name__ == '__main__':
     # load input rna data
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
+    rna = args.rna_matrix_dir
     filter = ""
     if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
         filter = True
