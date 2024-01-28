@@ -81,7 +81,7 @@ workflow demultiplex_souporcell{
         barcodes = split_input(params.barcodes)
         fasta = split_input(params.fasta)
         threads = split_input(params.threads)
-        clusters = split_input(params.nsample)
+        clusters = split_input(params.nsamples_genetic)
 
         ploidy = split_input(params.ploidy)
         min_alt = split_input(params.min_alt)

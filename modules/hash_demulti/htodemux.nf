@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process htodemux{
+process htodemux {
     publishDir "$projectDir/$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/htodemux", mode: 'copy'
     label 'small_mem'
 
-    conda "conda-forge::r-seurat conda-forge::r-argparse"
-    
+    conda 'conda-forge::r-seurat conda-forge::r-argparse'
+
     input:
         each seurat_object
         val assay
@@ -18,7 +18,7 @@ process htodemux{
         val init
         val objectOutHTO
         val assignmentOutHTO
-        
+
         //Ridge plot params
         val ridgePlot
         val ridgeNCol
@@ -41,18 +41,18 @@ process htodemux{
         //Heatmap
         val heatmap
         val heatmapNcells
-        
+
     output:
         path "htodemux_${seurat_object.name.tokenize( '_' )[1]}"
-        
+
     script:
-        def sampleId = seurat_object.name.tokenize( '_' )[1]
+        def sampleId = seurat_object.name.tokenize('_')[1]
         def init_val = init != 'None' ? " --init $init" : ''
-        def vln_log = vlnLog != 'False' ?  "--vlnLog" : ''
-        def invert = tsneInvert != 'False' ?  "--tSNEInvert" : ''
-        def verbose = tsneVerbose != 'False' ?  "--tSNEVerbose" : ''
-        def approx = tsneApprox != 'False' ?  "--tSNEApprox" : ''
-        
+        def vln_log = vlnLog != 'False' ?  '--vlnLog' : ''
+        def invert = tsneInvert != 'False' ?  '--tSNEInvert' : ''
+        def verbose = tsneVerbose != 'False' ?  '--tSNEVerbose' : ''
+        def approx = tsneApprox != 'False' ?  '--tSNEApprox' : ''
+
         """
         mkdir htodemux_${sampleId}
         HTODemux.R --seuratObject $seurat_object --assay $assay --quantile $quantile --kfunc $kfunc \
@@ -65,10 +65,9 @@ process htodemux{
                    --tSNEDimMax $tsneDimMax --tSNEPerplexity $tsnePerplexity --heatMap $heatmap --heatMapNcells $heatmapNcells \
                    --outputdir htodemux_${sampleId}
         """
-
 }
 
-workflow htodemux_hashing{
+workflow htodemux_hashing {
     take:
         seurat_object
     main:
@@ -76,12 +75,12 @@ workflow htodemux_hashing{
         assay = params.assay
         kfunc = params.kfunc
         nstarts = params.nstarts
-        nsamples = params.nsamples
+        nsamples = params.nsamples_clustering
         seed = params.seed
         init = params.init
         objectOutHTO = params.objectOutHTO
         assignmentOutHTO = params.assignmentOutHTO
-        
+
         ridgePlot = params.ridgePlot
         ridgeNCol = params.ridgeNCol
         featureScatter = params.featureScatter
@@ -90,7 +89,7 @@ workflow htodemux_hashing{
         vlnplot = params.vlnplot
         vlnFeatures = params.vlnFeatures
         vlnLog = params.vlnLog
-        
+
         tsne = params.tsne
         tsneIdents = params.tsneIdents
         tsneInvert = params.tsneInvert

@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process preprocess{
+process preprocess {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/preprocess", mode:'copy'
     label 'small_mem'
 
-    conda "conda-forge::r-seurat conda-forge::r-argparse"
-    
+    conda 'conda-forge::r-seurat conda-forge::r-argparse'
+
     input:
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(umi_matrix, stageAs: 'rna_data')
         val hto_raw_or_filtered
@@ -32,7 +32,7 @@ process preprocess{
     """
 }
 
-workflow preprocessing_hashing{
+workflow preprocessing_hashing {
     take:
         input_list
         hto_raw_or_filtered
@@ -47,8 +47,8 @@ workflow preprocessing_hashing{
         out_file = params.preprocessOut
         gene_col = params.gene_col
 
-        preprocess(input_list, hto_raw_or_filtered, rna_raw_or_filtered,ndelim,sel_method, n_features, assay, margin, norm_method, out_file, gene_col)
+        preprocess(input_list, hto_raw_or_filtered, rna_raw_or_filtered, ndelim, sel_method, n_features, assay, margin, norm_method, out_file, gene_col)
     emit:
         preprocess.out.collect()
 }
-  
+

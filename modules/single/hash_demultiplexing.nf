@@ -1,5 +1,5 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 include { preprocessing_hashing as preprocessing_hashing_htodemux } from './hash_demulti/preprocess'
 include { preprocessing_hashing as preprocessing_hashing_multiseq } from './hash_demulti/preprocess'
 include { multiseq_hashing } from './hash_demulti/multiseq'
@@ -10,11 +10,11 @@ include { demuxem_hashing } from './hash_demulti/demuxem'
 include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
 include { bff_hashing } from './hash_demulti/bff'
 
-process summary{
+process summary {
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
 
-    conda "pandas scanpy mudata"
+    conda 'pandas scanpy mudata'
 
     input:
         val demuxem_result
@@ -28,150 +28,148 @@ process summary{
         val generate_mudata
         path rna_matrix, stageAs: 'rna_data'
         path hto_matrix, stageAs: 'hto_data'
-    
+
     output:
         path hash_summary
 
     script:
-        def demuxem_files = ""
-        def htodemux_files = ""
-        def hashsolo_files = ""
-        def multiseq_files = ""
-        def hashedDrops_files = ""
-        def gmmDemux_files = ""
-        def bff_files = ""
-        def generate_adata = ""
-        def generate_mdata = ""
-        
-        if (demuxem_result != "no_result"){
-            demuxem_files = "--demuxem ${demuxem_result.join(":")}"
+        def demuxem_files = ''
+        def htodemux_files = ''
+        def hashsolo_files = ''
+        def multiseq_files = ''
+        def hashedDrops_files = ''
+        def gmmDemux_files = ''
+        def bff_files = ''
+        def generate_adata = ''
+        def generate_mdata = ''
+
+        if (demuxem_result != 'no_result') {
+            demuxem_files = "--demuxem ${demuxem_result.join(':')}"
         }
-        if (hashsolo_result != "no_result"){
-            hashsolo_files = "--hashsolo ${hashsolo_result.join(":")}"
+        if (hashsolo_result != 'no_result') {
+            hashsolo_files = "--hashsolo ${hashsolo_result.join(':')}"
         }
-        if (htodemux_result != "no_result"){
-            htodemux_files = "--htodemux ${htodemux_result.join(":")}"
+        if (htodemux_result != 'no_result') {
+            htodemux_files = "--htodemux ${htodemux_result.join(':')}"
         }
-        if (multiseq_result != "no_result"){
-            multiseq_files = "--multiseq ${multiseq_result.join(":")}"
+        if (multiseq_result != 'no_result') {
+            multiseq_files = "--multiseq ${multiseq_result.join(':')}"
         }
-        if (hashedDrops_result != "no_result"){
-            hashedDrops_files = "--hashedDrops ${hashedDrops_result.join(":")}"
+        if (hashedDrops_result != 'no_result') {
+            hashedDrops_files = "--hashedDrops ${hashedDrops_result.join(':')}"
         }
-        if (gmmDemux_result != "no_result"){
-            gmmDemux_files = "--gmm_demux ${gmmDemux_result.join(":")}"
+        if (gmmDemux_result != 'no_result') {
+            gmmDemux_files = "--gmm_demux ${gmmDemux_result.join(':')}"
         }
-        if (bff_result != "no_result"){
-            bff_files = "--bff ${bff_result.join(":")}"
+        if (bff_result != 'no_result') {
+            bff_files = "--bff ${bff_result.join(':')}"
         }
-        if (generate_anndata == "True"){
-            if(rna_matrix.name == "None"){
-                error "Error: RNA count matrix is not given."
+        if (generate_anndata == 'True') {
+            if (rna_matrix.name == 'None') {
+                error 'Error: RNA count matrix is not given.'
             }
-            generate_adata = "--generate_anndata --read_rna_mtx rna_data"
+            generate_adata = '--generate_anndata --read_rna_mtx rna_data'
         }
-        if (generate_mudata == "True"){
-            if(rna_matrix.name == "None"){
-                error "Error: RNA count matrix is not given."
+        if (generate_mudata == 'True') {
+            if (rna_matrix.name == 'None') {
+                error 'Error: RNA count matrix is not given.'
             }
-            if(hto_matrix.name == "None"){
-                error "Error: HTO count matrix is not given."
+            if (hto_matrix.name == 'None') {
+                error 'Error: HTO count matrix is not given.'
             }
-            generate_mdata = "--generate_mudata --read_rna_mtx rna_data --read_hto_mtx hto_data"
+            generate_mdata = '--generate_mudata --read_rna_mtx rna_data --read_hto_mtx hto_data'
         }
-        
+
         """
         summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         """
 }
 
-
-workflow hash_demultiplexing{
+workflow hash_demultiplexing {
     take:
         rna_matrix_raw
         rna_matrix_filtered
         hto_matrix_raw
         hto_matrix_filtered
     main:
-    
-    if (params.htodemux == "True"){
-        rna_matrix = params.rna_matrix_htodemux == "raw" ? rna_matrix_raw : rna_matrix_filtered
-        hto_matrix = params.hto_matrix_htodemux == "raw" ? hto_matrix_raw : hto_matrix_filtered
+
+    if (params.htodemux == 'True') {
+        rna_matrix = params.rna_matrix_htodemux == 'raw' ? rna_matrix_raw : rna_matrix_filtered
+        hto_matrix = params.hto_matrix_htodemux == 'raw' ? hto_matrix_raw : hto_matrix_filtered
         preprocessing_hashing_htodemux(hto_matrix, rna_matrix, params.hto_matrix_htodemux, params.rna_matrix_htodemux)
         htodemux_preprocess_out = preprocessing_hashing_htodemux.out
         htodemux_hashing(htodemux_preprocess_out)
         htodemux_out = htodemux_hashing.out
     }
-    else{
-        htodemux_out = channel.value("no_result")
+    else {
+        htodemux_out = channel.value('no_result')
     }
-    
-    if (params.multiseq == "True"){
-        if (params.htodemux == "True" & params.hto_matrix_htodemux == params.hto_matrix_multiseq & 
-            params.rna_matrix_htodemux == params.rna_matrix_multiseq){
+
+    if (params.multiseq == 'True') {
+        if (params.htodemux == 'True' & params.hto_matrix_htodemux == params.hto_matrix_multiseq &
+            params.rna_matrix_htodemux == params.rna_matrix_multiseq) {
             multiseq_preprocess_out = htodemux_preprocess_out
-        }
-        else{
-            rna_matrix = params.rna_matrix_multiseq == "raw" ? rna_matrix_raw : rna_matrix_filtered
-            hto_matrix = params.hto_matrix_multiseq == "raw" ? hto_matrix_raw : hto_matrix_filtered
+            }
+        else {
+            rna_matrix = params.rna_matrix_multiseq == 'raw' ? rna_matrix_raw : rna_matrix_filtered
+            hto_matrix = params.hto_matrix_multiseq == 'raw' ? hto_matrix_raw : hto_matrix_filtered
             preprocessing_hashing_multiseq(hto_matrix, rna_matrix, params.hto_matrix_multiseq, params.rna_matrix_multiseq)
             multiseq_preprocess_out = preprocessing_hashing_multiseq.out
         }
         multiseq_hashing(multiseq_preprocess_out)
         multiseq_out = multiseq_hashing.out
     }
-    else{
-        multiseq_out = channel.value("no_result")
+    else {
+        multiseq_out = channel.value('no_result')
     }
-    
-    if (params.hashsolo == "True"){
-        hashsolo_hto_input = params.hto_matrix_hashsolo == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        hashsolo_rna_input = params.rna_matrix_hashsolo == "False" ? channel.value("None") : 
-                            (params.rna_matrix_hashsolo == "raw" ? rna_matrix_raw : rna_matrix_filtered)
+
+    if (params.hashsolo == 'True') {
+        hashsolo_hto_input = params.hto_matrix_hashsolo == 'raw' ? hto_matrix_raw : hto_matrix_filtered
+        hashsolo_rna_input = params.rna_matrix_hashsolo == 'False' ? channel.value('None') :
+                            (params.rna_matrix_hashsolo == 'raw' ? rna_matrix_raw : rna_matrix_filtered)
         hash_solo_hashing(hashsolo_hto_input, hashsolo_rna_input)
         hashsolo_out = hash_solo_hashing.out
     }
-    else{
-        hashsolo_out = channel.value("no_result")
+    else {
+        hashsolo_out = channel.value('no_result')
     }
-    
-    if (params.demuxem == "True"){
-        demuxem_hto_input = params.hto_matrix_demuxem == "raw" ? hto_matrix_raw : hto_matrix_filtered
-        demuxem_rna_input = params.rna_matrix_demuxem == "raw" ? rna_matrix_raw : rna_matrix_filtered
+
+    if (params.demuxem == 'True') {
+        demuxem_hto_input = params.hto_matrix_demuxem == 'raw' ? hto_matrix_raw : hto_matrix_filtered
+        demuxem_rna_input = params.rna_matrix_demuxem == 'raw' ? rna_matrix_raw : rna_matrix_filtered
         demuxem_hashing(demuxem_hto_input, demuxem_rna_input)
         demuxem_out = demuxem_hashing.out
     }
-    else{
-        demuxem_out = channel.value("no_result")
+    else {
+        demuxem_out = channel.value('no_result')
     }
-    
-    if (params.hashedDrops == "True"){
-        hashedDrops_hto_input = params.hto_matrix_hashedDrops == "raw" ? hto_matrix_raw : hto_matrix_filtered
+
+    if (params.hashedDrops == 'True') {
+        hashedDrops_hto_input = params.hto_matrix_hashedDrops == 'raw' ? hto_matrix_raw : hto_matrix_filtered
         hashedDrops_hashing(hashedDrops_hto_input)
         hashedDrops_out = hashedDrops_hashing.out
     }
-    else{
-        hashedDrops_out = channel.value("no_result")
+    else {
+        hashedDrops_out = channel.value('no_result')
     }
-    if (params.bff == "True"){
-        bff_hto_input = params.hto_matrix_bff == "raw" ? hto_matrix_raw : hto_matrix_filtered
+    if (params.bff == 'True') {
+        bff_hto_input = params.hto_matrix_bff == 'raw' ? hto_matrix_raw : hto_matrix_filtered
         bff_hashing(bff_hto_input)
         bff_out = bff_hashing.out
     }
-    else{
-        bff_out = channel.value("no_result")
+    else {
+        bff_out = channel.value('no_result')
     }
-    if (params.gmmDemux == "True"){
-        gmmDemux_hto_input = params.hto_matrix_gmm_demux == "raw" ? hto_matrix_raw : hto_matrix_filtered
+    if (params.gmmDemux == 'True') {
+        gmmDemux_hto_input = params.hto_matrix_gmm_demux == 'raw' ? hto_matrix_raw : hto_matrix_filtered
         gmm_demux_hashing(gmmDemux_hto_input)
         gmmDemux_out = gmm_demux_hashing.out
     }
-    else{
-        gmmDemux_out = channel.value("no_result")
+    else {
+        gmmDemux_out = channel.value('no_result')
     }
 
-
-    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,gmmDemux_out,bff_out,
+    summary(demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out, gmmDemux_out, bff_out,
             params.generate_anndata, params.generate_mudata, rna_matrix_filtered, hto_matrix_filtered)
     emit:
         summary.out

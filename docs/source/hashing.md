@@ -1,33 +1,52 @@
-# Hashing demultiplexing
+# Hashing-based deconvolution workflow
 
 Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
 
-## **Hashing-based deconvolution (hash_demulti) in hadge**
+## **hash_demulti in hadge**
 
-![Caption](_static/images/hashing-based.png)
+<p align="center">
+<img src="_static/images/hashing.png" width="400">
+</p>
 
 ## **Quick start**
 
 ```bash
-cd hadge
-nextflow run main.nf -profile test --mode hashing
+nextflow run ${hadge_project_dir}/main.nf -profile test,conda --mode hashing
+```
+
+## **Example case**
+
+Case 1: Run the entire hashing-based mode:
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --outputdir ${output_dir} --mode hashing --hto_matrix_raw ${hto_raw_dir} --hto_matrix_filtered ${hto_filtered_dir} --rna_matrix_raw ${rna_raw_dir} --rna_matrix_filtered ${rna_filtered_dir}
+```
+
+Case 2: Run Multiseq with raw counts :
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --outputdir ${output_dir} --mode hashing --rna_matrix_multiseq raw --hto_matrix_multiseq raw // additional parameters as in case 1
+```
+
+Case 3: Run the pipeline with different combinations of parameter. This is only available in the single sample mode. The values should be separated by semicolumn and double quoted.
+
+```bash
+nextflow run ${hadge_project_dir}/main.nf -profile conda --mode hashing --quantile_multi "0.5;0.7" //additional paramters as in case 1
 ```
 
 ## **Input data preparation**
 
 The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
 
-| Deconvolution method | Input data                                                                                                          | Parameter                                                      |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| HTODemux             | - Seurat object with both UMI and hashing count matrix (RDS)                                                        | `params.rna_matrix_htodemux` <br> `params.hto_matrix_htodemux` |
-| Multiseq             | - Seurat object with both UMI and hashing count matrix (RDS)                                                        | `params.rna_matrix_multiseq` <br> `params.hto_matrix_multiseq` |
-| HashSolo             | - 10x mtx directory with hashing count matrix (H5)                                                                  | `params.hto_matrix_hashsolo` <br> `params.rna_matrix_hashsolo` |
-| HashedDrops          | - 10x mtx directory with hashing count matrix (Directory)                                                           | `params.hto_matrix_hashedDrops`                                |
-| Demuxem              | - 10x mtx directory with UMI count matrix (Directory) <br>- 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_demuxem`<br>`params.rna_matrix_demuxem`     |
-| GMM - Demux          | - 10x mtx directory with UMI count matrix (Directory)<br> - 10x mtx directory with hashing count matrix (Directory) | `params.hto_matrix_gmm_demux`                                  |
-| BFF                  | - 10x mtx directory with UMI count matrix (Directory)<br>- 10x mtx directory with hashing count matrix (Directory)  | `params.hto_matrix_bff`                                        |
+| Deconvolution method | Input data                                                    |
+| -------------------- | ------------------------------------------------------------- |
+| HTODemux             | UMI and hashing count matrix                                  |
+| Multiseq             | UMI and hashing count matrix                                  |
+| HashSolo             | - Required: Hashing count matrix - Optional: UMI count matrix |
+| HashedDrops          | Hashing count matrix                                          |
+| Demuxem              | Both UMI and hashing count matrix                             |
 
-Similary as genotype-based deconvlution methods, hashing methods also have some input in common. So we also try to utilize common input parameters `params.[rna/hto]_matrix_[raw/filtered]` to store count matrices for better control and `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method.
+Similary as genotype-based deconvlution methods, hashing methods also have some input in common. So we also try to utilize common input parameters `params.[rna/hto]_matrix_[raw/filtered]` to store count matrices for better control and `params.[rna/hto]_matrix_[method]` is used to specify whether to use raw or filtered counts for each method, e.g. `hto_matrix_hashedDrops = "raw"` means that raw HTO count matrix is used as input for HTODemux.
 
 | Input data                     | Parameter                    |
 | ------------------------------ | ---------------------------- |
@@ -38,7 +57,7 @@ Similary as genotype-based deconvlution methods, hashing methods also have some 
 
 #### Pre-processing
 
-Similar as in the genetic demultiplexing workflow, we provide a pre-processing step required before running HTODemux and Multiseq to load count matrices into a Seurat object. The input will be automatically loaded from the parameters set above.
+Similar as in the genetic demultiplexing workflow, we provide a pre-processing step required before running HTODemux and Multiseq where the count matrices are loaded from the parameters set above into a Seurat object.
 
 ## **Output**
 
@@ -160,7 +179,7 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | quantile_htodemux   | The quantile of inferred 'negative' distribution for each hashtag, over which the cell is considered 'positive'. Default: 0.99 |
 | kfunc               | Clustering function for initial hashtag grouping. Default: clara.                                                              |
 | nstarts             | nstarts value for k-means clustering when kfunc=kmeans. Default: 100                                                           |
-| nsamples            | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
+| nsamples_clustering | Number of samples to be drawn from the dataset used for clustering when kfunc= clara. Default: 100                             |
 | seed                | Sets the random seed. Default: 42                                                                                              |
 | init                | Initial number of clusters for hashtags. Default: None, which means the # of hashtag oligo names + 1 to account for negatives. |
 | objectOutHTO        | Name of the output Seurat object. Default: htodemux                                                                            |
@@ -201,36 +220,18 @@ output directory: `$pipeline_output_folder/bff/bff_[task_ID/sampleId]`
 | assignmentOutMulti  | Prefix of the output CSV files. Default: multiseq                                                       |
 | objectOutMulti      | Name of the output Seurat object. Default: multiseq                                                     |
 
-### Solo
-
-|                            |                                                                                                  |
-| -------------------------- | ------------------------------------------------------------------------------------------------ |
-| solo                       | Whether to perform Solo. Default: True                                                           |
-| rna_matrix_solo            | Input folder to RNA expression matrix in 10x format.                                             |
-| max_epochs                 | Number of epochs to train for. Default: 400                                                      |
-| lr                         | Learning rate for optimization. Default: 0.001                                                   |
-| train_size                 | Size of training set in the range between 0 and 1. Default: 0.9                                  |
-| validation_size            | Size of the test set. Default: 0.1                                                               |
-| batch_size                 | Minibatch size to use during training. Default: 128                                              |
-| early_stopping             | Adds callback for early stopping on validation_loss. Default: True                               |
-| early_stopping_patience    | Number of times early stopping metric can not improve over early_stopping_min_delta. Default: 30 |
-| early_stopping_min_delta   | Threshold for counting an epoch towards patience train(). Default: 10                            |
-| soft                       | Return probabilities instead of class label. Default: False                                      |
-| include_simulated_doublets | Return probabilities for simulated doublets as well.                                             |
-| assignmentOutSolo          | Prefix of the output CSV files. Default: solo_predict                                            |
-
 ### HashSolo
 
 |                          |                                                                                              |
 | ------------------------ | -------------------------------------------------------------------------------------------- |
 | hashsolo                 | Whether to perform HashSolo. Default: True                                                   |
+| use_rna_data             | Whether to use RNA counts for deconvolution. Default: False                                  |
 | rna_matrix_hashsolo      | Whether to use raw or filtered scRNA-seq count matrix. Default: raw                          |
 | hto_matrix_hashsolo      | Whether to use raw or filtered HTO count matrix if use_rna_data is set to True. Default: raw |
 | priors_negative          | Prior for the negative hypothesis. Default: 1/3                                              |
 | priors_singlet           | Prior for the singlet hypothesis. Default: 1/3                                               |
 | priors_doublet           | Prior for the doublet hypothesis. Default: 1/3                                               |
 | pre_existing_clusters    | Column in the input data for how to break up demultiplexing. Default: None                   |
-| use_rna_data             | Whether to use RNA counts for deconvolution. Default: False                                  |
 | number_of_noise_barcodes | Number of barcodes to use to create noise distribution. Default: None                        |
 | assignmentOutHashSolo    | Prefix of the output CSV files. Default: hashsolo                                            |
 | plotOutHashSolo          | Prefix of the output figures. Default: hashsolo                                              |

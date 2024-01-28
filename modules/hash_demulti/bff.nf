@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process bff{
+process bff {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
- 
+
     conda "$projectDir/conda/bff.yml"
-    
+
     input:
-       
+
         tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data')
         val methods
         val methodsForConsensus
@@ -23,27 +23,24 @@ process bff{
         val assignmentOutBff
         val preprocess_bff
         val barcodeWhitelist
-        
+
     output:
         path "bff_${sampleId}"
-        
-        
+
     script:
-        
+
         """
         mkdir bff_${sampleId}
         bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
-        --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${sampleId}_$metricsFile \
-        --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
-        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} \
-        --assignmentOutBff $assignmentOutBff --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
+                --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${sampleId}_$metricsFile \
+                --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
+                --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} \
+                --assignmentOutBff $assignmentOutBff --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
         """
-
 }
 
-
-workflow bff_hashing{
-  take: 
+workflow bff_hashing {
+  take:
         hto_matrix
   main:
         methods = params.methods
@@ -63,13 +60,11 @@ workflow bff_hashing{
         bff(hto_matrix, methods, methodsForConsensus, cellbarcodeWhitelist, metricsFile, doTSNE,
             doHeatmap, perCellSaturation, majorityConsensusThreshold, chemistry, callerDisagreementThreshold,
             assignmentOutBff, preprocess_bff, barcodeWhitelist)
-  
+
   emit:
         bff.out.collect()
 }
 
-
-workflow{
+workflow {
     bff_hashing()
-
 }

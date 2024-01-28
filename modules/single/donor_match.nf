@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process matchDonor{
+process matchDonor {
     publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
     label 'big_mem'
 
     conda "$projectDir/conda/donor_match.yml"
-    
+
     input:
         path demultiplexing_result
         val ndonor
@@ -18,27 +18,27 @@ process matchDonor{
         val variant_count
         val variant_pct
         val vireo_parent_dir
-    
+
     output:
-        path "donor_match"
+        path 'donor_match'
 
     script:
-        def two_method = (method1_name != "None" & method2_name != "None") ? "--method1 $method1_name --method2 $method2_name" : ""
+        def two_method = (method1_name != 'None' & method2_name != 'None') ? "--method1 $method1_name --method2 $method2_name" : ''
 
-        def cell_genotype_path = ""
-        if (findVariants == "True" | findVariants == "default"){
-            cell_genotype_path = cell_genotype != "None" ? "--cell_genotype $cell_genotype" : \
+        def cell_genotype_path = ''
+        if (findVariants == 'True' | findVariants == 'default') {
+            cell_genotype_path = cell_genotype != 'None' ? "--cell_genotype $cell_genotype" : \
                 "--cell_genotype $projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP/cellsnp_1/*/cellSNP.cells.vcf.gz"
         }
 
-        def vireo_parent_path = ""
-        if ( findVariants == 'vireo' | findVariants == 'True' ){
-            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != "None") ? "--vireo_parent_dir $vireo_parent_dir" : \
+        def vireo_parent_path = ''
+        if (findVariants == 'vireo' | findVariants == 'True') {
+            vireo_parent_path = (params.mode == 'donor_match' & vireo_parent_dir != 'None') ? "--vireo_parent_dir $vireo_parent_dir" : \
                 "--vireo_parent_dir $projectDir/$params.outdir/$params.mode/gene_demulti/vireo/"
         }
 
-        def barcode_whitelist_path = (barcode_whitelist != "None") ? "--barcode $barcode_whitelist" : ""
-        
+        def barcode_whitelist_path = (barcode_whitelist != 'None') ? "--barcode $barcode_whitelist" : ''
+
         """
         export R_MAX_VSIZE=100Gb
         outputdir=donor_match
@@ -46,7 +46,7 @@ process matchDonor{
         donor_match.R --result_csv $demultiplexing_result $barcode_whitelist_path --findVariants $findVariants \
                 $cell_genotype_path --variant_pct $variant_pct --variant_count $variant_count --ndonor $ndonor \
                 $two_method --outputdir \$outputdir $vireo_parent_path
-                
+
         if ([ "$findVariants" != "False" ]); then
             best_method_vireo="\$(head -n 1 \$outputdir/best_method_vireo.txt)"
             if ([ "$params.mode" != "donor_match" ]); then
@@ -54,7 +54,7 @@ process matchDonor{
             else
                 donor_genotype="\$(find $vireo_parent_dir/\$best_method_vireo -name GT_donors.vireo.vcf.gz | head -n 1)"
             fi
-        
+
             if ([ "$findVariants" = "True" ] || [ "$findVariants" = "default" ]); then
                 gunzip -c \$donor_genotype > \$outputdir/GT_donors.vireo.vcf
                 if ([ \$(grep "^##config" \$outputdir/GT_donors.vireo.vcf | wc -l) == 0 ]); then
@@ -89,16 +89,15 @@ process matchDonor{
             rm \$outputdir/compressed_sorted_donor_genotype.vcf.gz.csi
 
         fi
-        
+
         """
 }
 
-                
-workflow donor_match{
+workflow donor_match {
     take:
         demultiplexing_result
     main:
-        matchDonor(demultiplexing_result, params.nsample, params.barcodes, params.match_donor_method1, params.match_donor_method2, 
+        matchDonor(demultiplexing_result, params.nsamples_genetic, params.barcodes, params.match_donor_method1, params.match_donor_method2,
             params.findVariants, params.celldata, params.variant_count, params.variant_pct, params.vireo_parent_dir)
     emit:
         matchDonor.out

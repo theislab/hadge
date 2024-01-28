@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process cellSNP{
+process cellSNP {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/cellSNP", mode: 'copy'
     label 'big_mem'
 
-    conda "bioconda::cellsnp-lite"
+    conda 'bioconda::cellsnp-lite'
 
     input:
         path samFile_cellSNP
@@ -33,7 +33,6 @@ process cellSNP{
         val countORPHAN_cellSNP
         val cellsnp_out
 
-
     output:
         path "cellsnp_${task.index}"
 
@@ -44,9 +43,9 @@ process cellSNP{
         def barcodeFile = barcodeFile_cellSNP.name != 'None' ? "--barcodeFile ${barcodeFile_cellSNP}" : ''
         def sampleList = sampleList_cellSNP != 'None' ? "--sampleList ${sampleList_cellSNP}" : ''
         def sampleIDs = sampleIDs_cellSNP != 'None' ? "--sampleIDs ${sampleIDs_cellSNP}" : ''
-        def genotype = genotype_cellSNP != 'False' ? "--genotype" : ''
-        def gzip = gzip_cellSNP != 'False' ? "--gzip" : ''
-        def printSkipSNPs = printSkipSNPs_cellSNP != 'False' ? "--printSkipSNPs" : ''
+        def genotype = genotype_cellSNP != 'False' ? '--genotype' : ''
+        def gzip = gzip_cellSNP != 'False' ? '--gzip' : ''
+        def printSkipSNPs = printSkipSNPs_cellSNP != 'False' ? '--printSkipSNPs' : ''
         def nproc = nproc_cellSNP != 'None' ? "--nproc ${nproc_cellSNP}" : ''
         def refseq = refseq_cellSNP != 'None' ? "--refseq ${refseq_cellSNP}" : ''
         def chrom = chrom_cellSNP != 'None' ? "--chrom ${chrom_cellSNP}" : ''
@@ -54,12 +53,12 @@ process cellSNP{
         def UMItag = "--UMItag ${UMItag_cellSNP}"
         def minCOUNT = "--minCOUNT ${minCOUNT_cellSNP}"
         def minMAF = "--minMAF ${minMAF_cellSNP}"
-        def doubletGL = doubletGL_cellSNP != 'False' ? "--doubletGL" : ''
+        def doubletGL = doubletGL_cellSNP != 'False' ? '--doubletGL' : ''
         def inclFLAG = inclFLAG_cellSNP != 'None' ? "--inclFLAG ${inclFLAG_cellSNP}" : ''
         def exclFLAG = exclFLAG_cellSNP != 'None' ? "--exclFLAG ${exclFLAG_cellSNP}" : ''
         def minLEN = "--minLEN ${minLEN_cellSNP}"
         def minMAPQ = "--minMAPQ ${minMAPQ_cellSNP}"
-        def countORPHAN = countORPHAN_cellSNP != 'False' ? "--countORPHAN" : ''
+        def countORPHAN = countORPHAN_cellSNP != 'False' ? '--countORPHAN' : ''
         def out = "cellsnp_${task.index}/${cellsnp_out}"
 
         """
@@ -75,17 +74,16 @@ process cellSNP{
         """
 }
 
-
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }
 
-workflow variant_cellSNP{
+workflow variant_cellSNP {
     take:
         samFile
         indexFile
@@ -112,8 +110,8 @@ workflow variant_cellSNP{
         minMAPQ = channel.value(params.minMAPQ)
         countORPHAN = channel.value(params.countORPHAN)
         cellsnp_out = channel.value(params.cellsnp_out)
-        cellSNP(samFile, indexFile, regionsVCF, targetsVCF, barcodeFile, sampleList, 
-            sampleIDs, genotype_cellSNP, gzip_cellSNP, printSkipSNPs, nproc_cellSNP, refseq_cellSNP, 
+        cellSNP(samFile, indexFile, regionsVCF, targetsVCF, barcodeFile, sampleList,
+            sampleIDs, genotype_cellSNP, gzip_cellSNP, printSkipSNPs, nproc_cellSNP, refseq_cellSNP,
             chrom, cellTAG, UMItag, minCOUNT, minMAF, doubletGL, inclFLAG, exclFLAG, minLEN, minMAPQ, countORPHAN, cellsnp_out)
     emit:
         cellSNP.out

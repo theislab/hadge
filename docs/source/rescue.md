@@ -4,7 +4,9 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ## Overview
 
-![Caption](_static/images/rescue.png)
+<p align="center">
+<img src="_static/images/rescue.png" width="500">
+</p>
 
 ## **Quick start**
 

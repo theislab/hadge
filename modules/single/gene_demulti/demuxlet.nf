@@ -1,12 +1,12 @@
 #!/usr/bin/env nextflow
 
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
 process demuxlet {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
 
-    conda "bioconda::popscle"
+    conda 'bioconda::popscle'
 
     input:
         each sam
@@ -38,11 +38,10 @@ process demuxlet {
         each r2_info
         each min_mac
         each min_callrate
-        
+
         each alpha
         each doublet_prior
         each demuxlet_out
-        
 
     output:
         path "demuxlet_${task.index}"
@@ -51,14 +50,14 @@ process demuxlet {
         def samfile = "--sam $sam"
         def taggroup = tag_group != 'None' ? "--tag-group ${tag_group}" : ''
         def tagUMI = tag_UMI != 'None' ? "--tag-UMI ${tag_UMI}" : ''
-        def vcfref = plp == 'True' ? "--vcf ${vcf_donor}" : ""
-        def vcfref_name = plp == 'True' ? vcf_donor : "No VCF Ref is used because plp is not performed."
+        def vcfref = plp == 'True' ? "--vcf ${vcf_donor}" : ''
+        def vcfref_name = plp == 'True' ? vcf_donor : 'No VCF Ref is used because plp is not performed.'
         def smlist = sm != 'None' ? "--sm $sm" : ''
         def sm_list_file = sm_list != 'None' ? "--sm-list ${sm_list}" : ''
-        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : "No sm list file is given"
+        def sm_list_file_name = sm_list != 'None' ? file(sm_list).baseName : 'No sm list file is given'
         def samverbose = "--sam-verbose ${sam_verbose}"
         def vcfverbose = "--vcf-verbose ${vcf_verbose}"
-        def skipumi = skip_umi != "False" ? "--skip-umi" : ""
+        def skipumi = skip_umi != 'False' ? '--skip-umi' : ''
         def capBQ = "--cap-BQ ${cap_BQ}"
         def minBQ = "--min-BQ ${min_BQ}"
         def minMQ = "--min-MQ ${min_MQ}"
@@ -69,7 +68,7 @@ process demuxlet {
         def minumi = "--min-umi ${min_umi}"
         def minuniq = "--min-uniq ${min_uniq}"
         def minsnp = "--min-snp ${min_snp}"
-        def plp_name = plp == 'True' ? "plp performed" : "plp not performed"
+        def plp_name = plp == 'True' ? 'plp performed' : 'plp not performed'
         def vcfdonor = "--vcf ${vcf_donor}"
         def fieldinfo = "--field $field"
         def genoerror_off = "--geno-error-offset ${geno_error_offset}"
@@ -77,9 +76,9 @@ process demuxlet {
         def r2info = "--r2-info ${r2_info}"
         def minmac = "--min-mac ${min_mac}"
         def mincallrate = "--min-callrate ${min_callrate}"
-        def alpha_value = alpha.replaceAll(/,/, " --alpha ")
+        def alpha_value = alpha.replaceAll(/,/, ' --alpha ')
         def doubletprior = "--doublet-prior ${doublet_prior}"
-      
+
         """
         mkdir demuxlet_${task.index}
         touch demuxlet_${task.index}/params.csv
@@ -99,22 +98,21 @@ process demuxlet {
                 ${genoerror_off} ${genoerror_cof} $r2info $minmac $mincallrate $smlist ${sm_list_file} --alpha ${alpha_value} \
                 $doubletprior $samverbose $vcfverbose $capBQ $minBQ $minMQ $minTD $exclflag $grouplist $mintotal $minumi $minsnp \
                 $minuniq --out demuxlet_${task.index}/${demuxlet_out}
-            
+
         fi
         """
-        
 }
 
-def split_input(input){
-    if (input =~ /;/ ){
-        Channel.from(input).map{ return it.tokenize(';')}.flatten()
+def split_input(input) {
+    if (input =~ /;/) {
+        Channel.from(input).map { return it.tokenize(';') }.flatten()
     }
-    else{
+    else {
         Channel.from(input)
     }
 }
 
-workflow demultiplex_demuxlet{
+workflow demultiplex_demuxlet {
     take:
         sam
     main:
@@ -140,18 +138,18 @@ workflow demultiplex_demuxlet{
         field = split_input(params.field)
         geno_error_offset = split_input(params.geno_error_offset)
         geno_error_coeff = split_input(params.geno_error_coeff)
-        r2_info= split_input(params.r2_info)
+        r2_info = split_input(params.r2_info)
         min_mac = split_input(params.min_mac)
         min_callrate = split_input(params.min_callrate)
         alpha = split_input(params.alpha)
         doublet_prior = split_input(params.doublet_prior)
         demuxlet_out = params.demuxlet_out
 
-        demuxlet(sam, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi, 
-            cap_BQ, min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi, 
-            min_snp, plp, vcfdonor, field, geno_error_offset, geno_error_coeff, r2_info, min_mac, 
+        demuxlet(sam, tag_group, tag_UMI, sm, sm_list, sam_verbose, vcf_verbose, skip_umi,
+            cap_BQ, min_BQ, min_MQ, min_TD, excl_flag, group_list, min_total, min_uniq, min_umi,
+            min_snp, plp, vcfdonor, field, geno_error_offset, geno_error_coeff, r2_info, min_mac,
             min_callrate, alpha, doublet_prior, demuxlet_out)
-        
+
     emit:
         demuxlet.out.collect()
 }
