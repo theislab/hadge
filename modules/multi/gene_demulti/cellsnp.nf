@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process cellSNP{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     conda "bioconda::cellsnp-lite"
 
     input:
@@ -33,7 +33,8 @@ process cellSNP{
 
 
     output:
-        path "cellsnp_${sampleId}"
+        path "cellsnp_${sampleId}", emit: out1
+        tuple val(sampleId), path("cellsnp_${sampleId}/${cellsnp_out}"), emit: cellsnp_input
 
     script:
         def samFile = "--samFile ${samFile_cellSNP}"
@@ -114,5 +115,6 @@ workflow variant_cellSNP{
             nproc_cellSNP, refseq_cellSNP, chrom, cellTAG, UMItag, minCOUNT, minMAF, doubletGL, inclFLAG, exclFLAG, minLEN, minMAPQ, 
             countORPHAN, cellsnp_out)
     emit:
-        cellSNP.out
+        out1 = cellSNP.out.out1
+        cellsnp_input = cellSNP.out.cellsnp_input
 }

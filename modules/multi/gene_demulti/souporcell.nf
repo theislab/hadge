@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process souporcell{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/souporcell", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     container "shub://wheaton5/souporcell"
     
     input:
@@ -37,10 +37,12 @@ process souporcell{
         def minref = "--min_ref ${min_ref}"
         def maxloci = "--max_loci ${max_loci}"
         def restart = restarts != 'None' ? "--restarts $restarts" : ''
-        def commonvariant = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' )? "--common_variants ${common_variants}" : ''
+        def commonvariant = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' )? "--common_variants commonvariant.vcf" : ''
+        def commonvariant_unzip = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' )?  "bcftools view ${common_variants} -Ov -o commonvariant.vcf" : ''
         def commonvariant_name = (common_variants != 'None' & use_known_genotype != "True" & known_genotypes == 'None' ) ? common_variants : 'No common variants are given.'
 
-        def knowngenotype = (known_genotypes != 'None' & use_known_genotype == "True") ? "--known_genotypes ${known_genotypes}" : ''
+        def genotype_unzip = (known_genotypes != 'None' & use_known_genotype == "True") ? "bcftools view ${known_genotypes} -Ov -o unzipped.vcf" : ''
+        def knowngenotype = (known_genotypes != 'None' & use_known_genotype == "True") ? "--known_genotypes unzipped.vcf" : ''
         def knowngenotype_name = (known_genotypes != 'None' & use_known_genotype == "True") ? known_genotypes : 'No known variants are given.'
 
         def knowngenotypes_sample = known_genotypes_sample_names != 'None' ? "--known_genotypes_sample_names ${known_genotypes_sample_names}" : ''
@@ -51,6 +53,8 @@ process souporcell{
         def out = "souporcell_${sampleId}/${souporcell_out}"
         
         """
+        ${genotype_unzip}
+        ${commonvariant_unzip}
         mkdir souporcell_${sampleId}
         mkdir $out
         touch souporcell_${sampleId}/params.csv

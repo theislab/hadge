@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process matchDonor{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     conda "$projectDir/conda/donor_match.yml"
     
     input:

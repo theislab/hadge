@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process vireo{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     conda "aksarkar::vireosnp"
 
     input:
@@ -34,7 +34,8 @@ process vireo{
         def celldata_name = celldata.baseName
         def n_donor =  ndonor != 'None'? "-N $ndonor" : ''
         def n_donor_yesno =  ndonor != 'None'? "$ndonor" : "Number of donors are not given"
-        def donor = donorfile != 'None' ? "-d $donorfile" : ''
+        def donor = donorfile != 'None' ? "-d no_prefix_chr.vcf" : ''
+        def donor_preprocess = donorfile != 'None' ? "bcftools view $donorfile | awk '{gsub(/^chr/,\"\"); print}' | awk '{gsub(/ID=chr/,\"ID=\"); print}' > no_prefix_chr.vcf" : ''
         def donor_data_name = donorfile != 'None' ? donorfile : 'Donor file is not given'
         def geno_tag = donorfile != 'None' ? "--genoTag $genoTag" : ''
         def no_doublet = noDoublet != 'False' ? "--noDoublet" : ''
@@ -51,6 +52,7 @@ process vireo{
         def n_proc = "--nproc $nproc"
 
         """
+        ${donor_preprocess}
         mkdir vireo_${sampleId}
         mkdir vireo_${sampleId}/${vireo_out}
         touch vireo_${sampleId}/params.csv

@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process freebayes{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freebayes", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     conda "bioconda::freebayes=1.2"
     
     input:
@@ -85,7 +85,7 @@ process freebayes{
         
 
     output:
-        tuple val(sampleId), path ("${sampleId}_${region_freebayes}_${vcf_freebayes}")
+        tuple val(sampleId), path ("out_${sampleId}_${region_freebayes}_${vcf_freebayes}")
 
     script:
     def stdin = stdin_freebayes != 'False' ? "--stdin" : ''
@@ -179,7 +179,7 @@ process freebayes{
     ${observation_bias} ${base_quality_cap} ${prob_contamination} ${legacy_gls} ${contamination_estimates} \
     ${report_genotype_likelihood_max} ${genotyping_max_iterations} ${genotyping_max_banddepth} ${posterior_integration_limits} ${exclude_unobserved_genotypes} ${genotype_variant_threshold} \
     ${use_mapping_quality} ${harmonic_indel_quality} ${read_dependence_factor} ${genotype_qualities} $debug $dd
-  
+    ln -s ${sampleId}_${region_freebayes}_${vcf_freebayes} out_${sampleId}_${region_freebayes}_${vcf_freebayes}
     """
 }
 

@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process subset_bam_and_sort_vcf_based_on_reference{
     label 'small_mem'
     conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
-
+    tag "${sampleId}"
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(barcodes), val(vcf)
 
@@ -24,7 +24,7 @@ process subset_bam_and_sort_vcf_based_on_reference{
 process demuxlet {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/demuxlet", mode: 'copy'
     label 'small_mem'
-    
+    tag "${sampleId}"
     conda "bioconda::popscle"
 
     input:

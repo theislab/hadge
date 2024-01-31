@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 process scSplit{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/scSplit", mode: 'copy'
     label 'big_mem'
-
+    tag "${sampleId}"
     conda "$projectDir/conda/scsplit.yml"
 
     input:

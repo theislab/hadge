@@ -25,7 +25,7 @@ process subset_bam_to_comon_variants{
     
     label 'small_mem'
     conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
-
+    tag "${sampleId}"
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(barcodes)
         path vcf
@@ -45,7 +45,7 @@ process subset_bam_to_comon_variants{
 process summary{
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
-
+    tag "${sampleId}"
     conda "pandas scanpy mudata"
 
     input:
@@ -192,14 +192,14 @@ workflow gene_demultiplexing {
     if (params.vireo == "True" & params.vireo_variant == 'True'){
 
         variant_cellSNP(qc_bam_new)
-        cellsnp_vcf = variant_cellSNP.out.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/*/cellSNP.cells.vcf") }
+        cellsnp_vcf = variant_cellSNP.out.out1.map{ it -> tuple( it.name.tokenize( '_' ).last(), it + "/*/cellSNP.cells.vcf") }
 
     }
 
     if (params.vireo == "True"){
 
         if (params.vireo_variant == 'True'){
-            input_vcf_vireo = cellsnp_vcf
+            input_vcf_vireo = variant_cellSNP.out.cellsnp_input
         }
         else{
             input_vcf_vireo = Channel.fromPath(params.multi_input) \
