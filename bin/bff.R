@@ -18,7 +18,7 @@ parser$add_argument("--methodsForConsensus", help='By default, a consensus call 
 parser$add_argument("--cellbarcodeWhitelist", help='A vector of expected cell barcodes. This allows reporting on the total set of expected barcodes, not just those in the filtered count matrix',default=NULL)
 parser$add_argument("--metricsFile", help='If provided, summary metrics will be written to this file.', default="metrics_cell_hash_r.csv")
 parser$add_argument("--doTSNE", help='If true, tSNE will be run on the resulting hashing calls after each caller.', default=TRUE)
-parser$add_argument("--preprocess", help='If true, the PreProcess function by CellHashR is executed', default=FALSE)
+parser$add_argument("--preprocess_bff", help='If given, the PreProcess function by CellHashR is executed', action="store_true")
 parser$add_argument("--barcodeWhitelist", help='A vector of barcode names to retain, used for preprocessing step', default=NULL)
 parser$add_argument("--doHeatmap", help='f true, Seurat::HTOHeatmap will be run on the results of each caller.', default=TRUE)
 parser$add_argument("--perCellSaturation", help='An optional dataframe with the columns cellbarcode and saturation',default=NULL)
@@ -31,6 +31,7 @@ parser$add_argument("--assignmentOutBff", help="Prefix name for the file contain
 parser$add_argument("--outputdir", help='Output directory')
 args <- parser$parse_args()
 
+print(args$preprocess_bff)
 #Parameters originally Null
 methodsForConsensus <- args$methodsForConsensus
 if(is.null(methodsForConsensus)){
@@ -62,7 +63,7 @@ Argument <- c("HTO-File", "methods", "methodsForConsensus", "cellbarcodeWhitelis
 Value <- c(args$fileHto, args$methods, methodsForConsensus, cellbarcodeWhitelist, args$metricsFile, perCellSaturation, majorityConsensusThreshold, callerDisagreementThreshold, args$doTSNE, args$doHeatmap,args$chemistry)
 params <- data.frame(Argument, Value)
 
-if(as.logical(args$preprocess)){
+if(args$preprocess_bff == TRUE){
   print("Preprocessing activated")
   print(args$preprocess)
   #get barcodes
@@ -90,7 +91,7 @@ if (!is.null(args$methodsForConsensus)) {
 perCell_args <- args$perCellSaturation
 perCell <- ifelse(perCell_args == "null" || perCell_args == "Null", NULL, perCell_args)
 
-if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || is.null(args$methodsForConsensus)  )
+if(args$methodsForConsensus=="bff_raw" || args$methodsForConsensus=="bff_cluster" || args$methodsForConsensus=="bff_raw,bff_cluster" || args$methodsForConsensus=="bff_cluster,bff_raw"|| is.null(args$methodsForConsensus)  )
   #Only Bff in its different variations is available
   if (args$methods == "bff_raw") {
     print("Executing BFF raw")
