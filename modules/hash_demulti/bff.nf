@@ -5,7 +5,7 @@ process bff {
     publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
 
-    conda "$projectDir/conda/bff.yml"
+    container 'ghcr.io/bimberlab/cellhashr:latest'
 
     input:
 
