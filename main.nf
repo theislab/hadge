@@ -10,6 +10,6 @@ workflow {
 }
 
 // Enty point to only generate summary files
-workflow SUMMARY_ONLY{
+workflow HADGE_SUMMARY_ONLY{
     SUMMARY()
 }

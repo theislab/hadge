@@ -59,88 +59,66 @@ process summary_all{
 
     script:
         """
-        summary.py --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
+            summary.py --gene_demulti $gene_demulti_result --hash_demulti $hash_demulti_result
         """
 }
 
 workflow run_multi{
+    take:
+        input_channel
+    main:
 
-    print("-----Running multiple samples-----")
+        if (params.mode == "genetic"){
+            // Performing genetic demultiplexing methodologies
+            gene_demultiplexing(input_channel)
+            ////////////
 
-    if (params.mode == "genetic"){
+            if (params.match_donor == "True"){
 
-        // Performing genetic demultiplexing methodologies
-        gene_demultiplexing()
-        ////////////
-
-        if (params.match_donor == "True"){
-
-
-            gene_demultiplexing.out.view()
-            Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
-                | join(gene_demultiplexing.out)
-                | donor_match
+                input_channel.splitCsv(header:true).map { row-> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}.join(gene_demultiplexing.out).set{dm_input}
+            }
         }
-    }
-    else if (params.mode == "hashing"){
+        else if (params.mode == "hashing"){
 
-        // Performing hashing demultplexing
-        hash_demultiplexing()
-        ////////////
-        
-        if (params.match_donor == "True"){
-            Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row -> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
-                | join(hash_demultiplexing.out)
-                | donor_match
+            // Performing hashing demultplexing
+            hash_demultiplexing(input_channel)
+            ////////////
+            
+            if (params.match_donor == "True"){
+                input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}.join(hash_demultiplexing.out).set{dm_input}
+            }
         }
-    }
-    else if (params.mode == "rescue"){
+        else if (params.mode == "rescue"){
 
-        // Performing both hashing and genetic demultiplexing methods
-        hash_demultiplexing()
-        gene_demultiplexing()
-        ////////////
+            // Performing both hashing and genetic demultiplexing methods
+            hash_demultiplexing(input_channel)
+            gene_demultiplexing(input_channel)
+            ////////////
 
-        gene_summary = gene_demultiplexing.out
-        hash_summary = hash_demultiplexing.out
-        input_summary_all = gene_summary.join(hash_summary)
-        summary_all(input_summary_all)
+            gene_summary = gene_demultiplexing.out
+            hash_summary = hash_demultiplexing.out
+            input_summary_all = gene_summary.join(hash_summary)
+            summary_all(input_summary_all)
 
-        if (params.match_donor == "True"){
-            Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row -> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
-                | join(summary_all.out)
-                | donor_match
+            if (params.match_donor == "True"){
+                input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}.join(summary_all.out).set{dm_input}
+            }
+
         }
-        if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
-        Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
-                | join(donor_match.out)
-                | set {input_generate_data}
-        generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
+        else if (params.mode == "donor_match"){
+            // Performing just donor matching
+            input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.nsample, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)}.set{dm_input}
         }
-    }
-    else if (params.mode == "donor_match"){
 
-        // Performing just donor matching
-        Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row -> tuple(row.sampleId, row.nsample, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)} \
-                | donor_match
-        if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
-            Channel.fromPath(params.multi_input) \
-                    | splitCsv(header:true) \
-                    | map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}
-                    | join(donor_match.out)
-                    | set {input_generate_data}
-            generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
+
+        if (params.match_donor == "True" || params.mode == "donor_match"){
+            donor_match(dm_input)
+
+            if (params.generate_anndata == "True" || params.generate_mudata == "True" ){
+                input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.hto_matrix_filtered, row.rna_matrix_filtered)}.join(donor_match.out).set{input_generate_data}
+                generate_data(input_generate_data, params.generate_anndata, params.generate_mudata)
+            }
         }
-    }
+
     
 }

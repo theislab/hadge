@@ -4,16 +4,39 @@ include { run_multi } from "$projectDir/modules/multi_demultiplexing"
 include {run_single} from "$projectDir/modules/single_demultiplexing"
 include { summary } from "$projectDir/modules/multi/gene_demultiplexing"
 include { donor_match } from "$projectDir/modules/multi/donor_match"
+include {create_single_chanel_input}  from "$projectDir/modules/multi/preprocessing/preprocessing"
+
 
 workflow HADGE {
     // Here we decide if it is a single sample demultiplexing or multi input demutliplexing run.
     if (params.multi_input == null){
         // Single Mode
-        run_single()
+        // Instead of running in single here we want to run a multi so that the chanels, workflows and processes are not redundant.
+        create_single_chanel_input(
+            params.sample_name,
+            params.hto_matrix_raw,
+            params.hto_matrix_filtered,
+            params.rna_matrix_raw,
+            params.rna_matrix_filtered,
+            params.bam,
+            params.bai,
+            params.barcodes,
+            params.fasta,
+            params.fasta_index,
+            params.nsample,
+            params.cell_data,
+            params.vcf_mixed,
+            params.vcf_donor,
+            params.vireo_parent_dir,
+            params.demultiplexing_result,
+        )
+        run_multi(create_single_chanel_input.out.input_channel)
+
     }
     else{
         // Multi mode
-        run_multi()
+        input_channel = Channel.fromPath(params.multi_input)
+        run_multi(input_channel)
     }
 }
 
@@ -21,11 +44,11 @@ workflow HADGE {
 
 workflow SUMMARY{
 
-    Channel.fromPath(params.multi_input) \
-                | splitCsv(header:true) \
-                | map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
-                | set {input_list_summary}
+
     log.info('running summary only')
+
+    Channel.fromPath(params.multi_input).splitCsv(header:true).map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}.set {input_list_summary}
+    
 
     demuxlet_out = Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/demuxlet/demuxlet_*", type: 'dir').collect().ifEmpty('no_result')
     freemuxlet_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/freemuxlet/freemuxlet_*", type: 'dir').collect().ifEmpty('no_result')
@@ -45,10 +68,10 @@ workflow SUMMARY{
     summary(summary_input,
             params.generate_anndata, params.generate_mudata)
 
-    Channel.fromPath(params.multi_input) \
-        | splitCsv(header:true) \
-        | map { row-> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
-        | join(summary.out)
-        | donor_match
+    // Channel.fromPath(params.multi_input) \
+    //     | splitCsv(header:true) \
+    //     | map { row-> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
+    //     | join(summary.out)
+    //     | donor_match
 
 }
