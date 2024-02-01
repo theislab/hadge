@@ -1,11 +1,13 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
+
 
 process gmm_demux{
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/gmm_demux", mode:'copy'
+
     label 'small_mem'
     conda "$projectDir/conda/gmm_demux.yml"
-    
+
     input:
         path filtered_hto_matrix_dir
         //HTO names as string separated by commas
@@ -15,26 +17,26 @@ process gmm_demux{
         //obligatory
         val summary
         //need to be combined with summary to get a report as file
-        val report_gmm 
+        val report_gmm
         //mode 4
         // write csv or tsv - type of input
         val mode_GMM
         //case 5
-        val extract 
+        val extract
         //float between 0 and 1
         val threshold_gmm
         val ambiguous
-        
-        
-    
+
     output:
+
         path "gmm_demux_${task.index}"
         
+
     script:
         def extract_droplets = extract != 'None' ? " -x ${extract}" : ''
         def ambiguous_droplets = extract != 'None' ? " --ambiguous ${ambiguous}" : ''
 
-        if(mode_GMM=="csv"){
+        if (mode_GMM == 'csv') {
             """
             mkdir gmm_demux_${task.index}
             touch gmm_demux_${task.index}_$report_gmm
@@ -53,13 +55,10 @@ process gmm_demux{
             
             """
         }
-
-
 }
 
-
-workflow gmm_demux_hashing{
-take: 
+workflow gmm_demux_hashing {
+take:
         hto_matrix
   main:
         hto_name_gmm = params.hto_name_gmm
@@ -70,14 +69,13 @@ take:
         threshold_gmm = params.threshold_gmm
         ambiguous = params.ambiguous
 
+
         gmm_demux(hto_matrix,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()
 }
 
-
-workflow{
+workflow {
     gmm_demux_hashing()
-
 }

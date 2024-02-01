@@ -1,11 +1,11 @@
 #!/usr/bin/env nextflow
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
-process freebayes{
+process freebayes {
     publishDir "$projectDir/$params.outdir/$params.mode/gene_demulti/freebayes", mode: 'copy'
     label 'big_mem'
 
-    conda "bioconda::freebayes=1.2"
+    conda 'bioconda::freebayes=1.2'
 
     input:
         path bam_freebayes
@@ -83,91 +83,90 @@ process freebayes{
         val genotype_qualities_freebayes
         val debug_freebayes
         val dd_freebayes
-        
 
     output:
-        path "*.vcf"
+        path '*.vcf'
 
     script:
-    def stdin = stdin_freebayes != 'False' ? "--stdin" : ''
+    def stdin = stdin_freebayes != 'False' ? '--stdin' : ''
     def targets = targets_freebayes != 'None' ? "--targets ${targets_freebayes}" : ''
     def region = region_freebayes != 'None' ? "--region ${region_freebayes}" : ''
     def samples = samples_freebayes != 'None' ? "--samples ${samples_freebayes}" : ''
-    def populations = populations_freebayes != 'None' ? "--populations ${populations}":''
+    def populations = populations_freebayes != 'None' ? "--populations ${populations}" : ''
     def cnv_map = cnv_map_freebayes != 'None' ? "--cnv-map ${cnv_map_freebayes}" : ''
- 
-    def gvcf = gvcf_freebayes !='False' ? "--gvcf":''
-    def gvcf_chunk = gvcf_chunk_freebayes !='None' ? "--gvcf-chunk ${gvcf_chunk_freebayes}":''
-    def gvcf_dont_use_chunk = gvcf_dont_use_chunk_freebayes != 'None' ?"--gvcf-dont-use-chunk ${gvcf_dont_use_chunk_freebayes}":''
+
+    def gvcf = gvcf_freebayes != 'False' ? '--gvcf' : ''
+    def gvcf_chunk = gvcf_chunk_freebayes != 'None' ? "--gvcf-chunk ${gvcf_chunk_freebayes}" : ''
+    def gvcf_dont_use_chunk = gvcf_dont_use_chunk_freebayes != 'None' ? "--gvcf-dont-use-chunk ${gvcf_dont_use_chunk_freebayes}" : ''
     def variant_input = variant_input_freebayes != 'None' ? "--variant-input ${variant_input_freebayes}" : ''
-    def only_use_input_alleles = only_use_input_alleles_freebayes != 'False' ? "--only-use-input-alleles" : ''
-    def haplotype_basis_alleles = haplotype_basis_alleles_freebayes != 'None' ? "--haplotype-basis-alleles ${haplotype_basis_alleles_freebayes}":''
-    def report_all_haplotype_alleles = report_all_haplotype_alleles_freebayes !='False' ? "--report-all-haplotype-alleles":''
-    def report_monomorphic = report_monomorphic_freebayes !='False' ? "--report-monomorphic":''
+    def only_use_input_alleles = only_use_input_alleles_freebayes != 'False' ? '--only-use-input-alleles' : ''
+    def haplotype_basis_alleles = haplotype_basis_alleles_freebayes != 'None' ? "--haplotype-basis-alleles ${haplotype_basis_alleles_freebayes}" : ''
+    def report_all_haplotype_alleles = report_all_haplotype_alleles_freebayes != 'False' ? '--report-all-haplotype-alleles' : ''
+    def report_monomorphic = report_monomorphic_freebayes != 'False' ? '--report-monomorphic' : ''
     def pvar = "--pvar ${pvar_freebayes}"
-    def strict_vcf = strict_vcf_freebayes!='False' ? "--strict-vcf":''
+    def strict_vcf = strict_vcf_freebayes != 'False' ? '--strict-vcf' : ''
     def theta = "--theta ${theta_freebayes}"
     def ploidy = "--ploidy ${ploidy_freebayes}"
-    def pooled_discrete = pooled_discrete_freebayes!='False' ? "--pooled-discrete":''
-    def pooled_continuous = pooled_continuous_freebayes !='False' ? "--pooled-continuous":''
+    def pooled_discrete = pooled_discrete_freebayes != 'False' ? '--pooled-discrete' : ''
+    def pooled_continuous = pooled_continuous_freebayes != 'False' ? '--pooled-continuous' : ''
 
-    def use_reference_allele = use_reference_allele_freebayes != 'False' ? "--use-reference-allele" : ''
+    def use_reference_allele = use_reference_allele_freebayes != 'False' ? '--use-reference-allele' : ''
     def reference_quality = "--reference-quality ${reference_quality_freebayes}"
 
-    def no_snps = no_snps_freebayes !='False' ? "--no-snps" :''
-    def no_indels = no_indels_freebayes !='False' ? "--no-indels" :''
-    def no_mnps = no_mnps_freebayes !='False' ? "--no-mnps" :''
-    def no_complex = no_complex_freebayes !='False' ? "--no-complex" :''
+    def no_snps = no_snps_freebayes != 'False' ? '--no-snps' : ''
+    def no_indels = no_indels_freebayes != 'False' ? '--no-indels' : ''
+    def no_mnps = no_mnps_freebayes != 'False' ? '--no-mnps' : ''
+    def no_complex = no_complex_freebayes != 'False' ? '--no-complex' : ''
 
     def use_best_n_alleles = "--use-best-n-alleles ${use_best_n_alleles_freebayes}"
     def haplotype_length = haplotype_length_freebayes = "--haplotype-length ${haplotype_length_freebayes}"
     def min_repeat_size = "--min-repeat-size ${min_repeat_size_freebayes}"
     def min_repeat_entropy = "--min-repeat-entropy ${min_repeat_entropy_freebayes}"
-    def no_partial_observations = no_partial_observations_freebayes !='False' ? "--no-partial-observations":''
+    def no_partial_observations = no_partial_observations_freebayes != 'False' ? '--no-partial-observations' : ''
 
-    def dont_left_align_indels = dont_left_align_indels_freebayes != 'False' ? "--dont-left-align-indels" : ''
+    def dont_left_align_indels = dont_left_align_indels_freebayes != 'False' ? '--dont-left-align-indels' : ''
 
-    def use_duplicate_reads = use_duplicate_reads_freebayes != 'False' ? "--use-duplicate-reads" : ''
+    def use_duplicate_reads = use_duplicate_reads_freebayes != 'False' ? '--use-duplicate-reads' : ''
     def min_mapping_quality = "--min-mapping-quality ${min_mapping_quality_freebayes}"
     def min_base_quality = "--min-base-quality ${min_base_quality_freebayes}"
     def min_supporting_allele_qsum = "--min-supporting-allele-qsum ${min_supporting_allele_qsum_freebayes}"
     def min_supporting_mapping_qsum = "--min-supporting-mapping-qsum ${min_supporting_mapping_qsum_freebayes}"
     def mismatch_base_quality_threshold = "--mismatch-base-quality-threshold ${mismatch_base_quality_threshold_freebayes}"
-    def read_mismatch_limit = read_mismatch_limit_freebayes != 'None' ? "-read-mismatch-limit ${read_mismatch_limit_freebayes}":''
+    def read_mismatch_limit = read_mismatch_limit_freebayes != 'None' ? "-read-mismatch-limit ${read_mismatch_limit_freebayes}" : ''
     def read_max_mismatch_fraction = "--read-max-mismatch-fraction ${read_max_mismatch_fraction_freebayes}"
-    def read_snp_limit = read_snp_limit_freebayes != 'None' ? "--read-snp-limit ${read_snp_limit_freebayes}":''
-    def read_indel_limit = read_indel_limit_freebayes != 'None' ? "--read-indel-limit ${read_indel_limit_freebayes}" :''
-    def standard_filters = standard_filters_freebayes!='False' ? "--standard-filters":''
+    def read_snp_limit = read_snp_limit_freebayes != 'None' ? "--read-snp-limit ${read_snp_limit_freebayes}" : ''
+    def read_indel_limit = read_indel_limit_freebayes != 'None' ? "--read-indel-limit ${read_indel_limit_freebayes}" : ''
+    def standard_filters = standard_filters_freebayes != 'False' ? '--standard-filters' : ''
     def min_alternate_fraction = "--min-alternate-fraction ${min_alternate_fraction_freebayes}"
     def min_alternate_count = "--min-alternate-count ${min_alternate_count_freebayes}"
     def min_alternate_qsum = "--min-alternate-qsum ${min_alternate_qsum_freebayes}"
     def min_alternate_total = "--min-alternate-total ${min_alternate_total_freebayes}"
     def min_coverage = "--min-coverage ${min_coverage_freebayes}"
-    def max_coverage = max_coverage_freebayes !='None' ? "--max-coverage ${max_coverage_freebayes}":''
+    def max_coverage = max_coverage_freebayes != 'None' ? "--max-coverage ${max_coverage_freebayes}" : ''
 
-    def no_population_priors = no_population_priors_freebayes != 'False' ? "--no-population-priors" : ''
-    def hwe_priors_off = hwe_priors_off_freebayes != 'False' ? "--hwe-priors-off" : ''
-    def binomial_obs_priors_off = binomial_obs_priors_off_freebayes != 'False' ? "--binomial-obs-priors-off" : ''
-    def allele_balance_priors_off = allele_balance_priors_off_freebayes != 'False' ? "--allele-balance-priors-off" : ''
-    def observation_bias = observation_bias_freebayes!= 'None' ? "--observation-bias ${observation_bias_freebayes}":''
-    def base_quality_cap = base_quality_cap_freebayes !='None' ? "--base-quality-cap ${base_quality_cap_freebayes}":''
+    def no_population_priors = no_population_priors_freebayes != 'False' ? '--no-population-priors' : ''
+    def hwe_priors_off = hwe_priors_off_freebayes != 'False' ? '--hwe-priors-off' : ''
+    def binomial_obs_priors_off = binomial_obs_priors_off_freebayes != 'False' ? '--binomial-obs-priors-off' : ''
+    def allele_balance_priors_off = allele_balance_priors_off_freebayes != 'False' ? '--allele-balance-priors-off' : ''
+    def observation_bias = observation_bias_freebayes != 'None' ? "--observation-bias ${observation_bias_freebayes}" : ''
+    def base_quality_cap = base_quality_cap_freebayes != 'None' ? "--base-quality-cap ${base_quality_cap_freebayes}" : ''
     def prob_contamination = "--prob-contamination ${prob_contamination_freebayes}"
-    def legacy_gls = legacy_gls_freebayes !='False' ? "--legacy-gls" :''
-    def contamination_estimates = contamination_estimates_freebayes != 'None' ? "--contamination-estimates ${contamination_estimates_freebayes}":''
-    
-    def report_genotype_likelihood_max = report_genotype_likelihood_max_freebayes !='False' ? "--report-genotype-likelihood-max":''
+    def legacy_gls = legacy_gls_freebayes != 'False' ? '--legacy-gls' : ''
+    def contamination_estimates = contamination_estimates_freebayes != 'None' ? "--contamination-estimates ${contamination_estimates_freebayes}" : ''
+
+    def report_genotype_likelihood_max = report_genotype_likelihood_max_freebayes != 'False' ? '--report-genotype-likelihood-max' : ''
     def genotyping_max_iterations = "--genotyping-max-iterations ${genotyping_max_iterations_freebayes}"
     def genotyping_max_banddepth = "--genotyping-max-banddepth ${genotyping_max_banddepth_freebayes}"
     def posterior_integration_limits = "--posterior-integration-limits ${posterior_integration_limits_freebayes}"
-    def exclude_unobserved_genotypes = exclude_unobserved_genotypes_freebayes != 'False' ? "--exclude-unobserved-genotypes" : ''
-    def genotype_variant_threshold = genotype_variant_threshold_freebayes != 'None' ? "--genotype-variant-threshold ${genotype_variant_threshold_freebayes}":''
-    def use_mapping_quality = use_mapping_quality_freebayes != 'False' ? "--use-mapping-quality" : ''
-    def harmonic_indel_quality = harmonic_indel_quality_freebayes !='False' ? "--harmonic-indel-quality" :''
+    def exclude_unobserved_genotypes = exclude_unobserved_genotypes_freebayes != 'False' ? '--exclude-unobserved-genotypes' : ''
+    def genotype_variant_threshold = genotype_variant_threshold_freebayes != 'None' ? "--genotype-variant-threshold ${genotype_variant_threshold_freebayes}" : ''
+    def use_mapping_quality = use_mapping_quality_freebayes != 'False' ? '--use-mapping-quality' : ''
+    def harmonic_indel_quality = harmonic_indel_quality_freebayes != 'False' ? '--harmonic-indel-quality' : ''
     def read_dependence_factor = "--read-dependence-factor ${read_dependence_factor_freebayes}"
-    def genotype_qualities = genotype_qualities_freebayes !='False' ? "--genotype-qualities" :''
+    def genotype_qualities = genotype_qualities_freebayes != 'False' ? '--genotype-qualities' : ''
 
-    def debug = debug_freebayes != 'False' ? "--debug" : ''
-    def dd = dd_freebayes != 'False' ? "-dd" : ''
+    def debug = debug_freebayes != 'False' ? '--debug' : ''
+    def dd = dd_freebayes != 'False' ? '-dd' : ''
 
     """
     freebayes ${bam_freebayes} $stdin -f ${ref_freebayes} $targets $region $samples $populations ${cnv_map} \
@@ -180,12 +179,11 @@ process freebayes{
     ${observation_bias} ${base_quality_cap} ${prob_contamination} ${legacy_gls} ${contamination_estimates} \
     ${report_genotype_likelihood_max} ${genotyping_max_iterations} ${genotyping_max_banddepth} ${posterior_integration_limits} ${exclude_unobserved_genotypes} ${genotype_variant_threshold} \
     ${use_mapping_quality} ${harmonic_indel_quality} ${read_dependence_factor} ${genotype_qualities} $debug $dd
-  
+
     """
 }
 
-
-workflow variant_freebayes{
+workflow variant_freebayes {
     take:
         bam_freebayes
         bai_freebayes
@@ -209,7 +207,7 @@ workflow variant_freebayes{
         report_monomorphic_freebayes = channel.value(params.report_monomorphic)
         pvar_freebayes = channel.value(params.pvar)
         strict_vcf_freebayes = channel.value(params.strict_vcf)
-        
+
         theta_freebayes = channel.value(params.theta)
         ploidy_freebayes = channel.value(params.ploidy)
         pooled_discrete_freebayes = channel.value(params.pooled_discrete)
@@ -225,7 +223,7 @@ workflow variant_freebayes{
         min_repeat_size_freebayes = channel.value(params.min_repeat_size)
         min_repeat_entropy_freebayes = channel.value(params.min_repeat_entropy)
         no_partial_observations_freebayes = channel.value(params.no_partial_observations)
-        
+
         dont_left_align_indels_freebayes = channel.value(params.dont_left_align_indels)
         use_duplicate_reads_freebayes = channel.value(params.use_duplicate_reads)
         min_mapping_quality_freebayes = channel.value(params.min_mapping_quality)
@@ -245,7 +243,7 @@ workflow variant_freebayes{
         min_coverage_freebayes = channel.value(params.min_coverage)
         max_coverage_freebayes = channel.value(params.max_coverage)
         no_population_priors_freebayes = channel.value(params.no_population_priors)
-        
+
         hwe_priors_off_freebayes = channel.value(params.hwe_priors_off)
         binomial_obs_priors_off_freebayes = channel.value(params.binomial_obs_priors_off)
         allele_balance_priors_off_freebayes = channel.value(params.allele_balance_priors_off)
@@ -254,7 +252,7 @@ workflow variant_freebayes{
         prob_contamination_freebayes = channel.value(params.prob_contamination)
         legacy_gls_freebayes = channel.value(params.legacy_gls)
         contamination_estimates_freebayes = channel.value(params.contamination_estimates)
-        
+
         report_genotype_likelihood_max_freebayes = channel.value(params.report_genotype_likelihood_max)
         genotyping_max_iterations_freebayes = channel.value(params.genotyping_max_iterations)
         genotyping_max_banddepth_freebayes = channel.value(params.genotyping_max_banddepth)
@@ -267,7 +265,6 @@ workflow variant_freebayes{
         genotype_qualities_freebayes = channel.value(params.genotype_qualities)
         debug_freebayes = channel.value(params.debug)
         dd_freebayes = channel.value(params.dd)
-        
 
         freebayes(bam_freebayes, bai_freebayes, stdin_freebayes, fasta_reference, fasta_reference_index, targets_freebayes, region_freebayes, samples_freebayes, populations_freebayes, cnv_map_freebayes, \
         vcf_freebayes, gvcf_freebayes, gvcf_chunk_freebayes, gvcf_dont_use_chunk_freebayes, variant_input_freebayes, only_use_input_alleles_freebayes, haplotype_basis_alleles_freebayes, report_all_haplotype_alleles_freebayes, report_monomorphic_freebayes, pvar_freebayes, strict_vcf_freebayes, \
@@ -282,5 +279,4 @@ workflow variant_freebayes{
 
     emit:
         freebayes.out.collect()
-
 }
