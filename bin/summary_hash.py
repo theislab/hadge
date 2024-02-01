@@ -302,9 +302,8 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         params_res.columns = ["Argument", os.path.basename(x)]
         params.append(params_res)
         
-        
+        ##### Get number of hashes used for the experiment
         result_row = params_res[params_res['Argument'].str.contains('hto_name_gmm', case=False, na=False)]
-
         hashes_used = ""
         if not result_row.empty:
             hashes_used = result_row[os.path.basename(x)].iloc[0]
@@ -312,32 +311,63 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
             print("No row contains the number of hashes")
         hashes = hashes_used.split(',')
         number_of_hashes = len(hashes)
-        #GMM assignement file
-        gmm_classi = pd.read_csv(obs_res_dir)
+        #-----------------
 
-        #GMM full is the name given by GMM_demux per default to all results
+        #GMM assignement file - results GMM
+        gmm_classi = pd.read_csv(obs_res_dir)
+        
+
+        #GMM full is the name given by GMM_demux per default to all results 
+        ##classif_file - contains the mapping of results
         classification_config = os.path.join(x, "GMM_full.config")
         classif_file = pd.read_csv(classification_config,header=None)
+        
         #Classification and Assigment come from the same file
         gmm_dt = pd.DataFrame(gmm_classi)
         classification_dt = pd.DataFrame(classif_file)
+        
         #change column names
         classification_dt = classification_dt.rename(columns={0: "Cluster_id", 1: "assignment"})
+        
         gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
+        
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
         def _classify_hash(row,number_hashes):
-
+            print(f"current row: {row}")
             if row == 0:
                 return 'negative'
-            elif 0 > row <= number_hashes:
+            elif row > 0 and row <= number_hashes:
+                print("singlet found")
                 return 'singlet'
             else:
                 return 'doublet'
 
         classification_dt['Classification'] = classification_dt['Cluster_id'].apply(lambda x: _classify_hash(x, number_of_hashes))
+        
         #Compare classification guide file with classification found
-        merged = pd.merge(classification_dt, gmm_dt, on='Cluster_id', how='left')
+        #merged = pd.merge(classification_dt, gmm_dt, on='Cluster_id', how='left')
+        new_rows = []
+        for index, row in gmm_dt.iterrows():
+            cluster_id = row['Cluster_id']
+            matching_row_map = classification_dt[classification_dt['Cluster_id'] == cluster_id]
+            if not matching_row_map.empty:
+                # Extract assignment and classification values from the matching row in df2
+                assignment_gmm = matching_row_map.iloc[0]['assignment']
+                classification_gmm = matching_row_map.iloc[0]['Classification']
+
+                new_row = {
+                'Barcode': row['Barcode'],
+                'Cluster_id': cluster_id,
+                'assignment': assignment_gmm,
+                'Classification': classification_gmm
+                }
+                new_rows.append(new_row)
+        merged = pd.DataFrame(new_rows)
+        
+        merged['assignment'] = merged.apply(lambda row: 'doublet' if 'doublet' in row['Classification'] else row['assignment'], axis=1)
+        print(merged)
+
         gmm_dt['Classification'] = merged['Classification']
         gmm_dt['Assignment'] = merged['assignment']
         #instead of multiple hashes, add doublet
@@ -523,14 +553,11 @@ if __name__ == '__main__':
     assignment = [file for file in os.listdir("hash_summary") if file.endswith("_assignment.csv")]
     assignment_all = pd.read_csv(os.path.join("hash_summary", assignment[0]))
     
-    print("Debugging assignment")
-    print(assignment_all)
+    
 
     if len(assignment) > 1:
         for df in assignment[1:]:
-            print("---------read--------")
-            print(df)
-            print("-----------------")
+            
             df = pd.read_csv(os.path.join("hash_summary", df))
             assignment_all = pd.merge(assignment_all, df, on='Barcode', how='outer')
             #print("---------assignment all--------")
