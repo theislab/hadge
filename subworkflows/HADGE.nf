@@ -27,17 +27,23 @@ workflow SUMMARY{
                 | set {input_list_summary}
     log.info('running summary only')
 
-    // demuxlet_out = Channel.fromPath('/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/*/genetic/gene_demulti/demuxlet/demuxlet*', type: 'dir').collect()
-    demuxlet_out = channel.value("no_result")
-    freemuxlet_out= Channel.fromPath('/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/*/genetic/gene_demulti/freemuxlet/freemuxlet_*', type: 'dir').collect()
-    vireo_out= Channel.fromPath('/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/*/genetic/gene_demulti/vireo/vireo_*', type: 'dir').collect()
-    scSplit_out= Channel.fromPath('/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/*/genetic/gene_demulti/scSplit/scsplit*', type: 'dir').collect()
-    souporcell_out= Channel.fromPath('/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/*/genetic/gene_demulti/souporcell/souporcell_*', type: 'dir').collect()
-    // /lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/hedge_multi/hadge_modified/lustre/scratch125/humgen/teams/hgi/ip13/1k1k/hadge/full_run/gt_absent/result/pool1/genetic/gene_demulti/souporcell/souporcell_pool1
-    // souporcell_out = channel.value("no_result")
-    summary(input_list_summary, demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out, 
-            params.generate_anndata, params.generate_mudata)
+    demuxlet_out = Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/demuxlet/demuxlet_*", type: 'dir').collect().ifEmpty('no_result')
+    freemuxlet_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/freemuxlet/freemuxlet_*", type: 'dir').collect().ifEmpty('no_result')
+    vireo_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/vireo/vireo_*", type: 'dir').collect().ifEmpty('no_result')
+    scSplit_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/scSplit/scsplit*", type: 'dir').collect().ifEmpty('no_result')
+    souporcell_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/souporcell/souporcell_*", type: 'dir').collect().ifEmpty('no_result')
 
+    demuxlet_out_ch = demuxlet_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxlet_",""), r1 )}
+    freemuxlet_out_ch = freemuxlet_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*freemuxlet_",""), r1 )}
+    vireo_out_ch = vireo_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*vireo_",""), r1 )}
+    scSplit_out_ch = scSplit_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*scsplit_",""), r1 )}
+    souporcell_out_ch = souporcell_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*souporcell_",""), r1 )}
+
+    summary_input = input_list_summary.join(souporcell_out_ch,by:0,remainder: true).join(scSplit_out_ch,by:0,remainder: true).join(vireo_out_ch,by:0,remainder: true).join(freemuxlet_out_ch,by:0,remainder: true).join(demuxlet_out_ch,by:0,remainder: true)
+    summary_input = summary_input.filter{ it[0] != 'no_result' }
+
+    summary(summary_input,
+            params.generate_anndata, params.generate_mudata)
 
     Channel.fromPath(params.multi_input) \
         | splitCsv(header:true) \

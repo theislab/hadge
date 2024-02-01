@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process cellSNP{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
     conda "bioconda::cellsnp-lite"

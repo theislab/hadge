@@ -11,7 +11,7 @@ include { gmm_demux_hashing } from './hash_demulti/gmm_demux'
 include { bff_hashing } from './hash_demulti/bff'
 
 process summary{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti", mode: 'copy'
     label 'small_mem'
         
     conda "pandas scanpy mudata"

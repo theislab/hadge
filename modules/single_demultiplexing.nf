@@ -7,7 +7,7 @@ include { donor_match } from "$projectDir/modules/single/donor_match"
 
 
 process generate_data{
-    publishDir "$projectDir/$params.outdir/$params.mode/data_output", mode: 'copy'
+    publishDir "$params.outdir/$params.mode/data_output", mode: 'copy'
 
     conda "pandas scanpy mudata"
 
@@ -48,7 +48,7 @@ process generate_data{
 }
 
 process summary_all{
-    publishDir "$projectDir/$params.outdir/$params.mode", mode: 'copy'
+    publishDir "$params.outdir/$params.mode", mode: 'copy'
     label 'small_mem'
 
     conda "pandas scanpy mudata"

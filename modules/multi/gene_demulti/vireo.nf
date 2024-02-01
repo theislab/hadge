@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process vireo{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
     conda "aksarkar::vireosnp"

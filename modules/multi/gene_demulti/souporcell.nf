@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process souporcell{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/souporcell", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/souporcell", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
     container "shub://wheaton5/souporcell"

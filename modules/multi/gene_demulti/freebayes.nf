@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process freebayes{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freebayes", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/freebayes", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
     conda "bioconda::freebayes=1.2"

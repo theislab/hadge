@@ -21,7 +21,7 @@ process subset_bam_and_sort_vcf_based_on_reference{
 }
 
 process freemuxlet {
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/freemuxlet", mode: 'copy'
     label 'small_mem'
     tag "${sampleId}"
     conda "bioconda::popscle"

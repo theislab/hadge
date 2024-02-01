@@ -43,21 +43,17 @@ process subset_bam_to_comon_variants{
 }
 
 process summary{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
     tag "${sampleId}"
     conda "pandas scanpy mudata"
 
     input:
-        tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
-        val demuxlet_result
-        val freemuxlet_result
-        val vireo_result
-        val souporcell_result
-        val scsplit_result
+        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(souporcell_result), val(scsplit_result), val(vireo_result),val(freemuxlet_result),val(demuxlet_result))
         val generate_anndata
         val generate_mudata
-  
+        
+
     output:
         tuple val(sampleId), path("genetic_summary")
 
@@ -70,25 +66,20 @@ process summary{
         def generate_adata = ""
         def generate_mdata = ""
         
-        if (demuxlet_result != "no_result"){
-            demuxlet_res = demuxlet_result.find{it.name.contains(sampleId)}
-            demuxlet_files = "--demuxlet ${demuxlet_res}"
+        if (demuxlet_result){
+            demuxlet_files = "--demuxlet ${demuxlet_result}"
         }
-        if (freemuxlet_result != "no_result"){
-            freemuxlet_res = freemuxlet_result.find{it.name.contains(sampleId)}
-            freemuxlet_files = "--freemuxlet ${freemuxlet_res}"
+        if (freemuxlet_result){
+            freemuxlet_files = "--freemuxlet ${freemuxlet_result}"
         }
-        if (vireo_result != "no_result"){
-            vireo_res = vireo_result.find{it.name.contains(sampleId)}
-            vireo_files = "--vireo ${vireo_res}"
+        if (vireo_result){
+            vireo_files = "--vireo ${vireo_result}"
         }
-        if (souporcell_result != "no_result"){
-            souporcell_res = souporcell_result.find{it.name.contains(sampleId)}
-            souporcell_files = "--souporcell ${souporcell_res}"
+        if (souporcell_result){
+            souporcell_files = "--souporcell ${souporcell_result}"
         }
-        if (scsplit_result != "no_result"){
-            scsplit_res = scsplit_result.find{it.name.contains(sampleId)}
-            scsplit_files =  "--scsplit ${scsplit_res}"
+        if (scsplit_result){
+            scsplit_files =  "--scsplit ${scsplit_result}"
         }
         if (generate_anndata == "True"){
             if(rna_matrix.name == "None"){
@@ -291,8 +282,18 @@ workflow gene_demultiplexing {
                 | map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
                 | set {input_list_summary}
 
-    summary(input_list_summary, demuxlet_out, freemuxlet_out, vireo_out, souporcell_out, scSplit_out, 
+    demuxlet_out_ch = demuxlet_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxlet_",""), r1 )}
+    freemuxlet_out_ch = freemuxlet_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*freemuxlet_",""), r1 )}
+    vireo_out_ch = vireo_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*vireo_",""), r1 )}
+    scSplit_out_ch = scSplit_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*scsplit_",""), r1 )}
+    souporcell_out_ch = souporcell_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*souporcell_",""), r1 )}
+
+    summary_input = input_list_summary.join(souporcell_out_ch,by:0,remainder: true).join(scSplit_out_ch,by:0,remainder: true).join(vireo_out_ch,by:0,remainder: true).join(freemuxlet_out_ch,by:0,remainder: true).join(demuxlet_out_ch,by:0,remainder: true)
+    summary_input = summary_input.filter{ it[0] != 'no_result' }
+
+    summary(summary_input,
             params.generate_anndata, params.generate_mudata)
+
     
     
     emit:

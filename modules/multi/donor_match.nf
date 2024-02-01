@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process matchDonor{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode", mode: 'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
     conda "$projectDir/conda/donor_match.yml"
@@ -24,12 +24,12 @@ process matchDonor{
         def cell_genotype_path = ""
         if (findVariants == "True" | findVariants == "default"){
             cell_genotype_path = cell_genotype != "None" ? "--cell_genotype $cell_genotype" : \
-                "--cell_genotype $projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP/cellsnp_1/*/cellSNP.cells.vcf.gz"
+                "--cell_genotype $params.outdir/$sampleId/$params.mode/gene_demulti/cellSNP/cellsnp_1/*/cellSNP.cells.vcf.gz"
         }
 
         def vireo_parent_path = ""
         if ( findVariants == 'vireo' | findVariants == 'True' ){
-            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != "None") ? "--vireo_parent_dir $vireo_parent_dir" : "--vireo_parent_dir $projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo/"
+            vireo_parent_path = (params.mode == "donor_match" & vireo_parent_dir != "None") ? "--vireo_parent_dir $vireo_parent_dir" : "--vireo_parent_dir $params.outdir/$sampleId/$params.mode/gene_demulti/vireo/"
         }
         def barcode_whitelist_path = "--barcode $barcode_whitelist"
         """
@@ -43,7 +43,7 @@ process matchDonor{
         if ([ "$findVariants" != "False" ]); then
             best_method_vireo="\$(head -n 1 \$outputdir/best_method_vireo.txt)"
             if ([ "$params.mode" != "donor_match" ]); then
-                donor_genotype="\$(find $projectDir/$params.outdir/$sampleId/$params.mode/gene_demulti/vireo/\$best_method_vireo -name GT_donors.vireo.vcf.gz | head -n 1)"
+                donor_genotype="\$(find $params.outdir/$sampleId/$params.mode/gene_demulti/vireo/\$best_method_vireo -name GT_donors.vireo.vcf.gz | head -n 1)"
             else
                 donor_genotype="\$(find $vireo_parent_dir/\$best_method_vireo -name GT_donors.vireo.vcf.gz | head -n 1)"
             fi

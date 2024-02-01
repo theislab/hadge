@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process demuxem{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
 
     conda "bioconda::pegasuspy bioconda::scanpy bioconda::demuxEM" 

@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process preprocess{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/preprocess", mode:'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/preprocess", mode:'copy'
     label 'small_mem'
 
     conda "conda-forge::r-seurat conda-forge::r-argparse"

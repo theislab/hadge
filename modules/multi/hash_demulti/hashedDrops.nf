@@ -2,7 +2,7 @@
 nextflow.enable.dsl=2
 
 process hashedDrops{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/hashedDrops", mode:'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/hashedDrops", mode:'copy'
     label 'small_mem'
 
     conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-dropletutils"

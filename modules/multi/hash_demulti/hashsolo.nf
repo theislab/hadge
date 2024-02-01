@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 nextflow.enable.dsl=2
 process hash_solo{
-    publishDir "$projectDir/$params.outdir/$sampleId/$params.mode/hash_demulti/hashsolo", mode:'copy'
+    publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/hashsolo", mode:'copy'
     label 'small_mem'
 
     conda "$projectDir/conda/hashsolo_py.yml"
