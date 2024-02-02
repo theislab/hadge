@@ -1,7 +1,6 @@
 nextflow.enable.dsl=2
 
 include { run_multi } from "$projectDir/modules/multi_demultiplexing"
-include {run_single} from "$projectDir/modules/single_demultiplexing"
 include { summary } from "$projectDir/modules/multi/gene_demultiplexing"
 include { donor_match } from "$projectDir/modules/multi/donor_match"
 include {create_single_chanel_input}  from "$projectDir/modules/multi/preprocessing/preprocessing"
