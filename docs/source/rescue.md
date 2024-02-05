@@ -12,8 +12,10 @@ The joint call of hashing and genetic deconvolution methods has been shown to be
 
 ```bash
 cd hadge
-nextflow run main.nf -profile test
+nextflow run main.nf -profile test,conda_singularity
 ```
+
+The hashing and genetic mode are two independent workflows, and the rescue mode allows to perform joint demultiplexing by combining the outputs of the two workflows. Different inputs are required for the two workflows To run the rescue mode, you need to specify the input and parameters for both. For details please check the documentation for genotyped-based and hashing-based deconvolution.
 
 ## **Parameter**
 
