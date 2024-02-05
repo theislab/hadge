@@ -29,13 +29,14 @@ process bff {
 
     script:
 
+        def run_preprocess = preprocess_bff != 'False' ? " --preprocess_bff" : ''
         """
         mkdir bff_${sampleId}
         bff.R --fileHto hto_data --methods $methods --methodsForConsensus $methodsForConsensus \
-                --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${sampleId}_$metricsFile \
-                --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
-                --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} \
-                --assignmentOutBff $assignmentOutBff --preprocess $preprocess_bff --barcodeWhitelist $barcodeWhitelist
+        --cellbarcodeWhitelist $cellbarcodeWhitelist --metricsFile bff_${sampleId}_$metricsFile \
+        --doTSNE $doTSNE --doHeatmap $doHeatmap --perCellSaturation $perCellSaturation --majorityConsensusThreshold $majorityConsensusThreshold \
+        --chemistry $chemistry --callerDisagreementThreshold $callerDisagreementThreshold --outputdir bff_${sampleId} \
+        --assignmentOutBff $assignmentOutBff ${run_preprocess} --barcodeWhitelist $barcodeWhitelist
         """
 }
 
