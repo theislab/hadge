@@ -334,7 +334,6 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         #Create classification following the assignment found for the barcodes
         #we keep the original assigment and add a classification column
         def _classify_hash(row,number_hashes):
-            print(f"current row: {row}")
             if row == 0:
                 return 'negative'
             elif row > 0 and row <= number_hashes:
@@ -366,7 +365,7 @@ def gmm_summary(gmmDemux_res,raw_adata, raw_mudata):
         merged = pd.DataFrame(new_rows)
         
         merged['assignment'] = merged.apply(lambda row: 'doublet' if 'doublet' in row['Classification'] else row['assignment'], axis=1)
-        print(merged)
+        
 
         gmm_dt['Classification'] = merged['Classification']
         gmm_dt['Assignment'] = merged['assignment']
@@ -452,8 +451,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_assign["Barcode"] = dt_assign["Barcode"].apply(lambda x: x + "-1" if isinstance(x, str) else x)
             
             assign.append(dt_assign)
-            print("assign bff barcodes")
-            print(assign)
+            
             if raw_adata is not None:
                 adata = raw_adata.copy()
                 adata.obs = adata.obs.merge(dt_assign, left_index=True, right_index=True, how='left')
@@ -483,8 +481,7 @@ def bff_summary(bff_res,raw_adata, raw_mudata):
             dt_classi.loc[dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"] = "negative"
             dt_classi = dt_classi.rename(columns={"cellbarcode": "Barcode", "consensuscall.global": os.path.basename(x)})
             dt_classi["Barcode"] = dt_classi["Barcode"].apply(lambda x: x + "-1" if isinstance(x, str) else x)
-            print("classification bff barcodes")
-            print(assign)
+            
             classi.append(dt_classi)
 
         params_dir = os.path.join(x, [filename for filename in os.listdir(x) if filename == "params.csv"][0])

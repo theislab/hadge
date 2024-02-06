@@ -31,7 +31,9 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
+    rna = io.read_input(args.rna_matrix_dir)
+    rna_data = rna.to_anndata()
+    #rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
     rna = args.rna_matrix_dir
     filter = ""
@@ -57,6 +59,7 @@ if __name__ == '__main__':
     # run demuxEM
     demuxEM.estimate_background_probs(hashing_data, random_state=args.randomState)
     demuxEM.demultiplex(rna_data, hashing_data, min_signal=args.min_signal, alpha=args.alpha, alpha_noise=args.alpha_noise, tol=args.tol, n_threads=args.n_threads)
+    
     # annotate raw matrix with demuxEM results
     demux_results = demuxEM.attach_demux_results(args.rna_matrix_dir, rna_data)
     # generate plots
