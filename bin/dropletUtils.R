@@ -119,6 +119,9 @@ parser$add_argument("--gene_col",
   type = "integer",
   default = 2
 )
+parser$add_argument("--runEmptyDroplets", action = "store_true",
+                    help="Logical scalar indicating whether to check for non-integer values in m and, if present, round them for ambient profile estimation.")
+
 
 
 args <- parser$parse_args()
@@ -169,7 +172,7 @@ if (args$runEmptyDrops == TRUE) {
     ylab = "-Log Probability"
   )
   dev.off()
-
+  
 
   if (args$ambient == TRUE) {
     hashedDrops_out <-
