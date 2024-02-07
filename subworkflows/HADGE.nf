@@ -42,13 +42,10 @@ workflow HADGE {
 
 
 workflow SUMMARY{
-
-
     log.info('running summary only')
 
     Channel.fromPath(params.multi_input).splitCsv(header:true).map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}.set {input_list_summary}
     
-
     demuxlet_out = Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/demuxlet/demuxlet_*", type: 'dir').collect().ifEmpty('no_result')
     freemuxlet_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/freemuxlet/freemuxlet_*", type: 'dir').collect().ifEmpty('no_result')
     vireo_out= Channel.fromPath("${params.outdir}/*/genetic/gene_demulti/vireo/vireo_*", type: 'dir').collect().ifEmpty('no_result')
@@ -66,11 +63,4 @@ workflow SUMMARY{
 
     summary(summary_input,
             params.generate_anndata, params.generate_mudata)
-
-    // Channel.fromPath(params.multi_input) \
-    //     | splitCsv(header:true) \
-    //     | map { row-> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}
-    //     | join(summary.out)
-    //     | donor_match
-
 }
