@@ -1,5 +1,7 @@
 name: hadge test workflow
-on: push
+on: 
+  push:
+  pull_request:
 jobs:
   test_genetic:
     name: Run pipeline in genetic mode with test data
