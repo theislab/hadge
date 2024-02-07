@@ -9,5 +9,5 @@ dependencies:
   - pip
   - pip:
       - GMM_Demux==0.2.1.3
-      - scikit-learn==1.1.3
+      - scikit-learn
       - argparse
