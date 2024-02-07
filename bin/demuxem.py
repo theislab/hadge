@@ -156,7 +156,7 @@ if __name__ == "__main__":
         rna_data.X.data = np.log1p(rna_data.X.data)
 
         for gene_name in args.generateGenderPlot:
-            io.violin(
+            pg.violin(
                 rna_data,
                 gene_name,
                 "{output_name}.{gene_name}.violin.pdf".format(
