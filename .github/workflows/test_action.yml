@@ -25,7 +25,7 @@ jobs:
       - name: Run pipeline with test data
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode genetic --souporcell False --generate_anndata False
-test_hashing:
+  test_hashing:
     name: Run pipeline in hashing mode with test data
     runs-on: ubuntu-latest
     steps:
