@@ -35,7 +35,6 @@ process subset_bam_to_comon_variants{
     
     script:
         """ 
-        
             bcftools sort ${vcf} -Oz -o sorted.vcf.gz
             filter_bam_file_for_popscle_dsc_pileup.sh ${sam} ${barcodes} sorted.vcf.gz ${sampleId}__filtered_bam_file.bam      
         """
