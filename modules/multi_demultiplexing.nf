@@ -69,9 +69,7 @@ workflow run_multi{
     main:
 
         if (params.mode == "genetic"){
-            // Performing genetic demultiplexing methodologies
             gene_demultiplexing(input_channel)
-            ////////////
 
             if (params.match_donor == "True"){
 
@@ -80,9 +78,7 @@ workflow run_multi{
         }
         else if (params.mode == "hashing"){
 
-            // Performing hashing demultplexing
             hash_demultiplexing(input_channel)
-            ////////////
             
             if (params.match_donor == "True"){
                 input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.nsample, row.barcodes, "None", "None")}.join(hash_demultiplexing.out).set{dm_input}
@@ -90,10 +86,8 @@ workflow run_multi{
         }
         else if (params.mode == "rescue"){
 
-            // Performing both hashing and genetic demultiplexing methods
             hash_demultiplexing(input_channel)
             gene_demultiplexing(input_channel)
-            ////////////
 
             gene_summary = gene_demultiplexing.out
             hash_summary = hash_demultiplexing.out
@@ -106,10 +100,8 @@ workflow run_multi{
 
         }
         else if (params.mode == "donor_match"){
-            // Performing just donor matching
             input_channel.splitCsv(header:true).map { row -> tuple(row.sampleId, row.nsample, row.barcodes, row.celldata, row.vireo_parent_dir, row.demultiplexing_result)}.set{dm_input}
         }
-
 
         if (params.match_donor == "True" || params.mode == "donor_match"){
             donor_match(dm_input)
