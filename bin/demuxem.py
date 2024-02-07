@@ -31,9 +31,9 @@ param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
 if __name__ == '__main__':
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
-    rna = io.read_input(args.rna_matrix_dir)
-    rna_data = rna.to_anndata()
-    #rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
+    #rna = io.read_input(args.rna_matrix_dir)
+    #rna_data = rna.to_anndata()
+    rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
     hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
     rna = args.rna_matrix_dir
     filter = ""
