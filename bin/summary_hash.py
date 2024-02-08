@@ -38,10 +38,6 @@ parser.add_argument(
     help="10x-Genomics-formatted mtx directory for HTO expression",
     default=None,
 )
-parser.add_argument(
-    "--sampleId", help="sampleID if multiple samples are demultiplexed", default=None
-)
-
 args = parser.parse_args()
 
 
