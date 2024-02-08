@@ -5,7 +5,7 @@ process vireo{
     publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti/vireo", mode: 'copy'
     label 'big_mem'
     tag "${sampleId}"
-    conda "aksarkar::vireosnp"
+    conda "aksarkar::vireosnp bioconda::bcftools"
 
     input:
         tuple val(sampleId), path(celldata), val(ndonor), val(donorfile)
