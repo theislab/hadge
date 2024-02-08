@@ -56,7 +56,7 @@ process hashedDrops{
             --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads \
             --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops \
             --outputdir hashedDrops_${sampleId} --assignmentOutHashedDrops ${assignmentOutHashedDrops} \
-            ${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}
+            ${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}${runEmptyDrops}
         """
 
 }
