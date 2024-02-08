@@ -22,8 +22,8 @@ jobs:
         with:
           python-version: "3.9"
           cache: "pip"
-      - name: Download test dataset
-        run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
+      #- name: Download test dataset
+      #  run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode hashing --generate_anndata False
