@@ -17,14 +17,7 @@ process summary{
     conda "pandas scanpy mudata"
 
     input:
-        tuple val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data')
-        val demuxem_result
-        val hashsolo_result
-        val htodemux_result
-        val multiseq_result
-        val hashedDrops_result
-        val bff_result
-        val gmmDemux_result
+        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(hashedDrops_result), val(demuxem_result), val(hashsolo_result), val(multiseq_result), val(htodemux_result), val(gmmDemux_result), val(bff_result))
         val generate_anndata
         val generate_mudata
         
@@ -43,31 +36,24 @@ process summary{
         def generate_mdata = ""
         
          if (demuxem_result != "no_result"){
-            demuxem_res = demuxem_result.find{it.name.contains(sampleId)}
             demuxem_files = "--demuxem ${demuxem_res}"
         }
         if (hashsolo_result != "no_result"){
-            hashsolo_res = hashsolo_result.find{it.name.contains(sampleId)}
             hashsolo_files = "--hashsolo ${hashsolo_res}"
         }
         if (htodemux_result != "no_result"){
-            htodemux_res = htodemux_result.find{it.name.contains(sampleId)}
             htodemux_files = "--htodemux ${htodemux_res}"
         }
         if (multiseq_result != "no_result"){
-            multiseq_res = multiseq_result.find{it.name.contains(sampleId)}
             multiseq_files = "--multiseq ${multiseq_res}"
         }
         if (hashedDrops_result != "no_result"){
-            hashedDrops_res = hashedDrops_result.find{it.name.contains(sampleId)}
             hashedDrops_files = "--hashedDrops ${hashedDrops_res}"
         }
         if (gmmDemux_result != "no_result"){
-            gmmDemux_res = gmmDemux_result.find{it.name.contains(sampleId)}
             gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
         }
         if (bff_result != "no_result"){
-            bff_res = bff_result.find{it.name.contains(sampleId)}
             bff_files = "--bff ${bff_res}"
         }
         if (generate_anndata == "True"){
@@ -87,7 +73,7 @@ process summary{
         }
         
         """
-            summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata --sampleId $sampleId
+            summary_hash.py $demuxem_files $htodemux_files $multiseq_files $hashedDrops_files $hashsolo_files $gmmDemux_files $bff_files $generate_adata $generate_mdata
         """
 }
 
@@ -189,9 +175,25 @@ workflow hash_demultiplexing{
             gmmDemux_out = channel.value("no_result")
         }
 
-        input_channel.splitCsv(header:true).map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}.set {input_list_summary}
+        //////////
+        //Summary
+        //////////
+        
+        input_list_summary = input_channel.splitCsv(header:true).map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
 
-        summary(input_list_summary, demuxem_out, hashsolo_out, htodemux_out, multiseq_out, hashedDrops_out,bff_out,gmmDemux_out, params.generate_anndata, params.generate_mudata)
+        htodemux_out_ch = htodemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*htodemux_",""), r1 )}
+        multiseq_out_ch = multiseq_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*multiseq_",""), r1 )}
+        hashsolo_out_ch = hashsolo_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashsolo_",""), r1 )}
+        demuxem_out_ch = demuxem_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxem_",""), r1 )}
+        hashedDrops_out_ch = hashedDrops_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashedDrops_",""), r1 )}
+        bff_out_ch = bff_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*bff_",""), r1 )}
+        gmmDemux_out_ch = gmmDemuxout.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
+        
+        summary_input = input_list_summary.join(hashedDrops_out_ch,by:0,remainder: true).join(demuxem_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
+        summary_input = summary_input.filter{ it[0] != 'no_result' }
+        
+        summary(summary_input,
+                params.generate_anndata, params.generate_mudata)
                 
     emit:
         summary.out
