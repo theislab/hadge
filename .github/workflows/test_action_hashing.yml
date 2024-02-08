@@ -3,8 +3,8 @@ on:
   push:
   pull_request:
 jobs:
-  test_genetic:
-    name: Run pipeline in genetic mode with test data
+  test_hashing:
+    name: Run pipeline in hashing mode with test data
     runs-on: ubuntu-latest
     steps:
       - name: Check out pipeline code
@@ -26,4 +26,4 @@ jobs:
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode genetic --souporcell False --generate_anndata False
+          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode hashing --generate_anndata False
