@@ -5,7 +5,7 @@ process bff {
     publishDir "$projectDir/$params.outdir/$params.mode/hash_demulti/bff", mode:'copy'
     label 'small_mem'
 
-    container 'mercury/hadge_bff_cellhashr'
+    container 'mercury/hadge_bff_cellhashr:07_02_2024'
 
     input:
 
