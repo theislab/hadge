@@ -187,7 +187,7 @@ workflow hash_demultiplexing{
         demuxem_out_ch = demuxem_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxem_",""), r1 )}
         hashedDrops_out_ch = hashedDrops_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashedDrops_",""), r1 )}
         bff_out_ch = bff_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*bff_",""), r1 )}
-        gmmDemux_out_ch = gmmDemuxout.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
+        gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
         
         summary_input = input_list_summary.join(hashedDrops_out_ch,by:0,remainder: true).join(demuxem_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
         summary_input = summary_input.filter{ it[0] != 'no_result' }
