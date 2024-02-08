@@ -1,5 +1,5 @@
 name: hadge test workflow
-on: 
+on:
   push:
   pull_request:
 jobs:
