@@ -1,4 +1,4 @@
-name: hadge test workflow
+name: hadge hashing test workflow
 on:
   push:
   pull_request:

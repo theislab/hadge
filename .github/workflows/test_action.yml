@@ -1,4 +1,4 @@
-name: hadge test workflow
+name: hadge genetic test workflow
 on:
   push:
   pull_request:
