@@ -4,21 +4,10 @@ library(DropletUtils)
 library(Seurat)
 library(ggplot2)
 library(cowplot)
-if(!require("cellhashR")){
-    devtools::install_github(repo = 'bimberlab/cellhashR', ref = 'master', dependencies = TRUE, upgrade = 'always')
-    library("cellhashR")
-}
-
 library(cellhashR)
 library(here)
 library(dplyr)
 library(argparse)
-
-if(!require("tidyverse")){
-      install.packages("tidyverse")
-      library("tidyverse")
-}
-
 
 # Create a parser
 parser <- ArgumentParser("Parameters for BFF")
