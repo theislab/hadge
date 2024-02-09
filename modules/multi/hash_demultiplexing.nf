@@ -168,7 +168,7 @@ workflow hash_demultiplexing{
                     | splitCsv(header:true) \
                     | map { row-> tuple(row.sampleId, 
                                         params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
-                                        row.hto_name_gmm )}
+                                        params.hto_name_gmm )}
                     | gmm_demux_hashing
             gmmDemux_out = gmm_demux_hashing.out
         }
