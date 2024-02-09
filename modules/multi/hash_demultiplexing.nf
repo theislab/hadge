@@ -159,7 +159,6 @@ workflow hash_demultiplexing{
                     | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
                     | bff_hashing
             bff_out = bff_hashing.out
-            print("BFF path to output")
         }
         else{
             bff_out = channel.value("no_result")
@@ -170,8 +169,7 @@ workflow hash_demultiplexing{
                     | map { row-> tuple(row.sampleId, 
                                         params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
                                         row.hto_name_gmm )}
-                    |set{input_list_gmm_demux}
-                    | gmm_demux_hashing(input_list_gmm_demux)
+                    | gmm_demux_hashing
             gmmDemux_out = gmm_demux_hashing.out
         }
         else{

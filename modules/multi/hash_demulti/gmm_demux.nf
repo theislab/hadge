@@ -48,6 +48,8 @@ process gmm_demux{
             """
             mkdir gmm_demux_${sampleId}
             touch gmm_demux_${sampleId}_$report_gmm
+
+            print $hto_name_gmm
             
             GMM-demux $filtered_hto_matrix_dir $hto_name_gmm -u $summary -r gmm_demux_${sampleId}_$report_gmm --full gmm_demux_${sampleId} -o gmm_demux_${sampleId} $extract_droplets -t $threshold_gmm
             gmm_demux_params.py --path_hto $filtered_hto_matrix_dir --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${sampleId}_$report_gmm --mode $mode_GMM $extract_droplets  --threshold_gmm $threshold_gmm $ambiguous_droplets --outputdir gmm_demux_${sampleId}
@@ -61,7 +63,9 @@ process gmm_demux{
 
 workflow gmm_demux_hashing{
 take: 
-        input_list
+        hto_data
+        hto_name_gmm
+
   main:
         summary = params.summary
         report_gmm = params.report_gmm
@@ -70,7 +74,7 @@ take:
         threshold_gmm = params.threshold_gmm
         ambiguous = params.ambiguous
 
-        gmm_demux(input_list,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
+        gmm_demux(hto_data,hto_name_gmm,summary,report_gmm,mode,extract,threshold_gmm,ambiguous)
   
   emit:
         gmm_demux.out.collect()
