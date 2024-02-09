@@ -165,10 +165,12 @@ workflow hash_demultiplexing{
             bff_out = channel.value("no_result")
         }
         if (params.gmmDemux == "True"){
-            input_param_gmm_demux = input_channel \
+            input_channel \
                     | splitCsv(header:true) \
-                    | map { row-> tuple(row.sampleId, params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered, row.hto_name_gmm )}.set{input_list_gmm_demux}
-                    | gmm_demux_hashing(input_list_gmm_demux)
+                    | map { row-> tuple(row.sampleId, 
+                                        params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
+                                        row.hto_name_gmm )}.set{input_list_preprocess_htodemux}
+                    | gmm_demux_hashing(input_list_preprocess_htodemux)
             gmmDemux_out = gmm_demux_hashing.out
         }
         else{
