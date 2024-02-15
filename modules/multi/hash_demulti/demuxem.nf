@@ -5,7 +5,7 @@ process demuxem{
     publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/demuxem", mode:'copy'
     label 'small_mem'
 
-    container 'mari3ga/demuxem:v1'
+    container 'mari3ga/demuxem:v2'
     
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir, stageAs: "hto_data_${params.hto_matrix_demuxem}"),
