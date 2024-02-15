@@ -37,7 +37,6 @@ process gmm_demux{
 
         if(mode_GMM=="csv"){
             """
-            print "CSV mode"
             mkdir gmm_demux_${sampleId}
             touch gmm_demux_${sampleId}_$report_gmm
             
@@ -47,7 +46,6 @@ process gmm_demux{
             """
         }else {
             """
-            print "TSV mode"
             mkdir gmm_demux_${sampleId}
             touch gmm_demux_${sampleId}_$report_gmm
 
