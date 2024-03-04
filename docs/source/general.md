@@ -2,7 +2,7 @@
 
 ## **hadge: a comprehensive pipeline for donor deconvolution in single cell**
 
-Preprint manuscript is available [here](https://www.biorxiv.org/content/10.1101/2023.07.23.550061v2)
+A preprint is available [here](https://www.biorxiv.org/content/10.1101/2023.07.23.550061v2).
 
 ![Caption](_static/images/pipeline.png)
 
@@ -17,29 +17,21 @@ The mode of the pipeline is set by `params.mode`. hadge provides 4 modes in tota
 
 ## **Pipeline configuration**
 
-The pipeline provides some pre-defined profiles. The standard profile is used by default when no profile is specified, where the pipeeline is run locall and all processes annotated with the big_mem label are assigned 4 cpus and 16 Gb of memory.
+The pipeline provides some pre-defined profiles for different use cases.
 
-```
-profiles{
-    standard {
-        process {
-            executor = 'local'
-            withLabel: big_mem {
-                cpus = 4
-                memory = 16.GB
-            }
-            withLabel: small_mem {
-                cpus = 2
-                memory = 8.GB
-            }
-        }
+### Test dataset
 
-    }
+To get familiar with hadge, we provide the test profile for a quick start. To access the test sample data, you can use the provided bash script to download the test data to the project directory of hadge and run the pipeline locally.
+
+```bash
+sh ${hadge_project_dir}/hadge/test_data/download_data.sh
+nextflow run ${hadge_project_dir}/hadge/main.nf -profile test,conda_singularity
 ```
 
-### Conda environments:
+### Conda environments
 
-By using the `-profile conda` option, the pipeline executes each process within a Conda environment specified in the conda directive. Alternatively, you have the flexibility to add a new profile in the `nextflow.config` file, allowing you to use local Conda environments for running processes.
+By using the `-profile conda` option, the pipeline executes each process within a Conda environment specified in the conda directive.
+Alternatively, you have the flexibility to add a new profile in the `nextflow.config` file, allowing you to use local Conda environments for running processes.
 
 ```
 profiles{
@@ -64,7 +56,7 @@ profiles{
 }
 ```
 
-### Containers:
+### Containers
 
 Nextflow also supports a variety of container runtimes, e.g. Docker. To specify a different Docker image for each process:
 
@@ -77,22 +69,34 @@ profiles{
             withName:foo {
                 container = 'image_name_1'
             }
-            withName:bar {
-                container = 'image_name_2'
-            }
         }
     }
 }
 
-
 ```
 
-### Executor and resource specifications:
+In general, it is recommended to run with -profile conda when you don't need to run Souporcell. If Souporcell is necessary, please run the pipeline with -profile conda,singularity, where both Conda and Singularity are enabled.
 
+### Executor and resource specifications
+
+- The standard profile is used by default when no profile is specified, where the pipeline is run locally and all processes annotated with the `big_mem` label are assigned 4 cpus and 16 Gb of memory.
 - The pipeline can also be run on an HPC. You can set the executor by running the pipeline with `-profile cluster`.
-- Feel free to add other configurations, e.g. the number of CPUS, the memory allocation, etc. If you are new to Nextflow framework, please visit the [Nextlfow page](https://www.nextflow.io/docs/latest/config.html#).
 
 ```
+profiles{
+    standard {
+        process {
+            executor = 'local'
+            withLabel: big_mem {
+                cpus = 4
+                memory = 16.GB
+            }
+            withLabel: small_mem {
+                cpus = 2
+                memory = 8.GB
+            }
+        }
+    }
     cluster {
         process {
             executor = 'slurm'
@@ -119,29 +123,7 @@ Configuration files can contain the definition of one or more profiles. Multiple
 nextflow run main.nf -profile standard,conda
 ```
 
-## **Advanced usecases**
-
-### **Running on multiple samples**
-
-The pipeline is able to run on multiple samples. In this scenario, the shared parameters for input data are retrieved from a sample sheet using `params.multi_sample`, which is set to None by default.
-Along with the input data, the sample sheet should contain an additional column for unique sample IDs assigned to each sample. The remaining parameters for each process are specified in the nextflow.config file, just like when demultiplexing a single sample.
-However, there is a distinction between running on a single sample and running on multiple samples. When processing multiple samples, the pipeline only permits a single value for each process parameter, whereas in the case of a single sample, multiple values separated by commas are allowed.
-The sample sheet (example file see the Resources section below) should have e.g. following columns depending on the methods you want to run:
-
-- sampleId
-- na_matrix_raw
-- rna_matrix_filtered
-- hto_matrix_raw
-- hto_matrix_filtered
-- bam
-- bam_index
-- barcodes
-- nsample
-- celldata
-- vcf_mixed
-- vcf_donor
-
-### **scverse compatibility**
+## **scverse compatibility**
 
 To ensure scverse compatibility, the pipeline provides the option to generate AnnData or MuData objects after demultiplexing specified by `params.generate_anndata` and `params.generate_mudata`.
 The objects contain the scRNA-seq counts from `params.rna_matrix_filered` and stores the assignment of each demultiplexing method in the `assignment` column of `obs`.
@@ -184,7 +166,3 @@ The demultiplexing workflow saves its output in `$pipeline_output_folder/[gene/h
 - `adata` folder: stores Anndata object with filtered scRNA-seq read counts and assignment of each deconvolution method if `params.generate_anndata` is `True`. Details see section "scverse compatibility" above.
 - `mudata` folder: stores Mudata object with filtered scRNA-seq and HTO read counts and assignment of each deconvolution method if `params.generate_mudata` is `True`. Details see section "scverse compatibility" above.
 - In the `rescue` mode, the pipeline generates some additional output files, details please check [](rescue).
-
-## **Resources**
-
-- There is an [example sample sheet](../../multi_sample_input.csv) for `multi_sample` mode.
