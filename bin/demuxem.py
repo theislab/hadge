@@ -7,45 +7,110 @@ import argparse
 import pandas as pd
 import pegasusio as io
 
-parser = argparse.ArgumentParser(description='Parser for DemuxEM - Demultiplexing')
-parser.add_argument('--rna_matrix_dir', help= 'cellranger output folder which contains raw RNA count matrix in mtx format.')
-parser.add_argument('--hto_matrix_dir', help= 'cellranger output folder which contains raw HTO (antibody tag) count matrix in mtx format.')
-parser.add_argument('--randomState', help='Random seed set for reproducing results.', type=int, default=0)
-parser.add_argument('--min_signal', help='Any cell/nucleus with less than min_signal hashtags from the signal will be marked as unknown.', type=float, default=10.0)
-parser.add_argument('--min_num_genes', help='We only demultiplex cells/nuclei with at least <number> of expressed genes.', type=int, default=100)
-parser.add_argument('--min_num_umis', help='We only demultiplex cells/nuclei with at least <number> of UMIs.', type=int, default=100)
-parser.add_argument('--alpha', help='The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.', type=float, default=0.0)
-parser.add_argument('--alpha_noise', help='The Dirichlet prior concenration parameter on the background noise.', type=float, default=1.0)
-parser.add_argument('--tol', help='Threshold used for the EM convergence.', type=float, default=1e-6)
-parser.add_argument('--n_threads', help='Number of threads to use. Must be a positive integer.', type=int, default=1)
-parser.add_argument('--filter_demuxem', help='Use the filter for RNA, True or False', default='True')
-parser.add_argument('--generateGenderPlot', help='Generate violin plots using gender-specific genes (e.g. Xist). <gene> is a comma-separated list of gene names.', default='')
-parser.add_argument('--objectOutDemuxem', help='Output name of demultiplexing results. All outputs will use it as the prefix.', default="demuxem_res")
-parser.add_argument('--outputdir', help='Output directory')
+parser = argparse.ArgumentParser(description="Parser for DemuxEM - Demultiplexing")
+parser.add_argument(
+    "--rna_matrix_dir",
+    help="cellranger output folder which contains raw RNA count matrix in mtx format.",
+)
+parser.add_argument(
+    "--hto_matrix_dir",
+    help="cellranger output folder which contains raw HTO (antibody tag) count matrix in mtx format.",
+)
+parser.add_argument(
+    "--randomState",
+    help="Random seed set for reproducing results.",
+    type=int,
+    default=0,
+)
+parser.add_argument(
+    "--min_signal",
+    help="Any cell/nucleus with less than min_signal hashtags from the signal will be marked as unknown.",
+    type=float,
+    default=10.0,
+)
+parser.add_argument(
+    "--min_num_genes",
+    help="We only demultiplex cells/nuclei with at least <number> of expressed genes.",
+    type=int,
+    default=100,
+)
+parser.add_argument(
+    "--min_num_umis",
+    help="We only demultiplex cells/nuclei with at least <number> of UMIs.",
+    type=int,
+    default=100,
+)
+parser.add_argument(
+    "--alpha",
+    help="The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.",
+    type=float,
+    default=0.0,
+)
+parser.add_argument(
+    "--alpha_noise",
+    help="The Dirichlet prior concenration parameter on the background noise.",
+    type=float,
+    default=1.0,
+)
+parser.add_argument(
+    "--tol", help="Threshold used for the EM convergence.", type=float, default=1e-6
+)
+parser.add_argument(
+    "--n_threads",
+    help="Number of threads to use. Must be a positive integer.",
+    type=int,
+    default=1,
+)
+parser.add_argument(
+    "--filter_demuxem", help="Use the filter for RNA, True or False", default="True"
+)
+parser.add_argument(
+    "--generateGenderPlot",
+    help="Generate violin plots using gender-specific genes (e.g. Xist). <gene> is a comma-separated list of gene names.",
+    default="",
+)
+parser.add_argument(
+    "--objectOutDemuxem",
+    help="Output name of demultiplexing results. All outputs will use it as the prefix.",
+    default="demuxem_res",
+)
+parser.add_argument("--outputdir", help="Output directory")
 
 args = parser.parse_args()
-param_list = [['rna_matrix_dir', args.rna_matrix_dir], ['hto_matrix_dir', args.hto_matrix_dir], ['randomState', args.randomState], ['min_signal', args.min_signal], ['min_num_genes', args.min_num_genes], ['min_num_umis', args.min_num_umis], ['alpha', args.alpha], ['alpha_noise', args.alpha_noise], ['tol', args.tol], ['n_threads', args.n_threads], ['generateGenderPlot', args.generateGenderPlot]]
- 
-param_df = pd.DataFrame(param_list, columns=['Argument', 'Value'])
+param_list = [
+    ["rna_matrix_dir", args.rna_matrix_dir],
+    ["hto_matrix_dir", args.hto_matrix_dir],
+    ["randomState", args.randomState],
+    ["min_signal", args.min_signal],
+    ["min_num_genes", args.min_num_genes],
+    ["min_num_umis", args.min_num_umis],
+    ["alpha", args.alpha],
+    ["alpha_noise", args.alpha_noise],
+    ["tol", args.tol],
+    ["n_threads", args.n_threads],
+    ["generateGenderPlot", args.generateGenderPlot],
+]
 
-if __name__ == '__main__':
+param_df = pd.DataFrame(param_list, columns=["Argument", "Value"])
+
+if __name__ == "__main__":
     output_name = args.outputdir + "/" + args.objectOutDemuxem
     # load input rna data
     rna_data = sc.read_10x_mtx(args.rna_matrix_dir)
-    hashing_data = sc.read_10x_mtx(args.hto_matrix_dir,gex_only=False)
+    hashing_data = sc.read_10x_mtx(args.hto_matrix_dir, gex_only=False)
     rna = args.rna_matrix_dir
     filter = ""
-    if args.filter_demuxem.lower() in ['true', 't', 'yes', 'y', '1']:
+    if args.filter_demuxem.lower() in ["true", "t", "yes", "y", "1"]:
         filter = True
-    elif args.filter_demuxem.lower() in ['false', 'f', 'no', 'n', '0']:
+    elif args.filter_demuxem.lower() in ["false", "f", "no", "n", "0"]:
         filter = False
     else:
-        raise ValueError("Invalid boolean value: {}".format(value))
+        raise ValueError(f"Invalid boolean value: {args.filter_demuxem.lower()}")
     # Filter the RNA matrix
     rna_data.obs["n_genes"] = rna_data.X.getnnz(axis=1)
     rna_data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
-    #data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
-    if(filter):
+    # data.obs["n_counts"] = rna_data.X.sum(axis=1).A1
+    if filter:
         print("Filtering RNA matrix")
         obs_index = np.logical_and.reduce(
             (
@@ -56,25 +121,42 @@ if __name__ == '__main__':
         rna_data._inplace_subset_obs(obs_index)
     # run demuxEM
     demuxEM.estimate_background_probs(hashing_data, random_state=args.randomState)
-    demuxEM.demultiplex(rna_data, hashing_data, min_signal=args.min_signal, alpha=args.alpha, alpha_noise=args.alpha_noise, tol=args.tol, n_threads=args.n_threads)
+    demuxEM.demultiplex(
+        rna_data,
+        hashing_data,
+        min_signal=args.min_signal,
+        alpha=args.alpha,
+        alpha_noise=args.alpha_noise,
+        tol=args.tol,
+        n_threads=args.n_threads,
+    )
     # annotate raw matrix with demuxEM results
     demux_results = demuxEM.attach_demux_results(args.rna_matrix_dir, rna_data)
     # generate plots
-    demuxEM.plot_hto_hist(hashing_data, "hto_type", output_name + ".ambient_hashtag.hist.pdf", alpha=1.0)
-    demuxEM.plot_bar(hashing_data.uns["background_probs"], hashing_data.var_names, "Sample ID",
-         "Background probability", output_name + ".background_probabilities.bar.pdf",)
-    demuxEM.plot_hto_hist(hashing_data, "rna_type", output_name + ".real_content.hist.pdf", alpha=0.5)
+    demuxEM.plot_hto_hist(
+        hashing_data, "hto_type", output_name + ".ambient_hashtag.hist.pdf", alpha=1.0
+    )
+    demuxEM.plot_bar(
+        hashing_data.uns["background_probs"],
+        hashing_data.var_names,
+        "Sample ID",
+        "Background probability",
+        output_name + ".background_probabilities.bar.pdf",
+    )
+    demuxEM.plot_hto_hist(
+        hashing_data, "rna_type", output_name + ".real_content.hist.pdf", alpha=0.5
+    )
     demuxEM.plot_rna_hist(rna_data, hashing_data, output_name + ".rna_demux.hist.pdf")
-    
+
     if len(args.generateGenderPlot) > 0:
         rna_data.matrices["raw.X"] = rna_data.X.copy()
         rna_data.as_float()
         scale = 1e5 / rna_data.X.sum(axis=1).A1
-        rna_data.X.data *= np.repeat(scale, np.diff(data.X.indptr))
+        rna_data.X.data *= np.repeat(scale, np.diff(rna_data.X.indptr))
         rna_data.X.data = np.log1p(rna_data.X.data)
 
         for gene_name in args.generateGenderPlot:
-            plot_gene_violin(
+            pg.violin(
                 rna_data,
                 gene_name,
                 "{output_name}.{gene_name}.violin.pdf".format(
@@ -91,16 +173,21 @@ if __name__ == '__main__':
     print("total\t{}".format(rna_data.shape[0]))
     for name, value in rna_data.obs["demux_type"].value_counts().items():
         print("{}\t{}".format(name, value))
-    summary = rna_data.obs["demux_type"].value_counts().rename_axis('classification').reset_index(name='counts')
+    summary = (
+        rna_data.obs["demux_type"]
+        .value_counts()
+        .rename_axis("classification")
+        .reset_index(name="counts")
+    )
     total = ["total", rna_data.shape[0]]
     summary.loc[len(summary)] = total
     summary.to_csv(output_name + "_summary.csv", index=False)
-    param_df.fillna("None",inplace=True)
+    param_df.fillna("None", inplace=True)
     param_df.to_csv(args.outputdir + "/params.csv", index=False)
-    
-    rna_data.obs.assignment.replace(np.nan,'negative', inplace=True)
+
+    rna_data.obs.assignment.replace(np.nan, "negative", inplace=True)
     hashtags = hashing_data.var.index.tolist()
     hashtags = hashtags + ["negative"]
-    toreplace = [ht for ht in rna_data.obs['assignment'].unique() if ht not in hashtags]
-    rna_data.obs.assignment.replace(toreplace,'doublet', inplace=True)
+    toreplace = [ht for ht in rna_data.obs["assignment"].unique() if ht not in hashtags]
+    rna_data.obs.assignment.replace(toreplace, "doublet", inplace=True)
     rna_data.obs.to_csv(output_name + "_obs.csv")
