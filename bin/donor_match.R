@@ -34,7 +34,7 @@ parser$add_argument("--outputdir", help = "Output directory. ")
 args <- parser$parse_args()
 
 convert2binary <- function(result_csv, method_name, min_cell) {
-  method_assign <- result_csv %>% select(any_of("Barcode", method_name))
+  method_assign <- result_csv %>% select(all_of(c("Barcode", method_name)))
   donor_id <- setdiff(
     unique(method_assign[[method_name]]),
     c(NA, "negative", "doublet")
