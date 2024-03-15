@@ -90,7 +90,6 @@ if (!is.null(args$barcode)) {
   )$V1
   result_csv <-
     result_csv[result_csv$Barcode %in% barcode_whitelist, ]
-  # min_cell <- floor(nrow(result_csv) * 0.01)
 }
 
 colname_with_singlet <-
@@ -135,10 +134,25 @@ if (!is.null(args$method1) && !is.null(args$method2)) {
         grepl(y, x)
       }))
     }, colname_with_singlet)
-  all_methods_pair <-
-    expand.grid(genetics = genetics_all, hashing = hashing_all)
-  method1_all <- as.character(all_methods_pair$genetics)
-  method2_all <- as.character(all_methods_pair$hashing)
+  # Match between genetics- and hashing-based methods
+  if (length(hashing_all) > 0 && length(genetics_all) > 0) {
+    all_methods_pair <-
+      expand.grid(genetics = genetics_all, hashing = hashing_all)
+    method1_all <- as.character(all_methods_pair$genetics)
+    method2_all <- as.character(all_methods_pair$hashing)
+  }
+  # Compare only within hashing methods
+  else if (length(hashing_all) > 0) {
+    method_pair <- combn(hashing_all, 2)
+    method1_all <- method_pair[1, ]
+    method2_all <- method_pair[2, ]
+  }
+  # Compare only within genetics methods
+  else if (length(genetics_all) > 0) {
+    method_pair <- combn(genetics_all, 2)
+    method1_all <- method_pair[1, ]
+    method2_all <- method_pair[2, ]
+  }
 }
 
 best_result <- 0

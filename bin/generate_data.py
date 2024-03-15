@@ -28,14 +28,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    assignment_dir = os.path.join(
-        args.assignment,
-        [
-            filename
-            for filename in os.listdir(args.assignment)
-            if filename == "all_assignment_after_match.csv"
-        ][0],
-    )
+    assignment_dir = os.path.join(args.assignment, "all_assignment_after_match.csv")
     if args.generate_anndata:
         if os.path.isfile(assignment_dir):
             adata = sc.read_10x_mtx(args.read_rna_mtx)
@@ -53,7 +46,7 @@ if __name__ == "__main__":
             adata.write("adata_with_donor_matching.h5ad")
         else:
             print(
-                "Can not find assignment file, stop generating anndata. Please ensure the donor matching process has been executed to match hashing-based and genotyped-based methods."
+                "Please ensure the donor matching process has been executed to match hashing-based and genotyped-based methods, stop generating anndata. "
             )
 
     if args.generate_mudata:
@@ -76,5 +69,5 @@ if __name__ == "__main__":
             mudata.write("mudata_with_donor_matching.h5mu")
         else:
             print(
-                "Can not find assignment file, stop generating anndata. Please ensure the donor matching process has been executed to match hashing-based and genotyped-based methods."
+                "Please ensure the donor matching process has been executed to match hashing-based and genotyped-based methods, stop generating mudata. "
             )
