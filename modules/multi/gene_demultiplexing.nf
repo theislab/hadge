@@ -24,7 +24,7 @@ def split_input(input){
 process subset_bam_to_comon_variants{
     
     label 'small_mem'
-    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+    conda "-c conda-forge -c bioconda samtools=19.2 bedtools bcftools=1.19"
     tag "${sampleId}"
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(barcodes)
