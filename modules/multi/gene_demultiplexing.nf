@@ -24,7 +24,7 @@ def split_input(input){
 process subset_bam_to_comon_variants{
     
     label 'small_mem'
-    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+    conda "-c conda-forge -c bioconda samtools=1.19.2 bedtools bcftools=1.19"
     tag "${sampleId}"
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(barcodes)
@@ -45,7 +45,7 @@ process summary{
     publishDir "$params.outdir/$sampleId/$params.mode/gene_demulti", mode: 'copy'
     label 'small_mem'
     tag "${sampleId}"
-    conda "pandas scanpy mudata"
+    conda "-c conda-forge pandas scanpy mudata"
 
     input:
         tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(souporcell_result), val(scsplit_result), val(vireo_result),val(freemuxlet_result),val(demuxlet_result))

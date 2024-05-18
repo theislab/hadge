@@ -4,7 +4,7 @@ nextflow.enable.dsl=2
 
 process subset_bam_and_sort_vcf_based_on_reference{
     label 'small_mem'
-    conda "bioconda::samtools=1.19.2 bedtools bcftools=1.19"
+    conda "-c conda-forge -c bioconda samtools=1.19.2 bedtools bcftools=1.19"
     tag "${sampleId}"
     input:
         tuple val(sampleId), path(sam), path(sam_index), path(group_list), val(nsample)
