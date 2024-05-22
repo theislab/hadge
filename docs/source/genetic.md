@@ -11,6 +11,7 @@ Genotyped-based deconvolution leverages the unique genetic composition of indivi
 ## **Quick start**
 
 ```bash
+# use test dataset
 nextflow run ${hadge_project_dir}/main.nf -profile test,conda_singularity --mode genetic
 ```
 
@@ -48,27 +49,36 @@ nextflow run ${hadge_project_dir}/main.nf -profile conda_singularity --mode gene
 
 ## **Input data preparation**
 
-The input data depends heavily on the deconvolution tools. In the following table, you will find the minimal input data required by different tools.
+The input data depends heavily on the deconvolution tools. In the following table, you will find the **minimal** input data required by different tools.
 
-| Deconvolution methods | Input data                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------ |
-| Demuxlet              | - Alignment (BAM)<br>- Barcode (TSV)<br>- Genotype reference (VCF)                   |
-| Freemuxlet            | - Alignment (BAM)<br>- Barcode (TSV)<br>- Genotypes from referenced population (VCF) |
-| Vireo                 | - Cell genotype (VCF or cellSNP folder)                                              |
-| Souporcell            | - Alignment (BAM)<br>- Barcode (TSV)<br>- Reference genome (FASTA)                   |
-| scSplit               | - Alignment (BAM)<br>- Barcode (TSV)<br>- Genotypes from referenced population (VCF) |
-|                       |                                                                                      |
+| Deconvolution methods | Input data                                                                    |
+| --------------------- | ----------------------------------------------------------------------------- |
+| Demuxlet              | - Alignment (BAM)<br>- Barcode (TSV)<br>- Genotype reference per sample (VCF) |
+| Freemuxlet            | - Alignment (BAM)<br>- Barcode (TSV)<br>                                      |
+| Vireo                 | - Genotype per cell (VCF or cellSNP folder)                                   |
+| Souporcell            | - Alignment (BAM)<br>- Barcode (TSV)<br>- Reference genome (FASTA)            |
+| scSplit               | - Alignment (BAM)<br>- Barcode (TSV)<br>- Genotype per pool (VCF)             |
+|                       |                                                                               |
 
 You may see that some tools share some input data in common, so we set only one parameter for the same input for benchmarking.
 
-| Input data                                 | Parameter                              |
-| ------------------------------------------ | -------------------------------------- |
-| Alignment (BAM)                            | `params.bam`<br>`params.bai`           |
-| Barcode (TSV)                              | `params.barcodes`                      |
-| Genotype reference (VCF)                   | `params.vcf_donor`                     |
-| Genotypes from referenced population (VCF) | `params.vcf_mixed`                     |
-| Reference genome (FASTA)                   | `params.fasta`<br>`params.fasta_index` |
-| Cell genotype (VCF or cellSNP folder)      | `params.celldata`                      |
+| Input data                                | Parameter                              |
+| ----------------------------------------- | -------------------------------------- |
+| Alignment (BAM)                           | `params.bam`<br>`params.bai`           |
+| Barcode (TSV)                             | `params.barcodes`                      |
+| Genotype reference per sample (VCF)       | `params.vcf_donor`                     |
+| Genotype per pool (VCF)                   | `params.vcf_mixed`                     |
+| Reference genome (FASTA)                  | `params.fasta`<br>`params.fasta_index` |
+| Genotype per cell (VCF or cellSNP folder) | `params.celldata`                      |
+
+Note, this is only the minial input input data set. You may also need the common variants from the population to run genotype-based deconvolution methods without genotype reference. Here we collect different sources of common variants for GRCh38 recommended by different methods.
+
+| Method       | Paramter                   | Source                                                                    |
+| ------------ | -------------------------- | ------------------------------------------------------------------------- |
+| scSplit      | common_variants_scSplit    | https://melbourne.figshare.com/articles/dataset/Common_SNVS_hg38/17032163 |
+| Souporcell   | common_variants_souporcell | https://github.com/wheaton5/souporcell                                    |
+| Freemuxlet   | common_variants_freemuxlet | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
+| cellSNP-lite | common_variants_cellsnp    | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
 
 #### Pre-processing
 
@@ -91,17 +101,6 @@ You can have following options for `vireo_variant`:
 
 - `True`: activate cellsnp
 - Otherwise: inactivate variant calling, get the input data from `params.celldata`
-
-#### Common variants
-
-When running genotype-based deconvolution methods without genotype reference, you may need common variants from the popultion. Here we collect different sources of common variants for GRCh38 recommended by different methods.
-
-| Method       | Paramter                   | Source                                                                    |
-| ------------ | -------------------------- | ------------------------------------------------------------------------- |
-| scSplit      | common_variants_scSplit    | https://melbourne.figshare.com/articles/dataset/Common_SNVS_hg38/17032163 |
-| Souporcell   | common_variants_souporcell | https://github.com/wheaton5/souporcell                                    |
-| Freemuxlet   | common_variants_freemuxlet | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
-| cellSNP-lite | common_variants_cellsnp    | https://sourceforge.net/projects/cellsnp/files/SNPlist/                   |
 
 ## **Output**
 
@@ -131,18 +130,7 @@ output directory: `$pipeline_output_folder/cellsnp/cellsnp_[task_ID/sampleId]`
 
 ### Freebayes
 
-- sampleId
-- rna_matrix_raw
-- rna_matrix_filtered
-- hto_matrix_raw
-- hto_matrix_filtered
-- bam
-- bam_index
-- barcodes
-- nsamples_genetic
-- celldata
-- vcf_mixed
-- vcf_donor
+output directory: `$pipeline_output_folder/freebayes/freebayes_[task_ID/sampleId]`
 
 - `${region}_${vcf_freebayes}`: a VCF file containing variants called from mixed samples in the given chromosome region
 
