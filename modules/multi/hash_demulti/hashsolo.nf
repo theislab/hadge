@@ -4,8 +4,8 @@ process hash_solo{
     publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/hashsolo", mode:'copy'
     label 'small_mem'
 
-    //conda "$projectDir/conda/hashsolo_py.yml"
-    container  "mari3ga/hashsolo:v1"
+    conda "$projectDir/conda/hashsolo_py.yml"
+    //container  "mari3ga/hashsolo:v1"
 
     input:
         tuple val(sampleId), path(hto_data, stageAs: "hto_data_${params.hto_matrix_hashsolo}"), path(rna_data, stageAs: "rna_data_${params.rna_matrix_hashsolo}")

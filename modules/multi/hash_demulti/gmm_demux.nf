@@ -5,7 +5,8 @@ process gmm_demux{
     publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/gmm_demux", mode:'copy'
     label 'small_mem'
 
-    container 'mari3ga/gmm_demux:v1'
+    //container 'mari3ga/gmm_demux:v1'
+    conda "$projectDir/conda/gmm_demux.yml"
     
     input:
         tuple val(sampleId), path(filtered_hto_matrix_dir), val(hto_name_gmm)
