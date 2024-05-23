@@ -51,6 +51,8 @@ process summary{
             hashedDrops_files = "--hashedDrops ${hashedDrops_res}"
         }
         if (gmmDemux_result != "no_result"){
+            println "Hello, World!"
+            println "${gmmDemux_res}"
             gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
         }
         if (bff_result != "no_result"){
