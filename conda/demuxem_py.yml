@@ -4,9 +4,9 @@ channels:
 dependencies:
   - python=3.9
   - pegasuspy
-  - scanpy
   - bioconda::demuxem
   - pip
   - pip:
       - pandas<2.0
+      - scanpy
       - argparse
