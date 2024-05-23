@@ -6,3 +6,4 @@ dependencies:
   - r-seurat
   - r-argparse
   - bioconductor-dropletutils
+  - bioconductor-genomeinfodbdata
