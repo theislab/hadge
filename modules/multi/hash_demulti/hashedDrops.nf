@@ -6,7 +6,7 @@ process hashedDrops{
     label 'small_mem'
 
     //conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-genomeinfodbdata bioconda::bioconductor-dropletutils "
-    container 'quay.io/biocontainers/bioconductor-dropletutils'
+    container 'quay.io/biocontainers/bioconductor-dropletutils:1.22.0--r43hf17093f_0'
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir)
         val lower
