@@ -5,7 +5,7 @@ process hashedDrops{
     publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/hashedDrops", mode:'copy'
     label 'small_mem'
 
-    conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-genomeinfodbdata bioconda::bioconductor-dropletutils "
+    conda "$projectDir/conda/dropletutils.yml" 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bioconductor-dropletutils:1.22.0--r43hf17093f_0':
         'quay.io/biocontainers/bioconductor-dropletutils:1.22.0--r43hf17093f_0' }"
