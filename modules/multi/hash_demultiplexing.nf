@@ -17,7 +17,7 @@ process summary{
     conda "pandas scanpy mudata"
 
     input:
-        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(hashedDrops_result), val(demuxem_result), val(hashsolo_result), val(multiseq_result), val(htodemux_result), val(gmmDemux_result), val(bff_result))
+        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(demuxem_result), val(hashedDrops_result), val(hashsolo_result), val(multiseq_result), val(htodemux_result), val(gmmDemux_result), val(bff_result))
         val generate_anndata
         val generate_mudata
         
@@ -38,6 +38,7 @@ process summary{
          if (demuxem_result != "no_result"){
             println "Hello, World!"
             println "${demuxem_res}"
+            println "Demuxem results: "
             demuxem_files = "--demuxem ${demuxem_res}"
         }
         if (hashsolo_result != "no_result"){
@@ -137,6 +138,7 @@ workflow hash_demultiplexing{
                     | map { row-> tuple(row.sampleId, params.hto_matrix_demuxem == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
                                         params.rna_matrix_demuxem == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered)}
                     | demuxem_hashing
+                    println "Demuxem hashing done"
             demuxem_out = demuxem_hashing.out
         }
         else{
