@@ -36,6 +36,8 @@ process summary{
         def generate_mdata = ""
         
          if (demuxem_result != "no_result"){
+            println "Hello, World!"
+            println "${demuxem_res}"
             demuxem_files = "--demuxem ${demuxem_res}"
         }
         if (hashsolo_result != "no_result"){
@@ -51,8 +53,6 @@ process summary{
             hashedDrops_files = "--hashedDrops ${hashedDrops_res}"
         }
         if (gmmDemux_result != "no_result"){
-            println "Hello, World!"
-            println "${gmmDemux_res}"
             gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
         }
         if (bff_result != "no_result"){
