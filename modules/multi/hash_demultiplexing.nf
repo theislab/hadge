@@ -140,6 +140,7 @@ workflow hash_demultiplexing{
                     | demuxem_hashing
                     println "Demuxem hashing done"
             demuxem_out = demuxem_hashing.out
+            println "Demuxem out: $demuxem_out"
         }
         else{
             demuxem_out = channel.value("no_result")
