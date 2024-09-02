@@ -36,28 +36,25 @@ process summary{
         def generate_mdata = ""
         
          if (demuxem_result != "no_result"){
-            println "Hello, World!"
-            println "${demuxem_res}"
-            println "Demuxem results: "
-            demuxem_files = "--demuxem ${demuxem_res}"
+            demuxem_files = "--demuxem ${demuxem_result}"
         }
         if (hashsolo_result != "no_result"){
-            hashsolo_files = "--hashsolo ${hashsolo_res}"
+            hashsolo_files = "--hashsolo ${hashsolo_result}"
         }
         if (htodemux_result != "no_result"){
-            htodemux_files = "--htodemux ${htodemux_res}"
+            htodemux_files = "--htodemux ${htodemux_result}"
         }
         if (multiseq_result != "no_result"){
-            multiseq_files = "--multiseq ${multiseq_res}"
+            multiseq_files = "--multiseq ${multiseq_result}"
         }
         if (hashedDrops_result != "no_result"){
-            hashedDrops_files = "--hashedDrops ${hashedDrops_res}"
+            hashedDrops_files = "--hashedDrops ${hashedDrops_result}"
         }
         if (gmmDemux_result != "no_result"){
-            gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
+            gmmDemux_files = "--gmm_demux ${gmmDemux_result}"
         }
         if (bff_result != "no_result"){
-            bff_files = "--bff ${bff_res}"
+            bff_files = "--bff ${bff_result}"
         }
         if (generate_anndata == "True"){
             if(rna_matrix.name == "None"){
@@ -138,9 +135,7 @@ workflow hash_demultiplexing{
                     | map { row-> tuple(row.sampleId, params.hto_matrix_demuxem == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
                                         params.rna_matrix_demuxem == "raw" ? row.rna_matrix_raw : row.rna_matrix_filtered)}
                     | demuxem_hashing
-                    println "Demuxem hashing done"
             demuxem_out = demuxem_hashing.out
-            println "Demuxem out: $demuxem_out"
         }
         else{
             demuxem_out = channel.value("no_result")
@@ -195,7 +190,7 @@ workflow hash_demultiplexing{
         bff_out_ch = bff_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*bff_",""), r1 )}
         gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
         
-        summary_input = input_list_summary.join(hashedDrops_out_ch,by:0,remainder: true).join(demuxem_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
+        summary_input = input_list_summary.join(demuxem_out_ch,by:0,remainder: true).join(hashedDrops_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
         summary_input = summary_input.filter{ it[0] != 'no_result' }
         
         summary(summary_input,
