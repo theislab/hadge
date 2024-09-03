@@ -35,20 +35,20 @@ process summary{
         def generate_adata = ""
         def generate_mdata = ""
         
-         if (demuxem_result != "no_result"){
+        if (demuxem_result != "no_result"){
             demuxem_files = "--demuxem ${demuxem_result}"
+        }
+        if (hashedDrops_result != "no_result"){
+            hashedDrops_files = "--hashedDrops ${hashedDrops_result}"
         }
         if (hashsolo_result != "no_result"){
             hashsolo_files = "--hashsolo ${hashsolo_result}"
         }
-        if (htodemux_result != "no_result"){
-            htodemux_files = "--htodemux ${htodemux_result}"
-        }
         if (multiseq_result != "no_result"){
             multiseq_files = "--multiseq ${multiseq_result}"
         }
-        if (hashedDrops_result != "no_result"){
-            hashedDrops_files = "--hashedDrops ${hashedDrops_result}"
+        if (htodemux_result != "no_result"){
+            htodemux_files = "--htodemux ${htodemux_result}"
         }
         if (gmmDemux_result != "no_result"){
             gmmDemux_files = "--gmm_demux ${gmmDemux_result}"
@@ -56,11 +56,13 @@ process summary{
         if (bff_result != "no_result"){
             bff_files = "--bff ${bff_result}"
         }
+        
         if (generate_anndata == "True"){
             if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
             }
             generate_adata = "--generate_anndata --read_rna_mtx rna_data"
+            println "AnnData created"
         }
         if (generate_mudata == "True"){
             if(rna_matrix.name == "None"){
@@ -91,6 +93,7 @@ workflow hash_demultiplexing{
                     htodemux_preprocess_out = preprocessing_hashing_htodemux.out
                     htodemux_hashing(htodemux_preprocess_out)
                     htodemux_out = htodemux_hashing.out
+                    println htodemux_out
         }
             else{
                 htodemux_out = channel.value("no_result")
@@ -110,6 +113,7 @@ workflow hash_demultiplexing{
             }
             multiseq_hashing(multiseq_preprocess_out)
             multiseq_out = multiseq_hashing.out
+            println multiseq_out
         }
         else{
             multiseq_out = channel.value("no_result")
