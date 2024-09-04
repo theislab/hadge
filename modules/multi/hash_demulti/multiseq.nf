@@ -2,7 +2,7 @@
 nextflow.enable.dsl = 2
 
 process multi_seq{
-    publishDir "$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/multiseq", mode: 'copy'
+    publishDir "$params.outdir/${seurat_object.name.tokenize( '_' )[1]}_${seurat_object.name.tokenize('_')[2]}/$params.mode/hash_demulti/multiseq", mode: 'copy'
     label 'small_mem'
 
     conda 'conda-forge::r-seurat conda-forge::r-argparse'
@@ -21,10 +21,10 @@ process multi_seq{
         val assignmentOutMulti
 
     output:
-        path "multiseq_${seurat_object.name.tokenize( '_' )[1]}"
+        path "multiseq_${seurat_object.name.tokenize( '_' )[1]}_${seurat_object.name.tokenize('_')[2]}"
 
     script:
-        def sampleId = seurat_object.name.tokenize('_')[1]
+        def sampleId = seurat_object.name.tokenize('_')[1] + "_" + seurat_object.name.tokenize('_')[2]
         def autoThr = autoThresh != 'False' ? ' --autoThresh' : ''
         def verb = verbose != 'False' ? ' --verbose' : ''
 

@@ -93,7 +93,6 @@ workflow hash_demultiplexing{
                     htodemux_preprocess_out = preprocessing_hashing_htodemux.out
                     htodemux_hashing(htodemux_preprocess_out)
                     htodemux_out = htodemux_hashing.out
-                    println htodemux_out
         }
             else{
                 htodemux_out = channel.value("no_result")
@@ -113,7 +112,6 @@ workflow hash_demultiplexing{
             }
             multiseq_hashing(multiseq_preprocess_out)
             multiseq_out = multiseq_hashing.out
-            println multiseq_out
         }
         else{
             multiseq_out = channel.value("no_result")
@@ -175,6 +173,7 @@ workflow hash_demultiplexing{
                                         params.hto_name_gmm )}
                     | gmm_demux_hashing
             gmmDemux_out = gmm_demux_hashing.out
+            gmmDemux_out.subscribe { println "GMM-Demux Output: $it" }
         }
         else{
             gmmDemux_out = channel.value("no_result")
@@ -187,16 +186,19 @@ workflow hash_demultiplexing{
         input_list_summary = input_channel.splitCsv(header:true).map { row-> tuple(row.sampleId, file(row.hto_matrix_filtered), file(row.rna_matrix_filtered))}
 
         htodemux_out_ch = htodemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*htodemux_",""), r1 )}
+        htodemux_out_ch.subscribe { println "HTO Demux Output: $it" }
         multiseq_out_ch = multiseq_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*multiseq_",""), r1 )}
         hashsolo_out_ch = hashsolo_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashsolo_",""), r1 )}
+        hashsolo_out_ch.subscribe { println "HashSolo Output: $it" }
         demuxem_out_ch = demuxem_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxem_",""), r1 )}
         hashedDrops_out_ch = hashedDrops_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashedDrops_",""), r1 )}
         bff_out_ch = bff_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*bff_",""), r1 )}
-        gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
-        
+        gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmm_demux",""), r1 )}
+        gmmDemux_out_ch.subscribe { println "GMM Demux Output: $it" }
+
         summary_input = input_list_summary.join(demuxem_out_ch,by:0,remainder: true).join(hashedDrops_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
         summary_input = summary_input.filter{ it[0] != 'no_result' }
-        
+        summary_input.subscribe { println "summary_input Output: $it" }
         summary(summary_input,
                 params.generate_anndata, params.generate_mudata)
                 
