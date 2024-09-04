@@ -62,7 +62,6 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
         demuxem_assign = demuxem_assign.drop(columns=["Barcode"])
         assign.append(demuxem_assign)
         if raw_adata is not None:
-            print("raw_adata is not None")
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
                 demuxem_assign, left_index=True, right_index=True, how="left"
@@ -142,7 +141,6 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
         assign.append(hashsolo_assign)
 
         if raw_adata is not None:
-            print("raw_adata is not None")
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
                 hashsolo_assign, left_index=True, right_index=True, how="left"
@@ -173,7 +171,9 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
 
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
         hashsolo_classi_copy = hashsolo_classi.copy()
-        hashsolo_classi_copy["most_likely_hypothesis"] = hashsolo_classi_copy["most_likely_hypothesis"].astype(object)
+        hashsolo_classi_copy["most_likely_hypothesis"] = hashsolo_classi_copy[
+            "most_likely_hypothesis"
+        ].astype(object)
         hashsolo_classi_copy.loc[
             hashsolo_classi_copy["most_likely_hypothesis"] == 0.0,
             "most_likely_hypothesis",
@@ -241,7 +241,6 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
         assign.append(hasheddrops_res)
 
         if raw_adata is not None:
-            print("raw_adata is not None")
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
                 hasheddrops_res, left_index=True, right_on="Barcode", how="left"
@@ -306,7 +305,6 @@ def hasheddrops_summary(hasheddrops_res, raw_adata, raw_mudata):
 
 
 def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
-    print("Multiseq: ",multiseq_res)
     assign = []
     params = []
     for x in multiseq_res:
