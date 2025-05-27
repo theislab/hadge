@@ -5,8 +5,8 @@ library(Seurat)
 library(ggplot2)
 library(cowplot)
 if(!require("cellhashR")){
-    devtools::install_github(repo = 'bimberlab/cellhashR', ref = 'master', dependencies = TRUE, upgrade = 'always')
-    library("cellhashR")
+  devtools::install_git("https://github.com/bimberlab/cellhashR.git")
+  library("cellhashR")
 }
 
 library(cellhashR)
