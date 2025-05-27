@@ -1,7 +1,10 @@
 name: hadge test workflow
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
+
 jobs:
   test_genetic:
     name: Run pipeline in genetic mode with test data
@@ -20,13 +23,13 @@ jobs:
       - name: Set up Python to install gdown
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           cache: "pip"
       - name: Download test dataset
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
       - name: Run pipeline with test data
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode genetic --souporcell False --generate_anndata False
+          nextflow run ${GITHUB_WORKSPACE} -profile test,conda --mode genetic --souporcell False --scSplit False --generate_anndata False
   test_hashing:
     name: Run pipeline in hashing mode with test data
     runs-on: ubuntu-latest
@@ -44,7 +47,7 @@ jobs:
       - name: Set up Python to install gdown
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           cache: "pip"
       - name: Download test dataset
         run: bash ${GITHUB_WORKSPACE}/test_data/download_data.sh
