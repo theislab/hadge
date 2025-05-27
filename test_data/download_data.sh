@@ -3,7 +3,7 @@
 outputdir="test_data"
 mkdir -p $outputdir && cd $outputdir
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1leRqeX9BDvZHtSncG6QTbQmUsQJOPlZq' -O jurkat_293t_exons_only.vcf.withAF.vcf.gz
-wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1BUKrDP4P24_JgumTN5pGyzruLrQH1-eY' -O jurkat_293t_downsampled_n500_full_bam.bam.bai
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=12iyB7J55wRtC01L7dYuPlQKzcQdjZKe6' -O jurkat_293t_downsampled_n500_full_bam.bam.bai
 # need to download this with gdown because it's a big file and it requires a confirmation dialogue
 FILEID="16I0P2eWj9tqkJ9BwakcZ2RMN_VCXkAv1"
 FILENAME="jurkat_293t_downsampled_n500_full_bam.bam"
