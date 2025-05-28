@@ -6,8 +6,8 @@ dependencies:
   - python=3.9
   - numpy
   - pandas
+  - gmm-demux
   - pip
   - pip:
-      - GMM_Demux==0.2.1.3
-      - scikit-learn==1.1.3
+      - scikit-learn
       - argparse

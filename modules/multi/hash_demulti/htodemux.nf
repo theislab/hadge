@@ -2,7 +2,7 @@
 nextflow.enable.dsl = 2
 
 process htodemux{
-    publishDir "$params.outdir/${seurat_object.name.tokenize( '_' )[1]}/$params.mode/hash_demulti/htodemux", mode: 'copy'
+    publishDir "$params.outdir/${seurat_object.name.tokenize( '_' )[1]}_${seurat_object.name.tokenize('_')[2]}/$params.mode/hash_demulti/htodemux", mode: 'copy'
     label 'small_mem'
 
     conda 'conda-forge::r-seurat conda-forge::r-argparse'
@@ -43,10 +43,10 @@ process htodemux{
         val heatmapNcells
 
     output:
-        path "htodemux_${seurat_object.name.tokenize( '_' )[1]}"
+        path "htodemux_${seurat_object.name.tokenize( '_' )[1]}_${seurat_object.name.tokenize('_')[2]}"
 
     script:
-        def sampleId = seurat_object.name.tokenize('_')[1]
+        def sampleId = seurat_object.name.tokenize('_')[1] + "_" + seurat_object.name.tokenize('_')[2]
         def init_val = init != 'None' ? " --init $init" : ''
         def vln_log = vlnLog != 'False' ?  '--vlnLog' : ''
         def invert = tsneInvert != 'False' ?  '--tSNEInvert' : ''

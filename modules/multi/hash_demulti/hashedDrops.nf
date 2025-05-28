@@ -5,8 +5,8 @@ process hashedDrops{
     publishDir "$params.outdir/$sampleId/$params.mode/hash_demulti/hashedDrops", mode:'copy'
     label 'small_mem'
 
-    conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-dropletutils"
-    
+    conda "conda-forge::r-seurat conda-forge::r-argparse bioconda::bioconductor-genomeinfodbdata bioconda::bioconductor-dropletutils "
+
     input:
         tuple val(sampleId), path(raw_hto_matrix_dir)
         val lower
@@ -19,6 +19,7 @@ process hashedDrops{
         val isCellFDR
         val objectOutEmptyDrops
         val assignmentOutEmptyDrops
+        val runEmptyDrops
 	   
         val ambient
         val minProp
@@ -45,6 +46,7 @@ process hashedDrops{
         def byR = byRank != "None" ? " --by.rank ${byRank}" : ''
         def amb = ambient != 'False' ? " --ambient" : ''
         def comb = combinations != "None" ? " --combinations ${combinations}" : ''
+        def runEmptyDrops = runEmptyDrops != 'False' ? " --runEmptyDrops" : ''
 
         """
         mkdir hashedDrops_${sampleId}
@@ -54,7 +56,7 @@ process hashedDrops{
             --doubletNmads $doubletNmads --doubletMin $doubletMin --confidentNmads $confidentNmads \
             --confidenMin $confidenMin --objectOutHashedDrops $objectOutHashedDrops \
             --outputdir hashedDrops_${sampleId} --assignmentOutHashedDrops ${assignmentOutHashedDrops} \
-            ${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}
+            ${testAmb}${ign}${alp}${rou}${byR}${constantAmb}${doubletMix}${amb}${comb}${runEmptyDrops}
         """
 
 }
@@ -73,7 +75,7 @@ workflow hashedDrops_hashing{
         isCellFDR = params.isCellFDR
         objectOutEmptyDrops = params.objectOutEmptyDrops
         assignmentOutEmptyDrops = params.assignmentOutEmptyDrops
-       
+        runEmptyDrops = params.runEmptyDrops
         ambient = params.ambient
         minProp = params.minProp
         pseudoCount = params.pseudoCount
@@ -88,7 +90,7 @@ workflow hashedDrops_hashing{
         assignmentOutHashedDrops = params.assignmentOutHashedDrops
 
         hashedDrops(input_list, lower, niters, testAmbient, ignore, alpha, round, byRank, isCellFDR, 
-            objectOutEmptyDrops, assignmentOutEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, 
+            objectOutEmptyDrops, assignmentOutEmptyDrops,runEmptyDrops, ambient, minProp, pseudoCount, constantAmbient, 
             doubletNmads, doubletMin, doubletMixture, confidentNmads, confidenMin, combinations, objectOutHashedDrops, 
             assignmentOutHashedDrops)
         

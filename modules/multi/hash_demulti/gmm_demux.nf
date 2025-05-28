@@ -38,7 +38,8 @@ process gmm_demux{
         if(mode_GMM=="csv"){
             """
             mkdir gmm_demux_${sampleId}
-            touch gmm_demux_${sampleId}_$report_gmm
+            cd gmm_demux_${sampleId} && touch gmm_demux_${sampleId}_$report_gmm
+            cd ..
             
             GMM-demux -c $filtered_hto_matrix_dir $hto_name_gmm -u $summary --report gmm_demux_${sampleId}_$report_gmm --full gmm_demux_${sampleId} $extract_droplets -t $threshold_gmm
             gmm_demux_params.py --path_hto $filtered_hto_matrix_dir --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${sampleId}_$report_gmm   --mode $mode_GMM  $extract_droplets --threshold_gmm $threshold_gmm $ambiguous_droplets  --outputdir gmm_demux_${sampleId}
@@ -47,7 +48,8 @@ process gmm_demux{
         }else {
             """
             mkdir gmm_demux_${sampleId}
-            touch gmm_demux_${sampleId}_$report_gmm
+            cd gmm_demux_${sampleId} && touch gmm_demux_${sampleId}_$report_gmm
+            cd ..
             
             GMM-demux $filtered_hto_matrix_dir $hto_name_gmm -u $summary -r gmm_demux_${sampleId}_$report_gmm --full gmm_demux_${sampleId} -o gmm_demux_${sampleId} $extract_droplets -t $threshold_gmm
             gmm_demux_params.py --path_hto $filtered_hto_matrix_dir --hto_name_gmm $hto_name_gmm --summary $summary --report gmm_demux_${sampleId}_$report_gmm --mode $mode_GMM $extract_droplets  --threshold_gmm $threshold_gmm $ambiguous_droplets --outputdir gmm_demux_${sampleId}
@@ -62,6 +64,7 @@ process gmm_demux{
 workflow gmm_demux_hashing{
 take: 
         input_list
+
   main:
         summary = params.summary
         report_gmm = params.report_gmm

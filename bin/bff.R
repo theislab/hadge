@@ -9,16 +9,11 @@ if(!require("cellhashR")){
   library("cellhashR")
 }
 
+
 library(cellhashR)
 library(here)
 library(dplyr)
 library(argparse)
-
-if(!require("tidyverse")){
-      install.packages("tidyverse")
-      library("tidyverse")
-}
-
 
 # Create a parser
 parser <- ArgumentParser("Parameters for BFF")

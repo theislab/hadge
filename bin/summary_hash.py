@@ -61,7 +61,6 @@ def demuxem_summary(demuxem_res, raw_adata, raw_mudata):
         demuxem_assign.index = demuxem_assign.Barcode
         demuxem_assign = demuxem_assign.drop(columns=["Barcode"])
         assign.append(demuxem_assign)
-        print(assign)
         if raw_adata is not None:
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
@@ -172,6 +171,9 @@ def hashsolo_summary(hashsolo_res, raw_adata, raw_mudata):
 
         hashsolo_classi = obs_res[["most_likely_hypothesis"]]
         hashsolo_classi_copy = hashsolo_classi.copy()
+        hashsolo_classi_copy["most_likely_hypothesis"] = hashsolo_classi_copy[
+            "most_likely_hypothesis"
+        ].astype(object)
         hashsolo_classi_copy.loc[
             hashsolo_classi_copy["most_likely_hypothesis"] == 0.0,
             "most_likely_hypothesis",
@@ -322,6 +324,7 @@ def multiseq_summary(multiseq_res, raw_adata, raw_mudata):
         assign.append(multiseq_assign)
 
         if raw_adata is not None:
+            print("raw_adata is not None")
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
                 multiseq_assign, left_index=True, right_index=True, how="left"
@@ -395,6 +398,7 @@ def htodemux_summary(htodemux_res, raw_adata, raw_mudata):
         assign.append(htodemux_assign)
 
         if raw_adata is not None:
+            print("raw_adata is not None")
             adata = raw_adata.copy()
             adata.obs = adata.obs.merge(
                 htodemux_assign, left_index=True, right_index=True, how="left"
@@ -518,7 +522,6 @@ def gmm_summary(gmmDemux_res, raw_adata, raw_mudata):
         # Create classification following the assignment found for the barcodes
         # we keep the original assigment and add a classification column
         def _classify_hash(row, number_hashes):
-            print(f"current row: {row}")
             if row == 0:
                 return "negative"
             elif row > 0 and row <= number_hashes:
@@ -559,7 +562,6 @@ def gmm_summary(gmmDemux_res, raw_adata, raw_mudata):
             else row["assignment"],
             axis=1,
         )
-        print(merged)
 
         gmm_dt["Classification"] = merged["Classification"]
         gmm_dt["Assignment"] = merged["assignment"]
@@ -685,8 +687,7 @@ def bff_summary(bff_res, raw_adata, raw_mudata):
             )
 
             assign.append(dt_assign)
-            print("assign bff barcodes")
-            print(assign)
+
             if raw_adata is not None:
                 adata = raw_adata.copy()
                 adata.obs = adata.obs.merge(
@@ -739,8 +740,7 @@ def bff_summary(bff_res, raw_adata, raw_mudata):
             dt_classi["Barcode"] = dt_classi["Barcode"].apply(
                 lambda x: x + "-1" if isinstance(x, str) else x
             )
-            print("classification bff barcodes")
-            print(assign)
+
             classi.append(dt_classi)
 
         params_dir = os.path.join(

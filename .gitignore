@@ -7,3 +7,5 @@ testing/
 testing*
 *.pyc
 docs/build/
+nextflow_internal.config
+nextflow_internal.config

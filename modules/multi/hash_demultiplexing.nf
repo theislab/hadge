@@ -17,7 +17,7 @@ process summary{
     conda "pandas scanpy mudata"
 
     input:
-        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(hashedDrops_result), val(demuxem_result), val(hashsolo_result), val(multiseq_result), val(htodemux_result), val(gmmDemux_result), val(bff_result))
+        tuple(val(sampleId), path(hto_matrix, stageAs: 'hto_data'), path(rna_matrix, stageAs: 'rna_data'), val(demuxem_result), val(hashedDrops_result), val(hashsolo_result), val(multiseq_result), val(htodemux_result), val(gmmDemux_result), val(bff_result))
         val generate_anndata
         val generate_mudata
         
@@ -35,27 +35,28 @@ process summary{
         def generate_adata = ""
         def generate_mdata = ""
         
-         if (demuxem_result != "no_result"){
-            demuxem_files = "--demuxem ${demuxem_res}"
-        }
-        if (hashsolo_result != "no_result"){
-            hashsolo_files = "--hashsolo ${hashsolo_res}"
-        }
-        if (htodemux_result != "no_result"){
-            htodemux_files = "--htodemux ${htodemux_res}"
-        }
-        if (multiseq_result != "no_result"){
-            multiseq_files = "--multiseq ${multiseq_res}"
+        if (demuxem_result != "no_result"){
+            demuxem_files = "--demuxem ${demuxem_result}"
         }
         if (hashedDrops_result != "no_result"){
-            hashedDrops_files = "--hashedDrops ${hashedDrops_res}"
+            hashedDrops_files = "--hashedDrops ${hashedDrops_result}"
+        }
+        if (hashsolo_result != "no_result"){
+            hashsolo_files = "--hashsolo ${hashsolo_result}"
+        }
+        if (multiseq_result != "no_result"){
+            multiseq_files = "--multiseq ${multiseq_result}"
+        }
+        if (htodemux_result != "no_result"){
+            htodemux_files = "--htodemux ${htodemux_result}"
         }
         if (gmmDemux_result != "no_result"){
-            gmmDemux_files = "--gmm_demux ${gmmDemux_res}"
+            gmmDemux_files = "--gmm_demux ${gmmDemux_result}"
         }
         if (bff_result != "no_result"){
-            bff_files = "--bff ${bff_res}"
+            bff_files = "--bff ${bff_result}"
         }
+        
         if (generate_anndata == "True"){
             if(rna_matrix.name == "None"){
                 error "Error: RNA count matrix is not given."
@@ -159,7 +160,6 @@ workflow hash_demultiplexing{
                     | map { row-> tuple(row.sampleId, params.hto_matrix_bff == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered )}
                     | bff_hashing
             bff_out = bff_hashing.out
-            print("BFF path to output")
         }
         else{
             bff_out = channel.value("no_result")
@@ -167,7 +167,9 @@ workflow hash_demultiplexing{
         if (params.gmmDemux == "True"){
             input_channel \
                     | splitCsv(header:true) \
-                    | map { row-> tuple(row.sampleId, params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered, row.hto_name_gmm )}
+                    | map { row-> tuple(row.sampleId, 
+                                        params.hto_matrix_gmm_demux == "raw" ? row.hto_matrix_raw : row.hto_matrix_filtered,
+                                        params.hto_name_gmm )}
                     | gmm_demux_hashing
             gmmDemux_out = gmm_demux_hashing.out
         }
@@ -187,11 +189,10 @@ workflow hash_demultiplexing{
         demuxem_out_ch = demuxem_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*demuxem_",""), r1 )}
         hashedDrops_out_ch = hashedDrops_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*hashedDrops_",""), r1 )}
         bff_out_ch = bff_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*bff_",""), r1 )}
-        gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmmDemux",""), r1 )}
-        
-        summary_input = input_list_summary.join(hashedDrops_out_ch,by:0,remainder: true).join(demuxem_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
+        gmmDemux_out_ch = gmmDemux_out.flatten().map{r1-> tuple(    "$r1".replaceAll(".*gmm_demux_",""), r1 )}
+
+        summary_input = input_list_summary.join(demuxem_out_ch,by:0,remainder: true).join(hashedDrops_out_ch,by:0,remainder: true).join(hashsolo_out_ch,by:0,remainder: true).join(multiseq_out_ch,by:0,remainder: true).join(htodemux_out_ch,by:0,remainder: true).join(gmmDemux_out_ch,by:0,remainder: true).join(bff_out_ch,by:0,remainder: true)
         summary_input = summary_input.filter{ it[0] != 'no_result' }
-        
         summary(summary_input,
                 params.generate_anndata, params.generate_mudata)
                 
