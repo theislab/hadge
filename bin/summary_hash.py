@@ -672,12 +672,12 @@ def bff_summary(bff_res, raw_adata, raw_mudata):
                 if column in dt_assign.columns:
                     dt_assign = dt_assign.drop([column], axis=1)
             # dt_assign.loc[dt_assign["consensuscall"] == "Singlet", "consensuscall"] = "singlet"
-            dt_assign.loc[
-                dt_assign["consensuscall"] == "Doublet", "consensuscall"
-            ] = "doublet"
-            dt_assign.loc[
-                dt_assign["consensuscall"] == "Negative", "consensuscall"
-            ] = "negative"
+            dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = (
+                "doublet"
+            )
+            dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = (
+                "negative"
+            )
             dt_assign["consensuscall"] = dt_assign["consensuscall"].astype("category")
             dt_assign = dt_assign.rename(
                 columns={"cellbarcode": "Barcode", "consensuscall": os.path.basename(x)}

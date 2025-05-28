@@ -4,6 +4,10 @@ library(DropletUtils)
 library(Seurat)
 library(ggplot2)
 library(cowplot)
+if(!require("cellhashR")){
+  remotes::install_git("https://github.com/bimberlab/cellhashR.git")
+  library("cellhashR")
+}
 
 
 library(cellhashR)
