@@ -4,17 +4,22 @@ outputdir="test_data"
 mkdir -p $outputdir && cd $outputdir
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1leRqeX9BDvZHtSncG6QTbQmUsQJOPlZq' -O jurkat_293t_exons_only.vcf.withAF.vcf.gz
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=12iyB7J55wRtC01L7dYuPlQKzcQdjZKe6' -O jurkat_293t_downsampled_n500_full_bam.bam.bai
+
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=14HZgDCn1wBjDMDrQNIWiegA2rgu-Efz5' -O jurkat_293t_demuxlet.best
+
 # need to download this with gdown because it's a big file and it requires a confirmation dialogue
 FILEID="16I0P2eWj9tqkJ9BwakcZ2RMN_VCXkAv1"
 FILENAME="jurkat_293t_downsampled_n500_full_bam.bam"
 pip install gdown
 gdown --id $FILEID -O $FILENAME
 
-wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MmwEiOsdzEfRdXS6oXXBwMJXUovKWcni' -O final_res.zip
-unzip final_res.zip
-rm final_res.zip
-mv final_res/jurkat_293t_demuxlet.best .
-rm -rf final_res
+# block this part
+#wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MmwEiOsdzEfRdXS6oXXBwMJXUovKWcni' -O final_res.zip
+#unzip final_res.zip
+#rm final_res.zip
+#mv final_res/jurkat_293t_demuxlet.best .
+#rm -rf final_res
+
 # To run souporcell, unzip VCF file
 gzip -dk jurkat_293t_exons_only.vcf.withAF.vcf.gz
 
