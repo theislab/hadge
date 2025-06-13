@@ -1,4 +1,8 @@
 workflow HASH_DEMULTIPLEXING {
+
+    take:
+    methods // list of strings
+
     main:
 
     ch_versions = Channel.empty()

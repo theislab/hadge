@@ -29,18 +29,18 @@ workflow HADGE {
     ch_multiqc_files = Channel.empty()
 
     if (params.mode == 'genetic') {
-        GENETIC_DEMULTIPLEXING()
+        GENETIC_DEMULTIPLEXING(params.genetic_tools.split(','))
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'hashing') {
-        HASH_DEMULTIPLEXING()
+        HASH_DEMULTIPLEXING(params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'rescue') {
-        HASH_DEMULTIPLEXING()
+        HASH_DEMULTIPLEXING(params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
 
-        DONOR_MATCHING()
+        DONOR_MATCHING(params.genetic_tools.split(','))
         ch_versions = ch_versions.mix(DONOR_MATCHING.out.versions)
     }
 
