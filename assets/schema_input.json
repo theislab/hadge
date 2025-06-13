@@ -13,38 +13,27 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "rna_matrix_raw": {
+            "rna_matrix": {
                 "type": "string",
                 "format": "directory-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+$",
-                "errorMessage": "RNA matrix raw must be provided, cannot contain spaces and must have extension '.mtx'"
+                "errorMessage": "RNA matrix must be provided and cannot contain spaces"
             },
-            "rna_matrix_filtered": {
+            "hto_matrix": {
                 "type": "string",
                 "format": "directory-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+$",
-                "errorMessage": "RNA matrix filtered must be provided, cannot contain spaces and must have extension '.mtx'"
-            },
-            "hto_matrix_raw": {
-                "type": "string",
-                "format": "directory-path",
-                "exists": true,
-                "pattern": "^\\S+$",
-                "errorMessage": "HTO matrix raw must be provided, cannot contain spaces and must have extension '.mtx'"
-            },
-            "hto_matrix_filtered": {
-                "type": "string",
-                "format": "directory-path",
-                "exists": true,
-                "pattern": "^\\S+$",
-                "errorMessage": "HTO matrix filtered must be provided, cannot contain spaces and must have extension '.mtx'"
+                "errorMessage": "HTO matrix must be provided and cannot contain spaces"
             },
             "bam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+\\.bam$",
                 "errorMessage": "BAM file must be provided, cannot contain spaces and must have extension '.bam'"
             },
@@ -52,6 +41,7 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+\\.bam\\.bai$",
                 "errorMessage": "BAM index file must be provided, cannot contain spaces and must have extension '.bam.bai'"
             },
@@ -59,6 +49,7 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+\\.tsv$",
                 "errorMessage": "Barcodes file must be provided, cannot contain spaces and must have extension '.tsv'"
             },
@@ -71,6 +62,7 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+\\.vcf$",
                 "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
             },
@@ -78,6 +70,7 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
+                "default": null,
                 "pattern": "^\\S+\\.vcf$",
                 "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
             }

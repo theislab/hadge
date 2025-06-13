@@ -145,11 +145,11 @@ def validateInputParameters() {
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
-    def (_meta, rna_matrix_raw, rna_matrix_filtered, hto_matrix_raw, hto_matrix_filtered, bam, bai, barcodes, nsample, cell_data, vcf_mixed, vcf_donor) = input
+    def (_meta, rna_matrix, hto_matrix, bam, bai, barcodes, nsample, cell_data, vcf_mixed, vcf_donor) = input
 
     if (params.mode == 'hashing') {
-        if (rna_matrix_raw == null || rna_matrix_filtered == null || hto_matrix_raw == null || hto_matrix_filtered == null) {
-            error("RNA matrix raw, RNA matrix filtered, HTO matrix raw, and HTO matrix filtered must be provided for hashing mode. Please check your input samplesheet.")
+        if (rna_matrix == null || hto_matrix == null) {
+            error("RNA matrix and HTO matrix must be provided for hashing mode. Please check your input samplesheet.")
         }
     }
     else if (params.mode == 'genetic') {
@@ -158,8 +158,8 @@ def validateInputSamplesheet(input) {
         }
     }
     else if (params.mode == 'rescue') {
-        if (rna_matrix_raw == null || rna_matrix_filtered == null || hto_matrix_raw == null || hto_matrix_filtered == null || bam == null || bai == null || barcodes == null || nsample == null || cell_data == null || vcf_mixed == null || vcf_donor == null) {
-            error("RNA matrix raw, RNA matrix filtered, HTO matrix raw, HTO matrix filtered, BAM file, BAM index file, barcodes file, number of samples, cell data, VCF file for mixed samples, and VCF file for donor samples must be provided for rescue mode. Please check your input samplesheet.")
+        if (rna_matrix == null || hto_matrix == null || bam == null || bai == null || barcodes == null || nsample == null || cell_data == null || vcf_mixed == null || vcf_donor == null) {
+            error("RNA matrix, HTO matrix, BAM file, BAM index file, barcodes file, number of samples, cell data, VCF file for mixed samples, and VCF file for donor samples must be provided for rescue mode. Please check your input samplesheet.")
         }
     }
 }
