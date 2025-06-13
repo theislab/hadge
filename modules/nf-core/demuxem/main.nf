@@ -9,7 +9,6 @@ process DEMUXEM {
 
     input:
     tuple val(meta), path(input_raw_gene_bc_matrices_h5), path(input_hto_csv_file)
-    val output_name
     val generate_gender_plot
     val genome
     val generate_diagnostic_plots
@@ -29,15 +28,15 @@ process DEMUXEM {
     def genome_file = genome ? "--genome ${genome}" : ""
     def diagnostic_plots = generate_diagnostic_plots ? "--generate-diagnostic-plots ${generate_diagnostic_plots}" : ""
     """
-    demuxEM ${input_raw_gene_bc_matrices_h5} \\
-    ${input_hto_csv_file} ${output_name} \\
-    ${args} \\
-    ${generateGenderPlot}\\
-    ${genome_file}\\
-    ${diagnostic_plots}
+    demuxEM ${input_raw_gene_bc_matrices_h5} ${input_hto_csv_file} ${prefix} \\
+        ${args} \\
+        ${generateGenderPlot}\\
+        ${genome_file}\\
+        ${diagnostic_plots}
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":g
-    echo \$(demuxEM --version  2>&1)
+        echo \$(demuxEM --version  2>&1)
     END_VERSIONS
     """
 
