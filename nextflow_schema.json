@@ -30,6 +30,12 @@
                     "enum": ["genetic", "hashing", "rescue", "donor_match"],
                     "default": "rescue"
                 },
+                "match_donor": {
+                    "type": "boolean",
+                    "description": "Match donor.",
+                    "fa_icon": "fas fa-cog",
+                    "default": false
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
