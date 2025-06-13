@@ -1,8 +1,13 @@
+include { DEMUXEM } from '../../../modules/nf-core/demuxem'
+
 workflow HASH_DEMULTIPLEXING {
     take:
-    methods // list of strings
+    ch_samplesheet // channel: samplesheet read in from --input
+    methods        // list of strings
 
     main:
+
+    ch_samplesheet.view()
 
     ch_versions = Channel.empty()
 
@@ -13,6 +18,7 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('cellhashr')) {
     }
     if (methods.contains('demuxem')) {
+        DEMUXEM(ch_samplesheet, "test", true, [], true)
     }
     if (methods.contains('gmm-demux')) {
     }

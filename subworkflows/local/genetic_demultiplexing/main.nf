@@ -1,6 +1,7 @@
 workflow GENETIC_DEMULTIPLEXING {
     take:
-    methods // list of strings
+    ch_samplesheet // channel: samplesheet read in from --input
+    methods        // list of strings
 
     main:
 

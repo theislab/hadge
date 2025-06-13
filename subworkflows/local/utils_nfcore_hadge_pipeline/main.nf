@@ -162,6 +162,8 @@ def validateInputSamplesheet(input) {
             error("RNA matrix, HTO matrix, BAM file, BAM index file, barcodes file, number of samples, cell data, VCF file for mixed samples, and VCF file for donor samples must be provided for rescue mode. Please check your input samplesheet.")
         }
     }
+
+    return input
 }
 
 //

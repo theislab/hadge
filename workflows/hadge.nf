@@ -28,19 +28,27 @@ workflow HADGE {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+    ch_hashing = ch_samplesheet.map { meta, rna_matrix, hto_matrix, _bam, _bai, _barcodes, _nsample, _vcf_mixed, _vcf_donor ->
+        [meta, rna_matrix, hto_matrix]
+    }
+
+    ch_genetic = ch_samplesheet.map { meta, _rna_matrix, _hto_matrix, bam, bai, barcodes, nsample, vcf_mixed, vcf_donor ->
+        [meta, bam, bai, barcodes, nsample, vcf_mixed, vcf_donor]
+    }
+
     if (params.mode == 'genetic') {
-        GENETIC_DEMULTIPLEXING(params.genetic_tools.split(','))
+        GENETIC_DEMULTIPLEXING(ch_genetic, params.genetic_tools.split(','))
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'hashing') {
-        HASH_DEMULTIPLEXING(params.hash_tools.split(','))
+        HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'rescue') {
-        HASH_DEMULTIPLEXING(params.hash_tools.split(','))
+        HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
 
-        DONOR_MATCHING(params.genetic_tools.split(','))
+        GENETIC_DEMULTIPLEXING(ch_genetic, params.genetic_tools.split(','))
         ch_versions = ch_versions.mix(DONOR_MATCHING.out.versions)
     }
 
