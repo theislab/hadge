@@ -12,5 +12,7 @@ template:
   version: 1.0.0dev
   force: true
   outdir: .
-  skip_features: []
+  skip_features: [
+    "fastqc"
+  ]
   is_nfcore: true
