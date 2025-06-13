@@ -36,6 +36,22 @@
                     "fa_icon": "fas fa-cog",
                     "default": false
                 },
+                "hash_tools": {
+                    "type": "string",
+                    "description": "Tools used for hash demultiplexing.",
+                    "help_text": "If you want to use multiple, separate with a comma. The available tools are: htodemux, multiseq, cellhashr, demuxem, gmm-demux, hasheddrops, hashsolo",
+                    "fa_icon": "fas fa-cog",
+                    "default": "gmm-demux",
+                    "pattern": "^(htodemux|multiseq|cellhashr|demuxem|gmm-demux|hasheddrops|hashsolo)(,(htodemux|multiseq|cellhashr|demuxem|gmm-demux|hasheddrops|hashsolo))*$"
+                },
+                "genetic_tools": {
+                    "type": "string",
+                    "description": "Tools used for genetic demultiplexing.",
+                    "help_text": "If you want to use multiple, separate with a comma. The available tools are: vireo, demuxlet, freemuxlet, souporcell, cellsnp",
+                    "fa_icon": "fas fa-cog",
+                    "default": "vireo",
+                    "pattern": "^(vireo|demuxlet|freemuxlet|souporcell|cellsnp)(,(vireo|demuxlet|freemuxlet|souporcell|cellsnp))*$"
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
