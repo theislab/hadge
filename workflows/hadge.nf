@@ -9,6 +9,10 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hadge_pipeline'
 
+include { GENETIC_DEMULTIPLEXING } from '../subworkflows/local/genetic_demultiplexing/main'
+include { HASH_DEMULTIPLEXING    } from '../subworkflows/local/hash_demultiplexing/main'
+include { DONOR_MATCHING         } from '../subworkflows/local/donor_matching/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -24,6 +28,19 @@ workflow HADGE {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+
+    if (params.mode == 'genetic') {
+        GENETIC_DEMULTIPLEXING(ch_samplesheet)
+    } else if (params.mode == 'hashing') {
+        HASH_DEMULTIPLEXING(ch_samplesheet)
+    } else if (params.mode == 'rescue') {
+        HASH_DEMULTIPLEXING(ch_samplesheet)
+        DONOR_MATCHING(ch_samplesheet)
+    }
+
+    if (params.mode == 'donor_match' || params.match_donor) {
+        DONOR_MATCHING(ch_samplesheet)
+    }
 
     //
     // Collate and save software versions
