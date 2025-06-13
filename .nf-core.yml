@@ -3,12 +3,12 @@ nf_core_version: 3.3.1
 repository_type: pipeline
 template:
   author: Fabiola Curion
-  version: 1.0.0dev
-  force: true
-  outdir: .
-  skip_features: [
-    "fastqc"
-  ]
+  description: Comprehensive pipeline for donor demultiplexing in single cell
+  force: false
   is_nfcore: true
   name: hadge
   org: nf-core
+  outdir: .
+  skip_features:
+    - fastqc
+  version: 1.0.0dev
