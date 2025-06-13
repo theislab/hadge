@@ -19,6 +19,7 @@ workflow HADGE {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+
     main:
 
     ch_versions = Channel.empty()

@@ -11,23 +11,67 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "meta": [
+                    "id"
+                ]
             },
-            "fastq_1": {
+            "rna_matrix_raw": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "pattern": "^\\S+$",
+                "errorMessage": "RNA matrix raw must be provided, cannot contain spaces and must have extension '.mtx'"
+            },
+            "rna_matrix_filtered": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "pattern": "^\\S+$",
+                "errorMessage": "RNA matrix filtered must be provided, cannot contain spaces and must have extension '.mtx'"
+            },
+            "hto_matrix_raw": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "pattern": "^\\S+$",
+                "errorMessage": "HTO matrix raw must be provided, cannot contain spaces and must have extension '.mtx'"
+            },
+            "hto_matrix_filtered": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "pattern": "^\\S+$",
+                "errorMessage": "HTO matrix filtered must be provided, cannot contain spaces and must have extension '.mtx'"
+            },
+            "bam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "BAM file must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "fastq_2": {
+            "bai": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.bam\\.bai$",
+                "errorMessage": "BAM index file must be provided, cannot contain spaces and must have extension '.bam.bai'"
+            },
+            "barcodes": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.tsv$",
+                "errorMessage": "Barcodes file must be provided, cannot contain spaces and must have extension '.tsv'"
+            },
+            "nsample": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "Number of samples must be provided and must be greater than 0"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": [
+            "sample"
+        ]
     }
 }
