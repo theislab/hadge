@@ -11,9 +11,7 @@
                 "type": "string",
                 "pattern": "^\\S+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": [
-                    "id"
-                ]
+                "meta": ["id"]
             },
             "rna_matrix_raw": {
                 "type": "string",
@@ -68,10 +66,22 @@
                 "type": "integer",
                 "minimum": 1,
                 "errorMessage": "Number of samples must be provided and must be greater than 0"
+            },
+            "vcf_mixed": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.vcf$",
+                "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
+            },
+            "vcf_donor": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.vcf$",
+                "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
             }
         },
-        "required": [
-            "sample"
-        ]
+        "required": ["sample"]
     }
 }
