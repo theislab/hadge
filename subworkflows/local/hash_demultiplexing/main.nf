@@ -1,4 +1,6 @@
-include { DEMUXEM } from '../../../modules/nf-core/demuxem'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
+include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -7,9 +9,13 @@ workflow HASH_DEMULTIPLEXING {
 
     main:
 
-    ch_samplesheet.view()
-
     ch_versions = Channel.empty()
+
+    MTXCONVERT_RNA(ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }, false)
+    ch_versions = ch_versions.mix(MTXCONVERT_RNA.out.versions)
+
+    MTXCONVERT_HTO(ch_samplesheet.map { meta, _rna, hto -> [meta, hto] }, true)
+    ch_versions = ch_versions.mix(MTXCONVERT_HTO.out.versions)
 
     if (methods.contains('htodemux')) {
     }
@@ -18,7 +24,13 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('cellhashr')) {
     }
     if (methods.contains('demuxem')) {
-        DEMUXEM(ch_samplesheet, "test", true, [], true)
+        DEMUXEM(
+            MTXCONVERT_RNA.out.h5.join(MTXCONVERT_HTO.out.csv),
+            true,
+            [],
+            true,
+        )
+        ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
     if (methods.contains('gmm-demux')) {
     }

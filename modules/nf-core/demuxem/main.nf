@@ -4,8 +4,8 @@ process DEMUXEM {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/demuxem:0.1.7.post1--pyhdfd78af_0'
-        : 'biocontainers/demuxem:0.1.7.post1--pyhdfd78af_0'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/0d/0d3f96aaa8437bfa1654570e1d2b84749f1ac14d68f97978acc19b3757af7f55/data'
+        : 'community.wave.seqera.io/library/demuxem:0.1.7.post1--5ac55376ad7cb80e'}"
 
     input:
     tuple val(meta), path(input_raw_gene_bc_matrices_h5), path(input_hto_csv_file)
@@ -29,13 +29,10 @@ process DEMUXEM {
     def diagnostic_plots = generate_diagnostic_plots ? "--generate-diagnostic-plots ${generate_diagnostic_plots}" : ""
     """
     demuxEM ${input_raw_gene_bc_matrices_h5} ${input_hto_csv_file} ${prefix} \\
-        ${args} \\
-        ${generateGenderPlot}\\
-        ${genome_file}\\
-        ${diagnostic_plots}
+        -p $task.cpus
 
     cat <<-END_VERSIONS > versions.yml
-    "${task.process}":g
+    "${task.process}":
         echo \$(demuxEM --version  2>&1)
     END_VERSIONS
     """
