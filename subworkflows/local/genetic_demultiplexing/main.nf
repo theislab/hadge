@@ -46,7 +46,9 @@ workflow GENETIC_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(VIREO.out.versions)
     }
     if (methods.contains('demuxlet')) {
-        POPSCLE_DEMUXLET(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, [], bam, vcf] })
+        POPSCLE_DEMUXLET(
+            POPSCLE_DSCPILEUP.out.plp.join(ch_samplesheet).map { meta, plp, bam, _barcodes, _nsample, vcf -> [meta, plp, bam, vcf] }
+        )
         ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)
     }
     if (methods.contains('freemuxlet')) {
