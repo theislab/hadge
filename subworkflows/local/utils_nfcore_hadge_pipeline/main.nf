@@ -153,8 +153,14 @@ def validateInputSamplesheet(input) {
         }
     }
     else if (params.mode == 'genetic') {
+        def methods = params.genetic_tools.split(',')
+
         if (bam == null || vcf == null) {
             error("BAM file and VCF file must be provided for genetic mode. Please check your input samplesheet.")
+        }
+
+        if (methods.contains('freemuxlet') && nsample == null) {
+            error("Number of samples not provided for sample ${_meta.id}. This is required for freemuxlet.")
         }
     }
     else if (params.mode == 'rescue') {

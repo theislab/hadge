@@ -1,6 +1,7 @@
-include { SAMTOOLS_INDEX    } from '../../../modules/nf-core/samtools/index'
-include { POPSCLE_DSCPILEUP } from '../../../modules/nf-core/popscle/dscpileup'
-include { POPSCLE_DEMUXLET  } from '../../../modules/nf-core/popscle/demuxlet'
+include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index'
+include { POPSCLE_DSCPILEUP  } from '../../../modules/nf-core/popscle/dscpileup'
+include { POPSCLE_DEMUXLET   } from '../../../modules/nf-core/popscle/demuxlet'
+include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet'
 
 workflow GENETIC_DEMULTIPLEXING {
     take:
@@ -27,7 +28,10 @@ workflow GENETIC_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)
     }
     if (methods.contains('freemuxlet')) {
-        error("Freemuxlet not implemented")
+        POPSCLE_FREEMUXLET(
+            POPSCLE_DSCPILEUP.out.directory.join(ch_samplesheet).map { meta, plp_dir, _bam, _barcodes, n_sample, _vcf -> [meta, plp_dir, n_sample] }
+        )
+        ch_versions = ch_versions.mix(POPSCLE_FREEMUXLET.out.versions)
     }
     if (methods.contains('souporcell')) {
         error("Souporcell not implemented")
