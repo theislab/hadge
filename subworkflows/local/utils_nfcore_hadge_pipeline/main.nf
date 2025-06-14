@@ -145,7 +145,7 @@ def validateInputParameters() {
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
-    def (_meta, rna_matrix, hto_matrix, bam, bai, barcodes, nsample, cell_data, vcf_mixed, vcf_donor) = input
+    def (_meta, rna_matrix, hto_matrix, bam, barcodes, nsample, vcf) = input
 
     if (params.mode == 'hashing') {
         if (rna_matrix == null || hto_matrix == null) {
@@ -153,13 +153,13 @@ def validateInputSamplesheet(input) {
         }
     }
     else if (params.mode == 'genetic') {
-        if (bam == null || bai == null || barcodes == null || nsample == null || cell_data == null || vcf_mixed == null || vcf_donor == null) {
-            error("BAM file, BAM index file, barcodes file, number of samples, cell data, VCF file for mixed samples, and VCF file for donor samples must be provided for genetic mode. Please check your input samplesheet.")
+        if (bam == null || vcf == null) {
+            error("BAM file and VCF file must be provided for genetic mode. Please check your input samplesheet.")
         }
     }
     else if (params.mode == 'rescue') {
-        if (rna_matrix == null || hto_matrix == null || bam == null || bai == null || barcodes == null || nsample == null || cell_data == null || vcf_mixed == null || vcf_donor == null) {
-            error("RNA matrix, HTO matrix, BAM file, BAM index file, barcodes file, number of samples, cell data, VCF file for mixed samples, and VCF file for donor samples must be provided for rescue mode. Please check your input samplesheet.")
+        if (rna_matrix == null || hto_matrix == null || bam == null || barcodes == null || nsample == null || cell_data == null || vcf == null) {
+            error("RNA matrix, HTO matrix, BAM file, barcodes file, number of samples, cell data, and VCF file must be provided for rescue mode. Please check your input samplesheet.")
         }
     }
 

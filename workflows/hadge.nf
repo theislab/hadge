@@ -28,12 +28,12 @@ workflow HADGE {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    ch_hashing = ch_samplesheet.map { meta, rna_matrix, hto_matrix, _bam, _bai, _barcodes, _nsample, _vcf_mixed, _vcf_donor ->
+    ch_hashing = ch_samplesheet.map { meta, rna_matrix, hto_matrix, _bam, _barcodes, _nsample, _vcf ->
         [meta, rna_matrix, hto_matrix]
     }
 
-    ch_genetic = ch_samplesheet.map { meta, _rna_matrix, _hto_matrix, bam, bai, barcodes, nsample, vcf_mixed, vcf_donor ->
-        [meta, bam, bai, barcodes, nsample, vcf_mixed, vcf_donor]
+    ch_genetic = ch_samplesheet.map { meta, _rna_matrix, _hto_matrix, bam, barcodes, nsample, vcf ->
+        [meta, bam, barcodes, nsample, vcf]
     }
 
     if (params.mode == 'genetic') {

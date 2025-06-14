@@ -37,14 +37,6 @@
                 "pattern": "^\\S+\\.bam$",
                 "errorMessage": "BAM file must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "bai": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "default": null,
-                "pattern": "^\\S+\\.bam\\.bai$",
-                "errorMessage": "BAM index file must be provided, cannot contain spaces and must have extension '.bam.bai'"
-            },
             "barcodes": {
                 "type": "string",
                 "format": "file-path",
@@ -58,15 +50,7 @@
                 "minimum": 1,
                 "errorMessage": "Number of samples must be provided and must be greater than 0"
             },
-            "vcf_mixed": {
-                "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "default": null,
-                "pattern": "^\\S+\\.vcf$",
-                "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
-            },
-            "vcf_donor": {
+            "vcf": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
