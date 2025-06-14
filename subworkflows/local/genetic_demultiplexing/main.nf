@@ -1,4 +1,5 @@
 include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index'
+include { CELLSNP_MODEA      } from '../../../modules/nf-core/cellsnp/modea'
 include { POPSCLE_DSCPILEUP  } from '../../../modules/nf-core/popscle/dscpileup'
 include { POPSCLE_DEMUXLET   } from '../../../modules/nf-core/popscle/demuxlet'
 include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet'
@@ -12,8 +13,6 @@ workflow GENETIC_DEMULTIPLEXING {
 
     ch_versions = Channel.empty()
 
-    SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _nsample, _vcf -> [meta, bam] })
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
         POPSCLE_DSCPILEUP(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, bam, vcf] })
@@ -21,7 +20,15 @@ workflow GENETIC_DEMULTIPLEXING {
     }
 
     if (methods.contains('vireo')) {
-        error("Vireo not implemented")
+        SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _nsample, _vcf -> [meta, bam] })
+        ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
+
+        CELLSNP_MODEA(
+            ch_samplesheet
+                .join(SAMTOOLS_INDEX.out.bai)
+                .map { meta, bam, barcodes, _nsample, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
+        )
+        ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
     }
     if (methods.contains('demuxlet')) {
         POPSCLE_DEMUXLET(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, [], bam, vcf] })

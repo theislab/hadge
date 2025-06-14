@@ -159,8 +159,12 @@ def validateInputSamplesheet(input) {
             error("BAM file and VCF file must be provided for genetic mode. Please check your input samplesheet.")
         }
 
-        if (methods.contains('freemuxlet') && nsample == null) {
+        if (methods.contains('freemuxlet') && !nsample) {
             error("Number of samples not provided for sample ${_meta.id}. This is required for freemuxlet.")
+        }
+
+        if (methods.contains('vireo') && !barcodes) {
+            error("Barcodes file must be provided for vireo. Please check your input samplesheet.")
         }
     }
     else if (params.mode == 'rescue') {
