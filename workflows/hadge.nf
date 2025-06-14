@@ -36,20 +36,17 @@ workflow HADGE {
         [meta, bam, barcodes, nsample, vcf]
     }
 
-    if (params.mode == 'genetic') {
-        GENETIC_DEMULTIPLEXING(ch_genetic, params.genetic_tools.split(','))
+    if (params.mode == 'genetic' || params.mode == 'rescue') {
+        GENETIC_DEMULTIPLEXING(
+            ch_genetic,
+            params.genetic_tools.split(','),
+            params.bam_qc
+        )
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
-    else if (params.mode == 'hashing') {
+    else if (params.mode == 'hashing' || params.mode == 'rescue') {
         HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-    }
-    else if (params.mode == 'rescue') {
-        HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
-        ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-
-        GENETIC_DEMULTIPLEXING(ch_genetic, params.genetic_tools.split(','))
-        ch_versions = ch_versions.mix(DONOR_MATCHING.out.versions)
     }
 
     if (params.mode == 'donor_match' || params.match_donor) {

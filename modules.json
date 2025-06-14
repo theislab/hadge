@@ -46,6 +46,21 @@
                         "git_sha": "d090922b1a4b80ba283186459ababf8e308abcbb",
                         "installed_by": ["modules"]
                     },
+                    "samtools/sort": {
+                        "branch": "master",
+                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/view": {
+                        "branch": "master",
+                        "git_sha": "d090922b1a4b80ba283186459ababf8e308abcbb",
+                        "installed_by": ["modules"]
+                    },
+                    "umitools/dedup": {
+                        "branch": "master",
+                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "installed_by": ["modules"]
+                    },
                     "vireo": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",

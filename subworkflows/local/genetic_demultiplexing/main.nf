@@ -1,3 +1,5 @@
+include { BAM_QC             } from '../bam_qc'
+
 include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index'
 include { CELLSNP_MODEA      } from '../../../modules/nf-core/cellsnp/modea'
 include { VIREO              } from '../../../modules/nf-core/vireo'
@@ -9,11 +11,20 @@ workflow GENETIC_DEMULTIPLEXING {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
     methods        // list of strings
+    bam_qc         // boolean
 
     main:
 
     ch_versions = Channel.empty()
 
+    if (bam_qc) {
+        BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _nsample, _vcf -> [meta, bam] })
+        ch_versions = ch_versions.mix(BAM_QC.out.versions)
+
+        ch_samplesheet = ch_samplesheet
+            .join(BAM_QC.out.bam)
+            .map { meta, _bam, barcodes, nsample, vcf, new_bam -> [meta, new_bam, barcodes, nsample, vcf] }
+    }
 
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
         POPSCLE_DSCPILEUP(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, bam, vcf] })
@@ -25,16 +36,12 @@ workflow GENETIC_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
         CELLSNP_MODEA(
-            ch_samplesheet
-                .join(SAMTOOLS_INDEX.out.bai)
-                .map { meta, bam, barcodes, _nsample, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
+            ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, _nsample, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
         ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
 
         VIREO(
-            ch_samplesheet
-                .join(CELLSNP_MODEA.out.cell)
-                .map { meta, _bam, _barcodes, nsample, vcf, cell -> [meta, cell, nsample, vcf, []] }
+            ch_samplesheet.join(CELLSNP_MODEA.out.cell).map { meta, _bam, _barcodes, nsample, vcf, cell -> [meta, cell, nsample, vcf, []] }
         )
         ch_versions = ch_versions.mix(VIREO.out.versions)
     }

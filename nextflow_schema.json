@@ -52,6 +52,12 @@
                     "default": "vireo",
                     "pattern": "^(vireo|demuxlet|freemuxlet|souporcell|cellsnp)(,(vireo|demuxlet|freemuxlet|souporcell|cellsnp))*$"
                 },
+                "bam_qc": {
+                    "type": "boolean",
+                    "description": "Perform BAM QC.",
+                    "fa_icon": "fas fa-cog",
+                    "default": true
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
