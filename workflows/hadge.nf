@@ -40,7 +40,8 @@ workflow HADGE {
         GENETIC_DEMULTIPLEXING(
             ch_genetic,
             params.genetic_tools.split(','),
-            params.bam_qc
+            params.bam_qc,
+            params.common_variants
         )
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }

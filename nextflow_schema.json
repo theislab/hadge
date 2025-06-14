@@ -58,6 +58,14 @@
                     "fa_icon": "fas fa-cog",
                     "default": true
                 },
+                "common_variants": {
+                    "type": "string",
+                    "description": "File with common variants. If provided, the BAM files will be filtered to only include reads that overlap with the common variants.",
+                    "fa_icon": "fas fa-cog",
+                    "default": null,
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "exists": true
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",

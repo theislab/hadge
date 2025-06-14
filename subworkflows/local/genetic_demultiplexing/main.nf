@@ -1,5 +1,5 @@
 include { BAM_QC             } from '../bam_qc'
-
+include { FILTER_BAM         } from '../../../modules/local/filter_bam'
 include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index'
 include { CELLSNP_MODEA      } from '../../../modules/nf-core/cellsnp/modea'
 include { VIREO              } from '../../../modules/nf-core/vireo'
@@ -9,9 +9,10 @@ include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet
 
 workflow GENETIC_DEMULTIPLEXING {
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
-    methods        // list of strings
-    bam_qc         // boolean
+    ch_samplesheet  // channel: samplesheet read in from --input
+    methods         // list of strings
+    bam_qc          // boolean
+    common_variants // file
 
     main:
 
@@ -23,6 +24,24 @@ workflow GENETIC_DEMULTIPLEXING {
 
         ch_samplesheet = ch_samplesheet
             .join(BAM_QC.out.bam)
+            .map { meta, _bam, barcodes, nsample, vcf, new_bam -> [meta, new_bam, barcodes, nsample, vcf] }
+    }
+
+    if (common_variants) {
+        FILTER_BAM(
+            ch_samplesheet.map { meta, bam, barcodes, _nsample, _vcf ->
+                [
+                    meta,
+                    bam,
+                    barcodes,
+                ]
+            },
+            common_variants,
+        )
+        ch_versions = ch_versions.mix(FILTER_BAM.out.versions)
+
+        ch_samplesheet = ch_samplesheet
+            .join(FILTER_BAM.out.bam)
             .map { meta, _bam, barcodes, nsample, vcf, new_bam -> [meta, new_bam, barcodes, nsample, vcf] }
     }
 
