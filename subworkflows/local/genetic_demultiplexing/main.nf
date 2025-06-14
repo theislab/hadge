@@ -1,5 +1,6 @@
 include { SAMTOOLS_INDEX    } from '../../../modules/nf-core/samtools/index'
 include { POPSCLE_DSCPILEUP } from '../../../modules/nf-core/popscle/dscpileup'
+include { POPSCLE_DEMUXLET  } from '../../../modules/nf-core/popscle/demuxlet'
 
 workflow GENETIC_DEMULTIPLEXING {
     take:
@@ -22,6 +23,8 @@ workflow GENETIC_DEMULTIPLEXING {
         error("Vireo not implemented")
     }
     if (methods.contains('demuxlet')) {
+        POPSCLE_DEMUXLET(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, [], bam, vcf] })
+        ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)
     }
     if (methods.contains('freemuxlet')) {
         error("Freemuxlet not implemented")
