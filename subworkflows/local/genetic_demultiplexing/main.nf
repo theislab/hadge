@@ -1,5 +1,6 @@
 include { SAMTOOLS_INDEX     } from '../../../modules/nf-core/samtools/index'
 include { CELLSNP_MODEA      } from '../../../modules/nf-core/cellsnp/modea'
+include { VIREO              } from '../../../modules/nf-core/vireo'
 include { POPSCLE_DSCPILEUP  } from '../../../modules/nf-core/popscle/dscpileup'
 include { POPSCLE_DEMUXLET   } from '../../../modules/nf-core/popscle/demuxlet'
 include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet'
@@ -29,6 +30,13 @@ workflow GENETIC_DEMULTIPLEXING {
                 .map { meta, bam, barcodes, _nsample, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
         ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
+
+        VIREO(
+            ch_samplesheet
+                .join(CELLSNP_MODEA.out.cell)
+                .map { meta, _bam, _barcodes, nsample, vcf, cell -> [meta, cell, nsample, vcf, []] }
+        )
+        ch_versions = ch_versions.mix(VIREO.out.versions)
     }
     if (methods.contains('demuxlet')) {
         POPSCLE_DEMUXLET(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, [], bam, vcf] })
