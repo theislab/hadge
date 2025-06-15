@@ -364,6 +364,82 @@
                 }
             }
         },
+        "dsc_pileup_options": {
+            "title": "DSC-Pileup options",
+            "type": "object",
+            "fa_icon": "fas fa-layer-group",
+            "description": "Options specific to the DSC-Pileup tool for pileup generation from single-cell BAM files.",
+            "properties": {
+                "dsc_pileup_tag_group": {
+                    "type": "string",
+                    "description": "Tag representing readgroup or cell barcodes to partition the BAM file into multiple groups. For 10x Genomics, use CB.",
+                    "default": "CB",
+                    "fa_icon": "fas fa-tag"
+                },
+                "dsc_pileup_tag_umi": {
+                    "type": "string",
+                    "description": "Tag representing UMIs. For 10x Genomics, use UB.",
+                    "default": "UB",
+                    "fa_icon": "fas fa-fingerprint"
+                },
+                "dsc_pileup_cap_bq": {
+                    "type": "integer",
+                    "description": "Maximum base quality (higher BQ will be capped).",
+                    "default": 40,
+                    "minimum": 0,
+                    "maximum": 60,
+                    "fa_icon": "fas fa-arrow-up"
+                },
+                "dsc_pileup_min_bq": {
+                    "type": "integer",
+                    "description": "Minimum base quality to consider (lower BQ will be skipped).",
+                    "default": 13,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-arrow-down"
+                },
+                "dsc_pileup_min_mq": {
+                    "type": "integer",
+                    "description": "Minimum mapping quality to consider (lower MQ will be ignored).",
+                    "default": 20,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "dsc_pileup_min_td": {
+                    "type": "integer",
+                    "description": "Minimum distance to the tail (lower will be ignored).",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "dsc_pileup_excl_flag": {
+                    "type": "integer",
+                    "description": "SAM/BAM FLAGs to be excluded.",
+                    "default": 3844,
+                    "fa_icon": "fas fa-flag"
+                },
+                "dsc_pileup_min_total": {
+                    "type": "integer",
+                    "description": "Minimum number of total reads for a droplet/cell to be considered.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "dsc_pileup_min_uniq": {
+                    "type": "integer",
+                    "description": "Minimum number of unique reads (determined by UMI/SNP pair) for a droplet/cell to be considered.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-dna"
+                },
+                "dsc_pileup_min_snp": {
+                    "type": "integer",
+                    "description": "Minimum number of SNPs with coverage for a droplet/cell to be considered.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-project-diagram"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -528,6 +604,9 @@
         },
         {
             "$ref": "#/$defs/vireo_options"
+        },
+        {
+            "$ref": "#/$defs/dsc_pileup_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
