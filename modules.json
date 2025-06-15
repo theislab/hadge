@@ -8,7 +8,8 @@
                     "cellsnp/modea": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/cellsnp/modea/cellsnp-modea.diff"
                     },
                     "demuxem": {
                         "branch": "master",
@@ -19,7 +20,8 @@
                     "gmmdemux": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/gmmdemux/gmmdemux.diff"
                     },
                     "multiqc": {
                         "branch": "master",
@@ -29,12 +31,14 @@
                     "popscle/demuxlet": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/popscle/demuxlet/popscle-demuxlet.diff"
                     },
                     "popscle/dscpileup": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/popscle/dscpileup/popscle-dscpileup.diff"
                     },
                     "popscle/freemuxlet": {
                         "branch": "master",
