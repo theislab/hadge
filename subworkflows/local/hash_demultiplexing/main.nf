@@ -32,8 +32,8 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('demuxem')) {
         DEMUXEM(
             MTXCONVERT_RNA.out.h5.join(MTXCONVERT_HTO.out.csv),
-            "",
-            [],
+            params.demuxem_gender_genes,
+            params.genome ?: [],
             true,
         )
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)

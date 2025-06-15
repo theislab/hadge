@@ -8,7 +8,7 @@
         "input_output_options": {
             "title": "Input/output options",
             "type": "object",
-            "fa_icon": "fas fa-terminal",
+            "fa_icon": "fas fa-exchange-alt",
             "description": "Define where the pipeline should find input data and save output data.",
             "required": ["input", "mode", "outdir"],
             "properties": {
@@ -26,21 +26,21 @@
                 "mode": {
                     "type": "string",
                     "description": "Mode of the pipeline.",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-project-diagram",
                     "enum": ["genetic", "hashing", "rescue", "donor_match"],
                     "default": "rescue"
                 },
                 "match_donor": {
                     "type": "boolean",
                     "description": "Match donor.",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-user-check",
                     "default": false
                 },
                 "hash_tools": {
                     "type": "string",
                     "description": "Tools used for hash demultiplexing.",
                     "help_text": "If you want to use multiple, separate with a comma. The available tools are: htodemux, multiseq, cellhashr, demuxem, gmm-demux, hasheddrops, hashsolo",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-hashtag",
                     "default": "gmm-demux",
                     "pattern": "^(htodemux|multiseq|cellhashr|demuxem|gmm-demux|hasheddrops|hashsolo)(,(htodemux|multiseq|cellhashr|demuxem|gmm-demux|hasheddrops|hashsolo))*$"
                 },
@@ -48,20 +48,20 @@
                     "type": "string",
                     "description": "Tools used for genetic demultiplexing.",
                     "help_text": "If you want to use multiple, separate with a comma. The available tools are: vireo, demuxlet, freemuxlet, souporcell, cellsnp",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-dna",
                     "default": "vireo",
                     "pattern": "^(vireo|demuxlet|freemuxlet|souporcell|cellsnp)(,(vireo|demuxlet|freemuxlet|souporcell|cellsnp))*$"
                 },
                 "bam_qc": {
                     "type": "boolean",
                     "description": "Perform BAM QC.",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-chart-line",
                     "default": true
                 },
                 "common_variants": {
                     "type": "string",
                     "description": "File with common variants. If provided, the BAM files will be filtered to only include reads that overlap with the common variants.",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-dna",
                     "default": null,
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "exists": true
@@ -75,7 +75,7 @@
                 "save_intermediates": {
                     "type": "boolean",
                     "description": "Save intermediate files.",
-                    "fa_icon": "fas fa-cog",
+                    "fa_icon": "fas fa-save",
                     "default": false
                 },
                 "email": {
@@ -128,6 +128,50 @@
                     "fa_icon": "fas fa-ban",
                     "hidden": true,
                     "default": "s3://ngi-igenomes/igenomes/"
+                }
+            }
+        },
+        "demuxem_options": {
+            "title": "demuxEM options",
+            "type": "object",
+            "fa_icon": "fas fa-vial",
+            "description": "Options specific to the demuxEM tool for cell hashing demultiplexing.",
+            "properties": {
+                "demuxem_alpha_on_samples": {
+                    "type": "number",
+                    "description": "The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.",
+                    "default": 0.0,
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "demuxem_min_num_genes": {
+                    "type": "integer",
+                    "description": "Only demultiplex cells/nuclei with at least this number of expressed genes.",
+                    "default": 100,
+                    "fa_icon": "fas fa-sort-numeric-up"
+                },
+                "demuxem_min_num_umis": {
+                    "type": "integer",
+                    "description": "Only demultiplex cells/nuclei with at least this number of UMIs.",
+                    "default": 100,
+                    "fa_icon": "fas fa-sort-amount-up"
+                },
+                "demuxem_min_signal_hashtag": {
+                    "type": "number",
+                    "description": "Any cell/nucleus with less than this count of hashtags from the signal will be marked as unknown.",
+                    "default": 10,
+                    "fa_icon": "fas fa-signal"
+                },
+                "demuxem_random_state": {
+                    "type": "integer",
+                    "description": "The random seed used in the KMeans algorithm to separate empty ADT droplets from others.",
+                    "default": 0,
+                    "fa_icon": "fas fa-random"
+                },
+                "demuxem_gender_genes": {
+                    "type": "string",
+                    "description": "Comma-separated list of gender-specific genes (e.g. Xist) for generating violin plots.",
+                    "default": "",
+                    "fa_icon": "fas fa-venus-mars"
                 }
             }
         },
@@ -283,6 +327,9 @@
         },
         {
             "$ref": "#/$defs/reference_genome_options"
+        },
+        {
+            "$ref": "#/$defs/demuxem_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
