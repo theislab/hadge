@@ -211,6 +211,80 @@
                 }
             }
         },
+        "cellsnp_options": {
+            "title": "CellSNP-lite options",
+            "type": "object",
+            "fa_icon": "fas fa-dna",
+            "description": "Options specific to the CellSNP-lite tool for genotyping bi-allelic SNPs on single cells.",
+            "properties": {
+                "cellsnp_celltag": {
+                    "type": "string",
+                    "description": "Tag for cell barcodes, e.g., CB for 10x Genomics. Set to 'None' for bulk RNA-seq or SMART-seq2.",
+                    "default": "CB",
+                    "fa_icon": "fas fa-tag"
+                },
+                "cellsnp_umitag": {
+                    "type": "string",
+                    "description": "Tag for UMI barcodes, e.g., UB for 10x Genomics. Set to 'None' for bulk RNA-seq or SMART-seq2 without UMIs.",
+                    "default": "Auto",
+                    "fa_icon": "fas fa-fingerprint"
+                },
+                "cellsnp_mincount": {
+                    "type": "integer",
+                    "description": "Minimum aggregated count (across cells) for SNPs to be included in the output.",
+                    "default": 20,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "cellsnp_minmaf": {
+                    "type": "number",
+                    "description": "Minimum minor allele frequency (MAF) for SNPs to be included in the output.",
+                    "default": 0.0,
+                    "minimum": 0.0,
+                    "maximum": 0.5,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "cellsnp_inclflag": {
+                    "type": "string",
+                    "description": "Required flags in SAM/BAM: skip reads that don't have ALL of these flags. See SAM format specification for details.",
+                    "default": "",
+                    "fa_icon": "fas fa-flag"
+                },
+                "cellsnp_exclflag": {
+                    "type": "string",
+                    "description": "Excluding flags in SAM/BAM: skip reads that have ANY of these flags. See SAM format specification for details.",
+                    "default": "",
+                    "fa_icon": "fas fa-ban"
+                },
+                "cellsnp_minlen": {
+                    "type": "integer",
+                    "description": "Minimum read length (after clipping) for a read to be included.",
+                    "default": 30,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-ruler-horizontal"
+                },
+                "cellsnp_minmapq": {
+                    "type": "integer",
+                    "description": "Minimum mapping quality for a read to be included.",
+                    "default": 20,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "cellsnp_maxdepth": {
+                    "type": "integer",
+                    "description": "Maximum read depth at a position per input file. Set to 0 for highest possible value.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-layer-group"
+                },
+                "cellsnp_countorphan": {
+                    "type": "boolean",
+                    "description": "If true, do not skip anomalous read pairs (i.e., count orphan reads).",
+                    "default": false,
+                    "fa_icon": "fas fa-child"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -369,6 +443,9 @@
         },
         {
             "$ref": "#/$defs/gmmdemux_options"
+        },
+        {
+            "$ref": "#/$defs/cellsnp_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
