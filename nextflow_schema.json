@@ -285,6 +285,85 @@
                 }
             }
         },
+        "vireo_options": {
+            "title": "Vireo options",
+            "type": "object",
+            "fa_icon": "fas fa-users",
+            "description": "Options specific to the Vireo tool for donor demultiplexing from single-cell RNA-seq data.",
+            "properties": {
+                "vireo_genotag": {
+                    "type": "string",
+                    "description": "The tag for donor genotype in VCF file. Options: GT, GP, PL.",
+                    "default": "GT",
+                    "enum": ["GT", "GP", "PL"],
+                    "fa_icon": "fas fa-tag"
+                },
+                "vireo_no_doublet": {
+                    "type": "boolean",
+                    "description": "If true, do not check for doublets during demultiplexing.",
+                    "default": false,
+                    "fa_icon": "fas fa-object-ungroup"
+                },
+                "vireo_n_init": {
+                    "type": "integer",
+                    "description": "Number of random initializations when GT needs to be learned.",
+                    "default": 50,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-redo"
+                },
+                "vireo_extra_donor": {
+                    "type": "integer",
+                    "description": "Number of extra donors in pre-cluster, when GT needs to be learned.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-user-plus"
+                },
+                "vireo_extra_donor_mode": {
+                    "type": "string",
+                    "description": "Method for searching from extra donors. 'size': n_cell per donor; 'distance': GT distance between donors.",
+                    "default": "distance",
+                    "enum": ["size", "distance"],
+                    "fa_icon": "fas fa-search"
+                },
+                "vireo_force_learn_gt": {
+                    "type": "boolean",
+                    "description": "If true, treat donor GT as prior only and learn genotypes from data.",
+                    "default": false,
+                    "fa_icon": "fas fa-graduation-cap"
+                },
+                "vireo_ase_mode": {
+                    "type": "boolean",
+                    "description": "If true, turn on SNP specific allelic ratio (ASE mode).",
+                    "default": false,
+                    "fa_icon": "fas fa-adjust"
+                },
+                "vireo_no_plot": {
+                    "type": "boolean",
+                    "description": "If true, turn off plotting GT distance.",
+                    "default": false,
+                    "fa_icon": "fas fa-chart-bar"
+                },
+                "vireo_rand_seed": {
+                    "type": "integer",
+                    "description": "Random seed for initialization.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-random"
+                },
+                "vireo_cell_range": {
+                    "type": "string",
+                    "description": "Range of cells to process, e.g., '0-10000'. Default is 'all'.",
+                    "default": "all",
+                    "fa_icon": "fas fa-filter"
+                },
+                "vireo_cell_ambient_rnas": {
+                    "type": "boolean",
+                    "description": "If true, detect ambient RNAs in each cell (experimental feature).",
+                    "default": false,
+                    "fa_icon": "fas fa-flask"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -446,6 +525,9 @@
         },
         {
             "$ref": "#/$defs/cellsnp_options"
+        },
+        {
+            "$ref": "#/$defs/vireo_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
