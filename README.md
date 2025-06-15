@@ -20,7 +20,7 @@
 
 ## Introduction
 
-**nf-core/hadge** is a bioinformatics pipeline that ...
+**nf-core/hadge** is a comprehensive pipeline for donor demultiplexing in single cell.
 
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
