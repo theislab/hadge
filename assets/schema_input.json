@@ -45,10 +45,11 @@
                 "pattern": "^\\S+\\.tsv$",
                 "errorMessage": "Barcodes file must be provided, cannot contain spaces and must have extension '.tsv'"
             },
-            "nsample": {
+            "n_samples": {
                 "type": "integer",
                 "minimum": 1,
-                "errorMessage": "Number of samples must be provided and must be greater than 0"
+                "errorMessage": "Number of samples must be greater than 0",
+                "meta": ["n_samples"]
             },
             "vcf": {
                 "type": "string",
@@ -57,6 +58,12 @@
                 "default": null,
                 "pattern": "^\\S+\\.vcf$",
                 "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
+            },
+            "n_cells": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "Number of cells must be an integer greater than 0",
+                "meta": ["n_cells"]
             }
         },
         "required": ["sample"]

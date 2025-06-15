@@ -141,30 +141,36 @@
                     "type": "number",
                     "description": "The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.",
                     "default": 0.0,
+                    "minimum": 0,
+                    "maximum": 1,
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "demuxem_min_num_genes": {
                     "type": "integer",
                     "description": "Only demultiplex cells/nuclei with at least this number of expressed genes.",
                     "default": 100,
+                    "minimum": 0,
                     "fa_icon": "fas fa-sort-numeric-up"
                 },
                 "demuxem_min_num_umis": {
                     "type": "integer",
                     "description": "Only demultiplex cells/nuclei with at least this number of UMIs.",
                     "default": 100,
+                    "minimum": 0,
                     "fa_icon": "fas fa-sort-amount-up"
                 },
                 "demuxem_min_signal_hashtag": {
                     "type": "number",
                     "description": "Any cell/nucleus with less than this count of hashtags from the signal will be marked as unknown.",
                     "default": 10,
+                    "minimum": 0,
                     "fa_icon": "fas fa-signal"
                 },
                 "demuxem_random_state": {
                     "type": "integer",
                     "description": "The random seed used in the KMeans algorithm to separate empty ADT droplets from others.",
                     "default": 0,
+                    "minimum": 0,
                     "fa_icon": "fas fa-random"
                 },
                 "demuxem_gender_genes": {
@@ -172,6 +178,36 @@
                     "description": "Comma-separated list of gender-specific genes (e.g. Xist) for generating violin plots.",
                     "default": "",
                     "fa_icon": "fas fa-venus-mars"
+                }
+            }
+        },
+        "gmmdemux_options": {
+            "title": "GMM-Demux options",
+            "type": "object",
+            "fa_icon": "fas fa-layer-group",
+            "description": "Options specific to the GMM-Demux tool for cell hashing demultiplexing.",
+            "properties": {
+                "gmmdemux_extract": {
+                    "type": "string",
+                    "description": "Names of the HTO tag(s) to extract, separated by ','. Joint HTO samples are combined with '+', such as 'HTO_1+HTO_2'.",
+                    "default": null,
+                    "fa_icon": "fas fa-filter"
+                },
+                "gmmdemux_threshold": {
+                    "type": "number",
+                    "description": "The confidence threshold value for classification. A higher value leads to more stringent classification.",
+                    "default": 0.8,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-percentage",
+                    "help_text": "Requires a float in (0,1). Default value: 0.8"
+                },
+                "gmmdemux_random_state": {
+                    "type": "integer",
+                    "description": "The random seed used in the GaussianMixture algorithm.",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-dice"
                 }
             }
         },
@@ -330,6 +366,9 @@
         },
         {
             "$ref": "#/$defs/demuxem_options"
+        },
+        {
+            "$ref": "#/$defs/gmmdemux_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

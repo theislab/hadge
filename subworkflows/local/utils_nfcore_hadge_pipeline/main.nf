@@ -145,34 +145,6 @@ def validateInputParameters() {
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
-    def (_meta, rna_matrix, hto_matrix, bam, barcodes, nsample, vcf) = input
-
-    if (params.mode == 'hashing') {
-        if (rna_matrix == null || hto_matrix == null) {
-            error("RNA matrix and HTO matrix must be provided for hashing mode. Please check your input samplesheet.")
-        }
-    }
-    else if (params.mode == 'genetic') {
-        def methods = params.genetic_tools.split(',')
-
-        if (bam == null || vcf == null) {
-            error("BAM file and VCF file must be provided for genetic mode. Please check your input samplesheet.")
-        }
-
-        if (methods.contains('freemuxlet') && !nsample) {
-            error("Number of samples not provided for sample ${_meta.id}. This is required for freemuxlet.")
-        }
-
-        if (methods.contains('vireo') && !barcodes) {
-            error("Barcodes file must be provided for vireo. Please check your input samplesheet.")
-        }
-    }
-    else if (params.mode == 'rescue') {
-        if (rna_matrix == null || hto_matrix == null || bam == null || barcodes == null || nsample == null || vcf == null) {
-            error("RNA matrix, HTO matrix, BAM file, barcodes file, number of samples, and VCF file must be provided for rescue mode. Please check your input samplesheet.")
-        }
-    }
-
     return input
 }
 

@@ -19,17 +19,17 @@ workflow GENETIC_DEMULTIPLEXING {
     ch_versions = Channel.empty()
 
     if (bam_qc) {
-        BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _nsample, _vcf -> [meta, bam] })
+        BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
         ch_versions = ch_versions.mix(BAM_QC.out.versions)
 
         ch_samplesheet = ch_samplesheet
             .join(BAM_QC.out.bam)
-            .map { meta, _bam, barcodes, nsample, vcf, new_bam -> [meta, new_bam, barcodes, nsample, vcf] }
+            .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
     }
 
     if (common_variants) {
         FILTER_BAM(
-            ch_samplesheet.map { meta, bam, barcodes, _nsample, _vcf ->
+            ch_samplesheet.map { meta, bam, barcodes, _vcf ->
                 [
                     meta,
                     bam,
@@ -42,38 +42,37 @@ workflow GENETIC_DEMULTIPLEXING {
 
         ch_samplesheet = ch_samplesheet
             .join(FILTER_BAM.out.bam)
-            .map { meta, _bam, barcodes, nsample, vcf, new_bam -> [meta, new_bam, barcodes, nsample, vcf] }
+            .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
     }
 
 
     if (methods.contains('vireo')) {
-        SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _nsample, _vcf -> [meta, bam] })
+        SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
         CELLSNP_MODEA(
-            ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, _nsample, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
+            ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
         ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
 
         VIREO(
-            ch_samplesheet.join(CELLSNP_MODEA.out.cell).map { meta, _bam, _barcodes, nsample, vcf, cell -> [meta, cell, nsample, vcf, []] }
+            ch_samplesheet.join(CELLSNP_MODEA.out.cell).map { meta, _bam, _barcodes, vcf, cell -> [meta, cell, meta.n_samples, vcf, []] }
         )
         ch_versions = ch_versions.mix(VIREO.out.versions)
     }
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
-        POPSCLE_DSCPILEUP(ch_samplesheet.map { meta, bam, _barcodes, _nsample, vcf -> [meta, bam, vcf] })
+        ch_dscpileup = ch_samplesheet.map { meta, bam, _barcodes, vcf -> [meta, bam, vcf] }
+        POPSCLE_DSCPILEUP(ch_dscpileup)
         ch_versions = ch_versions.mix(POPSCLE_DSCPILEUP.out.versions)
 
         if (methods.contains('demuxlet')) {
-            POPSCLE_DEMUXLET(
-                POPSCLE_DSCPILEUP.out.plp.join(ch_samplesheet).map { meta, plp, bam, _barcodes, _nsample, vcf -> [meta, plp, bam, vcf] }
-            )
+            ch_demuxlet = POPSCLE_DSCPILEUP.out.plp.join(ch_samplesheet).map { meta, plp, bam, _barcodes, vcf -> [meta, plp, bam, vcf] }
+            POPSCLE_DEMUXLET(ch_demuxlet)
             ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)
         }
         if (methods.contains('freemuxlet')) {
-            POPSCLE_FREEMUXLET(
-                POPSCLE_DSCPILEUP.out.directory.join(ch_samplesheet).map { meta, plp_dir, _bam, _barcodes, n_sample, _vcf -> [meta, plp_dir, n_sample] }
-            )
+            ch_freemuxlet = POPSCLE_DSCPILEUP.out.directory.join(ch_samplesheet).map { meta, plp_dir, _bam, _barcodes, _vcf -> [meta, plp_dir, meta.n_samples] }
+            POPSCLE_FREEMUXLET(ch_freemuxlet)
             ch_versions = ch_versions.mix(POPSCLE_FREEMUXLET.out.versions)
         }
     }
