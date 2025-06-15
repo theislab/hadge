@@ -32,7 +32,7 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('demuxem')) {
         DEMUXEM(
             MTXCONVERT_RNA.out.h5.join(MTXCONVERT_HTO.out.csv),
-            true,
+            "",
             [],
             true,
         )

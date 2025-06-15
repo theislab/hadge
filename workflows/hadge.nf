@@ -45,7 +45,7 @@ workflow HADGE {
         )
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
-    else if (params.mode == 'hashing' || params.mode == 'rescue') {
+    if (params.mode == 'hashing' || params.mode == 'rescue') {
         HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }

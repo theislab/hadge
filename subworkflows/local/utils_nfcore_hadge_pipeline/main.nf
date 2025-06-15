@@ -168,8 +168,8 @@ def validateInputSamplesheet(input) {
         }
     }
     else if (params.mode == 'rescue') {
-        if (rna_matrix == null || hto_matrix == null || bam == null || barcodes == null || nsample == null || cell_data == null || vcf == null) {
-            error("RNA matrix, HTO matrix, BAM file, barcodes file, number of samples, cell data, and VCF file must be provided for rescue mode. Please check your input samplesheet.")
+        if (rna_matrix == null || hto_matrix == null || bam == null || barcodes == null || nsample == null || vcf == null) {
+            error("RNA matrix, HTO matrix, BAM file, barcodes file, number of samples, and VCF file must be provided for rescue mode. Please check your input samplesheet.")
         }
     }
 
