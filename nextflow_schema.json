@@ -440,6 +440,136 @@
                 }
             }
         },
+        "demuxlet_options": {
+            "title": "Demuxlet options",
+            "type": "object",
+            "fa_icon": "fas fa-users-cog",
+            "description": "Options specific to the Demuxlet tool for genotype-based demultiplexing of single-cell RNA-seq data.",
+            "properties": {
+                "demuxlet_field": {
+                    "type": "string",
+                    "description": "FORMAT field to extract the genotype, likelihood, or posterior from.",
+                    "default": "GT",
+                    "fa_icon": "fas fa-tag"
+                },
+                "demuxlet_geno_error_offset": {
+                    "type": "number",
+                    "description": "Offset of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]",
+                    "default": 0.1,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "demuxlet_geno_error_coeff": {
+                    "type": "number",
+                    "description": "Slope of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]",
+                    "default": 0.0,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "demuxlet_r2_info": {
+                    "type": "string",
+                    "description": "INFO field name representing R2 value. Used for representing imputation quality.",
+                    "default": "R2",
+                    "fa_icon": "fas fa-info-circle"
+                },
+                "demuxlet_min_mac": {
+                    "type": "integer",
+                    "description": "Minimum minor allele frequency.",
+                    "default": 1,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-numeric-down"
+                },
+                "demuxlet_min_callrate": {
+                    "type": "number",
+                    "description": "Minimum call rate.",
+                    "default": 0.5,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-phone"
+                },
+                "demuxlet_alpha": {
+                    "type": "string",
+                    "description": "Grid of alpha to search for.",
+                    "default": "0.1,0.2,0.3,0.4,0.5",
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "demuxlet_doublet_prior": {
+                    "type": "number",
+                    "description": "Prior probability of doublet.",
+                    "default": 0.5,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-object-group"
+                }
+            }
+        },
+        "freemuxlet_options": {
+            "title": "Freemuxlet options",
+            "type": "object",
+            "fa_icon": "fas fa-users",
+            "description": "Options specific to the Freemuxlet tool for reference-free genotype-based demultiplexing.",
+            "properties": {
+                "freemuxlet_doublet_prior": {
+                    "type": "number",
+                    "description": "Prior probability of doublet.",
+                    "default": 0.5,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-object-group"
+                },
+                "freemuxlet_geno_error": {
+                    "type": "number",
+                    "description": "Genotype error parameter per cluster.",
+                    "default": 0.1,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-exclamation-triangle"
+                },
+                "freemuxlet_bf_thres": {
+                    "type": "number",
+                    "description": "Bayes Factor Threshold used in the initial clustering.",
+                    "default": 5.41,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-balance-scale"
+                },
+                "freemuxlet_frac_init_clust": {
+                    "type": "number",
+                    "description": "Fraction of droplets to be clustered in the very first round of initial clustering procedure.",
+                    "default": 1.0,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-object-ungroup"
+                },
+                "freemuxlet_iter_init": {
+                    "type": "integer",
+                    "description": "Iteration for initial cluster assignment (set to zero to skip the iterations).",
+                    "default": 10,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-redo"
+                },
+                "freemuxlet_keep_init_missing": {
+                    "type": "boolean",
+                    "description": "Keep missing cluster assignment as missing in the initial iteration.",
+                    "default": false,
+                    "fa_icon": "fas fa-question-circle"
+                },
+                "freemuxlet_randomize_singlet_score": {
+                    "type": "boolean",
+                    "description": "Randomize the singlet scores to test its effect.",
+                    "default": false,
+                    "fa_icon": "fas fa-random"
+                },
+                "freemuxlet_seed": {
+                    "type": "integer",
+                    "description": "Seed for random number (use clocks if not set).",
+                    "default": 0,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-dice"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -607,6 +737,12 @@
         },
         {
             "$ref": "#/$defs/dsc_pileup_options"
+        },
+        {
+            "$ref": "#/$defs/demuxlet_options"
+        },
+        {
+            "$ref": "#/$defs/freemuxlet_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
