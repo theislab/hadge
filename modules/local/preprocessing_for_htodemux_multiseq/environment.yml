@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::r-base>=4.0
+  - conda-forge::r-seurat>=4.0 

@@ -3,7 +3,7 @@ include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/loc
 include { HASHEDDROPS                               } from '../../../modules/nf-core/hasheddrops'
 include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                  } from '../../../modules/nf-core/gmmdemux'
-
+include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -14,12 +14,21 @@ workflow HASH_DEMULTIPLEXING {
 
     ch_versions = Channel.empty()
 
-    if (methods.contains('htodemux')) {
-        error("HtoDemux not implemented")
+    if (methods.contains('htodemux') || methods.contains('multiseq')) {
+        // run preprocessing for htodemux and multiseq
+        PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
+            ch_samplesheet
+        )
+        ch_versions = ch_versions.mix(PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.versions)
+
+        if (methods.contains('htodemux')) {
+            // error("HtoDemux not implemented")
+        }
+        if (methods.contains('multiseq')) {
+            error("MultiSeq not implemented")
+        }
     }
-    if (methods.contains('multiseq')) {
-        error("MultiSeq not implemented")
-    }
+
     if (methods.contains('cellhashr')) {
         error("CellHashR not implemented")
     }
