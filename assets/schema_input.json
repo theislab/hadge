@@ -64,6 +64,12 @@
                 "minimum": 1,
                 "errorMessage": "Number of cells must be an integer greater than 0",
                 "meta": ["n_cells"]
+            },
+            "hto_names": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "HTO names must be provided and cannot contain spaces",
+                "meta": ["hto_names"]
             }
         },
         "required": ["sample"]

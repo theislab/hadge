@@ -26,9 +26,19 @@
                         "git_sha": "ac3ee5db3835e45ff9b9f03274f45049bd7028a3",
                         "installed_by": ["modules"]
                     },
+                    "htodemux": {
+                        "branch": "master",
+                        "git_sha": "e793890476782166ebaabded864cca7a5b0438dd",
+                        "installed_by": ["modules"]
+                    },
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "e594e9dfaffa7572afc11bafc634984fd4cbd87b",
+                        "installed_by": ["modules"]
+                    },
+                    "multiseqdemux": {
+                        "branch": "master",
+                        "git_sha": "ea8d54b6ad1e8f55abdceed1ce7828360e134ebd",
                         "installed_by": ["modules"]
                     },
                     "popscle/demuxlet": {

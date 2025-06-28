@@ -3,12 +3,13 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c9/c9f81df3cdd03c86a8133f74c0deb78719798c061895e4d9dd454f05e82ff93e/data'
-        : 'community.wave.seqera.io/library/r-seurat:5.3.0--eeb977835038859a'}"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'oras://community.wave.seqera.io/library/r-seurat:5.3.0--00f94834f5eea080':
+        'community.wave.seqera.io/library/r-seurat:5.3.0--eeb977835038859a' }"
+
 
     input:
-    tuple val(meta), path(hto_matrix), path(rna_matrix)
+    tuple val(meta), path(rna_matrix), path(hto_matrix)
 
     output:
     tuple val(meta), path("*_preprocessed.rds")        , emit: seurat_object

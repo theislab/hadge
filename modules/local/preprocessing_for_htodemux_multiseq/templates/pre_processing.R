@@ -102,3 +102,19 @@ Value <- c(
 
 params <- data.frame(Argument, Value)
 write.csv(params, paste0(prefix, "_params_preprocessing.csv")) 
+
+################################################
+################################################
+## SAVE VERSIONS                              ##
+################################################
+################################################
+
+# Save versions file
+cat(
+    paste0(
+        '"PREPROCESSING_FOR_HTODEMUX_MULTISEQ":\n',
+        '    r-base: "', R.version.string, '"\n',
+        '    r-seurat: "', as.character(packageVersion("Seurat")), '"\n'
+    ),
+    file = "versions.yml"
+) 

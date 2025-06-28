@@ -1,9 +1,11 @@
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
-include { HASHEDDROPS                               } from '../../../modules/nf-core/hasheddrops'
+include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
+include { HTODEMUX                                  } from '../../../modules/nf-core/htodemux'
+include { MULTISEQDEMUX                             } from '../../../modules/nf-core/multiseqdemux'
 include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                  } from '../../../modules/nf-core/gmmdemux'
-include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
+include { HASHEDDROPS                               } from '../../../modules/nf-core/hasheddrops'
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -22,10 +24,16 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.versions)
 
         if (methods.contains('htodemux')) {
-            // error("HtoDemux not implemented")
+            HTODEMUX(
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+            )
+            ch_versions = ch_versions.mix(HTODEMUX.out.versions)
         }
         if (methods.contains('multiseq')) {
-            error("MultiSeq not implemented")
+            MULTISEQDEMUX(
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+            )
+            ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
     }
 
