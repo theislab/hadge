@@ -46,4 +46,4 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
         r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
     END_VERSIONS
     """
-} 
+}

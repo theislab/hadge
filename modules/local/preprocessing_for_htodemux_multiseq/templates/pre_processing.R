@@ -75,7 +75,7 @@ saveRDS(hashtag, file = paste0(prefix, "_preprocessed.rds"))
 # Save parameters
 Argument <- c(
   "hto_matrix",
-  "rna_matrix", 
+  "rna_matrix",
   "sel_method",
   "ndelim",
   "n_features",
@@ -98,7 +98,7 @@ Value <- c(
 )
 
 params <- data.frame(Argument, Value)
-write.csv(params, paste0(prefix, "_params_preprocessing.csv")) 
+write.csv(params, paste0(prefix, "_params_preprocessing.csv"))
 
 ################################################
 ################################################
