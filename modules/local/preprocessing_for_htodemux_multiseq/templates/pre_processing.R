@@ -15,7 +15,6 @@ n_features <- as.numeric('$n_features')
 assay <- '$assay'
 margin <- as.numeric('$margin')
 norm_method <- '$norm_method'
-preprocessOut <- '$preprocessOut'
 gene_col <- as.numeric('$gene_col')
 prefix <- '$prefix'
 
@@ -83,7 +82,6 @@ Argument <- c(
   "assay",
   "margin",
   "norm_method",
-  "preprocessOut",
   "gene_col"
 )
 
@@ -96,7 +94,6 @@ Value <- c(
   assay,
   margin,
   norm_method,
-  preprocessOut,
   gene_col
 )
 
@@ -109,12 +106,18 @@ write.csv(params, paste0(prefix, "_params_preprocessing.csv"))
 ################################################
 ################################################
 
-# Save versions file
-cat(
-    paste0(
-        '"PREPROCESSING_FOR_HTODEMUX_MULTISEQ":\n',
-        '    r-base: "', R.version.string, '"\n',
-        '    r-seurat: "', as.character(packageVersion("Seurat")), '"\n'
+r.version <- paste(R.version[['major']],R.version[['minor']], sep = ".")
+seurat.version <- as.character(packageVersion('Seurat'))
+
+writeLines(
+    c(
+        '"${task.process}":',
+        paste('    r-base:', r.version),
+        paste('    seurat:', seurat.version)
     ),
-    file = "versions.yml"
-) 
+'versions.yml')
+
+################################################
+################################################
+################################################
+################################################

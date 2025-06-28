@@ -17,7 +17,19 @@ workflow HASH_DEMULTIPLEXING {
     ch_versions = Channel.empty()
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
-        // run preprocessing for htodemux and multiseq
+
+
+        ch_samplesheet.map { meta, rna, hto ->
+            {
+                if (!rna) {
+                    error("RNA matrix not provided for sample ${meta.id}, but this is required for HTODEMUX and MULTISEQDEMUX. Please check your input samplesheet.")
+                }
+                if (!hto) {
+                    error("HTO matrix not provided for sample ${meta.id}, but this is required for HTODEMUX and MULTISEQDEMUX. Please check your input samplesheet.")
+                }
+            }
+        }
+
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
             ch_samplesheet
         )

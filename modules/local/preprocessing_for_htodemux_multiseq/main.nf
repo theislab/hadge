@@ -21,17 +21,16 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
 
     script:
     // preprocessing parameters
-    sel_method       = task.ext.sel_method       ?: "mean.var.plot"
-    ndelim           = task.ext.ndelim           ?: "_"
-    n_features       = task.ext.n_features       ?: "2000"
-    assay            = task.ext.assay            ?: "HTO"
-    margin           = task.ext.margin           ?: "2"
-    norm_method      = task.ext.norm_method      ?: "CLR"
-    preprocessOut    = task.ext.preprocessOut    ?: "preprocessed"
-    gene_col         = task.ext.gene_col         ?: "2"
+    sel_method  = task.ext.sel_method  ?: "mean.var.plot" // Selection method
+    ndelim      = task.ext.ndelim      ?: "_"             // For the initial identity class for each cell, delimiter for the cell's column name
+    n_features  = task.ext.n_features  ?: "2000"          // Number of features to be used when finding variable features
+    assay       = task.ext.assay       ?: "HTO"           // Assay name for hashing modality
+    margin      = task.ext.margin      ?: "2"             // Margin for normalisation
+    norm_method = task.ext.norm_method ?: "CLR"           // Normalisation method
+    gene_col    = task.ext.gene_col    ?: "2"             // Specify which column of genes.tsv or features.tsv to use for gene names
 
     // others
-    prefix           = task.ext.prefix           ?: "${meta.id}"
+    prefix      = task.ext.prefix      ?: "${meta.id}"
 
     template 'pre_processing.R'
 
@@ -45,7 +44,6 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
     "${task.process}":
         r-base: \$(Rscript -e "cat(strsplit(R.version[['version.string']], ' ')[[1]][3])")
         r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
-        r-argparse: \$(Rscript -e "library(argparse); cat(as.character(packageVersion('argparse')))")
     END_VERSIONS
     """
 } 
