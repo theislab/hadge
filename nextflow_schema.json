@@ -211,6 +211,312 @@
                 }
             }
         },
+        "htodemux_options": {
+            "title": "HTODemux options",
+            "type": "object",
+            "fa_icon": "fas fa-tags",
+            "description": "Options specific to the HTODemux tool for cell hashing demultiplexing.",
+            "properties": {
+                "htodemux_quantile": {
+                    "type": "number",
+                    "description": "The quantile to use for thresholding.",
+                    "default": 0.99,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "htodemux_init": {
+                    "type": "string",
+                    "description": "Initialization method for clustering.",
+                    "default": "NULL",
+                    "fa_icon": "fas fa-play"
+                },
+                "htodemux_nstarts": {
+                    "type": "integer",
+                    "description": "Number of starts for clustering.",
+                    "default": 100,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-redo"
+                },
+                "htodemux_kfunc": {
+                    "type": "string",
+                    "description": "Clustering function to use.",
+                    "default": "clara",
+                    "fa_icon": "fas fa-sitemap"
+                },
+                "htodemux_nsamples": {
+                    "type": "integer",
+                    "description": "Number of samples for clustering.",
+                    "default": 100,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-layer-group"
+                },
+                "htodemux_seed": {
+                    "type": "integer",
+                    "description": "Random seed for reproducibility.",
+                    "default": 42,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-dice"
+                },
+                "htodemux_verbose": {
+                    "type": "string",
+                    "description": "Whether to print verbose output.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-volume-up"
+                }
+            }
+        },
+        "multiseqdemux_options": {
+            "title": "MultiSeqDemux options",
+            "type": "object",
+            "fa_icon": "fas fa-list-ol",
+            "description": "Options specific to the MultiSeqDemux tool for cell hashing demultiplexing.",
+            "properties": {
+                "multiseqdemux_quantile": {
+                    "type": "number",
+                    "description": "The quantile to use for thresholding.",
+                    "default": 0.7,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "multiseqdemux_autoThresh": {
+                    "type": "string",
+                    "description": "Whether to automatically determine thresholds.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-magic"
+                },
+                "multiseqdemux_maxiter": {
+                    "type": "integer",
+                    "description": "Maximum number of iterations.",
+                    "default": 5,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-sync"
+                },
+                "multiseqdemux_qrangeFrom": {
+                    "type": "number",
+                    "description": "Start of quantile range.",
+                    "default": 0.1,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-arrow-left"
+                },
+                "multiseqdemux_qrangeTo": {
+                    "type": "number",
+                    "description": "End of quantile range.",
+                    "default": 0.9,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-arrow-right"
+                },
+                "multiseqdemux_qrangeBy": {
+                    "type": "number",
+                    "description": "Step size for quantile range.",
+                    "default": 0.05,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-ruler"
+                },
+                "multiseqdemux_verbose": {
+                    "type": "string",
+                    "description": "Whether to print verbose output.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-volume-up"
+                }
+            }
+        },
+        "hasheddrops_options": {
+            "title": "HashedDrops options",
+            "type": "object",
+            "fa_icon": "fas fa-tint",
+            "description": "Options specific to the HashedDrops tool for cell hashing demultiplexing.",
+            "properties": {
+                "hasheddrops_lower": {
+                    "type": "integer",
+                    "description": "Lower bound on total UMI count for empty droplets.",
+                    "default": 100,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "hasheddrops_niters": {
+                    "type": "integer",
+                    "description": "Number of iterations for Monte Carlo p-value calculations.",
+                    "default": 10000,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-redo"
+                },
+                "hasheddrops_testAmbient": {
+                    "type": "string",
+                    "description": "Whether to test ambient RNA.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-flask"
+                },
+                "hasheddrops_round": {
+                    "type": "string",
+                    "description": "Whether to round non-integer values.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-circle"
+                },
+                "hasheddrops_byRank": {
+                    "type": "string",
+                    "description": "Alternative method for identifying empty droplets.",
+                    "default": "NULL",
+                    "fa_icon": "fas fa-sort-numeric-down"
+                },
+                "hasheddrops_isCellFDR": {
+                    "type": "number",
+                    "description": "FDR threshold for cell filtering.",
+                    "default": 0.01,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-filter"
+                },
+                "hasheddrops_gene_col": {
+                    "type": "integer",
+                    "description": "Column to use for gene names.",
+                    "default": 2,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-columns"
+                },
+                "hasheddrops_ignore": {
+                    "type": "string",
+                    "description": "Lower bound for ignoring barcodes.",
+                    "default": "NULL",
+                    "fa_icon": "fas fa-ban"
+                },
+                "hasheddrops_alpha": {
+                    "type": "string",
+                    "description": "Scaling parameter for Dirichlet-multinomial sampling.",
+                    "default": "NULL",
+                    "fa_icon": "fas fa-adjust"
+                },
+                "hasheddrops_ambient": {
+                    "type": "string",
+                    "description": "Whether to use ambient solution abundance.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-water"
+                },
+                "hasheddrops_minProp": {
+                    "type": "number",
+                    "description": "Minimum proportion for ambient profile inference.",
+                    "default": 0.05,
+                    "minimum": 0,
+                    "maximum": 1,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "hasheddrops_pseudoCount": {
+                    "type": "integer",
+                    "description": "Minimum pseudo-count for log-fold change computation.",
+                    "default": 5,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-plus"
+                },
+                "hasheddrops_constantAmbient": {
+                    "type": "string",
+                    "description": "Whether to use constant ambient contamination level.",
+                    "default": "FALSE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-equals"
+                },
+                "hasheddrops_doubletNmads": {
+                    "type": "integer",
+                    "description": "Number of MADs to identify doublets.",
+                    "default": 3,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-object-group"
+                },
+                "hasheddrops_doubletMin": {
+                    "type": "integer",
+                    "description": "Minimum threshold for doublet identification.",
+                    "default": 2,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-amount-down"
+                },
+                "hasheddrops_doubletMixture": {
+                    "type": "string",
+                    "description": "Whether to use 2-component mixture model for doublets.",
+                    "default": "FALSE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-object-ungroup"
+                },
+                "hasheddrops_confidentNmads": {
+                    "type": "integer",
+                    "description": "Number of MADs to identify confident singlets.",
+                    "default": 3,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-check-circle"
+                },
+                "hasheddrops_confidentMin": {
+                    "type": "integer",
+                    "description": "Minimum threshold for confident singlet identification.",
+                    "default": 2,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-sort-amount-up"
+                },
+                "hasheddrops_combinations": {
+                    "type": "string",
+                    "description": "Valid combinations of HTOs.",
+                    "default": "NULL",
+                    "fa_icon": "fas fa-th-large"
+                }
+            }
+        },
+        "preprocessing_options": {
+            "title": "Preprocessing options",
+            "type": "object",
+            "fa_icon": "fas fa-cogs",
+            "description": "Options for preprocessing data for HTODemux and MultiSeq demultiplexing.",
+            "properties": {
+                "preprocessing_sel_method": {
+                    "type": "string",
+                    "description": "Method for feature selection.",
+                    "default": "mean.var.plot",
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "preprocessing_ndelim": {
+                    "type": "string",
+                    "description": "Delimiter for parsing feature names.",
+                    "default": "_",
+                    "fa_icon": "fas fa-cut"
+                },
+                "preprocessing_n_features": {
+                    "type": "string",
+                    "description": "Number of features to select.",
+                    "default": "2000",
+                    "fa_icon": "fas fa-hashtag"
+                },
+                "preprocessing_assay": {
+                    "type": "string",
+                    "description": "Assay type for preprocessing.",
+                    "default": "HTO",
+                    "fa_icon": "fas fa-flask"
+                },
+                "preprocessing_margin": {
+                    "type": "string",
+                    "description": "Margin parameter for preprocessing.",
+                    "default": "2",
+                    "fa_icon": "fas fa-arrows-alt-h"
+                },
+                "preprocessing_norm_method": {
+                    "type": "string",
+                    "description": "Normalization method to use.",
+                    "default": "CLR",
+                    "fa_icon": "fas fa-balance-scale"
+                },
+                "preprocessing_gene_col": {
+                    "type": "string",
+                    "description": "Column containing gene information.",
+                    "default": "2",
+                    "fa_icon": "fas fa-columns"
+                }
+            }
+        },
         "cellsnp_options": {
             "title": "CellSNP-lite options",
             "type": "object",
@@ -728,6 +1034,18 @@
         },
         {
             "$ref": "#/$defs/gmmdemux_options"
+        },
+        {
+            "$ref": "#/$defs/htodemux_options"
+        },
+        {
+            "$ref": "#/$defs/multiseqdemux_options"
+        },
+        {
+            "$ref": "#/$defs/hasheddrops_options"
+        },
+        {
+            "$ref": "#/$defs/preprocessing_options"
         },
         {
             "$ref": "#/$defs/cellsnp_options"
