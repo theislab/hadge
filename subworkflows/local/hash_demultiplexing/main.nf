@@ -1,7 +1,9 @@
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
+include { HASHEDDROPS                               } from '../../../modules/nf-core/hasheddrops'
 include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                  } from '../../../modules/nf-core/gmmdemux'
+
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -70,7 +72,20 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
     }
     if (methods.contains('hasheddrops')) {
-        error("HashedDrops not implemented")
+        ch_samplesheet.map { meta, rna, hto ->
+            {
+                if (!rna) {
+                    error("RNA matrix not provided for sample ${meta.id}, but this is required for HASHEDDROPS. Please check your input samplesheet.")
+                }
+                if (!hto) {
+                    error("HTO matrix not provided for sample ${meta.id}, but this is required for HASHEDDROPS. Please check your input samplesheet.")
+                }
+            }
+        }
+        HASHEDDROPS(
+            ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE",rna] }
+        )
+        ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
         error("HashSolo not implemented")
