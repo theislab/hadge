@@ -267,6 +267,129 @@
                 }
             }
         },
+        "htodemux_visualization_options": {
+            "title": "HTODemux visualization options",
+            "type": "object",
+            "fa_icon": "fas fa-chart-bar",
+            "description": "Options specific to the HTODemux visualization tool for generating plots and visualizations.",
+            "properties": {
+                "htodemux_visualization_ridgePlot": {
+                    "type": "string",
+                    "description": "Generate ridge plot.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "htodemux_visualization_ridgeNCol": {
+                    "type": "integer",
+                    "description": "Number of columns for ridge plot.",
+                    "default": 3,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-columns"
+                },
+                "htodemux_visualization_featureScatter": {
+                    "type": "string",
+                    "description": "Generate feature scatter plot.",
+                    "default": "FALSE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-scatter-chart"
+                },
+                "htodemux_visualization_scatterFeat1": {
+                    "type": "string",
+                    "description": "Feature 1 for scatter plot.",
+                    "default": "None",
+                    "fa_icon": "fas fa-tag"
+                },
+                "htodemux_visualization_scatterFeat2": {
+                    "type": "string",
+                    "description": "Feature 2 for scatter plot.",
+                    "default": "None",
+                    "fa_icon": "fas fa-tag"
+                },
+                "htodemux_visualization_vlnPlot": {
+                    "type": "string",
+                    "description": "Generate violin plot.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-violin"
+                },
+                "htodemux_visualization_vlnFeatures": {
+                    "type": "string",
+                    "description": "Features to plot (gene expression, metrics, PC scores, anything that can be retrieved by FetchData).",
+                    "default": "nCount_RNA",
+                    "fa_icon": "fas fa-list"
+                },
+                "htodemux_visualization_vlnLog": {
+                    "type": "string",
+                    "description": "Plot the feature axis on log scale.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-chart-line"
+                },
+                "htodemux_visualization_tSNE": {
+                    "type": "string",
+                    "description": "Generate a two dimensional tSNE embedding for HTOs.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-project-diagram"
+                },
+                "htodemux_visualization_tSNEIdents": {
+                    "type": "string",
+                    "description": "What should we remove from the object (we have Singlet, Doublet and Negative).",
+                    "default": "Negative",
+                    "fa_icon": "fas fa-filter"
+                },
+                "htodemux_visualization_tSNEInvert": {
+                    "type": "string",
+                    "description": "Invert tSNE selection.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-exchange-alt"
+                },
+                "htodemux_visualization_tSNEVerbose": {
+                    "type": "string",
+                    "description": "Verbose tSNE.",
+                    "default": "FALSE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-volume-up"
+                },
+                "htodemux_visualization_tSNEApprox": {
+                    "type": "string",
+                    "description": "Approximate tSNE.",
+                    "default": "FALSE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-fast-forward"
+                },
+                "htodemux_visualization_tSNEDimMax": {
+                    "type": "integer",
+                    "description": "Max number of donors.",
+                    "default": 2,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-users"
+                },
+                "htodemux_visualization_tSNEPerplexity": {
+                    "type": "integer",
+                    "description": "Value for perplexity.",
+                    "default": 100,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "htodemux_visualization_heatMap": {
+                    "type": "string",
+                    "description": "Generate heatmap.",
+                    "default": "TRUE",
+                    "enum": ["TRUE", "FALSE"],
+                    "fa_icon": "fas fa-fire"
+                },
+                "htodemux_visualization_heatMapNcells": {
+                    "type": "integer",
+                    "description": "Number of cells for heatmap.",
+                    "default": 500,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-layer-group"
+                }
+            }
+        },
         "multiseqdemux_options": {
             "title": "MultiSeqDemux options",
             "type": "object",
@@ -1037,6 +1160,9 @@
         },
         {
             "$ref": "#/$defs/htodemux_options"
+        },
+        {
+            "$ref": "#/$defs/htodemux_visualization_options"
         },
         {
             "$ref": "#/$defs/multiseqdemux_options"
