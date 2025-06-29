@@ -11,12 +11,12 @@ process HTODEMUX_VISUALIZATION {
     tuple val(meta), path(seurat_object), val(assay)
 
     output:
-    tuple val(meta), path("*_ridge_htodemux.jpeg")         , emit: ridge_plot
-    tuple val(meta), path("*_featureScatter_htodemux.jpeg"), emit: feature_scatter
-    tuple val(meta), path("*_violinPlot_htodemux.jpeg")    , emit: violin_plot
-    tuple val(meta), path("*_tSNE_htodemux.jpeg")          , emit: tsne_plot
-    tuple val(meta), path("*_heatMap_htodemux.jpeg")       , emit: heatmap_plot
-    tuple val(meta), path("*_visual_params_htodemux.csv")  , emit: params
+    tuple val(meta), path("*_ridge_htodemux.jpeg")         , emit: ridge_plot     , optional: true
+    tuple val(meta), path("*_featureScatter_htodemux.jpeg"), emit: feature_scatter, optional: true
+    tuple val(meta), path("*_violinPlot_htodemux.jpeg")    , emit: violin_plot    , optional: true
+    tuple val(meta), path("*_tSNE_htodemux.jpeg")          , emit: tsne_plot      , optional: true
+    tuple val(meta), path("*_heatMap_htodemux.jpeg")       , emit: heatmap_plot   , optional: true
+    tuple val(meta), path("*_visual_params_htodemux.csv")  , emit: params         
     path "versions.yml"                                    , emit: versions
 
     when:

@@ -157,14 +157,14 @@ write.csv(params, paste0(prefix, "_visual_params_htodemux.csv"))
 
 r.version <- paste(R.version[['major']],R.version[['minor']], sep = ".")
 seurat.version <- as.character(packageVersion('Seurat'))
-seurat.version <- as.character(packageVersion('ggplot2'))
+ggplot2.version <- as.character(packageVersion('ggplot2'))
 
 writeLines(
     c(
         '"${task.process}":',
         paste('    r-base:', r.version),
-        paste('    r-seurat:', seurat.version)
-        paste('    r-ggplot2:', seurat.version)
+        paste('    r-seurat:', seurat.version),
+        paste('    r-ggplot2:', ggplot2.version)
     ),
 'versions.yml')
 

@@ -2,6 +2,7 @@ include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/loc
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 include { HTODEMUX                                  } from '../../../modules/nf-core/htodemux'
+include { HTODEMUX_VISUALIZATION                    } from '../../../modules/local/htodemux_visualization'
 include { MULTISEQDEMUX                             } from '../../../modules/nf-core/multiseqdemux'
 include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                  } from '../../../modules/nf-core/gmmdemux'
@@ -40,6 +41,12 @@ workflow HASH_DEMULTIPLEXING {
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
             )
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
+
+            HTODEMUX_VISUALIZATION(
+                HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+            )
+            ch_versions = ch_versions.mix(HTODEMUX_VISUALIZATION.out.versions)
+
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
