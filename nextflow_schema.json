@@ -600,9 +600,9 @@
                     "fa_icon": "fas fa-cut"
                 },
                 "preprocessing_n_features": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Number of features to select.",
-                    "default": "2000",
+                    "default": 2000,
                     "fa_icon": "fas fa-hashtag"
                 },
                 "preprocessing_assay": {
@@ -612,9 +612,9 @@
                     "fa_icon": "fas fa-flask"
                 },
                 "preprocessing_margin": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Margin parameter for preprocessing.",
-                    "default": "2",
+                    "default": 2,
                     "fa_icon": "fas fa-arrows-alt-h"
                 },
                 "preprocessing_norm_method": {
@@ -624,9 +624,9 @@
                     "fa_icon": "fas fa-balance-scale"
                 },
                 "preprocessing_gene_col": {
-                    "type": "string",
+                    "type": "integer",
                     "description": "Column containing gene information.",
-                    "default": "2",
+                    "default": 2,
                     "fa_icon": "fas fa-columns"
                 }
             }
