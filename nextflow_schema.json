@@ -258,10 +258,9 @@
                     "fa_icon": "fas fa-dice"
                 },
                 "htodemux_verbose": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Whether to print verbose output.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-volume-up"
                 }
             }
@@ -396,10 +395,9 @@
                     "fa_icon": "fas fa-percentage"
                 },
                 "multiseqdemux_autoThresh": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Whether to automatically determine thresholds.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-magic"
                 },
                 "multiseqdemux_maxiter": {
@@ -434,10 +432,9 @@
                     "fa_icon": "fas fa-ruler"
                 },
                 "multiseqdemux_verbose": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Whether to print verbose output.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-volume-up"
                 }
             }
