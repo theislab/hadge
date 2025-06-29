@@ -24,30 +24,30 @@ process HTODEMUX_VISUALIZATION {
 
     script:
     // Ridge Plot Parameters
-    ridgePlot      = task.ext.ridgePlot      ?: "TRUE"       // Generate ridge plot
+    ridgePlot      = task.ext.ridgePlot      ?: true         // Generate ridge plot
     ridgeNCol      = task.ext.ridgeNCol      ?: 3            // Number of columns for ridge plot
     
     // Feature Scatter Plot Parameters
-    featureScatter = task.ext.featureScatter ?: "FALSE"      // Generate feature scatter plot
+    featureScatter = task.ext.featureScatter ?: true         // Generate feature scatter plot
     scatterFeat1   = task.ext.scatterFeat1   ?: "None"       // Feature 1 for scatter plot
     scatterFeat2   = task.ext.scatterFeat2   ?: "None"       // Feature 2 for scatter plot
     
     // Violin Plot Parameters
-    vlnPlot        = task.ext.vlnPlot        ?: "TRUE"       // Generate violin plot
+    vlnPlot        = task.ext.vlnPlot        ?: true         // Generate violin plot
     vlnFeatures    = task.ext.vlnFeatures    ?: "nCount_RNA" // Features to plot (gene expression, metrics, PC scores, anything that can be retreived by FetchData)
-    vlnLog         = task.ext.vlnLog         ?: "TRUE"       // Plot the feature axis on log scale
+    vlnLog         = task.ext.vlnLog         ?: true         // Plot the feature axis on log scale
     
     // TSNE Plot Parameters
-    tSNE           = task.ext.tSNE           ?: "TRUE"       // Generate a two dimensional tSNE embedding for HTOs
+    tSNE           = task.ext.tSNE           ?: true         // Generate a two dimensional tSNE embedding for HTOs
     tSNEIdents     = task.ext.tSNEIdents     ?: "Negative"   // What should we remove from the object (we have Singlet,Doublet and Negative)
-    tSNEInvert     = task.ext.tSNEInvert     ?: "TRUE"       // Invert tSNE selection
-    tSNEVerbose    = task.ext.tSNEVerbose    ?: "FALSE"      // Verbose tSNE
-    tSNEApprox     = task.ext.tSNEApprox     ?: "FALSE"      // Approximate tSNE
+    tSNEInvert     = task.ext.tSNEInvert     ?: true         // Invert tSNE selection
+    tSNEVerbose    = task.ext.tSNEVerbose    ?: false        // Verbose tSNE
+    tSNEApprox     = task.ext.tSNEApprox     ?: false        // Approximate tSNE
     tSNEDimMax     = task.ext.tSNEDimMax     ?: 2            // Max number of donors
     tSNEPerplexity = task.ext.tSNEPerplexity ?: 100          // Value for perplexity
     
     // Heatmap Parameters
-    heatMap        = task.ext.heatMap        ?: "TRUE"       // Generate heatmap
+    heatMap        = task.ext.heatMap        ?: true         // Generate heatmap
     heatMapNcells  = task.ext.heatMapNcells  ?: 500          // Number of cells for heatmap
 
     // Output Parameters

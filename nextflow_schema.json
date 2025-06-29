@@ -274,10 +274,9 @@
             "description": "Options specific to the HTODemux visualization tool for generating plots and visualizations.",
             "properties": {
                 "htodemux_visualization_ridgePlot": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Generate ridge plot.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-chart-line"
                 },
                 "htodemux_visualization_ridgeNCol": {
@@ -288,10 +287,9 @@
                     "fa_icon": "fas fa-columns"
                 },
                 "htodemux_visualization_featureScatter": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Generate feature scatter plot.",
-                    "default": "FALSE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": false,
                     "fa_icon": "fas fa-scatter-chart"
                 },
                 "htodemux_visualization_scatterFeat1": {
@@ -307,10 +305,9 @@
                     "fa_icon": "fas fa-tag"
                 },
                 "htodemux_visualization_vlnPlot": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Generate violin plot.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-violin"
                 },
                 "htodemux_visualization_vlnFeatures": {
@@ -320,44 +317,40 @@
                     "fa_icon": "fas fa-list"
                 },
                 "htodemux_visualization_vlnLog": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Plot the feature axis on log scale.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-chart-line"
                 },
                 "htodemux_visualization_tSNE": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Generate a two dimensional tSNE embedding for HTOs.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-project-diagram"
                 },
                 "htodemux_visualization_tSNEIdents": {
                     "type": "string",
                     "description": "What should we remove from the object (we have Singlet, Doublet and Negative).",
                     "default": "Negative",
+                    "enum": ["Singlet", "Doublet", "Negative"],
                     "fa_icon": "fas fa-filter"
                 },
                 "htodemux_visualization_tSNEInvert": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Invert tSNE selection.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-exchange-alt"
                 },
                 "htodemux_visualization_tSNEVerbose": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Verbose tSNE.",
-                    "default": "FALSE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": false,
                     "fa_icon": "fas fa-volume-up"
                 },
                 "htodemux_visualization_tSNEApprox": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Approximate tSNE.",
-                    "default": "FALSE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": false,
                     "fa_icon": "fas fa-fast-forward"
                 },
                 "htodemux_visualization_tSNEDimMax": {
@@ -375,10 +368,9 @@
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "htodemux_visualization_heatMap": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Generate heatmap.",
-                    "default": "TRUE",
-                    "enum": ["TRUE", "FALSE"],
+                    "default": true,
                     "fa_icon": "fas fa-fire"
                 },
                 "htodemux_visualization_heatMapNcells": {
