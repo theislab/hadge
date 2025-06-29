@@ -255,7 +255,6 @@
                     "type": "integer",
                     "description": "Random seed for reproducibility.",
                     "default": 42,
-                    "minimum": 0,
                     "fa_icon": "fas fa-dice"
                 },
                 "htodemux_verbose": {
@@ -281,27 +280,27 @@
                 },
                 "htodemux_visualization_ridgeNCol": {
                     "type": "integer",
-                    "description": "Number of columns for ridge plot.",
-                    "default": 3,
+                    "description": "The number of plots that are dispalyed next to each other in one row. The number of plots corresponds to the number of Hash Tag Oligo (HTO) identifiers.",
+                    "default": 2,
                     "minimum": 1,
                     "fa_icon": "fas fa-columns"
                 },
                 "htodemux_visualization_featureScatter": {
                     "type": "boolean",
-                    "description": "Generate feature scatter plot.",
-                    "default": false,
+                    "description": "Generate feature scatter plot. If no features are provided (one of them is null), the first two features from the assay will be used.",
+                    "default": true,
                     "fa_icon": "fas fa-scatter-chart"
                 },
                 "htodemux_visualization_scatterFeat1": {
                     "type": "string",
-                    "description": "Feature 1 for scatter plot.",
-                    "default": "None",
+                    "description": "Name of a Hash Tag Oligo (HTO) identifiers, usually defined in the `feature.tsv` of the hto matrix folder.",
+                    "default": null,
                     "fa_icon": "fas fa-tag"
                 },
                 "htodemux_visualization_scatterFeat2": {
                     "type": "string",
-                    "description": "Feature 2 for scatter plot.",
-                    "default": "None",
+                    "description": "Name of a Hash Tag Oligo (HTO) identifiers, usually defined in the `feature.tsv` of the hto matrix folder.",
+                    "default": null,
                     "fa_icon": "fas fa-tag"
                 },
                 "htodemux_visualization_vlnPlot": {

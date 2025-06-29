@@ -2,6 +2,16 @@
 
 ################################################
 ################################################
+## Fucntions                                  ##
+################################################
+################################################
+
+# Helper function for NULL condition
+string_to_null <- function(x, val = "null") if (x == val) NULL else x
+null_to_string <- function(x, val = "NULL") if (is.null(x)) val else x
+
+################################################
+################################################
 ## USE PARAMETERS FROM NEXTFLOW               ##
 ################################################
 ################################################
@@ -12,8 +22,8 @@ assay <- '$assay'
 ridgePlot <- as.logical('$ridgePlot')
 ridgeNCol <- as.numeric('$ridgeNCol')
 featureScatter <- as.logical('$featureScatter')
-scatterFeat1 <- '$scatterFeat1'
-scatterFeat2 <- '$scatterFeat2'
+scatterFeat1 <- string_to_null('$scatterFeat1')
+scatterFeat2 <- string_to_null('$scatterFeat2')
 vlnPlot <- as.logical('$vlnPlot')
 vlnFeatures <- '$vlnFeatures'
 vlnLog <- as.logical('$vlnLog')
@@ -59,8 +69,16 @@ if (ridgePlot) {
 }
 
 # Feature Scatter Plot
-if (featureScatter && scatterFeat1 != "None" && scatterFeat2 != "None") {
-  print("Generating feature scatter plot...")
+if (featureScatter) {
+  if (is.null(scatterFeat1) || is.null(scatterFeat2)) {
+    available_features <- rownames(hashtag[[assay]])
+    if (length(available_features) >= 2) {
+      scatterFeat1 <- available_features[1]
+      scatterFeat2 <- available_features[2]
+    } else {
+      stop("Error: Not enough features available for scatter plot")
+    }
+  }
   FeatureScatter(hashtag, feature1 = scatterFeat1, feature2 = scatterFeat2)
   ggsave(paste0(prefix, "_featureScatter_htodemux.jpeg"), device = "jpeg", dpi = 500)
 }
@@ -130,8 +148,8 @@ Value <- c(
   ridgePlot,
   ridgeNCol,
   featureScatter,
-  scatterFeat1,
-  scatterFeat2,
+  null_to_string(scatterFeat1),
+  null_to_string(scatterFeat2),
   vlnPlot,
   vlnFeatures,
   vlnLog,

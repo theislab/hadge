@@ -25,12 +25,12 @@ process HTODEMUX_VISUALIZATION {
     script:
     // Ridge Plot Parameters
     ridgePlot      = task.ext.ridgePlot      ?: true         // Generate ridge plot
-    ridgeNCol      = task.ext.ridgeNCol      ?: 3            // Number of columns for ridge plot
+    ridgeNCol      = task.ext.ridgeNCol      ?: 2            // Number of columns for ridge plot
     
     // Feature Scatter Plot Parameters
     featureScatter = task.ext.featureScatter ?: true         // Generate feature scatter plot
-    scatterFeat1   = task.ext.scatterFeat1   ?: "None"       // Feature 1 for scatter plot
-    scatterFeat2   = task.ext.scatterFeat2   ?: "None"       // Feature 2 for scatter plot
+    scatterFeat1   = task.ext.scatterFeat1   ?: null         // Feature 1 for scatter plot
+    scatterFeat2   = task.ext.scatterFeat2   ?: null         // Feature 2 for scatter plot
     
     // Violin Plot Parameters
     vlnPlot        = task.ext.vlnPlot        ?: true         // Generate violin plot
