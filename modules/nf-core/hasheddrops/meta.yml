@@ -109,7 +109,7 @@ output:
       - "*_plot_hasheddrops.png":
           type: file
           description: |
-             HashedDrops plot
+            HashedDrops plot
           pattern: "_plot_hasheddrops.png"
 
   - params:
@@ -127,7 +127,6 @@ output:
       - "versions.yml":
           type: file
           description: File containing software versions.
-
 
 authors:
   - "@LuisHeinzlmeier"
