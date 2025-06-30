@@ -15,16 +15,12 @@
             },
             "rna_matrix": {
                 "type": "string",
-                "format": "directory-path",
-                "exists": true,
                 "default": null,
                 "pattern": "^\\S+$",
                 "errorMessage": "RNA matrix must be provided and cannot contain spaces"
             },
             "hto_matrix": {
                 "type": "string",
-                "format": "directory-path",
-                "exists": true,
                 "default": null,
                 "pattern": "^\\S+$",
                 "errorMessage": "HTO matrix must be provided and cannot contain spaces"

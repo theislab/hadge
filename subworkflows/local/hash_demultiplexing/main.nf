@@ -1,3 +1,5 @@
+include { UNTAR as UNTAR_RNA                        } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_HTO                        } from '../../../modules/nf-core/untar'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
@@ -17,20 +19,40 @@ workflow HASH_DEMULTIPLEXING {
 
     ch_versions = Channel.empty()
 
-    if (methods.contains('htodemux') || methods.contains('multiseq')) {
-
-
-        ch_samplesheet.map { meta, rna, hto ->
-            {
-                if (!rna) {
-                    error("RNA matrix not provided for sample ${meta.id}, but this is required for HTODEMUX and MULTISEQDEMUX. Please check your input samplesheet.")
-                }
-                if (!hto) {
-                    error("HTO matrix not provided for sample ${meta.id}, but this is required for HTODEMUX and MULTISEQDEMUX. Please check your input samplesheet.")
-                }
+    ch_samplesheet.map { meta, rna, hto ->
+        {
+            if (!rna) {
+                error("RNA matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
+            }
+            if (!hto) {
+                error("HTO matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
             }
         }
+    }
 
+    ch_rna = ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }
+                    .branch { _meta, rna ->
+                        tar: rna.endsWith('.tar.gz')
+                        directory: true
+                    }
+    ch_hto = ch_samplesheet.map { meta, _rna, hto -> [meta, hto] }
+                    .branch { _meta, hto ->
+                        tar: hto.endsWith('.tar.gz')
+                        directory: true
+                    }
+
+    UNTAR_RNA(ch_rna.tar)
+    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
+
+    UNTAR_HTO(ch_hto.tar)
+    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
+
+    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
+    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
+
+    ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
+
+    if (methods.contains('htodemux') || methods.contains('multiseq')) {
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
             ch_samplesheet
         )
@@ -46,7 +68,6 @@ workflow HASH_DEMULTIPLEXING {
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
             )
             ch_versions = ch_versions.mix(HTODEMUX_VISUALIZATION.out.versions)
-
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
@@ -108,18 +129,8 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
     }
     if (methods.contains('hasheddrops')) {
-        ch_samplesheet.map { meta, rna, hto ->
-            {
-                if (!rna) {
-                    error("RNA matrix not provided for sample ${meta.id}, but this is required for HASHEDDROPS. Please check your input samplesheet.")
-                }
-                if (!hto) {
-                    error("HTO matrix not provided for sample ${meta.id}, but this is required for HASHEDDROPS. Please check your input samplesheet.")
-                }
-            }
-        }
         HASHEDDROPS(
-            ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE",rna] }
+            ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE", rna] }
         )
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
