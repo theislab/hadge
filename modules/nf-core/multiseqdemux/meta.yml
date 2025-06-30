@@ -32,6 +32,7 @@ input:
           Name of the Hashtag assay, usually called "HTO" by default. Use the custom name if the assay has been named differently.
 
 output:
+
   - params:
       - meta:
           type: map
