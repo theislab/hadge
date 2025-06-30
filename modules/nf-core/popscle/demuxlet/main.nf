@@ -8,7 +8,7 @@ process POPSCLE_DEMUXLET {
         'biocontainers/popscle:0.1beta--h2c78cec_0' }"
 
     input:
-    tuple val(meta), val(plp_prefix), path(bam), path(donor_genotype)
+    tuple val(meta), val(plp), path(bam), path(donor_genotype)
 
     output:
     tuple val(meta), path('*.best'), emit: demuxlet_result
@@ -20,7 +20,7 @@ process POPSCLE_DEMUXLET {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = plp_prefix ? "--plp ${plp_prefix}" : "--sam $bam"
+    def input = plp ? "--plp ${plp.toString() - '.plp.gz'}" : "--sam $bam"
     def VERSION = '0.1' // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
 
     """
@@ -37,9 +37,7 @@ process POPSCLE_DEMUXLET {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = plp_prefix ? "--plp ${plp_prefix}" : "--sam $bam"
     def VERSION = '0.1' // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
     """
     touch ${prefix}.best
