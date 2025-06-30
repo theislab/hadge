@@ -16,7 +16,7 @@ process HTODEMUX_VISUALIZATION {
     tuple val(meta), path("*_violinPlot_htodemux.jpeg")    , emit: violin_plot    , optional: true
     tuple val(meta), path("*_tSNE_htodemux.jpeg")          , emit: tsne_plot      , optional: true
     tuple val(meta), path("*_heatMap_htodemux.jpeg")       , emit: heatmap_plot   , optional: true
-    tuple val(meta), path("*_visual_params_htodemux.csv")  , emit: params         
+    tuple val(meta), path("*_visual_params_htodemux.csv")  , emit: params
     path "versions.yml"                                    , emit: versions
 
     when:
@@ -26,17 +26,17 @@ process HTODEMUX_VISUALIZATION {
     // Ridge Plot Parameters
     ridgePlot      = task.ext.ridgePlot      ?: true         // Generate ridge plot
     ridgeNCol      = task.ext.ridgeNCol      ?: 2            // Number of columns for ridge plot
-    
+
     // Feature Scatter Plot Parameters
     featureScatter = task.ext.featureScatter ?: true         // Generate feature scatter plot
     scatterFeat1   = task.ext.scatterFeat1   ?: null         // Feature 1 for scatter plot
     scatterFeat2   = task.ext.scatterFeat2   ?: null         // Feature 2 for scatter plot
-    
+
     // Violin Plot Parameters
     vlnPlot        = task.ext.vlnPlot        ?: true         // Generate violin plot
     vlnFeatures    = task.ext.vlnFeatures    ?: "nCount_RNA" // Features to plot (gene expression, metrics, PC scores, anything that can be retreived by FetchData)
     vlnLog         = task.ext.vlnLog         ?: true         // Plot the feature axis on log scale
-    
+
     // TSNE Plot Parameters
     tSNE           = task.ext.tSNE           ?: true         // Generate a two dimensional tSNE embedding for HTOs
     tSNEIdents     = task.ext.tSNEIdents     ?: "Negative"   // What should we remove from the object (we have Singlet,Doublet and Negative)
@@ -45,7 +45,7 @@ process HTODEMUX_VISUALIZATION {
     tSNEApprox     = task.ext.tSNEApprox     ?: false        // Approximate tSNE
     tSNEDimMax     = task.ext.tSNEDimMax     ?: 2            // Max number of donors
     tSNEPerplexity = task.ext.tSNEPerplexity ?: 100          // Value for perplexity
-    
+
     // Heatmap Parameters
     heatMap        = task.ext.heatMap        ?: true         // Generate heatmap
     heatMapNcells  = task.ext.heatMapNcells  ?: 500          // Number of cells for heatmap
@@ -72,4 +72,4 @@ process HTODEMUX_VISUALIZATION {
         r-ggplot2: \$(Rscript -e "library(ggplot2); cat(as.character(packageVersion('ggplot2')))")
     END_VERSIONS
     """
-} 
+}
