@@ -1,5 +1,7 @@
-include { UNTAR as UNTAR_RNA                        } from '../../../modules/nf-core/untar'
-include { UNTAR as UNTAR_HTO                        } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_RNA                                       } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_HTO                                } from '../../../modules/nf-core/untar'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../../../modules/local/rename_genes_to_features'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../../../modules/local/rename_genes_to_features'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
@@ -30,16 +32,27 @@ workflow HASH_DEMULTIPLEXING {
         }
     }
 
-    ch_rna = ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }
-                    .branch { _meta, rna ->
-                        tar: rna.endsWith('.tar.gz')
-                        directory: true
-                    }
-    ch_hto = ch_samplesheet.map { meta, _rna, hto -> [meta, hto] }
-                    .branch { _meta, hto ->
-                        tar: hto.endsWith('.tar.gz')
-                        directory: true
-                    }
+    ch_rna = ch_samplesheet.map { meta, rna, _hto -> 
+        // add _rna to the id to prevent input file name collision of preprocessing and hasheddrops (both modules take two matrices as input)
+        def new_meta = meta.clone()
+        new_meta.id = "${meta.id}_rna"
+        [new_meta, rna]
+    }
+    .branch { _meta, rna ->
+        tar: rna.endsWith('.tar.gz')
+        directory: true
+    }
+
+    ch_hto = ch_samplesheet.map { meta, _rna, hto -> 
+        // add _hto to the id to prevent input file name collision of preprocessing and hasheddrops (both modules take two matrices as input)
+        def new_meta = meta.clone()
+        new_meta.id = "${meta.id}_hto"
+        [new_meta, hto]
+    }
+    .branch { _meta, hto ->
+        tar: hto.endsWith('.tar.gz')
+        directory: true
+    }
 
     UNTAR_RNA(ch_rna.tar)
     ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
@@ -47,10 +60,27 @@ workflow HASH_DEMULTIPLEXING {
     UNTAR_HTO(ch_hto.tar)
     ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
 
-    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
-    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
+
+    // remove the changes to meta.id
+    ch_rna = UNTAR_RNA.out.untar.map { meta, rna -> 
+        def inital_id = meta.id.split("_")[0]
+        [meta + [id: inital_id], rna]
+    }
+    ch_hto = UNTAR_HTO.out.untar.map { meta, hto -> 
+        def inital_id = meta.id.split("_")[0]
+        [meta + [id: inital_id], hto]
+    }
+
+    // rename genes.tsv to features.tsv to avoid Seurat 5.3 file missing error
+    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
+    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+
+    UNTAR_RNA.out.untar.view { "RNA untar output: ${it}" }
+    UNTAR_HTO.out.untar.view { "HTO untar output: ${it}" }
 
     ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
+
+    ch_samplesheet.view { "Samplesheet input: ${it}" }
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
@@ -60,18 +90,18 @@ workflow HASH_DEMULTIPLEXING {
 
         if (methods.contains('htodemux')) {
             HTODEMUX(
-                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
 
             HTODEMUX_VISUALIZATION(
-                HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(HTODEMUX_VISUALIZATION.out.versions)
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
-                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
@@ -130,7 +160,8 @@ workflow HASH_DEMULTIPLEXING {
     }
     if (methods.contains('hasheddrops')) {
         HASHEDDROPS(
-            ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE", rna] }
+            ch_samplesheet.map { meta, rna, hto -> 
+            [meta, hto, "FALSE", rna] }
         )
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
