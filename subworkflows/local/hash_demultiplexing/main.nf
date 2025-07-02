@@ -32,7 +32,7 @@ workflow HASH_DEMULTIPLEXING {
         }
     }
 
-    ch_rna = ch_samplesheet.map { meta, rna, _hto -> 
+    ch_rna = ch_samplesheet.map { meta, rna, _hto ->
         // add _rna to the id to prevent input file name collision of preprocessing and hasheddrops (both modules take two matrices as input)
         def new_meta = meta.clone()
         new_meta.id = "${meta.id}_rna"
@@ -43,7 +43,7 @@ workflow HASH_DEMULTIPLEXING {
         directory: true
     }
 
-    ch_hto = ch_samplesheet.map { meta, _rna, hto -> 
+    ch_hto = ch_samplesheet.map { meta, _rna, hto ->
         // add _hto to the id to prevent input file name collision of preprocessing and hasheddrops (both modules take two matrices as input)
         def new_meta = meta.clone()
         new_meta.id = "${meta.id}_hto"
@@ -62,21 +62,21 @@ workflow HASH_DEMULTIPLEXING {
 
 
     // remove the changes to meta.id
-    ch_rna = UNTAR_RNA.out.untar.map { meta, rna -> 
+    ch_rna = UNTAR_RNA.out.untar.map { meta, rna ->
         def inital_id = meta.id.split("_")[0]
         [meta + [id: inital_id], rna]
     }
-    ch_hto = UNTAR_HTO.out.untar.map { meta, hto -> 
+    ch_hto = UNTAR_HTO.out.untar.map { meta, hto ->
         def inital_id = meta.id.split("_")[0]
         [meta + [id: inital_id], hto]
     }
 
     // rename genes.tsv to features.tsv to avoid Seurat 5.3 file missing error
-    // ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
-    // ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
+    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
 
-    UNTAR_RNA.out.untar.view { "RNA untar output: ${it}" }
-    UNTAR_HTO.out.untar.view { "HTO untar output: ${it}" }
+    // UNTAR_RNA.out.untar.view { "RNA untar output: ${it}" }
+    // UNTAR_HTO.out.untar.view { "HTO untar output: ${it}" }
 
     ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
 
@@ -160,7 +160,7 @@ workflow HASH_DEMULTIPLEXING {
     }
     if (methods.contains('hasheddrops')) {
         HASHEDDROPS(
-            ch_samplesheet.map { meta, rna, hto -> 
+            ch_samplesheet.map { meta, rna, hto ->
             [meta, hto, "FALSE", rna] }
         )
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
