@@ -14,4 +14,4 @@ process RENAME_GENES_TO_FEATURES {
         mv "${dir}/genes.tsv.gz" "${dir}/features.tsv.gz"
     fi
     """
-} 
+}
