@@ -76,7 +76,7 @@ workflow HASH_DEMULTIPLEXING {
     ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
 
     // UNTAR_RNA.out.untar.view { "RNA untar output: ${it}" }
-    //  UNTAR_HTO.out.untar.view { "HTO untar output: ${it}" }
+    // UNTAR_HTO.out.untar.view { "HTO untar output: ${it}" }
 
     ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
 
