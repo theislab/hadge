@@ -17,8 +17,110 @@ nextflow_pipeline {
             def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+
             assertAll(
                 { assert workflow.success},
+
+                // Enhanced VCF testing for genetic demultiplexing outputs
+                {
+                    // Test VCF files from cellsnp outputs if they exist
+                    def cellsnpVcfFiles = findFiles(params.outdir, pattern: "**/*.base.vcf.gz")
+                    if (cellsnpVcfFiles.size() > 0) {
+                        cellsnpVcfFiles.each { vcfFile ->
+                            def vcf = path(vcfFile).vcf
+                            assert vcf.exists()
+                            assert vcf.variantCount >= 0
+                            assert vcf.chromosomes.size() >= 0
+                            assert vcf.header != null
+
+                            // Test VCF structure
+                            assert vcf.header.getColumnCount() >= 8
+
+                            // If there are variants, test their properties
+                            if (vcf.variantCount > 0) {
+                                assert vcf.variants.size() > 0
+                                assert vcf.variantsMD5 != null
+                                assert vcf.variantsMD5.length() == 32
+
+                                // Test first few variants
+                                def firstVariants = vcf.getVariants(3)
+                                assert firstVariants.size() <= 3
+                                if (firstVariants.size() > 0) {
+                                    def firstVariant = firstVariants[0]
+                                    assert firstVariant.getContig() != null
+                                    assert firstVariant.getStart() > 0
+                                }
+                            }
+                        }
+                    }
+                },
+
+                // Test VCF files from vireo outputs if they exist
+                {
+                    def vireoVcfFiles = findFiles(params.outdir, pattern: "**/*.vcf")
+                    if (vireoVcfFiles.size() > 0) {
+                        vireoVcfFiles.each { vcfFile ->
+                            if (vcfFile.endsWith('.vcf') || vcfFile.endsWith('.vcf.gz')) {
+                                def vcf = path(vcfFile).vcf
+                                assert vcf.exists()
+                                assert vcf.header != null
+
+                                // Basic VCF validation
+                                assert vcf.header.getColumnCount() >= 8
+                                assert vcf.chromosomes.size() >= 0
+                                assert vcf.variantCount >= 0
+
+                                // Test VCF content if variants exist
+                                if (vcf.variantCount > 0) {
+                                    assert vcf.variants.size() > 0
+                                    assert vcf.variantsMD5 != null
+
+                                    // Test variant access methods
+                                    def firstVariant = vcf.variants[0]
+                                    def chrom = firstVariant.getContig()
+                                    def pos = firstVariant.getStart()
+
+                                    // Test getVariant method
+                                    def retrievedVariant = vcf.getVariant(chrom, pos)
+                                    assert retrievedVariant != null
+                                    assert retrievedVariant.getContig() == chrom
+                                    assert retrievedVariant.getStart() == pos
+                                }
+                            }
+                        }
+                    }
+                },
+
+                // Test VCF files from popscle outputs if they exist
+                {
+                    def popscleVcfFiles = findFiles(params.outdir, pattern: "**/*.clust*.vcf.gz")
+                    if (popscleVcfFiles.size() > 0) {
+                        popscleVcfFiles.each { vcfFile ->
+                            def vcf = path(vcfFile).vcf
+                            assert vcf.exists()
+                            assert vcf.header != null
+
+                            // Test VCF structure
+                            assert vcf.header.getColumnCount() >= 8
+                            assert vcf.chromosomes.size() >= 0
+                            assert vcf.variantCount >= 0
+
+                            // Test VCF content properties
+                            if (vcf.variantCount > 0) {
+                                assert vcf.variants.size() > 0
+                                assert vcf.variantsMD5 != null
+
+                                // Test variant range access
+                                if (vcf.chromosomes.size() > 0) {
+                                    def firstChrom = vcf.chromosome
+                                    def variantsInRange = vcf.getVariantsByRange(firstChrom, 1, 1000)
+                                    assert variantsInRange != null
+                                }
+                            }
+                        }
+                    }
+                },
+
                 { assert snapshot(
                     // Number of successful tasks
                     workflow.trace.succeeded().size(),
