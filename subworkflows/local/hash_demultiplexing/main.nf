@@ -1,14 +1,16 @@
-include { UNTAR as UNTAR_RNA                        } from '../../../modules/nf-core/untar'
-include { UNTAR as UNTAR_HTO                        } from '../../../modules/nf-core/untar'
-include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA } from '../../../modules/local/dropletutils/mtxconvert'
-include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO } from '../../../modules/local/dropletutils/mtxconvert'
-include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ       } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
-include { HTODEMUX                                  } from '../../../modules/nf-core/htodemux'
-include { HTODEMUX_VISUALIZATION                    } from '../../../modules/local/htodemux_visualization'
-include { MULTISEQDEMUX                             } from '../../../modules/nf-core/multiseqdemux'
-include { DEMUXEM                                   } from '../../../modules/nf-core/demuxem'
-include { GMMDEMUX                                  } from '../../../modules/nf-core/gmmdemux'
-include { HASHEDDROPS                               } from '../../../modules/nf-core/hasheddrops'
+include { UNTAR as UNTAR_RNA                                       } from '../../../modules/nf-core/untar'
+include { UNTAR as UNTAR_HTO                                       } from '../../../modules/nf-core/untar'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../../../modules/local/rename_genes_to_features'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../../../modules/local/rename_genes_to_features'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA                } from '../../../modules/local/dropletutils/mtxconvert'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO                } from '../../../modules/local/dropletutils/mtxconvert'
+include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
+include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
+include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
+include { MULTISEQDEMUX                                            } from '../../../modules/nf-core/multiseqdemux'
+include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
+include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
+include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -50,6 +52,9 @@ workflow HASH_DEMULTIPLEXING {
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
+    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
+    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+
     ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
@@ -60,18 +65,18 @@ workflow HASH_DEMULTIPLEXING {
 
         if (methods.contains('htodemux')) {
             HTODEMUX(
-                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
 
             HTODEMUX_VISUALIZATION(
-                HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(HTODEMUX_VISUALIZATION.out.versions)
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
-                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, params.preprocessing_assay] }
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
