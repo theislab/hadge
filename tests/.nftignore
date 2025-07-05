@@ -9,3 +9,6 @@ multiqc/multiqc_report.html
 pipeline_info/*.{html,json,txt,yml}
 hashing/demuxem/**
 hashing/gmm-demux/*/GMM_full.csv
+hashing/htodemux/*/*_htodemux.rds
+hashing/multiseqdemux/*/*_multiseqdemux.rds
+hashing/preprocessing/*/*_preprocessed.rds
