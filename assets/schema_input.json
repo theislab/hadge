@@ -15,16 +15,12 @@
             },
             "rna_matrix": {
                 "type": "string",
-                "format": "directory-path",
-                "exists": true,
                 "default": null,
                 "pattern": "^\\S+$",
                 "errorMessage": "RNA matrix must be provided and cannot contain spaces"
             },
             "hto_matrix": {
                 "type": "string",
-                "format": "directory-path",
-                "exists": true,
                 "default": null,
                 "pattern": "^\\S+$",
                 "errorMessage": "HTO matrix must be provided and cannot contain spaces"
@@ -64,6 +60,12 @@
                 "minimum": 1,
                 "errorMessage": "Number of cells must be an integer greater than 0",
                 "meta": ["n_cells"]
+            },
+            "hto_names": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "HTO names must be provided and cannot contain spaces",
+                "meta": ["hto_names"]
             }
         },
         "required": ["sample"]

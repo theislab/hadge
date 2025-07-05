@@ -1,0 +1,19 @@
+Changes in component 'nf-core/multiseqdemux'
+'modules/nf-core/multiseqdemux/main.nf' is unchanged
+'modules/nf-core/multiseqdemux/environment.yml' is unchanged
+Changes in 'multiseqdemux/meta.yml':
+--- modules/nf-core/multiseqdemux/meta.yml
++++ modules/nf-core/multiseqdemux/meta.yml
+@@ -32,7 +32,6 @@
+           Name of the Hashtag assay, usually called "HTO" by default. Use the custom name if the assay has been named differently.
+ 
+ output:
+-
+   - params:
+       - meta:
+           type: map
+
+'modules/nf-core/multiseqdemux/templates/MultiSeqDemux.R' is unchanged
+'modules/nf-core/multiseqdemux/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/multiseqdemux/tests/main.nf.test' is unchanged
+************************************************************
