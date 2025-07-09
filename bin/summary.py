@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import os
 import argparse
 import pandas as pd
+from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Parameters for summarizing results")
 parser.add_argument(
@@ -17,7 +17,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-def merge_dataframes(dataframes):
+def merge_dataframes(dataframes: list[pd.DataFrame]) -> pd.DataFrame:
     merged_df = pd.DataFrame()
     for df in dataframes:
         if merged_df.empty:
@@ -27,49 +27,51 @@ def merge_dataframes(dataframes):
     return merged_df
 
 
+def find_first_file(directory: Path, suffix: str) -> Path:
+    return [
+        file
+        for file in directory.iterdir()
+        if file.name.endswith(suffix) and not file.name.startswith(".")
+    ][0]
+
+
+def process_file_pair(
+    gene_dir: Path,
+    hash_dir: Path,
+    suffix: str,
+    output_path: Path,
+    replacements: dict[str, str],
+) -> None:
+    gene_file = find_first_file(gene_dir, suffix)
+    hash_file = find_first_file(hash_dir, suffix)
+
+    gene_df = pd.read_csv(gene_file, dtype=str)
+    hash_df = pd.read_csv(hash_file, dtype=str)
+
+    merged_df = merge_dataframes([gene_df, hash_df])
+    merged_df = merged_df.replace(replacements)
+    merged_df.to_csv(output_path, index=False, sep="\t")
+
+
 if __name__ == "__main__":
-    if not os.path.exists("summary"):
-        os.makedirs("summary")
+    summary_dir = Path("summary")
+    summary_dir.mkdir(exist_ok=True)
 
-    # Assignments
-    assignment_gene = [
-        os.path.join(args.gene_demulti, gene_file)
-        for gene_file in os.listdir(args.gene_demulti)
-        if gene_file.endswith("_assignment_all.csv") and not gene_file.startswith(".")
-    ][0]
-    assignment_gene = pd.read_csv(assignment_gene, dtype=str)
-    assignment_hash = [
-        os.path.join(args.hash_demulti, hash_file)
-        for hash_file in os.listdir(args.hash_demulti)
-        if hash_file.endswith("_assignment_all.csv") and not hash_file.startswith(".")
-    ][0]
-    assignment_hash = pd.read_csv(assignment_hash, dtype=str)
-    assignment_all = merge_dataframes([assignment_gene, assignment_hash])
+    gene_dir = Path(args.gene_demulti)
+    hash_dir = Path(args.hash_demulti)
 
-    assignment_all = assignment_all.replace({"DBL": "doublet", "AMB": "negative"})
-    assignment_all.to_csv(
-        "summary/assignment_all_genetic_and_hash.csv", index=False, sep="\t"
+    process_file_pair(
+        gene_dir,
+        hash_dir,
+        "_assignment_all.csv",
+        summary_dir / "assignment_all_genetic_and_hash.csv",
+        {"DBL": "doublet", "AMB": "negative"},
     )
 
-    # Classifications
-    classification_gene = [
-        os.path.join(args.gene_demulti, gene_file)
-        for gene_file in os.listdir(args.gene_demulti)
-        if gene_file.endswith("_classification_all.csv")
-        and not gene_file.startswith(".")
-    ][0]
-    classification_gene = pd.read_csv(classification_gene, dtype=str)
-    classification_hash = [
-        os.path.join(args.hash_demulti, hash_file)
-        for hash_file in os.listdir(args.hash_demulti)
-        if hash_file.endswith("_classification_all.csv")
-        and not hash_file.startswith(".")
-    ][0]
-    classification_hash = pd.read_csv(classification_hash, dtype=str)
-    classification_all = merge_dataframes([classification_gene, classification_hash])
-    classification_all = classification_all.replace(
-        {"SNG": "singlet", "DBL": "doublet", "AMB": "negative"}
-    )
-    classification_all.to_csv(
-        "summary/classification_all_genetic_and_hash.csv", index=False, sep="\t"
+    process_file_pair(
+        gene_dir,
+        hash_dir,
+        "_classification_all.csv",
+        summary_dir / "classification_all_genetic_and_hash.csv",
+        {"SNG": "singlet", "DBL": "doublet", "AMB": "negative"},
     )
