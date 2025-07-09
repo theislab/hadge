@@ -19,6 +19,8 @@ workflow HASH_DEMULTIPLEXING {
 
     main:
 
+    ch_results = Channel.empty()
+
     ch_versions = Channel.empty()
 
     ch_samplesheet.map { meta, rna, hto ->
@@ -67,6 +69,9 @@ workflow HASH_DEMULTIPLEXING {
             HTODEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
+
+            HTODEMUX.out.assignment.view()
+            ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta + [module: 'htodemux'], result] })
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
 
             HTODEMUX_VISUALIZATION(
@@ -78,6 +83,8 @@ workflow HASH_DEMULTIPLEXING {
             MULTISEQDEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
+            MULTISEQDEMUX.out.results.view()
+            ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta + [module: 'multiseq'], result] })
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
     }
@@ -142,6 +149,9 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('hashsolo')) {
         error("HashSolo not implemented")
     }
+
+    ch_results.view()
+
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]
