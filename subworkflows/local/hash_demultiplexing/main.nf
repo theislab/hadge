@@ -69,10 +69,32 @@ workflow HASH_DEMULTIPLEXING {
             HTODEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
+            def out = HTODEMUX.out
 
-            HTODEMUX.out.assignment.view()
-            ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta + [module: 'htodemux'], result] })
+            //HTODEMUX.out.assignment.view()
+
+
+            ch_results = ch_results.mix(
+                HTODEMUX.out.assignment
+                .join(HTODEMUX.out.classification)
+                .join(HTODEMUX.out.params)
+                .map { meta, assign, classi, par ->
+                    def paths = [assignment: assign, classification: classi, params: par]
+                    [meta, [results: paths, method: 'htodemux']]
+                })
+                .view()
+
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
+
+
+            ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta, [path: result, method: 'htodemux']] })
+
+            //HTODEMUX.out.view()
+            //HTODEMUX.out.assignment.join(HTODEMUX.out.classification).join(HTODEMUX.out.params).view("testiiii "+ it)
+
+
+
+
 
             HTODEMUX_VISUALIZATION(
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
@@ -83,8 +105,8 @@ workflow HASH_DEMULTIPLEXING {
             MULTISEQDEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
-            MULTISEQDEMUX.out.results.view()
-            ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta + [module: 'multiseq'], result] })
+            //MULTISEQDEMUX.out.results.view()
+            ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta, [path: result, method: 'multiseq']] })
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
     }
@@ -150,8 +172,23 @@ workflow HASH_DEMULTIPLEXING {
         error("HashSolo not implemented")
     }
 
-    ch_results.view()
+    //ch_results.view()
+    // group by module, give the channel to summary module
+    // group by module
+    //ch_results_grouped = ch_results.groupTuple(by: 0).view()
 
+    def sorted_methods = ['htodemux', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
+
+    // sort the methods result paths as in sorted_methods and add empty results for methods not calculated
+    ch_hashing_summary = ch_results.groupTuple(by: 0)
+    .map { meta, results ->
+        def empty_results = (sorted_methods -methods).collect {[path: null,method: it] }
+        def sorted_paths = (results + empty_results)
+            .sort { sorted_methods.indexOf(it.method) }
+            .collect { it.path }
+        [meta,sorted_paths]
+    }
+    .view()
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]
