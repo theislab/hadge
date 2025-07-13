@@ -637,6 +637,10 @@ def bff_summary(
 if __name__ == "__main__":
     adata = None
     mudata = None
+    rna_data = sc.read_10x_mtx("${rna_matrix}")
+    barcodes = rna_data.obs_names.tolist()
+    assignment_all = pd.DataFrame({'Barcodes': barcodes})
+    classification_all = pd.DataFrame({'Barcodes': barcodes})
 
     if "${generate_mudata}" == "true":
         rna_data = sc.read_10x_mtx("${rna_matrix}")
