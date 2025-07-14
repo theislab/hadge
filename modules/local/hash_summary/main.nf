@@ -5,7 +5,7 @@ process HASH_SUMMARY {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/r-ggplot2_r-seurat:dac8c905972b98df':
-        'community.wave.seqera.io/library/r-ggplot2_r-seurat:eefd54806320eae0' }"
+        'community.wave.seqera.io/library/anndata_mudata_numpy_pandas_pruned:79063a0ea941b243' }"
 
     input:
     tuple val(meta), path(hto_matrix), path(rna_matrix), path(htodemux), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)

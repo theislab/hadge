@@ -11,6 +11,7 @@ include { MULTISEQDEMUX                                            } from '../..
 include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
+include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -72,22 +73,20 @@ workflow HASH_DEMULTIPLEXING {
             def out = HTODEMUX.out
 
             //HTODEMUX.out.assignment.view()
-
-
             ch_results = ch_results.mix(
                 HTODEMUX.out.assignment
                 .join(HTODEMUX.out.classification)
                 .join(HTODEMUX.out.params)
                 .map { meta, assign, classi, par ->
-                    def paths = [assignment: assign, classification: classi, params: par]
-                    [meta, [results: paths, method: 'htodemux']]
+                    def files = [assignment: assign, classification: classi, params: par]
+                    [meta, [results: files, method: 'htodemux']]
                 })
                 .view()
 
             ch_versions = ch_versions.mix(HTODEMUX.out.versions)
 
 
-            ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta, [path: result, method: 'htodemux']] })
+            //ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta, [path: result, method: 'htodemux']] })
 
             //HTODEMUX.out.view()
             //HTODEMUX.out.assignment.join(HTODEMUX.out.classification).join(HTODEMUX.out.params).view("testiiii "+ it)
@@ -105,8 +104,22 @@ workflow HASH_DEMULTIPLEXING {
             MULTISEQDEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
-            //MULTISEQDEMUX.out.results.view()
-            ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta, [path: result, method: 'multiseq']] })
+            // MULTISEQDEMUX.out.results.view()
+            // ch_results = ch_results.mix(
+            //     MULTISEQDEMUX.out.results
+            //     .map { meta, results ->
+            //         def paths = [assignment: results, classification: null]
+            //         [meta, [results: paths, method: 'htodemux']]
+            //     })
+
+            ch_results = ch_results.mix(
+                MULTISEQDEMUX.out.results
+                .map { meta, file ->
+                    [meta, [results: file, method: 'htodemux']]
+                })
+
+
+            //ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta, [path: result, method: 'multiseq']] })
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
     }
@@ -178,17 +191,40 @@ workflow HASH_DEMULTIPLEXING {
     //ch_results_grouped = ch_results.groupTuple(by: 0).view()
 
     def sorted_methods = ['htodemux', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
+    def used_methods = methods as List
 
+    // ch_hashing_summary = ch_results.groupTuple(by: 0).view()
+
+    // def met = ['htodemux', 'multiseq']
+    // def diff_met = sorted_methods - met
+    // def diff_methods = sorted_methods - used_methods
+    // println("methods "+methods)
+    // println("met "+met)
+    // println("methods type "+ methods.getClass())
+    // println("met "+met.getClass())
+    // println("sorted - methods "+diff_methods)
+    // println("sorted - met "+diff_met)
     // sort the methods result paths as in sorted_methods and add empty results for methods not calculated
+    // you either have a single file path, a list (groovy map) of file paths or null if there where no results
+    // e.g. [meta, file1, file2, [A: file3, B: file4], null, file5, ...]
     ch_hashing_summary = ch_results.groupTuple(by: 0)
     .map { meta, results ->
-        def empty_results = (sorted_methods -methods).collect {[path: null,method: it] }
-        def sorted_paths = (results + empty_results)
+        def empty_results = (sorted_methods - used_methods).collect {[results: null,method: it] }
+        // println("empties: "+ empty_results)
+        // println("+ --> "+results + empty_results)
+        def sorted_results = (results + empty_results)
             .sort { sorted_methods.indexOf(it.method) }
-            .collect { it.path }
-        [meta,sorted_paths]
+            .collect { it.results }
+        [meta,sorted_results]
     }
-    .view()
+    .view{
+        "final "+ it
+    }
+
+    // TODO
+    // HASH_SUMMARY(ch_hashing_summary)
+
+
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]
