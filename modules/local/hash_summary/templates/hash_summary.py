@@ -609,12 +609,17 @@ if __name__ == "__main__":
     elif "${generate_anndata}" == "true":
         adata = rna_data
 
+    if sum(s == "" for s in ["${htodemux_assignments}", "${htodemux_assignments}"]) == 1:
+        raise ValueError("The assignment or classification file of htodemux is empty.")
 
-    # ["${htodemux_assignments}", "${htodemux_assignments}"]  and
-    if "${htodemux_assignments}" != "null":
-        assignment, classification = htodemux_summary(groovy_map_str_2_dict("${htodemux}"), adata, mudata)
+    if "${htodemux_assignments}" != "":
+        assignment, classification = htodemux_summary("${htodemux_assignments}", "${htodemux_classification}", adata, mudata)
         classifications.append(classification)
         assignments.append(assignment)
+        #TODO use the old container again
+
+
+
 
     # if args.hashedDrops is not None:
     #     hashedDrops_res = args.hashedDrops.split(":")
@@ -641,6 +646,7 @@ if __name__ == "__main__":
     # if args.bff is not None:
     #     bff_res = args.bff.split(":")
     #     bff_summary(bff_res, adata, mudata)
+
 
 
     barcodes = rna_data.obs_names.tolist()
