@@ -290,15 +290,16 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)
-        .join(ch_cellhashr, remainder: true)
-        .join(ch_demuxem , remainder: true)
-        .join(ch_gmmdemux, remainder: true)
-        .join(ch_hasheddrops, remainder: true)
-        .join(ch_hashsolo, remainder: true)
+        // .join(ch_cellhashr, remainder: true)
+        // .join(ch_demuxem , remainder: true)
+        // .join(ch_gmmdemux, remainder: true)
+        // .join(ch_hasheddrops, remainder: true)
+        // .join(ch_hashsolo, remainder: true)
+        // TODO solve null values
 
     ch_summary.view()
 
-    HASH_SUMMARY(ch_samplesheet.join(ch_summary), generate_anndata, generate_mudata)
+    HASH_SUMMARY(ch_summary, generate_anndata, generate_mudata)
 
 
 

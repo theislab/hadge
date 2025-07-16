@@ -5,10 +5,11 @@ process HASH_SUMMARY {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/r-ggplot2_r-seurat:dac8c905972b98df':
-        'community.wave.seqera.io/library/anndata_mudata_numpy_pandas_pruned:79063a0ea941b243' }"
+        'community.wave.seqera.io/library/pandas_scanpy:e335a66f43cc9a00' }"
 
     input:
-    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
+    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq)
+    //, path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
     val generate_anndata // boolean
     val generate_mudata // boolean
 
