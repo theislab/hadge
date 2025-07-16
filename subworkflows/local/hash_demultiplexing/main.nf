@@ -290,12 +290,14 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)
-        // .join(ch_cellhashr, remainder: true)
-        // .join(ch_demuxem , remainder: true)
-        // .join(ch_gmmdemux, remainder: true)
-        // .join(ch_hasheddrops, remainder: true)
-        // .join(ch_hashsolo, remainder: true)
-        // TODO solve null values
+        .join(ch_cellhashr, remainder: true)
+        .join(ch_demuxem , remainder: true)
+        .join(ch_gmmdemux, remainder: true)
+        .join(ch_hasheddrops, remainder: true)
+        .join(ch_hashsolo, remainder: true)
+        .map { tuple -> tuple.collect { it == null ? [] : it } }
+    // Empty inputs solved as recommended here:
+    // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
     ch_summary.view()
 

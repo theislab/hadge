@@ -609,7 +609,9 @@ if __name__ == "__main__":
     elif "${generate_anndata}" == "true":
         adata = rna_data
 
-    if "${htodemux}" != "null":
+
+    # ["${htodemux_assignments}", "${htodemux_assignments}"]  and
+    if "${htodemux_assignments}" != "null":
         assignment, classification = htodemux_summary(groovy_map_str_2_dict("${htodemux}"), adata, mudata)
         classifications.append(classification)
         assignments.append(assignment)
