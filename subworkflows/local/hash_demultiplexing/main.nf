@@ -24,6 +24,17 @@ workflow HASH_DEMULTIPLEXING {
 
     ch_versions = Channel.empty()
 
+    ch_htodemux_assignments = Channel.empty()
+    ch_htodemux_classifications = Channel.empty()
+    ch_multiseq = Channel.empty()
+    ch_cellhashr = Channel.empty()
+    ch_demuxem = Channel.empty()
+    ch_gmmdemux = Channel.empty()
+    ch_hasheddrops = Channel.empty()
+    ch_hashsolo = Channel.empty()
+
+
+
     ch_samplesheet.map { meta, rna, hto ->
         {
             if (!rna) {
@@ -73,17 +84,40 @@ workflow HASH_DEMULTIPLEXING {
             def out = HTODEMUX.out
 
             //HTODEMUX.out.assignment.view()
-            ch_results = ch_results.mix(
-                HTODEMUX.out.assignment
-                .join(HTODEMUX.out.classification)
-                .join(HTODEMUX.out.params)
-                .map { meta, assign, classi, par ->
-                    def files = [assignment: assign, classification: classi, params: par]
-                    [meta, [results: files, method: 'htodemux']]
-                })
-                .view()
+            // ch_results = ch_results.mix(
+            //     HTODEMUX.out.assignment
+            //     .join(HTODEMUX.out.classification)
+            //     .join(HTODEMUX.out.params)
+            //     .map { meta, assign, classi, par ->
+            //         def files = [assignment: assign, classification: classi, params: par]
+            //         [meta, [results: files, method: 'htodemux']]
+            //     })
 
-            ch_versions = ch_versions.mix(HTODEMUX.out.versions)
+            // [meta, [result: assign, method:'htodemux_assignment' ]
+            // [meta, [result: classi, method:'htodemux_assignment' ]
+
+
+            // assignmethod:, 'htodemux_classification'
+
+
+            // ch_versions = ch_versions.mix(HTODEMUX.out.versions)
+
+            ch_assignments = HTODEMUX.out.assignment
+                .map { meta, assignment ->
+                    [meta, [result: assignment, method: 'htodemux_assignment']]
+                }
+
+            ch_classifications = HTODEMUX.out.classification
+                .map { meta, classification ->
+                    [meta, [result: classification, method: 'htodemux_classification']]
+                }
+
+            ch_results = ch_results
+                .mix(ch_assignments,ch_classifications)
+
+            println("results oben ---->")
+            //ch_results.view()
+            println("results oben ---->")
 
 
             //ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta, [path: result, method: 'htodemux']] })
@@ -92,6 +126,8 @@ workflow HASH_DEMULTIPLEXING {
             //HTODEMUX.out.assignment.join(HTODEMUX.out.classification).join(HTODEMUX.out.params).view("testiiii "+ it)
 
 
+            ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
+            ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
 
 
@@ -115,11 +151,12 @@ workflow HASH_DEMULTIPLEXING {
             ch_results = ch_results.mix(
                 MULTISEQDEMUX.out.results
                 .map { meta, file ->
-                    [meta, [results: file, method: 'htodemux']]
+                    [meta, [results: file, method: 'multiseq']]
                 })
 
 
             //ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta, [path: result, method: 'multiseq']] })
+            ch_multiseq = ch_multiseq.mix(MULTISEQDEMUX.out.results)
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
     }
@@ -190,11 +227,22 @@ workflow HASH_DEMULTIPLEXING {
     // group by module
     //ch_results_grouped = ch_results.groupTuple(by: 0).view()
 
-    def sorted_methods = ['htodemux', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
-    def used_methods = methods as List
+
+
+    def methods_list = methods as List
+    def sorted_method_files = ['htodemux_assignment', 'htodemux_classification', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
+
+    def used_method_files = methods_list.contains('htodemux')
+        ? (methods_list - 'htodemux') + ['htodemux_assignment', 'htodemux_classification']
+        : methods_list
+
+    def empty_method_files = sorted_method_files - used_method_files
+
+    println("Empty" + empty_method_files)
+    println("Used" + used_method_files)
 
     // ch_hashing_summary = ch_results.groupTuple(by: 0).view()
-
+    //ch_results.view{"results unten"+it}
     // def met = ['htodemux', 'multiseq']
     // def diff_met = sorted_methods - met
     // def diff_methods = sorted_methods - used_methods
@@ -207,22 +255,50 @@ workflow HASH_DEMULTIPLEXING {
     // sort the methods result paths as in sorted_methods and add empty results for methods not calculated
     // you either have a single file path, a list (groovy map) of file paths or null if there where no results
     // e.g. [meta, file1, file2, [A: file3, B: file4], null, file5, ...]
-    ch_hashing_summary = ch_results.groupTuple(by: 0)
+
+    //ch_results_sorted = ch_results.groupTuple(by: 0).view()
+
+    ch_results_sorted = ch_results.groupTuple(by: 0)
     .map { meta, results ->
-        def empty_results = (sorted_methods - used_methods).collect {[results: null,method: it] }
+        def empty_results = empty_method_files.collect {[results: null,method: it] }
         // println("empties: "+ empty_results)
-        // println("+ --> "+results + empty_results)
+        // println("+ --> "+(results + empty_results))
         def sorted_results = (results + empty_results)
-            .sort { sorted_methods.indexOf(it.method) }
+            .sort { a, b ->
+    sorted_method_files.indexOf(a.method) <=> sorted_method_files.indexOf(b.method)
+ }
             .collect { it.results }
-        [meta,sorted_results]
+        // println("sorted: "+ sorted_results)
+        [meta] + sorted_results
     }
-    .view{
-        "final "+ it
-    }
+    // .view{
+    //     "final "+ it
+    // }
+
+
+    // ch_samplesheet.join(ch_results_sorted).view()
+
+
+    def generate_anndata = false
+    def generate_mudata = false
 
     // TODO
-    // HASH_SUMMARY(ch_hashing_summary)
+
+    ['htodemux_assignment', 'htodemux_classification', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
+
+    ch_summary = ch_samplesheet
+        .join(ch_htodemux_assignments, remainder: true)
+        .join(ch_htodemux_classifications, remainder: true)
+        .join(ch_multiseq, remainder: true)
+        .join(ch_cellhashr, remainder: true)
+        .join(ch_demuxem , remainder: true)
+        .join(ch_gmmdemux, remainder: true)
+        .join(ch_hasheddrops, remainder: true)
+        .join(ch_hashsolo, remainder: true)
+
+    ch_summary.view()
+
+    HASH_SUMMARY(ch_samplesheet.join(ch_summary), generate_anndata, generate_mudata)
 
 
 

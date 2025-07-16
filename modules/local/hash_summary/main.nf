@@ -8,7 +8,7 @@ process HASH_SUMMARY {
         'community.wave.seqera.io/library/anndata_mudata_numpy_pandas_pruned:79063a0ea941b243' }"
 
     input:
-    tuple val(meta), path(hto_matrix), path(rna_matrix), path(htodemux), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
+    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
     val generate_anndata // boolean
     val generate_mudata // boolean
 
@@ -17,8 +17,26 @@ process HASH_SUMMARY {
     tuple val(meta), path("*_hashing_assignment_summary.csv")    , emit: assignment
     tuple val(meta), path("*_hashing_classification_summary.csv"), emit: classification
     tuple val(meta), path("*_hashing_params_summary.json")       , emit: params
+
+    when:
+    task.ext.when == null || task.ext.when
+
     script:
     prefix         = task.ext.prefix         ?: "${meta.id}"
 
     template 'hash_summary.py'
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_params_multiseqdemux.csv
+    touch ${prefix}_res_multiseqdemux.csv
+    touch ${prefix}_multiseqdemux.rds
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
+        r-base: \$(Rscript -e "cat(strsplit(R.version[['version.string']], ' ')[[1]][3])")
+    END_VERSIONS
+    """
 }
