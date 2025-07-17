@@ -161,6 +161,7 @@ workflow HASH_DEMULTIPLEXING {
         }
     }
 
+    // TODO rename to bff since we named the module bff
     if (methods.contains('cellhashr')) {
         error("CellHashR not implemented")
     }

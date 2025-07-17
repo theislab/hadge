@@ -289,12 +289,12 @@ def hasheddrops_summary(
 
 
 def multiseq_summary(
-    results: Dict[str, Path], raw_adata: AnnData | None, raw_mudata: MuData | None
+    assignment: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-    assignment = pd.read_csv(results['assignment'])
-    assignment.columns = ["Barcode", "multiseq"]
-    assignment.replace(
+    assign = pd.read_csv(assignment)
+    assign.columns = ["Barcode", "multiseq"]
+    assign.replace(
                 {"Doublet": "doublet", "Negative": "negative"}, inplace=True
             )
 
@@ -308,10 +308,10 @@ def multiseq_summary(
         #     mudata = raw_mudata.copy()
         #     save_mudata(mudata, multiseq_assign, x_path.name)
 
-    classification = assignment.copy()
-    classification[(classification != "doublet") & (classification != "negative")] = "singlet"
+    classi = assign.copy()
+    classi.loc[(classi["multiseq"] != "doublet") & (classi["multiseq"] != "negative"), "multiseq"] = "singlet"
 
-    return assignment, classification
+    return assign, classi
 
 
 def htodemux_summary(
@@ -617,8 +617,10 @@ if __name__ == "__main__":
         assignments.append(assignment)
         #TODO use the old container again
 
-    #if "${htodemux_assignments}" != "":
-
+    if "${multiseq}" != "":
+        assignment, classification = multiseq_summary(Path("${multiseq}"), adata, mudata)
+        classifications.append(classification)
+        assignments.append(assignment)
 
     # if args.hashedDrops is not None:
     #     hashedDrops_res = args.hashedDrops.split(":")
