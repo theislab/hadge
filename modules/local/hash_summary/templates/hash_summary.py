@@ -617,7 +617,7 @@ if __name__ == "__main__":
         assignments.append(assignment)
         #TODO use the old container again
 
-
+    #if "${htodemux_assignments}" != "":
 
 
     # if args.hashedDrops is not None:
@@ -648,9 +648,18 @@ if __name__ == "__main__":
 
 
 
-    barcodes = rna_data.obs_names.tolist()
-    assignment_summary = pd.DataFrame({'Barcode': barcodes})
-    classification_summary = pd.DataFrame({'Barcode': barcodes})
+    # barcodes = rna_data.obs_names.tolist()
+    # assignment_summary = pd.DataFrame({'Barcode': barcodes})
+    # classification_summary = pd.DataFrame({'Barcode': barcodes})
+
+
+
+    # classification_summary = pd.DataFrame({'Barcode': barcodes})
+
+
+    # TODO what to do if empty assignments = []
+    assignment_summary = assignments.pop(0)
+    classification_summary = classifications.pop(0)
 
     for assignment in assignments:
         assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="outer")
