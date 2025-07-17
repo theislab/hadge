@@ -3,11 +3,11 @@ import pandas as pd
 import scanpy as sc
 # import argparse
 import numpy as np
-# from pathlib import Path
-# from mudata import MuData
-# from anndata import AnnData
-# from typing import Dict
-# from typing import Tuple
+from pathlib import Path
+from mudata import MuData
+from anndata import AnnData
+from typing import Dict
+from typing import Tuple
 
 # parser = argparse.ArgumentParser(description="Parameters for summary process")
 # parser.add_argument(
@@ -292,11 +292,11 @@ def multiseq_summary(
     results: Dict[str, Path], raw_adata: AnnData | None, raw_mudata: MuData | None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-   assignment = pd.read_csv(results['assignment'])
-   assignment.columns = ["Barcode", "multiseq"]
-   assignment.replace(
-            {"Doublet": "doublet", "Negative": "negative"}, inplace=True
-        )
+    assignment = pd.read_csv(results['assignment'])
+    assignment.columns = ["Barcode", "multiseq"]
+    assignment.replace(
+                {"Doublet": "doublet", "Negative": "negative"}, inplace=True
+            )
 
 
         # if raw_adata is not None:
@@ -315,20 +315,19 @@ def multiseq_summary(
 
 
 def htodemux_summary(
-    results: Dict[str, Path], raw_adata: AnnData | None, raw_mudata: MuData | None
+    assignment: Path, classification: Path,raw_adata: AnnData | None, raw_mudata: MuData | None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        assignment = pd.read_csv(results['assignment'])
-        assignment.columns = ["Barcode", "htodemux"]
-        assignment.replace("Doublet", "doublet", inplace=True)
-        assignment.replace(
+        assign = pd.read_csv(assignment)
+        assign.columns = ["Barcode", "htodemux"]
+        assign.replace("Doublet", "doublet", inplace=True)
+        assign.replace(
             {"Doublet": "doublet", "Negative": "negative"}, inplace=True
         )
 
-        classification = pd.read_csv(results['classification'])
-        classification.columns = ["Barcode", "htodemux"]
-        classification.columns = ["Barcode", "htodemux"]
-        classification.replace(
+        classi = pd.read_csv(classification)
+        classi.columns = ["Barcode", "htodemux"]
+        classi.replace(
             {"Singlet": "singlet", "Doublet": "doublet", "Negative": "negative"}, inplace=True
         )
 
@@ -355,7 +354,7 @@ def htodemux_summary(
         #         Path("hash_summary/mudata") / f"mudata_with_mudata_{x_path.name}.h5mu"
         #     )
 
-        return assignment, classification
+        return assign, classi
 
 
 def gmm_summary(
@@ -613,7 +612,7 @@ if __name__ == "__main__":
         raise ValueError("The assignment or classification file of htodemux is empty.")
 
     if "${htodemux_assignments}" != "":
-        assignment, classification = htodemux_summary("${htodemux_assignments}", "${htodemux_classification}", adata, mudata)
+        assignment, classification = htodemux_summary(Path("${htodemux_assignments}"), Path("${htodemux_classification}"), adata, mudata)
         classifications.append(classification)
         assignments.append(assignment)
         #TODO use the old container again
@@ -650,17 +649,17 @@ if __name__ == "__main__":
 
 
     barcodes = rna_data.obs_names.tolist()
-    assignment_summary = pd.DataFrame({'Barcodes': barcodes})
-    classification_summary = pd.DataFrame({'Barcodes': barcodes})
+    assignment_summary = pd.DataFrame({'Barcode': barcodes})
+    classification_summary = pd.DataFrame({'Barcode': barcodes})
 
     for assignment in assignments:
         assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="outer")
 
-    assignment_summary.to_csv("${prefix}/summary_hashing_assignment.csv", index=False)
+    assignment_summary.to_csv("${prefix}_hashing_summary_assignment.csv", index=False)
 
     for classification in classifications:
             classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="outer")
 
     classification_summary.to_csv(
-        "${prefix}/summary_hashing_classification.csv", index=False
+        "${prefix}_hashing_summary_classification.csv", index=False
     )

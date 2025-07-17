@@ -5,7 +5,7 @@ process HASH_SUMMARY {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/r-ggplot2_r-seurat:dac8c905972b98df':
-        'community.wave.seqera.io/library/pandas_scanpy:e335a66f43cc9a00' }"
+        'community.wave.seqera.io/library/anndata_mudata_numpy_pandas_pruned:79063a0ea941b243' }"
 
     input:
     tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
@@ -14,9 +14,8 @@ process HASH_SUMMARY {
 
 
     output:
-    tuple val(meta), path("*_hashing_assignment_summary.csv")    , emit: assignment
-    tuple val(meta), path("*_hashing_classification_summary.csv"), emit: classification
-    tuple val(meta), path("*_hashing_params_summary.json")       , emit: params
+    tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment
+    tuple val(meta), path("*_hashing_summary_classification.csv"), emit: classification
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,9 +28,9 @@ process HASH_SUMMARY {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}_params_multiseqdemux.csv
-    touch ${prefix}_res_multiseqdemux.csv
-    touch ${prefix}_multiseqdemux.rds
+    touch ${prefix}_hashing_summary_assignment.csv
+    touch ${prefix}_hashing_summary_classification.csv
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
