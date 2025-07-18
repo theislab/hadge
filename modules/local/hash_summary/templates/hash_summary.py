@@ -8,6 +8,7 @@ from mudata import MuData
 from anndata import AnnData
 from typing import Dict
 from typing import Tuple
+import pegasusio as io
 
 # parser = argparse.ArgumentParser(description="Parameters for summary process")
 # parser.add_argument(
@@ -118,50 +119,28 @@ def save_mudata(
 
 
 def demuxem_summary(
-    demuxem_res: list[str], raw_adata: AnnData | None, raw_mudata: MuData | None
-) -> None:
-    assign = []
-    classi = []
-    params = []
-    for x in demuxem_res:
-        x_path = Path(x)
-        obs_res_dir = find_file_with_suffix(x_path, "_obs.csv")
-        obs_res = pd.read_csv(obs_res_dir)
-        obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
-        demuxem_assign = obs_res[["Barcode", "assignment"]]
-        demuxem_assign.columns = ["Barcode", x_path.name]
-        demuxem_assign.index = demuxem_assign.Barcode
-        demuxem_assign = demuxem_assign.drop(columns=["Barcode"])
-        assign.append(demuxem_assign)
+    results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            save_anndata(adata, demuxem_assign, x_path.name)
+    data = io.read_input(str(results))
+    classi = data.obs['demux_type'].to_frame()
+    classi.columns = ["Barcode", "demuxem"]
+    classi.replace("unknown", "negative")
 
-        if raw_mudata is not None:
-            mudata = raw_mudata.copy()
-            save_mudata(mudata, demuxem_assign, x_path.name)
+    assign = data.obs['assignment'].to_frame()
+    assign.columns = ["Barcode", "demuxem"]
 
-        demuxem_classi = obs_res[["Barcode", "demux_type"]]
-        demuxem_classi.columns = ["Barcode", x_path.name]
-        demuxem_classi = demuxem_classi.replace("unknown", "negative")
-        demuxem_classi.index = demuxem_classi.Barcode
-        demuxem_classi = demuxem_classi.drop(columns=["Barcode"])
-        classi.append(demuxem_classi)
+    # different number of row that the other files
 
-        params_dir = find_file_with_suffix(x_path, "params.csv")
-        params_res = pd.read_csv(params_dir, keep_default_na=False, index_col=0)
-        params_res.columns = [x_path.name]
-        params.append(params_res)
+    # if raw_adata is not None:
+    #     adata = raw_adata.copy()
+    #     save_anndata(adata, demuxem_assign, x_path.name)
 
-    assign = pd.concat(assign, axis=1)
-    assign.to_csv("hash_summary/demuxem_assignment.csv", quoting=False)
+    # if raw_mudata is not None:
+    #     mudata = raw_mudata.copy()
+    #     save_mudata(mudata, demuxem_assign, x_path.name)
 
-    classi = pd.concat(classi, axis=1)
-    classi.to_csv("hash_summary/demuxem_classification.csv", quoting=False)
-
-    params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/demuxem_params.csv")
+    return assign, classi
 
 
 def hashsolo_summary(
@@ -599,6 +578,8 @@ if __name__ == "__main__":
     classifications = []
 
     rna_data = sc.read_10x_mtx("${rna_matrix}")
+    print(rna_data)
+
 
     if "${generate_mudata}" == "true":
         hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
@@ -613,32 +594,29 @@ if __name__ == "__main__":
 
     if "${htodemux_assignments}" != "":
         assignment, classification = htodemux_summary(Path("${htodemux_assignments}"), Path("${htodemux_classification}"), adata, mudata)
-        classifications.append(classification)
         assignments.append(assignment)
+        classifications.append(classification)
         #TODO use the old container again
 
     if "${multiseq}" != "":
         assignment, classification = multiseq_summary(Path("${multiseq}"), adata, mudata)
-        classifications.append(classification)
         assignments.append(assignment)
+        classifications.append(classification)
+
+    if "${demuxem}" != "":
+        assignment, classification = demuxem_summary(Path("${demuxem}"), adata, mudata)
+        assignments.append(assignment)
+        classifications.append(classification)
+
+
 
     # if args.hashedDrops is not None:
     #     hashedDrops_res = args.hashedDrops.split(":")
     #     hasheddrops_summary(hashedDrops_res, adata, mudata)
 
-    # if args.demuxem is not None:
-    #     demuxem_res = args.demuxem.split(":")
-    #     demuxem_summary(demuxem_res, adata, mudata)
-
     # if args.hashsolo is not None:
     #     hashsolo_res = args.hashsolo.split(":")
     #     hashsolo_summary(hashsolo_res, adata, mudata)
-
-    # if args.multiseq is not None:
-    #     multiseq_res = args.multiseq.split(":")
-    #     multiseq_summary(multiseq_res, adata, mudata)
-
-
 
     # if args.gmm_demux is not None:
     #     gmmDemux_res = args.gmm_demux.split(":")
