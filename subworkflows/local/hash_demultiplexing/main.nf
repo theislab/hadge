@@ -192,9 +192,9 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
     if (methods.contains('gmm-demux')) {
-        ch_gmmdemux = ch_samplesheet.map { meta, _rna, hto -> [meta, hto, "MS-11,MS-12", meta.n_cells] }
+        ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [meta, hto, "MS-11,MS-12", meta.n_cells] }
 
-        ch_gmmdemux.map { meta, hto, hto_names, _estimated_cells ->
+        ch_gmmdemux_input.map { meta, hto, hto_names, _estimated_cells ->
             {
                 if (!hto) {
                     error("HTO matrix not provided for sample ${meta.id}, but this is required for GMM-Demux. Please check your input samplesheet.")
@@ -205,7 +205,7 @@ workflow HASH_DEMULTIPLEXING {
             }
         }
         GMMDEMUX(
-            ch_gmmdemux,
+            ch_gmmdemux_input,
             true,
             true,
             [],
