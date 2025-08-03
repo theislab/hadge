@@ -189,6 +189,8 @@ workflow HASH_DEMULTIPLEXING {
             params.genome ?: [],
             true,
         )
+
+        ch_demuxem = ch_demuxem.mix(DEMUXEM.out.out_zarr)
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
     if (methods.contains('gmm-demux')) {

@@ -122,12 +122,17 @@ def demuxem_summary(
     results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
+    print("debug3")
+
     data = io.read_input(str(results))
     classi = data.obs['demux_type'].to_frame()
+    classi.reset_index(inplace=True)
     classi.columns = ["Barcode", "demuxem"]
     classi.replace("unknown", "negative")
 
+    print("debug4")
     assign = data.obs['assignment'].to_frame()
+    assign.reset_index(inplace=True)
     assign.columns = ["Barcode", "demuxem"]
 
     # different number of row that the other files
@@ -571,6 +576,9 @@ def bff_summary(
 
 
 if __name__ == "__main__":
+
+    print("debug1")
+
     adata = None
     mudata = None
 
@@ -604,6 +612,7 @@ if __name__ == "__main__":
         classifications.append(classification)
 
     if "${demuxem}" != "":
+        print("debug2")
         assignment, classification = demuxem_summary(Path("${demuxem}"), adata, mudata)
         assignments.append(assignment)
         classifications.append(classification)
