@@ -319,122 +319,55 @@ def htodemux_summary(
 
 
 def gmm_summary(
-    gmmDemux_res: list[str], raw_adata: AnnData | None, raw_mudata: MuData | None
-) -> None:
-    classi = []
-    assign = []
-    params = []
-    for x in gmmDemux_res:
-        x_path = Path(x)
-        obs_res_dir = find_file_with_suffix(x_path, "GMM_full.csv")
-        params_dir = x_path / "params.csv"
-        params_res = pd.read_csv(params_dir, index_col=False)
-        params_res.columns = ["Argument", x_path.name]
-        params.append(params_res)
+    results: Path, config: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        result_row = params_res[
-            params_res["Argument"].str.contains("hto_name_gmm", case=False, na=False)
-        ]
-        hashes_used = ""
-        if not result_row.empty:
-            hashes_used = result_row[x_path.name].iloc[0]
+    # TODO hash list is hardcoded until now
+    # extend config file with Cluster_id's
+    hashes = ["MS-11","MS-12"]
+    number_of_hashes = len(hashes)
+
+    df_config = pd.read_csv(config, header=None)
+    df_config.columns = ["Cluster_id", "Description"]
+
+    def _classify_hash(cluster_id: int, number_hashes: int) -> str:
+        if cluster_id == 0:
+            return "negative"
+        elif 1 <= cluster_id <= number_hashes:
+            return "singlet"
         else:
-            print("No row contains the number of hashes")
-        hashes = hashes_used.split(",")
-        number_of_hashes = len(hashes)
+            return "doublet"
 
-        gmm_classi = pd.read_csv(obs_res_dir)
-        classification_config = x_path / "GMM_full.config"
-        classif_file = pd.read_csv(classification_config, header=None)
+    df_config["Classification"] = df_config["Cluster_id"].apply(
+        lambda cluster_id: _classify_hash(cluster_id, number_of_hashes)
+    )
 
-        gmm_dt = pd.DataFrame(gmm_classi)
-        classification_dt = pd.DataFrame(classif_file)
+    df_config["Assignment"] = df_config["Description"].where(
+        df_config["Classification"] == "singlet",
+        other=df_config["Classification"]
+    )
 
-        classification_dt = classification_dt.rename(
-            columns={0: "Cluster_id", 1: "assignment"}
-        )
-        gmm_dt = gmm_dt.rename(columns={"Unnamed: 0": "Barcode"})
+    # results with Cluster_id's
+    df_results = pd.read_csv(results)
+    df_results.columns = ["Barcode", "Cluster_id", "Confidence"]
 
-        def _classify_hash(row, number_hashes):
-            if row == 0:
-                return "negative"
-            elif row > 0 and row <= number_hashes:
-                print("singlet found")
-                return "singlet"
-            else:
-                return "doublet"
+    df_results = df_results.merge(df_config, on="Cluster_id", how="left")
 
-        classification_dt["Classification"] = classification_dt["Cluster_id"].apply(
-            lambda x: _classify_hash(x, number_of_hashes)
-        )
+    assign = df_results[["Barcode", "Assignment"]]
+    assign.columns = ["Barcode", "gmmdemux"]
 
-        new_rows = []
-        for _, row in gmm_dt.iterrows():
-            cluster_id = row["Cluster_id"]
-            matching_row_map = classification_dt[
-                classification_dt["Cluster_id"] == cluster_id
-            ]
-            if not matching_row_map.empty:
-                assignment_gmm = matching_row_map.iloc[0]["assignment"]
-                classification_gmm = matching_row_map.iloc[0]["Classification"]
+    classi = df_results[["Barcode", "Classification"]]
+    classi.columns = ["Barcode", "gmmdemux"]
 
-                new_row = {
-                    "Barcode": row["Barcode"],
-                    "Cluster_id": cluster_id,
-                    "assignment": assignment_gmm,
-                    "Classification": classification_gmm,
-                }
-                new_rows.append(new_row)
-        merged = pd.DataFrame(new_rows)
+    # if raw_adata is not None:
+    #     adata = raw_adata.copy()
+    #     save_anndata(adata, gmm_dt_assign, "testiii", merge_on_barcode=True)
 
-        merged["assignment"] = merged.apply(
-            lambda row: "doublet"
-            if "doublet" in row["Classification"]
-            else row["assignment"],
-            axis=1,
-        )
+    # if raw_mudata is not None:
+    #     mudata = raw_mudata.copy()
+    #     save_mudata(mudata, gmm_dt_assign, "testiii", merge_on_barcode=True)
 
-        gmm_dt["Classification"] = merged["Classification"]
-        gmm_dt["Assignment"] = merged["assignment"]
-        gmm_dt["Assignment"] = gmm_dt["Assignment"].apply(
-            lambda x: "doublet" if "-" in x else x
-        )
-        classification_dt["Classification"] = classification_dt[
-            "Classification"
-        ].str.replace(" ", "")
-
-        gmm_dt_assign = gmm_dt.drop(
-            ["Cluster_id", "Confidence", "Classification"], axis=1
-        )
-        gmm_dt_assign["Assignment"] = gmm_dt_assign["Assignment"].str.replace(" ", "")
-        gmm_dt_assign.columns = ["Barcode", x_path.name]
-        assign.append(gmm_dt_assign)
-
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            save_anndata(adata, gmm_dt_assign, x_path.name, merge_on_barcode=True)
-
-        if raw_mudata is not None:
-            mudata = raw_mudata.copy()
-            save_mudata(mudata, gmm_dt_assign, x_path.name, merge_on_barcode=True)
-
-        gmm_dt_classi = gmm_dt.drop(["Cluster_id", "Confidence", "Assignment"], axis=1)
-        gmm_dt_classi.columns = ["Barcode", x_path.name]
-        classi.append(gmm_dt_classi)
-
-        params_dir = x_path / "params.csv"
-        params_res = pd.read_csv(params_dir, index_col=False)
-        params_res.columns = ["Argument", x_path.name]
-        params.append(params_res)
-
-    classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary/GMM_classification.csv", index=False)
-
-    assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary/GMM_assignment.csv", index=False, sep=",")
-
-    params_df = pd.concat(params, axis=1, join="outer")
-    params_df.to_csv("hash_summary/GMM_params.csv", index=False)
+    return assign, classi
 
 
 def bff_summary(
@@ -598,9 +531,14 @@ if __name__ == "__main__":
         assignments.append(assignment)
         classifications.append(classification)
 
-    # if args.hashedDrops is not None:
-    #     hashedDrops_res = args.hashedDrops.split(":")
-    #     hasheddrops_summary(hashedDrops_res, adata, mudata)
+    if "${gmmdemux_results}" != "":
+        assignment, classification = gmm_summary(Path("${gmmdemux_results}"), Path("${gmmdemux_config}"), adata, mudata)
+        assignments.append(assignment)
+        classifications.append(classification)
+
+
+
+
 
     # if args.hashsolo is not None:
     #     hashsolo_res = args.hashsolo.split(":")
@@ -631,7 +569,8 @@ if __name__ == "__main__":
         counts = assignment[assignment.columns[1]].value_counts()
         length = len(assignment)
         print(counts)
-        print(length)
+        print("length: ", length)
+        print("")
 
 
     assignment_summary = assignments.pop(0)

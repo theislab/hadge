@@ -8,7 +8,7 @@ process HASH_SUMMARY {
         'community.wave.seqera.io/library/pegasusio_anndata_mudata_numpy_pruned:9d13d0d12376624e' }"
 
     input:
-    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux), path(hasheddrops), path(hashsolo)
+    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(cellhashr), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops), path(hashsolo)
     val generate_anndata // boolean
     val generate_mudata // boolean
 

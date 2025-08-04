@@ -29,7 +29,8 @@ workflow HASH_DEMULTIPLEXING {
     ch_multiseq = Channel.empty()
     ch_cellhashr = Channel.empty()
     ch_demuxem = Channel.empty()
-    ch_gmmdemux = Channel.empty()
+    ch_gmmdemux_results = Channel.empty()
+    ch_gmmdemux_config = Channel.empty()
     ch_hasheddrops = Channel.empty()
     ch_hashsolo = Channel.empty()
 
@@ -193,6 +194,8 @@ workflow HASH_DEMULTIPLEXING {
         ch_demuxem = ch_demuxem.mix(DEMUXEM.out.out_zarr)
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
+
+    // List of HTO names is hardcoded until now
     if (methods.contains('gmm-demux')) {
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [meta, hto, "MS-11,MS-12", meta.n_cells] }
 
@@ -214,6 +217,9 @@ workflow HASH_DEMULTIPLEXING {
             [],
         )
         ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
+
+        ch_gmmdemux_results = ch_gmmdemux_results.mix(GMMDEMUX.out.classification_report)
+        ch_gmmdemux_config = ch_gmmdemux_config.mix(GMMDEMUX.out.config_report)
     }
     if (methods.contains('hasheddrops')) {
         HASHEDDROPS(
@@ -296,7 +302,8 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_multiseq, remainder: true)
         .join(ch_cellhashr, remainder: true)
         .join(ch_demuxem , remainder: true)
-        .join(ch_gmmdemux, remainder: true)
+        .join(ch_gmmdemux_results, remainder: true)
+        .join(ch_gmmdemux_config, remainder: true)
         .join(ch_hasheddrops, remainder: true)
         .join(ch_hashsolo, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
