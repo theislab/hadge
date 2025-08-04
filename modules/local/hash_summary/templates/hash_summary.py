@@ -212,64 +212,41 @@ def hashsolo_summary(
 
 
 def hasheddrops_summary(
-    hasheddrops_res: list[str], raw_adata: AnnData | None, raw_mudata: MuData | None
-) -> None:
-    assign = []
-    classi = []
-    params = []
+    results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-    for x in hasheddrops_res:
-        x_path = Path(x)
-        obs_res_dir = find_file_with_suffix(x_path, "_res.csv")
-        obs_res = pd.read_csv(obs_res_dir)
+    obs_res = pd.read_csv(results)
 
-        obs_res["Classification"] = np.where(
-            obs_res["Confident"],
-            "singlet",
-            np.where(obs_res["Doublet"], "doublet", "negative"),
-        )
-        obs_res["Best"] = np.where(
-            ~obs_res["Classification"].isin(["doublet", "negative"]),
-            obs_res["Best"],
-            obs_res["Classification"],
-        )
-        obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
-
-        hasheddrops_res_df = obs_res[["Barcode", "Best"]]
-        hasheddrops_res_df = hasheddrops_res_df.rename(columns={"Best": x_path.name})
-        assign.append(hasheddrops_res_df)
-
-        if raw_adata is not None:
-            adata = raw_adata.copy()
-            save_anndata(adata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
-
-        if raw_mudata is not None:
-            mudata = raw_mudata.copy()
-            save_mudata(mudata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
-
-        hasheddrops_classi = obs_res[["Barcode", "Classification"]]
-        hasheddrops_classi = hasheddrops_classi.rename(
-            columns={"Classification": x_path.name}
-        )
-        classi.append(hasheddrops_classi)
-
-        params_dir = find_file_with_suffix(x_path, "params.csv")
-        params_res = pd.read_csv(
-            params_dir, usecols=[1, 2], keep_default_na=False, index_col=0
-        )
-        params_res.columns = [x_path.name]
-        params.append(params_res)
-
-    assign = pd.concat(assign, axis=1).reset_index(drop=True)
-    assign.to_csv("hash_summary/hasheddrops_assignment.csv", index=False, quoting=False)
-
-    classi = pd.concat(classi, axis=1).reset_index(drop=True)
-    classi.to_csv(
-        "hash_summary/hasheddrops_classification.csv", index=False, quoting=False
+    obs_res["Classification"] = np.where(
+        obs_res["Confident"],
+        "singlet",
+        np.where(obs_res["Doublet"], "doublet", "negative"),
     )
 
-    params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/hasheddrops_params.csv")
+    obs_res["Assignment"] = np.where(
+        ~obs_res["Classification"].isin(["doublet", "negative"]),
+        obs_res["Best"],
+        obs_res["Classification"],
+    )
+
+    obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
+
+    print(obs_res)
+
+    classi = obs_res[["Barcode", "Classification"]]
+    classi.columns = ["Barcode", "hasheddrops"]
+    assign = obs_res[["Barcode", "Assignment"]]
+    assign.columns = ["Barcode", "hasheddrops"]
+
+    # if raw_adata is not None:
+    #     adata = raw_adata.copy()
+    #     save_anndata(adata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
+
+    # if raw_mudata is not None:
+    #     mudata = raw_mudata.copy()
+    #     save_mudata(mudata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
+
+    return assign,classi
 
 
 def multiseq_summary(
@@ -612,12 +589,14 @@ if __name__ == "__main__":
         classifications.append(classification)
 
     if "${demuxem}" != "":
-        print("debug2")
         assignment, classification = demuxem_summary(Path("${demuxem}"), adata, mudata)
         assignments.append(assignment)
         classifications.append(classification)
 
-
+    if "${hasheddrops}" != "":
+        assignment, classification = hasheddrops_summary(Path("${hasheddrops}"), adata, mudata)
+        assignments.append(assignment)
+        classifications.append(classification)
 
     # if args.hashedDrops is not None:
     #     hashedDrops_res = args.hashedDrops.split(":")
@@ -647,6 +626,14 @@ if __name__ == "__main__":
 
 
     # TODO what to do if empty assignments = []
+
+    for assignment in assignments:
+        counts = assignment[assignment.columns[1]].value_counts()
+        length = len(assignment)
+        print(counts)
+        print(length)
+
+
     assignment_summary = assignments.pop(0)
     classification_summary = classifications.pop(0)
 

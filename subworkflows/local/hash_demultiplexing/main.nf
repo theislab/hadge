@@ -219,6 +219,7 @@ workflow HASH_DEMULTIPLEXING {
         HASHEDDROPS(
             ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE", rna] }
         )
+        ch_hasheddrops = ch_hasheddrops.mix(HASHEDDROPS.out.results)
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
