@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import pandas as pd
 import scanpy as sc
-# import argparse
 import numpy as np
 from pathlib import Path
 from mudata import MuData
@@ -10,68 +9,12 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
-# parser = argparse.ArgumentParser(description="Parameters for summary process")
-# parser.add_argument(
-#     "--demuxem", help="Folder containing output files of demuxem", default=None
-# )
-# parser.add_argument(
-#     "--htodemux", help="Folder containing output files of htodemux", default=None
-# )
-# parser.add_argument(
-#     "--multiseq", help="Folder containing output files of multiseq", default=None
-# )
-# parser.add_argument(
-#     "--hashsolo", help="Folder containing output files of hashsolo", default=None
-# )
-# parser.add_argument(
-#     "--hashedDrops", help="Folder containing output files of hashedDrops", default=None
-# )
-# parser.add_argument("--bff", help="Folder containing output files of BFF", default=None)
-# parser.add_argument(
-#     "--gmm_demux", help="Folder containing output files of GMM-Demux", default=None
-# )
-# parser.add_argument("--generate_anndata", help="Generate anndata", action="store_true")
-# parser.add_argument("--generate_mudata", help="Generate mudata", action="store_true")
-# parser.add_argument(
-#     "--read_rna_mtx",
-#     help="10x-Genomics-formatted mtx directory for gene expression",
-#     default=None,
-# )
-# parser.add_argument(
-#     "--read_hto_mtx",
-#     help="10x-Genomics-formatted mtx directory for HTO expression",
-#     default=None,
-# )
-# args = parser.parse_args()
-
-
-def groovy_map_str_2_dict(input_str: str) -> Dict[str, Path]:
-    """
-    Parses an input string in the format '[key1: value1, key2: value2, ...]' (a groovy map) into a dictionary,
-    converting ALL values into Path objects.
-
-    Args:
-        input_str: A string in the specified format (e.g., '[key1: value1, key2: value2]').
-
-    Returns:
-        A dictionary where all values are Path objects.
-    """
-    pairs = [pair.strip() for pair in input_str.strip("[]").split(",") if pair.strip()]
-    result = {}
-
-    for pair in pairs:
-        key, value = pair.split(":", 1)  # Split on first colon only
-        result[key.strip()] = Path(value.strip())
-
-    return result
-
 def find_file_with_suffix(directory: Path, suffix: str) -> Path:
     return [file for file in directory.iterdir() if file.name.endswith(suffix)][0]
 
 
 def find_file_with_name(directory: Path, name: str) -> Path:
     return [file for file in directory.iterdir() if file.name == name][0]
-
 
 def save_anndata(
     adata: AnnData,
@@ -256,11 +199,6 @@ def hasheddrops_summary(
     'HTO': ['MS-11', 'MS-12']
     })
 
-    # add NaN values for this edge case
-    # Best no longer refers to the row index of x, but instead to the row index of combinations.
-    # This may contain NA values if a particular combination of HTOs is observed but not present
-    # in the expected set.
-    # Source: https://rdrr.io/github/MarioniLab/DropletUtils/man/hashedDrops.html#:~:text=This%20may%20contain%20NA%20values
     idx_to_htoname_df.loc[len(idx_to_htoname_df)] = [np.nan, "negative"]
     idx_to_htoname_map = idx_to_htoname_df.set_index('Index')['HTO'].to_dict()
 
@@ -270,8 +208,6 @@ def hasheddrops_summary(
         obs_res["Confident"] & obs_res["Confident"].notna(),
         "singlet",
         np.where(obs_res["Doublet"] & obs_res["Doublet"].notna(), "doublet", "negative")
-        # to handle 2 or less inputs
-        # https://rdrr.io/github/MarioniLab/DropletUtils/man/hashedDrops.html#:~:text=Handling%202%20or%20fewer%20samples
     )
 
     obs_res["Assignment"] = np.where(
