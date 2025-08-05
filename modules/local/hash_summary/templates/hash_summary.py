@@ -215,7 +215,50 @@ def hasheddrops_summary(
     results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
+    # TODO add this to the nf-core module to have a map that indexes from the integer (in Best, etc. to the HTO name or combinations)
+    # TODO if combinations is specified it the index will map to the HTO join with an +
+    # otherwise it will jost take the rowname
+    # # Mocking up an example dataset with 10 HTOs and 10% doublets.
+    # #print(y)
+    # combinations <- NULL
+    # hto <- Read10X(data.dir = "/Users/luisheinzlmeier/Desktop/hto", gene.column = 2)
+
+    # # Get the HTO names
+    # hto_names <- rownames(hto)
+    # if (!is.null(combinations)){
+    #     hto_names <- apply(combinations, 1, function(row) paste(row, collapse = "+"))
+    #     # In some applications, samples are labelled with a combination of HTOs to enable achieve greater
+    #     # multiplexing throughput. This is accommodated by passing combinations to specify the valid
+    #     # HTO combinations that were used for sample labelling. Each row of combinations corresponds
+    #     # to a sample and should contain non-duplicated row indices of x corresponding to the HTOs used in
+    #     # that sample.
+    #     # Quelle: https://bioconductor.statistik.tu-dortmund.de/packages/3.18/bioc/manuals/DropletUtils/man/DropletUtils.pdf
+
+    #     # If combinations is specified, Best instead specifies the sample (i.e., row index of combinations).
+    #     # The interpretation of LogFC and LogFC2 are slightly different, and Second is not reported - see “Resolving combinatorial hashes”.
+    #     # Quelle: https://rdrr.io/github/MarioniLab/DropletUtils/man/hashedDrops.html
+    # }
+
+    # # Create a data frame mapping names to indices
+    # hto_map <- data.frame(
+    # Index = seq_along(hto_names),
+    # HTO = hto_names
+    # )
+
+    # # Write to CSV
+    # write.csv(hto_map, file = "hto_index_map.csv", row.names = FALSE)
+
+    # TODO remove hardcoding
+    # Hardcode indexing for now
+    # for later: test = pd.read_csv("hto_index_map.csv")
+    idx_to_htoname_map = pd.DataFrame({
+    'Index': [1, 2],
+    'HTO': ['MS-11', 'MS-12']
+    })
+
     obs_res = pd.read_csv(results)
+
+    print(obs_res)
 
     obs_res["Classification"] = np.where(
         obs_res["Confident"],
@@ -531,37 +574,23 @@ if __name__ == "__main__":
         assignments.append(assignment)
         classifications.append(classification)
 
+    if sum(s == "" for s in ["${gmmdemux_results}", "${gmmdemux_config}"]) == 1:
+        raise ValueError("The assignment or classification file of htodemux is empty.")
+
     if "${gmmdemux_results}" != "":
         assignment, classification = gmm_summary(Path("${gmmdemux_results}"), Path("${gmmdemux_config}"), adata, mudata)
         assignments.append(assignment)
         classifications.append(classification)
 
+    if "${bff}" != "":
+        assignment, classification = bff_summary(Path("${bff}"), adata, mudata)
+        assignments.append(assignment)
+        classifications.append(classification)
 
-
-
-
-    # if args.hashsolo is not None:
-    #     hashsolo_res = args.hashsolo.split(":")
-    #     hashsolo_summary(hashsolo_res, adata, mudata)
-
-    # if args.gmm_demux is not None:
-    #     gmmDemux_res = args.gmm_demux.split(":")
-    #     gmm_summary(gmmDemux_res, adata, mudata)
-
-    # if args.bff is not None:
-    #     bff_res = args.bff.split(":")
-    #     bff_summary(bff_res, adata, mudata)
-
-
-
-    # barcodes = rna_data.obs_names.tolist()
-    # assignment_summary = pd.DataFrame({'Barcode': barcodes})
-    # classification_summary = pd.DataFrame({'Barcode': barcodes})
-
-
-
-    # classification_summary = pd.DataFrame({'Barcode': barcodes})
-
+    if "${hashsolo}" != "":
+        assignment, classification = hashsolo_summary(Path("${hashsolo}"), adata, mudata)
+        assignments.append(assignment)
+        classifications.append(classification)
 
     # TODO what to do if empty assignments = []
 
