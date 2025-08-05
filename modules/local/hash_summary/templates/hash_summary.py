@@ -128,7 +128,7 @@ def demuxem_summary(
     classi = data.obs['demux_type'].to_frame()
     classi.reset_index(inplace=True)
     classi.columns = ["Barcode", "demuxem"]
-    classi.replace("unknown", "negative")
+    classi['demuxem'] = classi['demuxem'].cat.rename_categories({"unknown": "negative"})
 
     print("debug4")
     assign = data.obs['assignment'].to_frame()
@@ -600,6 +600,9 @@ if __name__ == "__main__":
 
     # TODO what to do if empty assignments = []
 
+    print("----- Assignments -----")
+    print("")
+
     for assignment in assignments:
         counts = assignment[assignment.columns[1]].value_counts()
         length = len(assignment)
@@ -607,6 +610,15 @@ if __name__ == "__main__":
         print("length: ", length)
         print("")
 
+    print("----- Classifications -----")
+    print("")
+
+    for classification in classifications:
+        counts = classification[classification.columns[1]].value_counts()
+        length = len(classification)
+        print(counts)
+        print("length: ", length)
+        print("")
 
     assignment_summary = assignments.pop(0)
     classification_summary = classifications.pop(0)
