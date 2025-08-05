@@ -251,35 +251,41 @@ def hasheddrops_summary(
     # TODO remove hardcoding
     # Hardcode indexing for now
     # for later: test = pd.read_csv("hto_index_map.csv")
-    idx_to_htoname_map = pd.DataFrame({
+    idx_to_htoname_df = pd.DataFrame({
     'Index': [1, 2],
     'HTO': ['MS-11', 'MS-12']
     })
 
+    # add NaN values for this edge case
+    # Best no longer refers to the row index of x, but instead to the row index of combinations.
+    # This may contain NA values if a particular combination of HTOs is observed but not present
+    # in the expected set.
+    # Source: https://rdrr.io/github/MarioniLab/DropletUtils/man/hashedDrops.html#:~:text=This%20may%20contain%20NA%20values
+    idx_to_htoname_df.loc[len(idx_to_htoname_df)] = [np.nan, "negative"]
+    idx_to_htoname_map = idx_to_htoname_df.set_index('Index')['HTO'].to_dict()
+
     obs_res = pd.read_csv(results)
 
-    print(obs_res)
-
     obs_res["Classification"] = np.where(
-        obs_res["Confident"],
+        obs_res["Confident"] & obs_res["Confident"].notna(),
         "singlet",
-        np.where(obs_res["Doublet"], "doublet", "negative"),
+        np.where(obs_res["Doublet"] & obs_res["Doublet"].notna(), "doublet", "negative")
+        # to handle 2 or less inputs
+        # https://rdrr.io/github/MarioniLab/DropletUtils/man/hashedDrops.html#:~:text=Handling%202%20or%20fewer%20samples
     )
 
     obs_res["Assignment"] = np.where(
-        ~obs_res["Classification"].isin(["doublet", "negative"]),
-        obs_res["Best"],
+        obs_res["Classification"].isin(["doublet", "negative"]),
         obs_res["Classification"],
+        obs_res["Best"].map(idx_to_htoname_map),
     )
 
     obs_res.rename(columns={obs_res.columns[0]: "Barcode"}, inplace=True)
 
     print(obs_res)
 
-    classi = obs_res[["Barcode", "Classification"]]
-    classi.columns = ["Barcode", "hasheddrops"]
-    assign = obs_res[["Barcode", "Assignment"]]
-    assign.columns = ["Barcode", "hasheddrops"]
+    classi = obs_res[["Barcode", "Classification"]].rename(columns={"Classification": "hasheddrops"})
+    assign = obs_res[["Barcode", "Assignment"]].rename(columns={"Assignment": "hasheddrops"})
 
     # if raw_adata is not None:
     #     adata = raw_adata.copy()
