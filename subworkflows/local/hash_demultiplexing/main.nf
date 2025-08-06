@@ -10,6 +10,8 @@ include { HTODEMUX_VISUALIZATION                                   } from '../..
 include { MULTISEQDEMUX                                            } from '../../../modules/nf-core/multiseqdemux'
 include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
+include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
+include { SCANPY_10X_TO_H5AD                                       } from '../../../modules/local/scanpy_10x_to_h5ad'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
 
@@ -131,7 +133,7 @@ workflow HASH_DEMULTIPLEXING {
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
 
-
+            // TODO this is hardcoded until now
             HTODEMUX_VISUALIZATION(
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
@@ -229,7 +231,15 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
-        error("HashSolo not implemented")
+
+        SCANPY_10X_TO_H5AD(ch_samplesheet.map {meta, rna, hto -> [meta, hto]})
+
+        HASHSOLO(
+            SCANPY_10X_TO_H5AD.out.h5ad.map{meta, h5ad -> [meta, h5ad, ['feature_types']]},
+            [0.01, 0.8, 0.19]
+        )
+
+        ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.h5ad)
     }
 
     //ch_results.view()

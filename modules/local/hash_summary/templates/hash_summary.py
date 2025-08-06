@@ -16,6 +16,7 @@ def find_file_with_suffix(directory: Path, suffix: str) -> Path:
 def find_file_with_name(directory: Path, name: str) -> Path:
     return [file for file in directory.iterdir() if file.name == name][0]
 
+
 def save_anndata(
     adata: AnnData,
     assign_data: pd.DataFrame,
@@ -73,6 +74,7 @@ def demuxem_summary(
     classi.columns = ["Barcode", "demuxem"]
     classi['demuxem'] = classi['demuxem'].cat.rename_categories({"unknown": "negative"})
 
+    # TODO debug ob hier auch 12000
     print("debug4")
     assign = data.obs['assignment'].to_frame()
     assign.reset_index(inplace=True)
