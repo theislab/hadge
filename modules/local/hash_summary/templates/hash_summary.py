@@ -9,6 +9,13 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
+
+singlet_str = "singlet"
+doublet_str = "doublet"
+negative_str = "negative"
+
+
+
 def find_file_with_suffix(directory: Path, suffix: str) -> Path:
     return [file for file in directory.iterdir() if file.name.endswith(suffix)][0]
 
@@ -358,118 +365,99 @@ def gmm_summary(
 
 
 def bff_summary(
-    bff_res: list[str], raw_adata: AnnData | None, raw_mudata: MuData | None
-) -> None:
-    classi = []
-    assign = []
-    params = []
+    results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
+) ->  Tuple[pd.DataFrame, pd.DataFrame]:
 
-    for x in bff_res:
-        x_path = Path(x)
-        obs_res_dir = find_file_with_suffix(x_path, "_bff.csv")
-        bff_assign = pd.read_csv(obs_res_dir)
-        data_bff = pd.DataFrame(bff_assign)
-        if data_bff.empty:
-            column_names = ["Barcode", x_path.name]
-            df = pd.DataFrame(columns=column_names)
-            classi.append(df)
-            assign.append(df)
+    # https://bimberlab.github.io/cellhashR/articles/V03-Benchmark-example.html
+
+        #TODO used_methods =  ['RAW', 'CLUSTER', 'BOTH']
+
+    method = 'RAW'
+            # TODO checken ob das mit den id's matched  auch für die anderen module
+    hash_list = ['ENS_ID.1','ENS_ID']
+
+    ['bff_raw','bff_cluster']
+
+    if method == 'RAW':
+        used_methods = ['bff_raw']
+    elif method == 'CLUSTER':
+        used_methods = ['bff_cluster']
+    elif method == 'BOTH':
+        used_methods = ['bff_raw', 'bff_cluster','bff_consensuscall']
+    else:
+        raise ValueError(f"Methods for bff not specified correctly. Choose RAW, CLUSTER or BOTH as input.")
+
+
+
+    # Load results and subset columns
+    df_result = pd.read_csv(results)
+
+    df_result.rename(columns={
+        'cellbarcode': 'Barcode',
+        'consensuscall': 'bff_consensuscall'
+    }, inplace=True)
+
+    assign = df_result[['Barcode'] + used_methods].copy()
+
+    # Replace 'Doublet' and 'Negative' in all used_methods columns at once
+    assign[used_methods] = assign[used_methods].replace({
+        'Doublet': doublet_str,
+        'Negative': negative_str,
+        'Discordant': 'discordant'
+    })
+
+    # Prepare sets for fast lookup
+    hash_set = set(hash_list)
+    valid_values = {negative_str, doublet_str, 'discordant'}
+
+    # Define classification function
+    def classify_value(x):
+        if x in valid_values:
+            return x
+        elif x in hash_set:
+            return singlet_str
         else:
-            dt_assign = data_bff.copy()
-            column_names = [
-                "Unnamed: 0",
-                "bff_raw",
-                "bff_cluster",
-                "consensuscall.global",
-            ]
-            for column in column_names:
-                if column in dt_assign.columns:
-                    dt_assign = dt_assign.drop([column], axis=1)
-            dt_assign.loc[dt_assign["consensuscall"] == "Doublet", "consensuscall"] = (
-                "doublet"
-            )
-            dt_assign.loc[dt_assign["consensuscall"] == "Negative", "consensuscall"] = (
-                "negative"
-            )
-            dt_assign["consensuscall"] = dt_assign["consensuscall"].astype("category")
-            dt_assign = dt_assign.rename(
-                columns={"cellbarcode": "Barcode", "consensuscall": x_path.name}
-            )
-            dt_assign["Barcode"] = dt_assign["Barcode"].apply(
-                lambda x: x + "-1" if isinstance(x, str) else x
-            )
+            raise ValueError(f"Value '{x}' in BFF is not 'Negative', 'Doublet', or one of the hashes in the used hashes list")
 
-            assign.append(dt_assign)
+    if method == 'BOTH':
+        # use the classification of consensuscall.global
+        used_methods = used_methods - ["bff_consensuscall"] + ["consensuscall.global"]
 
-            if raw_adata is not None:
-                adata = raw_adata.copy()
-                adata.obs = adata.obs.merge(
-                    dt_assign, left_index=True, right_index=True, how="left"
-                )
-                adata.obs.rename(columns={adata.obs.columns[0]: "donor"}, inplace=True)
-                adata.obs.donor = adata.obs.donor.fillna("negative")
-                adata.obs.donor = adata.obs.donor.astype(str)
-                adata.write_h5ad(
-                    Path("hash_summary/adata") / f"adata_with_{x_path.name}.h5ad"
-                )
+    # Apply classification only to used_methods columns
+    classi = assign[['Barcode'] + used_methods].copy()
+    classi.rename(columns={'consensuscall.global': 'bff_consensuscall'}, inplace=True)
 
-            if raw_mudata is not None:
-                mudata = raw_mudata.copy()
-                mudata["rna"].obs = mudata["rna"].obs.merge(
-                    dt_assign, left_index=True, right_index=True, how="left"
-                )
-                mudata["rna"].obs.rename(
-                    columns={mudata["rna"].obs.columns[0]: "donor"}, inplace=True
-                )
-                mudata["rna"].obs.donor = mudata["rna"].obs.donor.fillna("negative")
-                mudata["rna"].obs.donor = mudata["rna"].obs.donor.astype(str)
-                mudata.update()
-                mudata.write(
-                    Path("hash_summary/mudata")
-                    / f"mudata_with_mudata_{x_path.name}.h5mu"
-                )
+    classi[used_methods] = classi[used_methods].applymap(classify_value)
 
-            dt_classi = data_bff.copy()
-            column_names_class = ["bff_raw", "bff_cluster", "consensuscall"]
-            for column in column_names_class:
-                if column in dt_assign.columns:
-                    dt_classi = dt_classi.drop([column], axis=1)
-            dt_classi.loc[
-                dt_classi["consensuscall.global"] == "Singlet", "consensuscall.global"
-            ] = "singlet"
-            dt_classi.loc[
-                dt_classi["consensuscall.global"] == "Doublet", "consensuscall.global"
-            ] = "doublet"
-            dt_classi.loc[
-                dt_classi["consensuscall.global"] == "Negative", "consensuscall.global"
-            ] = "negative"
-            dt_classi = dt_classi.rename(
-                columns={
-                    "cellbarcode": "Barcode",
-                    "consensuscall.global": x_path.name,
-                }
-            )
-            dt_classi["Barcode"] = dt_classi["Barcode"].apply(
-                lambda x: x + "-1" if isinstance(x, str) else x
-            )
+    return assign, classi
 
-            classi.append(dt_classi)
+            # if raw_adata is not None:
+        #     adata = raw_adata.copy()
+        #     adata.obs = adata.obs.merge(
+        #         dt_assign, left_index=True, right_index=True, how="left"
+        #     )
+        #     adata.obs.rename(columns={adata.obs.columns[0]: "donor"}, inplace=True)
+        #     adata.obs.donor = adata.obs.donor.fillna("negative")
+        #     adata.obs.donor = adata.obs.donor.astype(str)
+        #     adata.write_h5ad(
+        #         Path("hash_summary/adata") / f"adata_with_{x_path.name}.h5ad"
+        #     )
 
-        params_dir = find_file_with_name(x_path, "params.csv")
-        params_res = pd.read_csv(
-            params_dir, usecols=[1, 2], keep_default_na=False, index_col=0
-        )
-        params_res.columns = [x_path.name]
-        params.append(params_res)
-
-    classi_df = pd.concat(classi, axis=1, join="outer")
-    classi_df.to_csv("hash_summary/bff_classification.csv", index=False)
-
-    assign_df = pd.concat(assign, axis=1, join="outer")
-    assign_df.to_csv("hash_summary/bff_assignment.csv", index=False)
-
-    params = pd.concat(params, axis=1)
-    params.to_csv("hash_summary/bff_params.csv")
+        # if raw_mudata is not None:
+        #     mudata = raw_mudata.copy()
+        #     mudata["rna"].obs = mudata["rna"].obs.merge(
+        #         dt_assign, left_index=True, right_index=True, how="left"
+        #     )
+        #     mudata["rna"].obs.rename(
+        #         columns={mudata["rna"].obs.columns[0]: "donor"}, inplace=True
+        #     )
+        #     mudata["rna"].obs.donor = mudata["rna"].obs.donor.fillna("negative")
+        #     mudata["rna"].obs.donor = mudata["rna"].obs.donor.astype(str)
+        #     mudata.update()
+        #     mudata.write(
+        #         Path("hash_summary/mudata")
+        #         / f"mudata_with_mudata_{x_path.name}.h5mu"
+        #     )
 
 
 if __name__ == "__main__":
