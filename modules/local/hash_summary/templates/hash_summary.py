@@ -475,6 +475,8 @@ if __name__ == "__main__":
     print(rna_data)
 
 
+
+
     if "${generate_mudata}" == "true":
         hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
         mudata = MuData({"rna": rna_data, "hto": hto_data})
@@ -482,6 +484,9 @@ if __name__ == "__main__":
             adata = rna_data
     elif "${generate_anndata}" == "true":
         adata = rna_data
+
+
+
 
     if sum(s == "" for s in ["${htodemux_assignments}", "${htodemux_assignments}"]) == 1:
         raise ValueError("The assignment or classification file of htodemux is empty.")
@@ -547,11 +552,18 @@ if __name__ == "__main__":
         print("length: ", length)
         print("")
 
-    assignment_summary = assignments.pop(0)
-    classification_summary = classifications.pop(0)
+    # assignment_summary = assignments.pop(0)
+    # classification_summary = classifications.pop(0)
+
+    # restructure the if statement if I keep using the hto_data
+    # have to to this because demuxem has more barcodes as output that it received as input
+    # https://github.com/lilab-bcb/demuxEM/issues/20
+    hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
+    assignment_summary = pd.DataFrame(hto_data.obs_names, columns=['Barcode'])
+    classification_summary = assignment_summary.copy()
 
     for assignment in assignments:
-        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="outer")
+        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left")
 
     assignment_summary.to_csv("${prefix}_hashing_summary_assignment.csv", index=False)
 
