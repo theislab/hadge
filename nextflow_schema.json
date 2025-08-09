@@ -181,6 +181,86 @@
                 }
             }
         },
+        "bff_options": {
+            "title": "BFF options",
+            "type": "object",
+            "fa_icon": "fas fa-bolt",
+            "description": "Options specific to the BFF cell hashing demultiplexing.",
+            "properties": {
+                "bff_methods": {
+                    "type": "string",
+                    "description": "Method(s) to use within BFF.",
+                    "default": "RAW",
+                    "fa_icon": "fas fa-list"
+                },
+                "bff_preprocessing": {
+                    "type": "boolean",
+                    "description": "Whether to run preprocessing steps for BFF.",
+                    "default": true,
+                    "fa_icon": "fas fa-cogs"
+                },
+                "bff_barcodeWhitelist": {
+                    "type": ["string", "null"],
+                    "description": "Path to barcode whitelist for preprocessing.",
+                    "default": null,
+                    "fa_icon": "fas fa-file"
+                },
+                "bff_cellbarcodeWhitelist": {
+                    "type": ["string", "null"],
+                    "description": "Path to cell barcode whitelist for GenerateCellHashingCalls().",
+                    "default": null,
+                    "fa_icon": "fas fa-file"
+                },
+                "bff_methodsForConsensus": {
+                    "type": ["string", "null"],
+                    "description": "Methods to use for consensus calling.",
+                    "default": null,
+                    "fa_icon": "fas fa-layer-group"
+                },
+                "bff_metricsFile": {
+                    "type": ["string", "null"],
+                    "description": "Optional metrics file path.",
+                    "default": null,
+                    "fa_icon": "fas fa-file-alt"
+                },
+                "bff_doTSNE": {
+                    "type": "boolean",
+                    "description": "Whether to compute tSNE visualization in BFF.",
+                    "default": false,
+                    "fa_icon": "fas fa-project-diagram"
+                },
+                "bff_doHeatmap": {
+                    "type": "boolean",
+                    "description": "Whether to generate heatmaps in BFF.",
+                    "default": true,
+                    "fa_icon": "fas fa-fire"
+                },
+                "bff_perCellSaturation": {
+                    "type": ["number", "null"],
+                    "description": "Per-cell saturation value.",
+                    "default": null,
+                    "fa_icon": "fas fa-tint"
+                },
+                "bff_majorityConsensusThreshold": {
+                    "type": ["number", "null"],
+                    "description": "Majority consensus threshold.",
+                    "default": null,
+                    "fa_icon": "fas fa-percentage"
+                },
+                "bff_chemistry": {
+                    "type": "string",
+                    "description": "Library chemistry (e.g., 10xV3).",
+                    "default": "10xV3",
+                    "fa_icon": "fas fa-vial"
+                },
+                "bff_callerDisagreementThreshold": {
+                    "type": ["number", "null"],
+                    "description": "Threshold for caller disagreement.",
+                    "default": null,
+                    "fa_icon": "fas fa-exclamation-triangle"
+                }
+            }
+        },
         "gmmdemux_options": {
             "title": "GMM-Demux options",
             "type": "object",
@@ -1142,6 +1222,9 @@
         },
         {
             "$ref": "#/$defs/demuxem_options"
+        },
+        {
+            "$ref": "#/$defs/bff_options"
         },
         {
             "$ref": "#/$defs/gmmdemux_options"

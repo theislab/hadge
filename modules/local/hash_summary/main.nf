@@ -1,6 +1,6 @@
 process HASH_SUMMARY {
     // TODO remove dubug for the pipeline
-    debug true
+    // debug true
     tag "${meta.id}"
     label 'process_low'
 
@@ -11,9 +11,7 @@ process HASH_SUMMARY {
 
     input:
     tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(bff), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops), path(hashsolo)
-    val generate_anndata // boolean
-    val generate_mudata // boolean
-
+    tuple val (generate_anndata), val(generate_mudata), val(bff_methods), val(hash_list)
 
     output:
     tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment

@@ -9,6 +9,9 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
+# part of python
+import ast
+
 
 singlet_str = "singlet"
 doublet_str = "doublet"
@@ -365,18 +368,15 @@ def gmm_summary(
 
 
 def bff_summary(
-    results: Path, raw_adata: AnnData | None, raw_mudata: MuData | None
+    results: Path, method: str, hashes: set[str] ,raw_adata: AnnData | None, raw_mudata: MuData | None
 ) ->  Tuple[pd.DataFrame, pd.DataFrame]:
 
     # https://bimberlab.github.io/cellhashR/articles/V03-Benchmark-example.html
+    #TODO used_methods =  ['RAW', 'CLUSTER', 'BOTH']
+    #method = 'RAW'
 
-        #TODO used_methods =  ['RAW', 'CLUSTER', 'BOTH']
-
-    method = 'RAW'
-            # TODO checken ob das mit den id's matched  auch für die anderen module
-    hash_list = ['ENS_ID.1','ENS_ID']
-
-    ['bff_raw','bff_cluster']
+    # TODO checken ob das mit den id's matched  auch für die anderen module
+    # hash_list = ['ENS_ID.1','ENS_ID']
 
     if method == 'RAW':
         used_methods = ['bff_raw']
@@ -386,8 +386,6 @@ def bff_summary(
         used_methods = ['bff_raw', 'bff_cluster','bff_consensuscall']
     else:
         raise ValueError(f"Methods for bff not specified correctly. Choose RAW, CLUSTER or BOTH as input.")
-
-
 
     # Load results and subset columns
     df_result = pd.read_csv(results)
@@ -407,14 +405,13 @@ def bff_summary(
     })
 
     # Prepare sets for fast lookup
-    hash_set = set(hash_list)
     valid_values = {negative_str, doublet_str, 'discordant'}
 
     # Define classification function
     def classify_value(x):
         if x in valid_values:
             return x
-        elif x in hash_set:
+        elif x in hashes:
             return singlet_str
         else:
             raise ValueError(f"Value '{x}' in BFF is not 'Negative', 'Doublet', or one of the hashes in the used hashes list")
@@ -470,6 +467,10 @@ if __name__ == "__main__":
     assignments = []
     classifications = []
 
+    #hashes = set(ast.literal_eval("${hash_list}"))
+
+    hashes = set(hash.strip() for hash in "${hash_list}".strip("[]").split(","))
+
     rna_data = sc.read_10x_mtx("${rna_matrix}")
     print(rna_data)
 
@@ -515,7 +516,7 @@ if __name__ == "__main__":
         classifications.append(classification)
 
     if "${bff}" != "":
-        assignment, classification = bff_summary(Path("${bff}"), adata, mudata)
+        assignment, classification = bff_summary(Path("${bff}"), "${bff_methods}", hashes, adata, mudata)
         assignments.append(assignment)
         classifications.append(classification)
 

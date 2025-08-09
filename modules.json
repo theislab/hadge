@@ -5,6 +5,11 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "bff": {
+                        "branch": "master",
+                        "git_sha": "ab0581ef6b11c5e62c641c6194a847fb622987fa",
+                        "installed_by": ["modules"]
+                    },
                     "cellsnp/modea": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",

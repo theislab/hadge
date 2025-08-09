@@ -8,6 +8,7 @@ include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../..
 include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
 include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
 include { MULTISEQDEMUX                                            } from '../../../modules/nf-core/multiseqdemux'
+include { BFF                                                      } from '../../../modules/nf-core/bff'
 include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
@@ -29,7 +30,7 @@ workflow HASH_DEMULTIPLEXING {
     ch_htodemux_assignments = Channel.empty()
     ch_htodemux_classifications = Channel.empty()
     ch_multiseq = Channel.empty()
-    ch_cellhashr = Channel.empty()
+    ch_bff = Channel.empty()
     ch_demuxem = Channel.empty()
     ch_gmmdemux_results = Channel.empty()
     ch_gmmdemux_config = Channel.empty()
@@ -166,8 +167,11 @@ workflow HASH_DEMULTIPLEXING {
 
     // TODO rename to bff since we named the module bff
     if (methods.contains('cellhashr')) {
-        error("CellHashR not implemented")
+        BFF(ch_samplesheet.map { meta, rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
+        ch_bff = ch_bff.mix(BFF.out.assignment)
+        ch_versions = ch_versions.mix(BFF.out.versions)
     }
+
     if (methods.contains('demuxem')) {
         ch_samplesheet.map { meta, rna, hto ->
             {
@@ -310,7 +314,7 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)
-        .join(ch_cellhashr, remainder: true)
+        .join(ch_bff, remainder: true)
         .join(ch_demuxem , remainder: true)
         .join(ch_gmmdemux_results, remainder: true)
         .join(ch_gmmdemux_config, remainder: true)
@@ -322,9 +326,10 @@ workflow HASH_DEMULTIPLEXING {
 
     ch_summary.view()
 
-    HASH_SUMMARY(ch_summary, generate_anndata, generate_mudata)
-
-
+    HASH_SUMMARY(
+        ch_summary,
+        tuple(generate_anndata, generate_mudata, params.bff_methods, params.hash_list)
+    )
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]
