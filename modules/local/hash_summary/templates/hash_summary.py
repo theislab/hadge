@@ -9,14 +9,113 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
-# part of python
-import ast
+class Arguments:
+    # adopted from mygene module (Suzanne Jin)
+    """
+    Parses the arguments, including the ones coming from $task.ext.args.
+    """
+
+    def __init__(self) -> None:
+
+        self.singlet_str = "singlet"
+        self.doublet_str = "doublet"
+        self.negative_str = "negative"
+        self.parse_input_args()
+
+    def parse_input_args(self) -> None:
 
 
-singlet_str = "singlet"
-doublet_str = "doublet"
-negative_str = "negative"
+        self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
+        self.rna_matrix               = "${rna_matrix}"
+        self.hto_matrix               = "${hto_matrix}"
+        self.hto_demux_assignments    = "${htodemux_assignments}"
+        self.hto_demux_classification = "${htodemux_classification}"
+        self.multiseq                 = "${multiseq}"
+        self.bff                      = "${bff}"
+        self.demuxem                  = "${demuxem}"
+        self.gmmdemux_results         = "${gmmdemux_results}"
+        self.gmmdemux_config          = "${gmmdemux_config}"
+        self.hasheddrops              = "${hasheddrops}"
+        self.hashsolo                 = "${hashsolo}"
+
+        self.generate_anndata         = "${generate_anndata}"
+        self.generate_mudata          = "${generate_mudata}"
+        self.bff_methods              = "${bff_methods}"
+        self.hash_list                = "${hash_list}"
+
+        path_vars = {
+            "rna_matrix",
+            "hto_matrix",
+            "hto_demux_assignments",
+            "hto_demux_classification",
+            "multiseq",
+            "bff",
+            "demuxem",
+            "gmmdemux_results",
+            "gmmdemux_config",
+            "hasheddrops",
+            "hashsolo",
+        }
+
+        boolean_vars = {
+            "generate_anndata",
+            "generate_mudata"
+        }
+
+        other_vars = {
+            "bff_methods",
+            "hash_list"
+        }
+
+        def _tranlate_to_python(input_str,value_str):
+            # Interpret the string literal to decide if it's "[]" or something else
+            if value_str.strip() == "[]":
+                return None
+            else:
+                if input_str in path_vars:
+                    return Path(value_str)
+                elif input_str in boolean_vars:
+                    if value_str == "true":
+                        return True
+                    else:
+                        return False
+                elif input_str == "bff_methods":
+                        if value_str == 'RAW':
+                            return ['bff_raw']
+                        elif value_str == 'CLUSTER':
+                            return ['bff_cluster']
+                        elif value_str == 'BOTH':
+                            return ['bff_raw', 'bff_cluster','bff_consensuscall']
+                        else:
+                            raise ValueError(f"Methods ({value_str}) for bff not specified correctly. Choose RAW, CLUSTER or BOTH as input.")
+                elif input_str == "hash_list":
+                    return set(hash.strip() for hash in "${hash_list}".strip("[]").split(","))
+
+        vars = path_vars | boolean_vars | other_vars
+
+        for var in vars:
+            raw_value = getattr(self, var)
+            processed_value = _tranlate_to_python(var, raw_value)
+            setattr(self, var, processed_value)
+
+    def creat_output_dirs(self) -> None:
+        directories = {
+            'assignment': '_hashing_summary_assignment.csv',
+            'classification': '_hashing_summary_classification.csv',
+            'h5mu': '_hashing_summary.h5mu',
+            'h5ad': '_hashing_summary.h5ad'
+        }
+
+        for output, directory in directories.items():
+            setattr(self, output, self.prefix + directory)
+
+    def print_args(self) -> None:
+        """
+        Print the arguments.
+        """
+        for attr in vars(self):
+            print(f"{attr}: {getattr(self, attr)}")
 
 
 def find_file_with_suffix(directory: Path, suffix: str) -> Path:
@@ -399,20 +498,20 @@ def bff_summary(
 
     # Replace 'Doublet' and 'Negative' in all used_methods columns at once
     assign[used_methods] = assign[used_methods].replace({
-        'Doublet': doublet_str,
-        'Negative': negative_str,
+        'Doublet': args.doublet_str,
+        'Negative': args.negative_str,
         'Discordant': 'discordant'
     })
 
     # Prepare sets for fast lookup
-    valid_values = {negative_str, doublet_str, 'discordant'}
+    valid_values = {args.negative_str, args.doublet_str, 'discordant'}
 
     # Define classification function
     def classify_value(x):
         if x in valid_values:
             return x
         elif x in hashes:
-            return singlet_str
+            return args.singlet_str
         else:
             raise ValueError(f"Value '{x}' in BFF is not 'Negative', 'Doublet', or one of the hashes in the used hashes list")
 
@@ -459,6 +558,10 @@ def bff_summary(
 
 if __name__ == "__main__":
 
+    # parse and print arguments
+    args = Arguments()
+    args.print_args()
+
     print("debug1")
 
     adata = None
@@ -472,21 +575,7 @@ if __name__ == "__main__":
     hashes = set(hash.strip() for hash in "${hash_list}".strip("[]").split(","))
 
     rna_data = sc.read_10x_mtx("${rna_matrix}")
-    print(rna_data)
-
-
-
-
-    if "${generate_mudata}" == "true":
-        hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
-        mudata = MuData({"rna": rna_data, "hto": hto_data})
-        if "${generate_anndata}" == "true":
-            adata = rna_data
-    elif "${generate_anndata}" == "true":
-        adata = rna_data
-
-
-
+    hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
 
     if sum(s == "" for s in ["${htodemux_assignments}", "${htodemux_assignments}"]) == 1:
         raise ValueError("The assignment or classification file of htodemux is empty.")
@@ -573,3 +662,24 @@ if __name__ == "__main__":
     classification_summary.to_csv(
         "${prefix}_hashing_summary_classification.csv", index=False
     )
+
+
+    assignment_summary = assignment_summary.set_index("Barcode", inplace=True)
+    print(assignment_summary)
+
+    if "${generate_mudata}" == "true" or "${generate_anndata}" == "true":
+        # join on index (Barcode)
+        rna_data.obs = rna_data.obs.join(assignment_summary, how="left")
+        # fill all empty of the used modules with negative values (for expression data)
+        used_modules = assignment_summary.column_names
+        rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna("negative")
+        rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
+
+        if "${generate_mudata}" == "true":
+            # join on index (Barcode) and create a mudata object
+            hto_data.obs = hto_data.obs.join(assignment_summary, how="left")
+            mudata = MuData({"rna": rna_data, "hto": hto_data})
+            mudata.write("${prefix}_hashing_summary.h5mu")
+
+        if "${generate_anndata}" == "true":
+            rna_data.write("${prefix}_hashing_summary.h5ad")
