@@ -21,6 +21,7 @@ class Arguments:
         self.doublet_str = "doublet"
         self.negative_str = "negative"
         self.parse_input_args()
+        self.testing_inputs()
 
     def parse_input_args(self) -> None:
 
@@ -70,7 +71,7 @@ class Arguments:
 
         def _tranlate_to_python(input_str,value_str):
             # Interpret the string literal to decide if it's "[]" or something else
-            if value_str.strip() == "[]":
+            if value_str.strip() == "":
                 return None
             else:
                 if input_str in path_vars:
@@ -109,6 +110,13 @@ class Arguments:
 
         for output, directory in directories.items():
             setattr(self, output, self.prefix + directory)
+
+    def testing_inputs(self) -> None:
+        if [self.hto_demux_assignments, self.hto_demux_classification].count(None) == 1:
+            raise ValueError("The assignment or classification file of htodemux is empty.")
+
+        if [self.gmmdemux_results, self.gmmdemux_config].count(None) == 1:
+            raise ValueError("The results or config file of gmmdemux is empty.")
 
     def print_args(self) -> None:
         """
@@ -577,9 +585,6 @@ if __name__ == "__main__":
     rna_data = sc.read_10x_mtx("${rna_matrix}")
     hto_data = sc.read_10x_mtx("${hto_matrix}", gex_only=False)
 
-    if sum(s == "" for s in ["${htodemux_assignments}", "${htodemux_assignments}"]) == 1:
-        raise ValueError("The assignment or classification file of htodemux is empty.")
-
     if "${htodemux_assignments}" != "":
         assignment, classification = htodemux_summary(Path("${htodemux_assignments}"), Path("${htodemux_classification}"), adata, mudata)
         assignments.append(assignment)
@@ -600,9 +605,6 @@ if __name__ == "__main__":
         assignment, classification = hasheddrops_summary(Path("${hasheddrops}"), adata, mudata)
         assignments.append(assignment)
         classifications.append(classification)
-
-    if sum(s == "" for s in ["${gmmdemux_results}", "${gmmdemux_config}"]) == 1:
-        raise ValueError("The assignment or classification file of htodemux is empty.")
 
     if "${gmmdemux_results}" != "":
         assignment, classification = gmm_summary(Path("${gmmdemux_results}"), Path("${gmmdemux_config}"), adata, mudata)
