@@ -303,10 +303,6 @@ workflow HASH_DEMULTIPLEXING {
     // ch_samplesheet.join(ch_results_sorted).view()
 
 
-    def generate_anndata = false
-    def generate_mudata = false
-
-    // TODO
 
     ['htodemux_assignment', 'htodemux_classification', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
 
@@ -328,7 +324,7 @@ workflow HASH_DEMULTIPLEXING {
 
     HASH_SUMMARY(
         ch_summary,
-        tuple(generate_anndata, generate_mudata, params.bff_methods, params.hash_list)
+        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods, params.hash_list)
     )
 
     emit:

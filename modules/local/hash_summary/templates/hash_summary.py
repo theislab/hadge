@@ -488,7 +488,10 @@ if __name__ == "__main__":
         # join on index (Barcode)
         rna_data.obs = rna_data.obs.join(assignment_summary, how="left")
         # fill all empty of the used modules with negative values (for expression data)
-        used_modules = assignment_summary.column_names
+        used_modules = list(assignment_summary.columns)
+        for col in used_modules:
+            if pd.api.types.is_categorical_dtype(rna_data.obs[col]):
+                rna_data.obs[col] = rna_data.obs[col].cat.add_categories(["negative"])
         rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna("negative")
         rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
 
