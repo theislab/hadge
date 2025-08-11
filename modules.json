@@ -30,7 +30,7 @@
                     },
                     "hasheddrops": {
                         "branch": "master",
-                        "git_sha": "ac3ee5db3835e45ff9b9f03274f45049bd7028a3",
+                        "git_sha": "6d8e4eb4f0e2790646d0466d1073db95610883f0",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/hasheddrops/hasheddrops.diff"
                     },
