@@ -36,7 +36,7 @@
                     },
                     "htodemux": {
                         "branch": "master",
-                        "git_sha": "e793890476782166ebaabded864cca7a5b0438dd",
+                        "git_sha": "6d8e4eb4f0e2790646d0466d1073db95610883f0",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
@@ -46,7 +46,7 @@
                     },
                     "multiseqdemux": {
                         "branch": "master",
-                        "git_sha": "ea8d54b6ad1e8f55abdceed1ce7828360e134ebd",
+                        "git_sha": "6d8e4eb4f0e2790646d0466d1073db95610883f0",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/multiseqdemux/multiseqdemux.diff"
                     },

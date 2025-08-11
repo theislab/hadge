@@ -552,9 +552,9 @@
                     "fa_icon": "fas fa-circle"
                 },
                 "hasheddrops_byRank": {
-                    "type": "string",
+                    "type": ["integer", "null"],
                     "description": "Alternative method for identifying empty droplets.",
-                    "default": "NULL",
+                    "default": null,
                     "fa_icon": "fas fa-sort-numeric-down"
                 },
                 "hasheddrops_isCellFDR": {
@@ -573,15 +573,15 @@
                     "fa_icon": "fas fa-columns"
                 },
                 "hasheddrops_ignore": {
-                    "type": "string",
+                    "type": ["number", "null"],
                     "description": "Lower bound for ignoring barcodes.",
-                    "default": "NULL",
+                    "default": null,
                     "fa_icon": "fas fa-ban"
                 },
                 "hasheddrops_alpha": {
-                    "type": "string",
+                    "type": ["number", "null"],
                     "description": "Scaling parameter for Dirichlet-multinomial sampling.",
-                    "default": "NULL",
+                    "default": null,
                     "fa_icon": "fas fa-adjust"
                 },
                 "hasheddrops_ambient": {
@@ -646,9 +646,12 @@
                     "fa_icon": "fas fa-sort-amount-up"
                 },
                 "hasheddrops_combinations": {
-                    "type": "string",
-                    "description": "Valid combinations of HTOs.",
-                    "default": "NULL",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "description": "An integer matrix specifying valid combinations of HTOs. Number of items in each row has to be the same.",
+                    "default": null,
                     "fa_icon": "fas fa-th-large"
                 }
             }
@@ -700,6 +703,33 @@
                     "description": "Column containing gene information.",
                     "default": 2,
                     "fa_icon": "fas fa-columns"
+                }
+            }
+        },
+        "hash_summary_options": {
+            "title": "Hash summary options",
+            "type": "object",
+            "fa_icon": "fas fa-list",
+            "description": "Options controlling hash summary and downstream exported formats.",
+            "properties": {
+                "hash_list": {
+                    "type": "array",
+                    "description": "If specified, restrict hashing analysis to these HTO identifiers (matching feature names).",
+                    "fa_icon": "fas fa-list",
+                    "items": { "type": "string" },
+                    "default": null
+                },
+                "generate_anndata": {
+                    "type": "boolean",
+                    "description": "Generate AnnData (.h5ad) outputs for hashing results.",
+                    "fa_icon": "fas fa-database",
+                    "default": true
+                },
+                "generate_mudata": {
+                    "type": "boolean",
+                    "description": "Generate MuData outputs for hashing results.",
+                    "fa_icon": "fas fa-layer-group",
+                    "default": true
                 }
             }
         },
@@ -1235,6 +1265,9 @@
         },
         {
             "$ref": "#/$defs/hasheddrops_options"
+        },
+        {
+            "$ref": "#/$defs/hash_summary_options"
         },
         {
             "$ref": "#/$defs/preprocessing_options"
