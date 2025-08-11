@@ -12,7 +12,6 @@ include { BFF                                                      } from '../..
 include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
 include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
-include { SCANPY_10X_TO_H5AD                                       } from '../../../modules/local/scanpy_10x_to_h5ad'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
 
@@ -85,26 +84,6 @@ workflow HASH_DEMULTIPLEXING {
             HTODEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
-            def out = HTODEMUX.out
-
-            //HTODEMUX.out.assignment.view()
-            // ch_results = ch_results.mix(
-            //     HTODEMUX.out.assignment
-            //     .join(HTODEMUX.out.classification)
-            //     .join(HTODEMUX.out.params)
-            //     .map { meta, assign, classi, par ->
-            //         def files = [assignment: assign, classification: classi, params: par]
-            //         [meta, [results: files, method: 'htodemux']]
-            //     })
-
-            // [meta, [result: assign, method:'htodemux_assignment' ]
-            // [meta, [result: classi, method:'htodemux_assignment' ]
-
-
-            // assignmethod:, 'htodemux_classification'
-
-
-            // ch_versions = ch_versions.mix(HTODEMUX.out.versions)
 
             ch_assignments = HTODEMUX.out.assignment
                 .map { meta, assignment ->
@@ -119,22 +98,11 @@ workflow HASH_DEMULTIPLEXING {
             ch_results = ch_results
                 .mix(ch_assignments,ch_classifications)
 
-            println("results oben ---->")
-            //ch_results.view()
-            println("results oben ---->")
-
-
-            //ch_results = ch_results.mix(HTODEMUX.out.assignment.map { meta, result -> [meta, [path: result, method: 'htodemux']] })
-
-            //HTODEMUX.out.view()
-            //HTODEMUX.out.assignment.join(HTODEMUX.out.classification).join(HTODEMUX.out.params).view("testiiii "+ it)
-
-
             ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
 
-            // TODO this is hardcoded until now
+            // TODO "HTO" this is hardcoded until now
             HTODEMUX_VISUALIZATION(
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
@@ -144,22 +112,7 @@ workflow HASH_DEMULTIPLEXING {
             MULTISEQDEMUX(
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
-            // MULTISEQDEMUX.out.results.view()
-            // ch_results = ch_results.mix(
-            //     MULTISEQDEMUX.out.results
-            //     .map { meta, results ->
-            //         def paths = [assignment: results, classification: null]
-            //         [meta, [results: paths, method: 'htodemux']]
-            //     })
 
-            ch_results = ch_results.mix(
-                MULTISEQDEMUX.out.results
-                .map { meta, file ->
-                    [meta, [results: file, method: 'multiseq']]
-                })
-
-
-            //ch_results = ch_results.mix(MULTISEQDEMUX.out.results.map { meta, result -> [meta, [path: result, method: 'multiseq']] })
             ch_multiseq = ch_multiseq.mix(MULTISEQDEMUX.out.results)
             ch_versions = ch_versions.mix(MULTISEQDEMUX.out.versions)
         }
@@ -167,7 +120,7 @@ workflow HASH_DEMULTIPLEXING {
 
     // TODO rename to bff since we named the module bff
     if (methods.contains('cellhashr')) {
-        BFF(ch_samplesheet.map { meta, rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
+        BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
         ch_versions = ch_versions.mix(BFF.out.versions)
     }
@@ -201,7 +154,7 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
 
-    // List of HTO names is hardcoded until now
+    // TODO List of HTO names is hardcoded until now
     if (methods.contains('gmm-demux')) {
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [meta, hto, "MS-11,MS-12", meta.n_cells] }
 
@@ -228,86 +181,23 @@ workflow HASH_DEMULTIPLEXING {
         ch_gmmdemux_config = ch_gmmdemux_config.mix(GMMDEMUX.out.config_report)
     }
     if (methods.contains('hasheddrops')) {
+
+
         HASHEDDROPS(
-            ch_samplesheet.map { meta, rna, hto -> [meta, hto, "FALSE", rna] }
+            ch_samplesheet.map { meta, rna, hto -> [meta, hto, params.hasheddrops_runEmptyDrops.toString().toUpperCase(), rna] }
         )
+        print(params.hasheddrops_runEmptyDrops.toString().toUpperCase())
         ch_hasheddrops = ch_hasheddrops.mix(HASHEDDROPS.out.results)
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
 
-
-        // TODO remove this module
-        // SCANPY_10X_TO_H5AD(ch_samplesheet.map {meta, rna, hto -> [meta, hto]})
-
         HASHSOLO(ch_samplesheet.map {meta, _rna, hto -> [meta, hto, []]})
 
-        HASHSOLO.out.assignment.view({"results unten"+it})
-
-        // remove accessing list with [0]
+        // TODO remove accessing list with [0] solved with https://github.com/nf-core/modules/pull/8876
         ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.assignment.map {meta, assignment -> [meta, assignment[0]]})
         ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
-
-    //ch_results.view()
-    // group by module, give the channel to summary module
-    // group by module
-    //ch_results_grouped = ch_results.groupTuple(by: 0).view()
-
-
-
-    def methods_list = methods as List
-    def sorted_method_files = ['htodemux_assignment', 'htodemux_classification', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
-
-    def used_method_files = methods_list.contains('htodemux')
-        ? (methods_list - 'htodemux') + ['htodemux_assignment', 'htodemux_classification']
-        : methods_list
-
-    def empty_method_files = sorted_method_files - used_method_files
-
-    println("Empty" + empty_method_files)
-    println("Used" + used_method_files)
-
-    // ch_hashing_summary = ch_results.groupTuple(by: 0).view()
-    //ch_results.view{"results unten"+it}
-    // def met = ['htodemux', 'multiseq']
-    // def diff_met = sorted_methods - met
-    // def diff_methods = sorted_methods - used_methods
-    // println("methods "+methods)
-    // println("met "+met)
-    // println("methods type "+ methods.getClass())
-    // println("met "+met.getClass())
-    // println("sorted - methods "+diff_methods)
-    // println("sorted - met "+diff_met)
-    // sort the methods result paths as in sorted_methods and add empty results for methods not calculated
-    // you either have a single file path, a list (groovy map) of file paths or null if there where no results
-    // e.g. [meta, file1, file2, [A: file3, B: file4], null, file5, ...]
-
-    //ch_results_sorted = ch_results.groupTuple(by: 0).view()
-
-    ch_results_sorted = ch_results.groupTuple(by: 0)
-    .map { meta, results ->
-        def empty_results = empty_method_files.collect {[results: null,method: it] }
-        // println("empties: "+ empty_results)
-        // println("+ --> "+(results + empty_results))
-        def sorted_results = (results + empty_results)
-            .sort { a, b ->
-    sorted_method_files.indexOf(a.method) <=> sorted_method_files.indexOf(b.method)
- }
-            .collect { it.results }
-        // println("sorted: "+ sorted_results)
-        [meta] + sorted_results
-    }
-    // .view{
-    //     "final "+ it
-    // }
-
-
-    // ch_samplesheet.join(ch_results_sorted).view()
-
-
-
-    ['htodemux_assignment', 'htodemux_classification', 'multiseq', 'cellhashr', 'demuxem', 'gmm-demux', 'hasheddrops', 'hashsolo']
 
     ch_summary = ch_samplesheet
         .join(ch_htodemux_assignments, remainder: true)
@@ -322,8 +212,6 @@ workflow HASH_DEMULTIPLEXING {
         .map { tuple -> tuple.collect { it == null ? [] : it } }
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
-
-    ch_summary.view()
 
     HASH_SUMMARY(
         ch_summary,

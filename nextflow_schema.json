@@ -653,6 +653,12 @@
                     "description": "An integer matrix specifying valid combinations of HTOs. Number of items in each row has to be the same.",
                     "default": null,
                     "fa_icon": "fas fa-th-large"
+                },
+                "hasheddrops_runEmptyDrops": {
+                    "type": "boolean",
+                    "description": "Whether to run EmptyDrops analysis as part of HashedDrops.",
+                    "default": false,
+                    "fa_icon": "fas fa-tint"
                 }
             }
         },

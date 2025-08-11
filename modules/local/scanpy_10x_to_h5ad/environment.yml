@@ -1,5 +1,0 @@
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - conda-forge::scanpy=1.11.4
