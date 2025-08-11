@@ -84,7 +84,7 @@
                     },
                     "scanpy/hashsolo": {
                         "branch": "master",
-                        "git_sha": "c7189ca090931f92fa18405e1ed4033ff583eaed",
+                        "git_sha": "fd2ba70889a7c4dc65c6c8b563fd4a44a0550d9b",
                         "installed_by": ["modules"]
                     },
                     "umitools/dedup": {

@@ -9,6 +9,8 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
+
+
 class Arguments:
     # adopted from mygene module (Suzanne Jin)
     """
@@ -140,76 +142,48 @@ class ProcessModuleOutput:
             'bff': 'bff'
         }
 
+        self.checkHashNames = True
+        self.chechEmptyInput = True
+        # TODO what to do if empty assignments = []
+        # T
+
+
+
+
     def demuxem(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
         data = io.read_input(str(args.demuxem))
-        classi = data.obs['demux_type'].to_frame()
-        classi.reset_index(inplace=True)
-        classi.columns = ["Barcode", "demuxem"]
-        classi['demuxem'] = classi['demuxem'].cat.rename_categories({"unknown": "negative"})
+        classification = data.obs['demux_type'].to_frame()
+        classification.reset_index(inplace=True)
+        classification.columns = ["Barcode", "demuxem"]
+        classification['demuxem'] = classification['demuxem'].cat.rename_categories({"unknown": "negative"})
 
         # TODO debug ob hier auch 12000
         print("debug4")
-        assign = data.obs['assignment'].to_frame()
-        assign.reset_index(inplace=True)
-        assign.columns = ["Barcode", "demuxem"]
+        assignment = data.obs['assignment'].to_frame()
+        assignment.reset_index(inplace=True)
+        assignment.columns = ["Barcode", "demuxem"]
 
-        return assign, classi
+        return assignment, classification
 
     def hashsolo(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        assign = []
-        classi = []
-        params = []
-        hashsolo_res = []
 
-        for x in hashsolo_res:
-            x_path = Path(x)
-            obs_res_dir = find_file_with_suffix(x_path, "_res.csv")
-            obs_res = pd.read_csv(obs_res_dir, index_col=0)
-            obs_res.index.name = "Barcode"
-            hashsolo_assign = obs_res[["Classification"]]
-            hashsolo_assign.columns = [x_path.name]
-            hashsolo_assign = hashsolo_assign.replace(
-                {"Doublet": "doublet", "Negative": "negative"}
+        results = pd.read_csv(args.hashsolo, index_col=0)
+        assignment = results[["Classification"]]
+
+        assignment.columns = ["hashsolo"]
+        assignment = assignment.replace(
+            {"Doublet": args.doublet_str,
+            "Negative": args.negative_str}
+        )
+
+        classification = results[["most_likely_hypothesis"]].copy()
+        classification["most_likely_hypothesis"] = (
+                classification["most_likely_hypothesis"]
+                .replace({0.0: args.negative_str, 1.0: args.singlet_str, 2.0: args.doublet_str})
             )
-            assign.append(hashsolo_assign)
 
-            hashsolo_classi = obs_res[["most_likely_hypothesis"]]
-            hashsolo_classi_copy = hashsolo_classi.copy()
-            hashsolo_classi_copy["most_likely_hypothesis"] = hashsolo_classi_copy[
-                "most_likely_hypothesis"
-            ].astype(object)
-            hashsolo_classi_copy.loc[
-                hashsolo_classi_copy["most_likely_hypothesis"] == 0.0,
-                "most_likely_hypothesis",
-            ] = "negative"
-            hashsolo_classi_copy.loc[
-                hashsolo_classi_copy["most_likely_hypothesis"] == 1.0,
-                "most_likely_hypothesis",
-            ] = "singlet"
-            hashsolo_classi_copy.loc[
-                hashsolo_classi_copy["most_likely_hypothesis"] == 2.0,
-                "most_likely_hypothesis",
-            ] = "doublet"
-
-            hashsolo_classi_copy.columns = [x_path.name]
-            classi.append(hashsolo_classi_copy)
-
-            params_dir = find_file_with_suffix(x_path, "params.csv")
-            params_res = pd.read_csv(params_dir, keep_default_na=False, index_col=0)
-            params_res.columns = [x_path.name]
-            params.append(params_res)
-
-        assign = pd.concat(assign, axis=1)
-        assign.to_csv("hash_summary/hashsolo_assignment.csv", quoting=False)
-
-        classi = pd.concat(classi, axis=1)
-        classi.to_csv("hash_summary/hashsolo_classification.csv", quoting=False)
-
-        params = pd.concat(params, axis=1)
-        params.to_csv("hash_summary/hashsolo_params.csv")
-
-        return [], []
+        return assignment, classification
 
     def hasheddrops(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
@@ -275,48 +249,40 @@ class ProcessModuleOutput:
 
         print(obs_res)
 
-        classi = obs_res[["Barcode", "Classification"]].rename(columns={"Classification": "hasheddrops"})
-        assign = obs_res[["Barcode", "Assignment"]].rename(columns={"Assignment": "hasheddrops"})
+        classification = obs_res[["Barcode", "Classification"]].rename(columns={"Classification": "hasheddrops"})
+        assignment = obs_res[["Barcode", "Assignment"]].rename(columns={"Assignment": "hasheddrops"})
 
-        # if raw_adata is not None:
-        #     adata = raw_adata.copy()
-        #     save_anndata(adata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
-
-        # if raw_mudata is not None:
-        #     mudata = raw_mudata.copy()
-        #     save_mudata(mudata, hasheddrops_res_df, x_path.name, merge_on_barcode=True)
-
-        return assign,classi
+        return assignment,classification
 
     def multiseq(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        assign = pd.read_csv(args.multiseq)
-        assign.columns = ["Barcode", "multiseq"]
-        assign.replace(
+        assignment = pd.read_csv(args.multiseq)
+        assignment.columns = ["Barcode", "multiseq"]
+        assignment.replace(
                     {"Doublet": "doublet", "Negative": "negative"}, inplace=True
                 )
 
-        classi = assign.copy()
-        classi.loc[(classi["multiseq"] != "doublet") & (classi["multiseq"] != "negative"), "multiseq"] = "singlet"
+        classification = assignment.copy()
+        classification.loc[(classification["multiseq"] != "doublet") & (classification["multiseq"] != "negative"), "multiseq"] = "singlet"
 
-        return assign, classi
+        return assignment, classification
 
     def htodemux(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        assign = pd.read_csv(args.htodemux_assignments)
-        assign.columns = ["Barcode", "htodemux"]
-        assign.replace("Doublet", "doublet", inplace=True)
-        assign.replace(
+        assignment = pd.read_csv(args.htodemux_assignments)
+        assignment.columns = ["Barcode", "htodemux"]
+        assignment.replace("Doublet", "doublet", inplace=True)
+        assignment.replace(
             {"Doublet": "doublet", "Negative": "negative"}, inplace=True
         )
 
-        classi = pd.read_csv(args.htodemux_classification)
-        classi.columns = ["Barcode", "htodemux"]
-        classi.replace(
+        classification = pd.read_csv(args.htodemux_classification)
+        classification.columns = ["Barcode", "htodemux"]
+        classification.replace(
             {"Singlet": "singlet", "Doublet": "doublet", "Negative": "negative"}, inplace=True
         )
 
-        return assign, classi
+        return assignment, classification
 
     def gmmdemux(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
@@ -351,13 +317,13 @@ class ProcessModuleOutput:
 
         df_results = df_results.merge(df_config, on="Cluster_id", how="left")
 
-        assign = df_results[["Barcode", "Assignment"]]
-        assign.columns = ["Barcode", "gmmdemux"]
+        assignment = df_results[["Barcode", "Assignment"]]
+        assignment.columns = ["Barcode", "gmmdemux"]
 
-        classi = df_results[["Barcode", "Classification"]]
-        classi.columns = ["Barcode", "gmmdemux"]
+        classification = df_results[["Barcode", "Classification"]]
+        classification.columns = ["Barcode", "gmmdemux"]
 
-        return assign, classi
+        return assignment, classification
 
     def bff(self, args: Arguments) ->  Tuple[pd.DataFrame, pd.DataFrame]:
 
@@ -378,10 +344,10 @@ class ProcessModuleOutput:
 
 
 
-        assign = df_result[['Barcode'] + args.bff_methods].copy()
+        assignment = df_result[['Barcode'] + args.bff_methods].copy()
 
         # Replace 'Doublet' and 'Negative' in all used_methods columns at once
-        assign[args.bff_methods] = assign[args.bff_methods].replace({
+        assignment[args.bff_methods] = assignment[args.bff_methods].replace({
             'Doublet': args.doublet_str,
             'Negative': args.negative_str,
             'Discordant': 'discordant'
@@ -406,12 +372,34 @@ class ProcessModuleOutput:
             used_methods = args.bff_methods
 
         # Apply classification only to used_methods columns
-        classi = assign[['Barcode'] + used_methods].copy()
-        classi.rename(columns={'consensuscall.global': 'bff_consensuscall'}, inplace=True)
+        classification = assignment[['Barcode'] + used_methods].copy()
+        classification.rename(columns={'consensuscall.global': 'bff_consensuscall'}, inplace=True)
 
-        classi[used_methods] = classi[used_methods].applymap(classify_value)
+        classification[used_methods] = classification[used_methods].applymap(classify_value)
 
-        return assign, classi
+        return assignment, classification
+
+def printProccedOutput() -> None:
+    print("----- Assignments -----")
+    print("")
+
+    for assignment in assignments:
+        counts = assignment[assignment.columns[1]].value_counts()
+        length = len(assignment)
+        print(counts)
+        print("length: ", length)
+        print("")
+
+    print("----- Classifications -----")
+    print("")
+
+    for classification in classifications:
+        counts = classification[classification.columns[1]].value_counts()
+        length = len(classification)
+        print(counts)
+        print("length: ", length)
+        print("")
+
 
 if __name__ == "__main__":
 
@@ -436,27 +424,9 @@ if __name__ == "__main__":
             assignments.append(assignment)
             classifications.append(classification)
 
-    # TODO what to do if empty assignments = []
 
-    print("----- Assignments -----")
-    print("")
 
-    for assignment in assignments:
-        counts = assignment[assignment.columns[1]].value_counts()
-        length = len(assignment)
-        print(counts)
-        print("length: ", length)
-        print("")
 
-    print("----- Classifications -----")
-    print("")
-
-    for classification in classifications:
-        counts = classification[classification.columns[1]].value_counts()
-        length = len(classification)
-        print(counts)
-        print("length: ", length)
-        print("")
 
     # ========================== save results ==========================
 
@@ -492,6 +462,7 @@ if __name__ == "__main__":
         for col in used_modules:
             if pd.api.types.is_categorical_dtype(rna_data.obs[col]):
                 rna_data.obs[col] = rna_data.obs[col].cat.add_categories(["negative"])
+
         rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna("negative")
         rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
 

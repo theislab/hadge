@@ -236,14 +236,17 @@ workflow HASH_DEMULTIPLEXING {
     }
     if (methods.contains('hashsolo')) {
 
-        SCANPY_10X_TO_H5AD(ch_samplesheet.map {meta, rna, hto -> [meta, hto]})
 
-        HASHSOLO(
-            SCANPY_10X_TO_H5AD.out.h5ad.map{meta, h5ad -> [meta, h5ad, ['feature_types']]},
-            [0.01, 0.8, 0.19]
-        )
+        // TODO remove this module
+        // SCANPY_10X_TO_H5AD(ch_samplesheet.map {meta, rna, hto -> [meta, hto]})
 
-        ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.h5ad)
+        HASHSOLO(ch_samplesheet.map {meta, _rna, hto -> [meta, hto, []]})
+
+        HASHSOLO.out.assignment.view({"results unten"+it})
+
+        // remove accessing list with [0]
+        ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.assignment.map {meta, assignment -> [meta, assignment[0]]})
+        ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
 
     //ch_results.view()
