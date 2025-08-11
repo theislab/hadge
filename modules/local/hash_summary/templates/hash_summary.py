@@ -156,7 +156,7 @@ class ProcessModuleOutput:
         classification = data.obs['demux_type'].to_frame()
         classification.reset_index(inplace=True)
         classification.columns = ["Barcode", "demuxem"]
-        classification['demuxem'] = classification['demuxem'].cat.rename_categories({"unknown": "negative"})
+        classification['demuxem'] = classification['demuxem'].cat.rename_categories({"unknown": args.negative_str})
 
         # TODO debug ob hier auch 12000
         print("debug4")
@@ -228,19 +228,19 @@ class ProcessModuleOutput:
         'HTO': ['MS-11', 'MS-12']
         })
 
-        idx_to_htoname_df.loc[len(idx_to_htoname_df)] = [np.nan, "negative"]
+        idx_to_htoname_df.loc[len(idx_to_htoname_df)] = [np.nan, args.negative_str]
         idx_to_htoname_map = idx_to_htoname_df.set_index('Index')['HTO'].to_dict()
 
         obs_res = pd.read_csv(args.hasheddrops)
 
         obs_res["Classification"] = np.where(
             obs_res["Confident"] & obs_res["Confident"].notna(),
-            "singlet",
-            np.where(obs_res["Doublet"] & obs_res["Doublet"].notna(), "doublet", "negative")
+            args.singlet_str,
+            np.where(obs_res["Doublet"] & obs_res["Doublet"].notna(), args.doublet_str, args.negative_str)
         )
 
         obs_res["Assignment"] = np.where(
-            obs_res["Classification"].isin(["doublet", "negative"]),
+            obs_res["Classification"].isin([args.doublet_str, args.negative_str]),
             obs_res["Classification"],
             obs_res["Best"].map(idx_to_htoname_map),
         )
@@ -259,11 +259,11 @@ class ProcessModuleOutput:
         assignment = pd.read_csv(args.multiseq)
         assignment.columns = ["Barcode", "multiseq"]
         assignment.replace(
-                    {"Doublet": "doublet", "Negative": "negative"}, inplace=True
+                    {"Doublet": args.doublet_str, "Negative": args.negative_str}, inplace=True
                 )
 
         classification = assignment.copy()
-        classification.loc[(classification["multiseq"] != "doublet") & (classification["multiseq"] != "negative"), "multiseq"] = "singlet"
+        classification.loc[(classification["multiseq"] != args.doublet_str) & (classification["multiseq"] != args.negative_str), "multiseq"] = args.singlet_str
 
         return assignment, classification
 
@@ -271,15 +271,15 @@ class ProcessModuleOutput:
 
         assignment = pd.read_csv(args.htodemux_assignments)
         assignment.columns = ["Barcode", "htodemux"]
-        assignment.replace("Doublet", "doublet", inplace=True)
+        assignment.replace("Doublet", args.doublet_str, inplace=True)
         assignment.replace(
-            {"Doublet": "doublet", "Negative": "negative"}, inplace=True
+            {"Doublet": args.doublet_str, "Negative": args.negative_str}, inplace=True
         )
 
         classification = pd.read_csv(args.htodemux_classification)
         classification.columns = ["Barcode", "htodemux"]
         classification.replace(
-            {"Singlet": "singlet", "Doublet": "doublet", "Negative": "negative"}, inplace=True
+            {"Singlet": args.singlet_str, "Doublet": args.doublet_str, "Negative": args.negative_str}, inplace=True
         )
 
         return assignment, classification
@@ -296,18 +296,18 @@ class ProcessModuleOutput:
 
         def _classify_hash(cluster_id: int, number_hashes: int) -> str:
             if cluster_id == 0:
-                return "negative"
+                return args.negative_str
             elif 1 <= cluster_id <= number_hashes:
-                return "singlet"
+                return args.singlet_str
             else:
-                return "doublet"
+                return args.doublet_str
 
         df_config["Classification"] = df_config["Cluster_id"].apply(
             lambda cluster_id: _classify_hash(cluster_id, number_of_hashes)
         )
 
         df_config["Assignment"] = df_config["Description"].where(
-            df_config["Classification"] == "singlet",
+            df_config["Classification"] == args.singlet_str,
             other=df_config["Classification"]
         )
 
@@ -404,6 +404,7 @@ def printProccedOutput() -> None:
 if __name__ == "__main__":
 
     # ====================== process nextflow input arguments ======================
+
     args = Arguments()
     args.print_args()
 
@@ -461,9 +462,9 @@ if __name__ == "__main__":
         used_modules = list(assignment_summary.columns)
         for col in used_modules:
             if pd.api.types.is_categorical_dtype(rna_data.obs[col]):
-                rna_data.obs[col] = rna_data.obs[col].cat.add_categories(["negative"])
+                rna_data.obs[col] = rna_data.obs[col].cat.add_categories([args.negative_str])
 
-        rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna("negative")
+        rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna(args.negative_str)
         rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
 
         if args.generate_mudata:

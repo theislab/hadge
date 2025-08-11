@@ -16,8 +16,8 @@ process HASH_SUMMARY {
     output:
     tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment    , optional: false
     tuple val(meta), path("*_hashing_summary_classification.csv"), emit: classification, optional: false
-    tuple val(meta), path("'_hashing_summary.h5ad")              , emit: h5ad          , optional: true
-    tuple val(meta), path("'_hashing_summary.h5mu")              , emit: h5mu          , optional: true
+    tuple val(meta), path("*_hashing_summary.h5ad")              , emit: h5ad          , optional: true
+    tuple val(meta), path("*_hashing_summary.h5mu")              , emit: h5mu          , optional: true
 
     when:
     task.ext.when == null || task.ext.when
