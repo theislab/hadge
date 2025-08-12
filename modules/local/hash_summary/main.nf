@@ -6,7 +6,7 @@ process HASH_SUMMARY {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'oras://community.wave.seqera.io/library/r-ggplot2_r-seurat:dac8c905972b98df':
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/a5/a5f3952003b974094e3b9d92a6b3499b56554db8de0d7622e5b959842d11759e/data':
         'community.wave.seqera.io/library/pegasusio_anndata_mudata_numpy_pruned:9d13d0d12376624e' }"
 
     input:

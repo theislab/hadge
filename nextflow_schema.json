@@ -342,7 +342,7 @@
                     "minItems": 3,
                     "maxItems": 3,
                     "description": "List of priors for each hypothesis: NEGATIVE, SINGLET, DOUBLET.",
-                    "default": [0.2, 0.8, 0.19],
+                    "default": [0.01, 0.8, 0.19],
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "hashsolo_pre_existing_clusters": {

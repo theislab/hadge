@@ -9,8 +9,6 @@ from typing import Dict
 from typing import Tuple
 import pegasusio as io
 
-
-
 class Arguments:
     # adopted from mygene module (Suzanne Jin)
     """
@@ -144,11 +142,8 @@ class ProcessModuleOutput:
 
         self.checkHashNames = True
         self.chechEmptyInput = True
-        # TODO what to do if empty assignments = []
-        # T
 
-
-
+    # TODO add Barcode as index in all functions and add the index name "Barcode"
 
     def demuxem(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
@@ -158,8 +153,7 @@ class ProcessModuleOutput:
         classification.columns = ["Barcode", "demuxem"]
         classification['demuxem'] = classification['demuxem'].cat.rename_categories({"unknown": args.negative_str})
 
-        # TODO debug ob hier auch 12000
-        print("debug4")
+        # TODO demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
         assignment = data.obs['assignment'].to_frame()
         assignment.reset_index(inplace=True)
         assignment.columns = ["Barcode", "demuxem"]
@@ -189,7 +183,7 @@ class ProcessModuleOutput:
 
 
 
-        # TODO remove hardcoding
+        # TODO remove hardcoding solved with: https://github.com/nf-core/modules/pull/8878
         # Hardcode indexing for now
         # for later: test = pd.read_csv("hto_index_map.csv")
         idx_to_htoname_df = pd.DataFrame({
@@ -255,10 +249,7 @@ class ProcessModuleOutput:
 
     def gmmdemux(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        # TODO hash list is hardcoded until now
-        # extend config file with Cluster_id's
-        hashes = ["MS-11","MS-12"]
-        number_of_hashes = len(hashes)
+        number_of_hashes = len(args.hash_list)
 
         df_config = pd.read_csv(args.gmmdemux_config, header=None)
         df_config.columns = ["Cluster_id", "Description"]
@@ -296,14 +287,6 @@ class ProcessModuleOutput:
 
     def bff(self, args: Arguments) ->  Tuple[pd.DataFrame, pd.DataFrame]:
 
-        # https://bimberlab.github.io/cellhashR/articles/V03-Benchmark-example.html
-        #TODO used_methods =  ['RAW', 'CLUSTER', 'BOTH']
-        #method = 'RAW'
-
-        # TODO checken ob das mit den id's matched  auch für die anderen module
-        # hash_list = ['ENS_ID.1','ENS_ID']
-
-        # Load results and subset columns
         df_result = pd.read_csv(args.bff)
 
         df_result.rename(columns={
@@ -311,18 +294,14 @@ class ProcessModuleOutput:
             'consensuscall': 'bff_consensuscall'
         }, inplace=True)
 
-
-
         assignment = df_result[['Barcode'] + args.bff_methods].copy()
 
-        # Replace 'Doublet' and 'Negative' in all used_methods columns at once
         assignment[args.bff_methods] = assignment[args.bff_methods].replace({
             'Doublet': args.doublet_str,
             'Negative': args.negative_str,
             'Discordant': 'discordant'
         })
 
-        # Prepare sets for fast lookup
         valid_values = {args.negative_str, args.doublet_str, 'discordant'}
 
         # Define classification function
@@ -340,7 +319,7 @@ class ProcessModuleOutput:
         else:
             used_methods = args.bff_methods
 
-        # Apply classification only to used_methods columns
+        # apply classification only to used_methods columns
         classification = assignment[['Barcode'] + used_methods].copy()
         classification.rename(columns={'consensuscall.global': 'bff_consensuscall'}, inplace=True)
 
@@ -349,6 +328,7 @@ class ProcessModuleOutput:
         return assignment, classification
 
 def printProccedOutput() -> None:
+    # TODO add a function that shows and maybe checks processed results before joining
     print("----- Assignments -----")
     print("")
 
@@ -369,19 +349,20 @@ def printProccedOutput() -> None:
         print("length: ", length)
         print("")
 
-
 if __name__ == "__main__":
 
-    # ====================== process nextflow input arguments ======================
+    # ======================== process nextflow input arguments ========================
 
     args = Arguments()
     args.print_args()
 
-    # ========================== process results from modules ==========================
+
+    # ========================= process results from modules ===========================
+
     rna_data = sc.read_10x_mtx(args.rna_matrix)
     hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
-    # call all functions that process the module outptus and t
+    # call all functions that process the module outptus
 
     assignments = []
     classifications = []
@@ -395,14 +376,11 @@ if __name__ == "__main__":
             classifications.append(classification)
 
 
+    # ================================== save results ==================================
 
+    # ----------------------------------- save csv's -----------------------------------
 
-
-    # ========================== save results ==========================
-
-    # ------------------------- save csv's ------------------------------
-
-    # restructure the if statement if I keep using the hto_data
+    # TODO restructure the if statement if I keep using the hto_data
     # have to to this because demuxem has more barcodes as output that it received as input
     # https://github.com/lilab-bcb/demuxEM/issues/20
 
@@ -422,8 +400,8 @@ if __name__ == "__main__":
     assignment_summary.set_index("Barcode", inplace=True)
     print(assignment_summary)
 
+    # -------------------------------- save mudata/anndata -----------------------------
 
-    # ------------------------- save mudata/anndata -----------------------
     if args.generate_mudata or args.generate_anndata:
         # join on index (Barcode)
         rna_data.obs = rna_data.obs.join(assignment_summary, how="left")
@@ -440,7 +418,7 @@ if __name__ == "__main__":
             # join on index (Barcode) and create a mudata object
             hto_data.obs = hto_data.obs.join(assignment_summary, how="left")
             mudata = MuData({"rna": rna_data, "hto": hto_data})
-            # mudata update?
+            # TODO mudata update?
             mudata.write(args.h5mu)
 
         if args.generate_anndata:
