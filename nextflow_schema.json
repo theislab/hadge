@@ -137,6 +137,12 @@
             "fa_icon": "fas fa-vial",
             "description": "Options specific to the demuxEM tool for cell hashing demultiplexing.",
             "properties": {
+                "demuxem_generate_diagnostic_plots": {
+                    "type": "boolean",
+                    "description": "Generate diagnostic plots.",
+                    "default": true,
+                    "fa_icon": "fas fa-chart-line"
+                },
                 "demuxem_alpha_on_samples": {
                     "type": "number",
                     "description": "The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.",
@@ -267,6 +273,32 @@
             "fa_icon": "fas fa-layer-group",
             "description": "Options specific to the GMM-Demux tool for cell hashing demultiplexing.",
             "properties": {
+                "gmmdemux_type_report": {
+                    "type": "boolean",
+                    "description": "If true, full classification report is generated, otherwise the simplified classification report.",
+                    "default": true,
+                    "fa_icon": "fas fa-file-alt"
+                },
+                "gmmdemux_summary_report": {
+                    "type": "boolean",
+                    "description": "If true, summary report is generated.",
+                    "default": true,
+                    "fa_icon": "fas fa-list"
+                },
+                "gmmdemux_skip": {
+                    "type": ["string", "null"],
+                    "format": "file-path",
+                    "description": "Load a full classification report and skip the mtx folder as input. Requires a file path argument.",
+                    "default": null,
+                    "fa_icon": "fas fa-file-import"
+                },
+                "gmmdemux_examine": {
+                    "type": ["string", "null"],
+                    "format": "file-path",
+                    "description": "Provide the cell list. Requires a file path argument. Only executes if -u is set.",
+                    "default": null,
+                    "fa_icon": "fas fa-file"
+                },
                 "gmmdemux_extract": {
                     "type": "string",
                     "description": "Names of the HTO tag(s) to extract, separated by ','. Joint HTO samples are combined with '+', such as 'HTO_1+HTO_2'.",
@@ -288,6 +320,56 @@
                     "default": 0,
                     "minimum": 0,
                     "fa_icon": "fas fa-dice"
+                }
+            }
+        },
+        "hashsolo_options": {
+            "title": "Hashsolo options",
+            "type": "object",
+            "fa_icon": "fas fa-hashtag",
+            "description": "Options specific to the Scanpy Hashsolo demultiplexing module.",
+            "properties": {
+                "hashsolo_cell_hashing_columns": {
+                    "type": ["array", "null"],
+                    "items": { "type": "string" },
+                    "description": "Groovy list (['hash_1', 'hash_2']) of .obs columns that contain cell hashing counts. Can be null if the data is in 10x Genomics format, as the columns are derived from the input.",
+                    "default": null,
+                    "fa_icon": "fas fa-list"
+                },
+                "hashsolo_priors": {
+                    "type": "array",
+                    "items": { "type": "number" },
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "description": "List of priors for each hypothesis: NEGATIVE, SINGLET, DOUBLET.",
+                    "default": [0.2, 0.8, 0.19],
+                    "fa_icon": "fas fa-sliders-h"
+                },
+                "hashsolo_pre_existing_clusters": {
+                    "type": ["string", "null"],
+                    "description": "Column in cell_hashing_adata.obs for how to break up demultiplexing.",
+                    "default": null,
+                    "fa_icon": "fas fa-columns"
+                },
+                "hashsolo_clustering_data": {
+                    "type": ["string", "null"],
+                    "format": "directory-path",
+                    "description": "Input directory containing transcriptomic data in 10x mtx format.",
+                    "default": null,
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "hashsolo_number_of_noise_barcodes": {
+                    "type": ["integer", "null"],
+                    "description": "Number of barcodes to use to create noise distribution.",
+                    "default": null,
+                    "fa_icon": "fas fa-sort-numeric-up"
+                },
+                "hashsolo_round_digits": {
+                    "type": ["integer", "null"],
+                    "description": "Number of decimal places to round numeric values in cell_hashing_data.obs before saving. If omitted, no rounding is applied.",
+                    "default": 10,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-hashtag"
                 }
             }
         },
@@ -1259,6 +1341,9 @@
         },
         {
             "$ref": "#/$defs/gmmdemux_options"
+        },
+        {
+            "$ref": "#/$defs/hashsolo_options"
         },
         {
             "$ref": "#/$defs/htodemux_options"

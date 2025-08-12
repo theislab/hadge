@@ -31,8 +31,10 @@ class Arguments:
         if self.data.endswith(".h5ad"):
             self.use_10x = False
 
-        cell_hashing_columns = "${cell_hashing_columns.join(' ')}".split()
-        self.cell_hashing_columns = [str(x) for x in cell_hashing_columns]
+        if "$cell_hashing_columns" == "":
+            self.cell_hashing_columns = []
+        else:
+            self.cell_hashing_columns = "$cell_hashing_columns".strip("[]").split(",")
 
         self.prefix               = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 

@@ -36,8 +36,6 @@ workflow HASH_DEMULTIPLEXING {
     ch_hasheddrops = Channel.empty()
     ch_hashsolo = Channel.empty()
 
-
-
     ch_samplesheet.map { meta, rna, hto ->
         {
             if (!rna) {
@@ -101,8 +99,6 @@ workflow HASH_DEMULTIPLEXING {
             ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
-
-            // TODO "HTO" this is hardcoded until now
             HTODEMUX_VISUALIZATION(
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
@@ -110,7 +106,12 @@ workflow HASH_DEMULTIPLEXING {
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
-                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
+                PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [
+                        meta,
+                        seurat_object,
+                        "HTO"
+                    ]
+                }
             )
 
             ch_multiseq = ch_multiseq.mix(MULTISEQDEMUX.out.results)
@@ -126,16 +127,6 @@ workflow HASH_DEMULTIPLEXING {
     }
 
     if (methods.contains('demuxem')) {
-        ch_samplesheet.map { meta, rna, hto ->
-            {
-                if (!rna) {
-                    error("RNA matrix not provided for sample ${meta.id}, but this is required for DemuxEM. Please check your input samplesheet.")
-                }
-                if (!hto) {
-                    error("HTO matrix not provided for sample ${meta.id}, but this is required for DemuxEM. Please check your input samplesheet.")
-                }
-            }
-        }
 
         MTXCONVERT_RNA(ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }, false)
         ch_versions = ch_versions.mix(MTXCONVERT_RNA.out.versions)
@@ -147,52 +138,60 @@ workflow HASH_DEMULTIPLEXING {
             MTXCONVERT_RNA.out.h5.join(MTXCONVERT_HTO.out.csv),
             params.demuxem_gender_genes,
             params.genome ?: [],
-            true,
+            params.demuxem_generate_diagnostic_plots
         )
 
         ch_demuxem = ch_demuxem.mix(DEMUXEM.out.out_zarr)
         ch_versions = ch_versions.mix(DEMUXEM.out.versions)
     }
 
-    // TODO List of HTO names is hardcoded until now
     if (methods.contains('gmm-demux')) {
-        ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [meta, hto, "MS-11,MS-12", meta.n_cells] }
 
-        ch_gmmdemux_input.map { meta, hto, hto_names, _estimated_cells ->
-            {
-                if (!hto) {
-                    error("HTO matrix not provided for sample ${meta.id}, but this is required for GMM-Demux. Please check your input samplesheet.")
-                }
-                if (!hto_names) {
-                    error("HTO names not provided for sample ${meta.id}, but this is required for GMM-Demux. Please check your input samplesheet.")
-                }
+        ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
+                    meta,
+                    hto,
+                    params.hash_list.join(','),
+                    meta.n_cells
+                ]
             }
-        }
+
         GMMDEMUX(
             ch_gmmdemux_input,
-            true,
-            true,
-            [],
-            [],
+            params.gmmdemux_type_report,
+            params.gmmdemux_summary_report,
+            params.gmmdemux_skip ? params.gmmdemux_skip : [],
+            params.gmmdemux_examine ? params.gmmdemux_examine : []
         )
-        ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
 
+        ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
         ch_gmmdemux_results = ch_gmmdemux_results.mix(GMMDEMUX.out.classification_report)
         ch_gmmdemux_config = ch_gmmdemux_config.mix(GMMDEMUX.out.config_report)
     }
     if (methods.contains('hasheddrops')) {
 
-
         HASHEDDROPS(
-            ch_samplesheet.map { meta, rna, hto -> [meta, hto, params.hasheddrops_runEmptyDrops.toString().toUpperCase(), rna] }
+            ch_samplesheet.map { meta, rna, hto -> [
+                    meta,
+                    hto,
+                    params.hasheddrops_runEmptyDrops.toString().toUpperCase(),
+                    rna
+                ]
+            }
         )
-        print(params.hasheddrops_runEmptyDrops.toString().toUpperCase())
+
         ch_hasheddrops = ch_hasheddrops.mix(HASHEDDROPS.out.results)
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
 
-        HASHSOLO(ch_samplesheet.map {meta, _rna, hto -> [meta, hto, []]})
+        HASHSOLO(
+            ch_samplesheet.map {meta, _rna, hto -> [
+                    meta,
+                    hto,
+                    params.hashsolo_cell_hashing_columns ? params.hashsolo_cell_hashing_columns : []
+                ]
+            }
+        )
 
         // TODO remove accessing list with [0] solved with https://github.com/nf-core/modules/pull/8876
         ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.assignment.map {meta, assignment -> [meta, assignment[0]]})
