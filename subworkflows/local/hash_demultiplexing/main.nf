@@ -193,8 +193,7 @@ workflow HASH_DEMULTIPLEXING {
             }
         )
 
-        // TODO remove accessing list with [0] solved with https://github.com/nf-core/modules/pull/8876
-        ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.assignment.map {meta, assignment -> [meta, assignment[0]]})
+        ch_hashsolo = ch_hashsolo.mix(HASHSOLO.out.assignment)
         ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
 

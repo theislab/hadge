@@ -7,7 +7,7 @@
                 "nf-core": {
                     "bff": {
                         "branch": "master",
-                        "git_sha": "ab0581ef6b11c5e62c641c6194a847fb622987fa",
+                        "git_sha": "4c2012fe04a7850c9e222ca5e81c8220b94027de",
                         "installed_by": ["modules"]
                     },
                     "cellsnp/modea": {
@@ -84,7 +84,7 @@
                     },
                     "scanpy/hashsolo": {
                         "branch": "master",
-                        "git_sha": "fd2ba70889a7c4dc65c6c8b563fd4a44a0550d9b",
+                        "git_sha": "2b474484e0f4c130392c4d67225e15614732e2a8",
                         "installed_by": ["modules"]
                     },
                     "umitools/dedup": {
