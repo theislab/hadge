@@ -150,7 +150,7 @@ workflow HASH_DEMULTIPLEXING {
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.hash_list.join(','),
+                    params.hash_list,
                     meta.n_cells
                 ]
             }
@@ -213,7 +213,7 @@ workflow HASH_DEMULTIPLEXING {
 
     HASH_SUMMARY(
         ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods, params.hash_list)
+        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods, params.hash_list.split(","))
     )
 
     emit:

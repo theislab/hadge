@@ -33,8 +33,7 @@
                 "match_donor": {
                     "type": "boolean",
                     "description": "Match donor.",
-                    "fa_icon": "fas fa-user-check",
-                    "default": false
+                    "fa_icon": "fas fa-user-check"
                 },
                 "hash_tools": {
                     "type": "string",
@@ -75,8 +74,7 @@
                 "save_intermediates": {
                     "type": "boolean",
                     "description": "Save intermediate files.",
-                    "fa_icon": "fas fa-save",
-                    "default": false
+                    "fa_icon": "fas fa-save"
                 },
                 "email": {
                     "type": "string",
@@ -168,7 +166,7 @@
                 "demuxem_min_signal_hashtag": {
                     "type": "number",
                     "description": "Any cell/nucleus with less than this count of hashtags from the signal will be marked as unknown.",
-                    "default": 10,
+                    "default": 10.0,
                     "minimum": 0,
                     "fa_icon": "fas fa-signal"
                 },
@@ -182,7 +180,6 @@
                 "demuxem_gender_genes": {
                     "type": "string",
                     "description": "Comma-separated list of gender-specific genes (e.g. Xist) for generating violin plots.",
-                    "default": "",
                     "fa_icon": "fas fa-venus-mars"
                 }
             }
@@ -232,7 +229,6 @@
                 "bff_doTSNE": {
                     "type": "boolean",
                     "description": "Whether to compute tSNE visualization in BFF.",
-                    "default": false,
                     "fa_icon": "fas fa-project-diagram"
                 },
                 "bff_doHeatmap": {
@@ -331,18 +327,20 @@
             "properties": {
                 "hashsolo_cell_hashing_columns": {
                     "type": ["array", "null"],
-                    "items": { "type": "string" },
+                    "items": {
+                        "type": "string"
+                    },
                     "description": "Groovy list (['hash_1', 'hash_2']) of .obs columns that contain cell hashing counts. Can be null if the data is in 10x Genomics format, as the columns are derived from the input.",
                     "default": null,
                     "fa_icon": "fas fa-list"
                 },
                 "hashsolo_priors": {
-                    "type": "array",
-                    "items": { "type": "number" },
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "description": "List of priors for each hypothesis: NEGATIVE, SINGLET, DOUBLET.",
-                    "default": [0.01, 0.8, 0.19],
+                    "type": "string",
+                    "items": {
+                        "type": "number"
+                    },
+                    "description": "List of comma-separated priors for each hypothesis: NEGATIVE, SINGLET, DOUBLET.",
+                    "default": "0.01,0.8,0.19",
                     "fa_icon": "fas fa-sliders-h"
                 },
                 "hashsolo_pre_existing_clusters": {
@@ -365,7 +363,7 @@
                     "fa_icon": "fas fa-sort-numeric-up"
                 },
                 "hashsolo_round_digits": {
-                    "type": ["integer", "null"],
+                    "type": "integer",
                     "description": "Number of decimal places to round numeric values in cell_hashing_data.obs before saving. If omitted, no rounding is applied.",
                     "default": 10,
                     "minimum": 0,
@@ -504,13 +502,11 @@
                 "htodemux_visualization_tSNEVerbose": {
                     "type": "boolean",
                     "description": "Verbose tSNE.",
-                    "default": false,
                     "fa_icon": "fas fa-volume-up"
                 },
                 "htodemux_visualization_tSNEApprox": {
                     "type": "boolean",
                     "description": "Approximate tSNE.",
-                    "default": false,
                     "fa_icon": "fas fa-fast-forward"
                 },
                 "htodemux_visualization_tSNEDimMax": {
@@ -690,7 +686,6 @@
                 "hasheddrops_constantAmbient": {
                     "type": "boolean",
                     "description": "Whether to use constant ambient contamination level.",
-                    "default": false,
                     "fa_icon": "fas fa-equals"
                 },
                 "hasheddrops_doubletNmads": {
@@ -710,7 +705,6 @@
                 "hasheddrops_doubletMixture": {
                     "type": "boolean",
                     "description": "Whether to use 2-component mixture model for doublets.",
-                    "default": false,
                     "fa_icon": "fas fa-object-ungroup"
                 },
                 "hasheddrops_confidentNmads": {
@@ -739,7 +733,6 @@
                 "hasheddrops_runEmptyDrops": {
                     "type": "boolean",
                     "description": "Whether to run EmptyDrops analysis as part of HashedDrops.",
-                    "default": false,
                     "fa_icon": "fas fa-tint"
                 }
             }
@@ -801,11 +794,10 @@
             "description": "Options controlling hash summary and downstream exported formats.",
             "properties": {
                 "hash_list": {
-                    "type": "array",
+                    "type": "string",
                     "description": "If specified, restrict hashing analysis to these HTO identifiers (matching feature names).",
                     "fa_icon": "fas fa-list",
-                    "items": { "type": "string" },
-                    "default": null
+                    "default": "MS-11,MS-12"
                 },
                 "generate_anndata": {
                     "type": "boolean",
@@ -850,20 +842,18 @@
                     "type": "number",
                     "description": "Minimum minor allele frequency (MAF) for SNPs to be included in the output.",
                     "default": 0.0,
-                    "minimum": 0.0,
+                    "minimum": 0,
                     "maximum": 0.5,
                     "fa_icon": "fas fa-percentage"
                 },
                 "cellsnp_inclflag": {
                     "type": "string",
                     "description": "Required flags in SAM/BAM: skip reads that don't have ALL of these flags. See SAM format specification for details.",
-                    "default": "",
                     "fa_icon": "fas fa-flag"
                 },
                 "cellsnp_exclflag": {
                     "type": "string",
                     "description": "Excluding flags in SAM/BAM: skip reads that have ANY of these flags. See SAM format specification for details.",
-                    "default": "",
                     "fa_icon": "fas fa-ban"
                 },
                 "cellsnp_minlen": {
@@ -890,7 +880,6 @@
                 "cellsnp_countorphan": {
                     "type": "boolean",
                     "description": "If true, do not skip anomalous read pairs (i.e., count orphan reads).",
-                    "default": false,
                     "fa_icon": "fas fa-child"
                 }
             }
@@ -911,7 +900,6 @@
                 "vireo_no_doublet": {
                     "type": "boolean",
                     "description": "If true, do not check for doublets during demultiplexing.",
-                    "default": false,
                     "fa_icon": "fas fa-object-ungroup"
                 },
                 "vireo_n_init": {
@@ -938,19 +926,16 @@
                 "vireo_force_learn_gt": {
                     "type": "boolean",
                     "description": "If true, treat donor GT as prior only and learn genotypes from data.",
-                    "default": false,
                     "fa_icon": "fas fa-graduation-cap"
                 },
                 "vireo_ase_mode": {
                     "type": "boolean",
                     "description": "If true, turn on SNP specific allelic ratio (ASE mode).",
-                    "default": false,
                     "fa_icon": "fas fa-adjust"
                 },
                 "vireo_no_plot": {
                     "type": "boolean",
                     "description": "If true, turn off plotting GT distance.",
-                    "default": false,
                     "fa_icon": "fas fa-chart-bar"
                 },
                 "vireo_rand_seed": {
@@ -969,7 +954,6 @@
                 "vireo_cell_ambient_rnas": {
                     "type": "boolean",
                     "description": "If true, detect ambient RNAs in each cell (experimental feature).",
-                    "default": false,
                     "fa_icon": "fas fa-flask"
                 }
             }
@@ -1162,13 +1146,11 @@
                 "freemuxlet_keep_init_missing": {
                     "type": "boolean",
                     "description": "Keep missing cluster assignment as missing in the initial iteration.",
-                    "default": false,
                     "fa_icon": "fas fa-question-circle"
                 },
                 "freemuxlet_randomize_singlet_score": {
                     "type": "boolean",
                     "description": "Randomize the singlet scores to test its effect.",
-                    "default": false,
                     "fa_icon": "fas fa-random"
                 },
                 "freemuxlet_seed": {
@@ -1384,5 +1366,11 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "vireo_cell_range !": {
+            "type": "string",
+            "default": "all\" ? \"--cellRange ${params.vireo_cell_range}\" : \"\",\n                params.vireo_cell_ambient_rnas ? \"--callAmbientRNAs\" : \"\",\n            ].join(\" \")\n        }"
+        }
+    }
 }
