@@ -1366,11 +1366,5 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ],
-    "properties": {
-        "vireo_cell_range !": {
-            "type": "string",
-            "default": "all\" ? \"--cellRange ${params.vireo_cell_range}\" : \"\",\n                params.vireo_cell_ambient_rnas ? \"--callAmbientRNAs\" : \"\",\n            ].join(\" \")\n        }"
-        }
-    }
+    ]
 }
