@@ -38,7 +38,8 @@ class Arguments:
         self.demuxem                  = "${demuxem}"
         self.gmmdemux_results         = "${gmmdemux_results}"
         self.gmmdemux_config          = "${gmmdemux_config}"
-        self.hasheddrops              = "${hasheddrops}"
+        self.hasheddrops_results      = "${hasheddrops_results}"
+        self.hasheddrops_id_to_hash   = "${hasheddrops_id_to_hash}"
         self.hashsolo                 = "${hashsolo}"
 
         self.generate_anndata         = "${generate_anndata}"
@@ -56,7 +57,8 @@ class Arguments:
             "demuxem",
             "gmmdemux_results",
             "gmmdemux_config",
-            "hasheddrops",
+            "hasheddrops_results",
+            "hasheddrops_id_to_hash",
             "hashsolo",
         }
 
@@ -128,12 +130,12 @@ class Arguments:
 class ProcessModuleOutput:
 
     def __init__(self):
-        # necessary to verify which functions should to be called
-        # because gmmdemux and and htodemux need two input files
+        # necessary to verify which functions should be called
+        # because gmmdemux, hasheddrops and htodemux need two input files
         self.function_name_to_args_name = {
             'demuxem': 'demuxem',
             'hashsolo': 'hashsolo',
-            'hasheddrops': 'hasheddrops',
+            'hasheddrops': 'hasheddrops_results',
             'multiseq': 'multiseq',
             'htodemux': 'htodemux_assignments',
             'gmmdemux': 'gmmdemux_results',
@@ -181,20 +183,12 @@ class ProcessModuleOutput:
 
     def hasheddrops(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-
-
-        # TODO remove hardcoding solved with: https://github.com/nf-core/modules/pull/8878
-        # Hardcode indexing for now
-        # for later: test = pd.read_csv("hto_index_map.csv")
-        idx_to_htoname_df = pd.DataFrame({
-        'Index': [1, 2],
-        'HTO': ['MS-11', 'MS-12']
-        })
-
+        idx_to_htoname_df = pd.read_csv(args.hasheddrops_id_to_hash)
+        print(idx_to_htoname_df)
         idx_to_htoname_df.loc[len(idx_to_htoname_df)] = [np.nan, args.negative_str]
         idx_to_htoname_map = idx_to_htoname_df.set_index('Index')['HTO'].to_dict()
 
-        obs_res = pd.read_csv(args.hasheddrops)
+        obs_res = pd.read_csv(args.hasheddrops_results)
 
         obs_res["Classification"] = np.where(
             obs_res["Confident"] & obs_res["Confident"].notna(),

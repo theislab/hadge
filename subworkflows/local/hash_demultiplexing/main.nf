@@ -33,8 +33,11 @@ workflow HASH_DEMULTIPLEXING {
     ch_demuxem = Channel.empty()
     ch_gmmdemux_results = Channel.empty()
     ch_gmmdemux_config = Channel.empty()
-    ch_hasheddrops = Channel.empty()
+    ch_hasheddrops_results = Channel.empty()
+    ch_hasheddrops_id_to_hash = Channel.empty()
     ch_hashsolo = Channel.empty()
+
+    //TODO add hashlist to meta (just the HTO names in a groovy list) read mtx
 
     ch_samplesheet.map { meta, rna, hto ->
         {
@@ -179,7 +182,8 @@ workflow HASH_DEMULTIPLEXING {
             }
         )
 
-        ch_hasheddrops = ch_hasheddrops.mix(HASHEDDROPS.out.results)
+        ch_hasheddrops_results = ch_hasheddrops_results.mix(HASHEDDROPS.out.results)
+        ch_hasheddrops_id_to_hash = ch_hasheddrops_id_to_hash.mix(HASHEDDROPS.out.id_to_hash)
         ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
@@ -205,7 +209,8 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_demuxem , remainder: true)
         .join(ch_gmmdemux_results, remainder: true)
         .join(ch_gmmdemux_config, remainder: true)
-        .join(ch_hasheddrops, remainder: true)
+        .join(ch_hasheddrops_results, remainder: true)
+        .join(ch_hasheddrops_id_to_hash, remainder: true)
         .join(ch_hashsolo, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
     // Empty inputs solved as recommended here:
