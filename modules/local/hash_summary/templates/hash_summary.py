@@ -386,6 +386,8 @@ if __name__ == "__main__":
 
     assignment_summary.to_csv(args.assignment, index=False)
 
+    # TODO left join
+
     for classification in classifications:
             classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="outer")
 

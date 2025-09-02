@@ -11,7 +11,7 @@ process HASH_SUMMARY {
 
     input:
     tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(bff), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops_results), path(hasheddrops_id_to_hash), path(hashsolo)
-    tuple val (generate_anndata), val(generate_mudata), val(bff_methods), val(hash_list)
+    tuple val (generate_anndata), val(generate_mudata), val(bff_methods)
 
     output:
     tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment    , optional: false
@@ -24,6 +24,7 @@ process HASH_SUMMARY {
 
     script:
     prefix         = task.ext.prefix         ?: "${meta.id}"
+    hash_list      = "${meta.hashes}".split(",")
 
     template 'hash_summary.py'
 

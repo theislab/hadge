@@ -4,6 +4,7 @@ include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../..
 include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../../../modules/local/rename_genes_to_features'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA                } from '../../../modules/local/dropletutils/mtxconvert'
 include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO                } from '../../../modules/local/dropletutils/mtxconvert'
+include { EXTRACT_HASHES                                           } from '../../../modules/local/extract_hashes'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
 include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
@@ -14,6 +15,7 @@ include { GMMDEMUX                                                 } from '../..
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
+
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -36,8 +38,6 @@ workflow HASH_DEMULTIPLEXING {
     ch_hasheddrops_results = Channel.empty()
     ch_hasheddrops_id_to_hash = Channel.empty()
     ch_hashsolo = Channel.empty()
-
-    //TODO add hashlist to meta (just the HTO names in a groovy list) read mtx
 
     ch_samplesheet.map { meta, rna, hto ->
         {
@@ -72,8 +72,13 @@ workflow HASH_DEMULTIPLEXING {
 
     ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
     ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+    ch_hashes = EXTRACT_HASHES(ch_hto.map { meta, hto -> [meta, "${hto}/features.tsv.gz"] })
 
-    ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }.join(ch_rna).join(ch_hto)
+    ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }
+                        .join(ch_rna)
+                        .join(ch_hto)
+                        .join(ch_hashes)
+                        .map {meta, rna, hto, hashes -> [meta+[hashes: file(hashes).text.trim()], rna, hto] }
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
@@ -150,10 +155,11 @@ workflow HASH_DEMULTIPLEXING {
 
     if (methods.contains('gmm-demux')) {
 
+        // TODO do the same as for meta.n_cells as for hash_list
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.hash_list,
+                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hashes,
                     meta.n_cells
                 ]
             }
@@ -216,9 +222,11 @@ workflow HASH_DEMULTIPLEXING {
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
+    ch_summary.view()
+
     HASH_SUMMARY(
         ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods, params.hash_list.split(","))
+        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods)
     )
 
     emit:

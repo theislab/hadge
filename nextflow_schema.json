@@ -269,6 +269,12 @@
             "fa_icon": "fas fa-layer-group",
             "description": "Options specific to the GMM-Demux tool for cell hashing demultiplexing.",
             "properties": {
+                "gmmdemux_hto_names ": {
+                    "type": ["string", "null"],
+                    "description": "Comma separated list of HTO names, without whitespace. If null, hto_names are extracted from the input hto matrix from features.tsv.gz.",
+                    "default": null,
+                    "fa_icon": "fas fa-file-alt"
+                },
                 "gmmdemux_type_report": {
                     "type": "boolean",
                     "description": "If true, full classification report is generated, otherwise the simplified classification report.",
