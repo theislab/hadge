@@ -269,7 +269,7 @@
             "fa_icon": "fas fa-layer-group",
             "description": "Options specific to the GMM-Demux tool for cell hashing demultiplexing.",
             "properties": {
-                "gmmdemux_hto_names ": {
+                "gmmdemux_hto_names": {
                     "type": ["string", "null"],
                     "description": "Comma separated list of HTO names, without whitespace. If null, hto_names are extracted from the input hto matrix from features.tsv.gz.",
                     "default": null,
@@ -799,12 +799,6 @@
             "fa_icon": "fas fa-list",
             "description": "Options controlling hash summary and downstream exported formats.",
             "properties": {
-                "hash_list": {
-                    "type": "string",
-                    "description": "If specified, restrict hashing analysis to these HTO identifiers (matching feature names).",
-                    "fa_icon": "fas fa-list",
-                    "default": "MS-11,MS-12"
-                },
                 "generate_anndata": {
                     "type": "boolean",
                     "description": "Generate AnnData (.h5ad) outputs for hashing results.",
