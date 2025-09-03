@@ -245,7 +245,7 @@ class ProcessModuleOutput:
 
         number_of_hashes = len(args.hash_list)
 
-        df_config = pd.read_csv(args.gmmdemux_config, header=None)
+        df_config = pd.read_csv(args.gmmdemux_config, header=None, skipinitialspace=True)
         df_config.columns = ["Cluster_id", "Description"]
 
         def _classify_hash(cluster_id: int, number_hashes: int) -> str:
@@ -382,14 +382,12 @@ if __name__ == "__main__":
     classification_summary = assignment_summary.copy()
 
     for assignment in assignments:
-        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left")
+        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str)
 
     assignment_summary.to_csv(args.assignment, index=False)
 
-    # TODO left join
-
     for classification in classifications:
-            classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="outer")
+            classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
 
     classification_summary.to_csv(args.classification, index=False)
 
@@ -405,7 +403,8 @@ if __name__ == "__main__":
         used_modules = list(assignment_summary.columns)
         for col in used_modules:
             if pd.api.types.is_categorical_dtype(rna_data.obs[col]):
-                rna_data.obs[col] = rna_data.obs[col].cat.add_categories([args.negative_str])
+                if args.negative_str not in rna_data.obs[col].cat.categories:
+                    rna_data.obs[col] = rna_data.obs[col].cat.add_categories([args.negative_str])
 
         rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna(args.negative_str)
         rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
