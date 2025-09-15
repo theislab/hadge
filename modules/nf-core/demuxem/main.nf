@@ -32,6 +32,8 @@ process DEMUXEM {
     def genome_args = genome ? "--genome ${genome}" : ""
     def diagnostic_plots = generate_diagnostic_plots ? "--generate-diagnostic-plots" : ""
     """
+    export MPLCONFIGDIR=./tmp/mpl
+
     demuxEM ${input_raw_gene_bc_matrices_h5} ${input_hto_csv_file} ${prefix} \\
         -p ${task.cpus} \\
         ${generateGenderPlot} \\
@@ -48,6 +50,7 @@ process DEMUXEM {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    export MPLCONFIGDIR=./tmp/mpl
     touch ${prefix}.out.demuxEM.zarr.zip
     touch ${prefix}_demux.zarr.zip
 
