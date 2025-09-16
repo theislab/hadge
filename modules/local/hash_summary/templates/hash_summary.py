@@ -354,7 +354,7 @@ if __name__ == "__main__":
     # ======================== process nextflow input arguments ========================
 
     args = Arguments()
-    args.print_args()
+    # args.print_args()
 
 
     # ========================= process results from modules ===========================
