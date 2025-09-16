@@ -222,8 +222,6 @@ workflow HASH_DEMULTIPLEXING {
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
-    ch_summary.view()
-
     HASH_SUMMARY(
         ch_summary,
         tuple(params.generate_anndata, params.generate_mudata, params.bff_methods)

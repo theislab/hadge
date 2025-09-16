@@ -1,6 +1,4 @@
 process HASH_SUMMARY {
-    // TODO remove dubug for the pipeline
-    debug true
     tag "${meta.id}"
     label 'process_low'
 
