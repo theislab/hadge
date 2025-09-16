@@ -1,0 +1,42 @@
+process HASH_SUMMARY {
+    tag "${meta.id}"
+    label 'process_low'
+
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/a5/a5f3952003b974094e3b9d92a6b3499b56554db8de0d7622e5b959842d11759e/data':
+        'community.wave.seqera.io/library/pegasusio_anndata_mudata_numpy_pruned:9d13d0d12376624e' }"
+
+    input:
+    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(bff), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops_results), path(hasheddrops_id_to_hash), path(hashsolo)
+    tuple val (generate_anndata), val(generate_mudata), val(bff_methods)
+
+    output:
+    tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment    , optional: false
+    tuple val(meta), path("*_hashing_summary_classification.csv"), emit: classification, optional: false
+    tuple val(meta), path("*_hashing_summary.h5ad")              , emit: h5ad          , optional: true
+    tuple val(meta), path("*_hashing_summary.h5mu")              , emit: h5mu          , optional: true
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    prefix         = task.ext.prefix         ?: "${meta.id}"
+    hash_list      = "${meta.hashes}".split(",")
+
+    template 'hash_summary.py'
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_hashing_summary_assignment.csv
+    touch ${prefix}_hashing_summary_classification.csv
+
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
+        r-base: \$(Rscript -e "cat(strsplit(R.version[['version.string']], ' ')[[1]][3])")
+    END_VERSIONS
+    """
+}

@@ -5,6 +5,11 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "bff": {
+                        "branch": "master",
+                        "git_sha": "4c2012fe04a7850c9e222ca5e81c8220b94027de",
+                        "installed_by": ["modules"]
+                    },
                     "cellsnp/modea": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
@@ -25,13 +30,13 @@
                     },
                     "hasheddrops": {
                         "branch": "master",
-                        "git_sha": "ac3ee5db3835e45ff9b9f03274f45049bd7028a3",
+                        "git_sha": "0cb99468d3666ac3babf10b270720e1b99319f90",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/hasheddrops/hasheddrops.diff"
                     },
                     "htodemux": {
                         "branch": "master",
-                        "git_sha": "e793890476782166ebaabded864cca7a5b0438dd",
+                        "git_sha": "6d8e4eb4f0e2790646d0466d1073db95610883f0",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
@@ -41,7 +46,7 @@
                     },
                     "multiseqdemux": {
                         "branch": "master",
-                        "git_sha": "ea8d54b6ad1e8f55abdceed1ce7828360e134ebd",
+                        "git_sha": "6d8e4eb4f0e2790646d0466d1073db95610883f0",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/multiseqdemux/multiseqdemux.diff"
                     },
@@ -75,6 +80,11 @@
                     "samtools/view": {
                         "branch": "master",
                         "git_sha": "d090922b1a4b80ba283186459ababf8e308abcbb",
+                        "installed_by": ["modules"]
+                    },
+                    "scanpy/hashsolo": {
+                        "branch": "master",
+                        "git_sha": "2b474484e0f4c130392c4d67225e15614732e2a8",
                         "installed_by": ["modules"]
                     },
                     "umitools/dedup": {
