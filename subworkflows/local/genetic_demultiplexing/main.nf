@@ -6,6 +6,8 @@ include { VIREO              } from '../../../modules/nf-core/vireo'
 include { POPSCLE_DSCPILEUP  } from '../../../modules/nf-core/popscle/dscpileup'
 include { POPSCLE_DEMUXLET   } from '../../../modules/nf-core/popscle/demuxlet'
 include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet'
+include { SOUPORCELL         } from '../../../modules/nf-core/souporcell/main'
+include { GENE_SUMMARY       } from '../../../modules/local/gene_summary'
 
 workflow GENETIC_DEMULTIPLEXING {
     take:
@@ -17,6 +19,12 @@ workflow GENETIC_DEMULTIPLEXING {
     main:
 
     ch_versions = Channel.empty()
+
+    ch_vireo_donor_id = Channel.empty()
+    ch_vireo_summary = Channel.empty()
+    ch_demuxlet_result = Channel.empty()
+    ch_freemuxlet_result = Channel.empty()
+    ch_souporcell = Channel.empty()
 
     if (bam_qc) {
         BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
@@ -58,6 +66,9 @@ workflow GENETIC_DEMULTIPLEXING {
         VIREO(
             ch_samplesheet.join(CELLSNP_MODEA.out.cell).map { meta, _bam, _barcodes, vcf, cell -> [meta, cell, meta.n_samples, vcf, []] }
         )
+
+        ch_vireo_donor_id = ch_vireo_donor_id.mix(VIREO.out.donor_ids)
+        ch_vireo_summary = ch_vireo_summary.mix(VIREO.out.summary)
         ch_versions = ch_versions.mix(VIREO.out.versions)
     }
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
@@ -68,18 +79,59 @@ workflow GENETIC_DEMULTIPLEXING {
         if (methods.contains('demuxlet')) {
             ch_demuxlet = POPSCLE_DSCPILEUP.out.plp.join(ch_samplesheet).map { meta, plp, bam, _barcodes, vcf -> [meta, plp, bam, vcf] }
             POPSCLE_DEMUXLET(ch_demuxlet)
+            ch_demuxlet_result = ch_demuxlet_result.mix(POPSCLE_DEMUXLET.out.demuxlet_result)
             ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)
         }
         if (methods.contains('freemuxlet')) {
             ch_freemuxlet = POPSCLE_DSCPILEUP.out.directory.join(ch_samplesheet).map { meta, plp_dir, _bam, _barcodes, _vcf -> [meta, plp_dir, meta.n_samples] }
             POPSCLE_FREEMUXLET(ch_freemuxlet)
+            ch_freemuxlet_result = ch_freemuxlet_result.mix(POPSCLE_FREEMUXLET.out.result)
             ch_versions = ch_versions.mix(POPSCLE_FREEMUXLET.out.versions)
         }
     }
 
     if (methods.contains('souporcell')) {
-        error("Souporcell not implemented")
+        ch_soup_bam_barcodes = ch_samplesheet.map { meta, bam, barcodes, _vcf ->
+        [ meta, bam, barcodes ]
+        }
+
+        ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
+            [ meta, file(params.ref) ]
+        }
+
+        ch_soup_clusters = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
+            (params.souporcell_k ?: meta.n_samples)
+        }
+
+        SOUPORCELL(
+            ch_soup_bam_barcodes,
+            ch_soup_fasta,
+            ch_soup_clusters
+        )
+
+        ch_souporcell = ch_souporcell.mix(SOUPORCELL.out.tsv)
+        ch_versions = ch_versions.mix(SOUPORCELL.out.versions)
     }
+
+    ch_summary = ch_samplesheet
+        .join(ch_vireo_donor_id, remainder: true)
+        .join(ch_vireo_summary, remainder: true)
+        .join(ch_demuxlet_result, remainder: true)
+        .join(ch_freemuxlet_result, remainder: true)
+        .join(ch_souporcell, remainder: true)
+        .map { tuple -> tuple.collect { it == null ? [] : it } }
+
+    ch_summary.view()
+
+    GENE_SUMMARY(
+        ch_summary.map { meta, bam, barcodes, vcf,
+                                      vireo_ids, vireo_sum,
+                                      demuxlet_res, freemuxlet_res, souporcell_tsv ->
+                        // If you also want .h5ad, pass a 10x RNA matrix dir here; else [].
+                        def rna_mtx = []
+                        [ meta, barcodes, vireo_ids, vireo_sum, demuxlet_res, freemuxlet_res, souporcell_tsv, rna_mtx ]
+        }
+    )
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]
