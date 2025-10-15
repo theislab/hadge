@@ -36,6 +36,12 @@ workflow HADGE {
         [meta, bam, barcodes, vcf]
     }
 
+    // leave out donor_match mode for now
+
+    ch_donor_match = ch_samplesheet.map { meta, _rna_matrix, _hto_matrix, _bam, barcodes, _vcf ->
+        [meta, barcodes, 'None', 'None']
+    }
+
     if (params.mode == 'genetic' || params.mode == 'rescue') {
         GENETIC_DEMULTIPLEXING(
             ch_genetic,
@@ -49,6 +55,14 @@ workflow HADGE {
         HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
+
+    //TODO build module for merging genetic and hashing results in rescue mode
+    if (params.mode == 'rescue'){
+        // MERGE_GENETIC_AND_HASHING(ch_genetic, ch_hashing)
+        // ch_versions = ch_versions.mix(MERGE_GENETIC_AND_HASHING.out.versions)
+    }
+
+
 
     if (params.mode == 'donor_match' || params.match_donor) {
         DONOR_MATCHING()
