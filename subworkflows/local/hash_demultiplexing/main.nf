@@ -24,8 +24,6 @@ workflow HASH_DEMULTIPLEXING {
 
     main:
 
-    ch_results = Channel.empty()
-
     ch_versions = Channel.empty()
 
     ch_htodemux_assignments = Channel.empty()
@@ -100,9 +98,6 @@ workflow HASH_DEMULTIPLEXING {
                 .map { meta, classification ->
                     [meta, [result: classification, method: 'htodemux_classification']]
                 }
-
-            ch_results = ch_results
-                .mix(ch_assignments,ch_classifications)
 
             ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
