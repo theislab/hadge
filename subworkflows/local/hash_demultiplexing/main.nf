@@ -1,16 +1,11 @@
-include { UNTAR as UNTAR_RNA                                       } from '../../../modules/nf-core/untar'
-include { UNTAR as UNTAR_HTO                                       } from '../../../modules/nf-core/untar'
-include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../../../modules/local/rename_genes_to_features'
-include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../../../modules/local/rename_genes_to_features'
-include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA                } from '../../../modules/local/dropletutils/mtxconvert'
-include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO                } from '../../../modules/local/dropletutils/mtxconvert'
-include { EXTRACT_HASHES                                           } from '../../../modules/local/extract_hashes'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
 include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
 include { MULTISEQDEMUX                                            } from '../../../modules/nf-core/multiseqdemux'
 include { BFF                                                      } from '../../../modules/nf-core/bff'
 include { DEMUXEM                                                  } from '../../../modules/nf-core/demuxem'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_RNA                } from '../../../modules/local/dropletutils/mtxconvert/main'
+include { DROPLETUTILS_MTXCONVERT as MTXCONVERT_HTO                } from '../../../modules/local/dropletutils/mtxconvert/main'
 include { GMMDEMUX                                                 } from '../../../modules/nf-core/gmmdemux'
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
@@ -47,36 +42,6 @@ workflow HASH_DEMULTIPLEXING {
             }
         }
     }
-
-    ch_rna = ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }
-                    .branch { _meta, rna ->
-                        tar: rna.endsWith('.tar.gz')
-                        directory: true
-                    }
-    ch_hto = ch_samplesheet.map { meta, _rna, hto -> [meta, hto] }
-                    .branch { _meta, hto ->
-                        tar: hto.endsWith('.tar.gz')
-                        directory: true
-                    }
-
-    UNTAR_RNA(ch_rna.tar)
-    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
-
-    UNTAR_HTO(ch_hto.tar)
-    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
-
-    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
-    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
-
-    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
-    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
-    ch_hashes = EXTRACT_HASHES(ch_hto.map { meta, hto -> [meta, "${hto}/features.tsv.gz"] })
-
-    ch_samplesheet = ch_samplesheet.map { meta, _rna, _hto -> [meta] }
-                        .join(ch_rna)
-                        .join(ch_hto)
-                        .join(ch_hashes)
-                        .map {meta, rna, hto, hashes -> [meta+[hashes: file(hashes).text.trim()], rna, hto] }
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
@@ -221,6 +186,8 @@ workflow HASH_DEMULTIPLEXING {
         ch_summary,
         tuple(params.generate_anndata, params.generate_mudata, params.bff_methods)
     )
+
+    ch_versions = ch_versions.mix(HASH_SUMMARY.out.versions)
 
     emit:
     versions = ch_versions // channel: [ versions.yml ]

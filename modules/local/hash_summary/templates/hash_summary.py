@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# versions
+import platform
+import yaml
+
 import os
 
 os.environ["MPLCONFIGDIR"] = "./tmp/mpl"
@@ -8,12 +12,13 @@ os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
 import pandas as pd
 import scanpy as sc
 import numpy as np
+import mudata as md
+import pegasusio as io
+
 from pathlib import Path
 from mudata import MuData
-from anndata import AnnData
-from typing import Dict
 from typing import Tuple
-import pegasusio as io
+
 
 class Arguments:
     # adopted from mygene module (Suzanne Jin)
@@ -424,3 +429,20 @@ if __name__ == "__main__":
 
         if args.generate_anndata:
             rna_data.write(args.h5ad)
+
+    # -------------------------------------- versions ----------------------------------
+
+    versions = {
+        "${task.process}": {
+            "python": platform.python_version(),
+            "pandas": pd.__version__,
+            "scanpy": sc.__version__,
+            "numpy": np.__version__,
+            "mudata": md.__version__,
+            "pegasusio": io.__version__,
+            "yaml": yaml.__version__,
+            }
+    }
+
+    with open("versions.yml", "w") as f:
+        yaml.dump(versions, f)

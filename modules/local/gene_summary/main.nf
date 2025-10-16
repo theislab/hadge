@@ -1,12 +1,17 @@
 process GENE_SUMMARY {
     tag "${meta.id}"
     label 'process_low'
+
     conda "${moduleDir}/environment.yml"
-    // container "<a-small-python-pandas-scanpy image>"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d8/d863e56b5ce15b271e8c8666ec22217df5cfc57a9731cc23c7f92674dc7ab0c7/data':
+        'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
+
     input:
     tuple val(meta),
         path(rna_matrix),
         path(hto_matrix),
+        path(barcodes),
         path(vireo),
         path(demuxlet),
         path(freemuxlet)
@@ -31,14 +36,18 @@ process GENE_SUMMARY {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}_hashing_summary_assignment.csv
-    touch ${prefix}_hashing_summary_classification.csv
-
+    touch ${prefix}_genetic_summary_assignment.csv
+    touch ${prefix}_genetic_summary_classification.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
-        r-base: \$(Rscript -e "cat(strsplit(R.version[['version.string']], ' ')[[1]][3])")
+        python: \$(python3 -c 'import platform; print(platform.python_version())')
+        pandas: \$(python3 -c 'import pandas as pd; print(pd.__version__)')
+        scanpy: \$(python3 -c 'import scanpy as sc; print(sc.__version__)')
+        numpy: \$(python3 -c 'import numpy as np; print(np.__version__)')
+        mudata: \$(python3 -c 'import mudata as md; print(md.__version__)')
+        pegasusio: \$(python3 -c 'import pegasusio as io; print(io.__version__)')
+        yaml: \$(python3 -c 'import yaml; print(yaml.__version__)')
     END_VERSIONS
     """
 }

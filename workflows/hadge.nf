@@ -9,6 +9,12 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hadge_pipeline'
 
+include { UNTAR as UNTAR_RNA                                       } from '../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_HTO                                       } from '../modules/nf-core/untar/main'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../modules/local/rename_genes_to_features/main'
+include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../modules/local/rename_genes_to_features/main'
+include { EXTRACT_HASHES                                           } from '../modules/local/extract_hashes/main'
+
 include { GENETIC_DEMULTIPLEXING } from '../subworkflows/local/genetic_demultiplexing/main'
 include { HASH_DEMULTIPLEXING    } from '../subworkflows/local/hash_demultiplexing/main'
 include { DONOR_MATCHING         } from '../subworkflows/local/donor_matching/main'
@@ -28,13 +34,52 @@ workflow HADGE {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    ch_hashing = ch_samplesheet.map { meta, rna_matrix, hto_matrix, _bam, _barcodes, _vcf ->
-        [meta, rna_matrix, hto_matrix]
-    }
+    // ------------------------------ preprocessing start -------------------------------
 
-    ch_genetic = ch_samplesheet.map { meta, _rna_matrix, _hto_matrix, bam, barcodes, vcf ->
-        [meta, bam, barcodes, vcf]
+
+
+    ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
+                    .branch { _meta, rna ->
+                        tar: rna.endsWith('.tar.gz')
+                        directory: true
+                    }
+    ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
+                    .branch { _meta, hto ->
+                        tar: hto.endsWith('.tar.gz')
+                        directory: true
+                    }
+
+    ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
+
+    UNTAR_RNA(ch_rna.tar)
+    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
+
+    UNTAR_HTO(ch_hto.tar)
+    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
+
+    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
+    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
+
+    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
+    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+    ch_hashes = EXTRACT_HASHES(ch_hto.map { meta, hto -> [meta, "${hto}/features.tsv.gz"] })
+
+    ch_genetic = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
+                        .join(ch_rna)
+                        .join(ch_hto)
+                        .join(ch_remaining_input)
+                        .join(ch_hashes)
+                        .map {meta, rna, hto, bam, barcodes, vcf, hashes -> [meta+[hashes: file(hashes).text.trim()], rna, hto, bam, barcodes, vcf] }
+
+    // ------------------------------- preprocessing end --------------------------------
+
+    ch_hashing = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf ->
+        [meta, rna, hto]
     }
+    //TODO maybe remove if genetic still needs rna and hto matrix
+    // ch_genetic = ch_samplesheet.map { meta, rna_matrix, hto_matrix, bam, barcodes, vcf ->
+    //     [meta, rna_matrix, hto_matrix, bam, barcodes, vcf]
+    // }
 
     if (params.mode == 'genetic' || params.mode == 'rescue') {
         GENETIC_DEMULTIPLEXING(

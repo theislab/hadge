@@ -4,8 +4,8 @@ process HASH_SUMMARY {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/a5/a5f3952003b974094e3b9d92a6b3499b56554db8de0d7622e5b959842d11759e/data':
-        'community.wave.seqera.io/library/pegasusio_anndata_mudata_numpy_pruned:9d13d0d12376624e' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d8/d863e56b5ce15b271e8c8666ec22217df5cfc57a9731cc23c7f92674dc7ab0c7/data':
+        'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
 
     input:
     tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(bff), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops_results), path(hasheddrops_id_to_hash), path(hashsolo)
@@ -16,6 +16,7 @@ process HASH_SUMMARY {
     tuple val(meta), path("*_hashing_summary_classification.csv"), emit: classification, optional: false
     tuple val(meta), path("*_hashing_summary.h5ad")              , emit: h5ad          , optional: true
     tuple val(meta), path("*_hashing_summary.h5mu")              , emit: h5mu          , optional: true
+    path "versions.yml"                                          , emit: versions      , optional: false
 
     when:
     task.ext.when == null || task.ext.when
@@ -32,11 +33,15 @@ process HASH_SUMMARY {
     touch ${prefix}_hashing_summary_assignment.csv
     touch ${prefix}_hashing_summary_classification.csv
 
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        r-seurat: \$(Rscript -e "library(Seurat); cat(as.character(packageVersion('Seurat')))")
-        r-base: \$(Rscript -e "cat(strsplit(R.version[['version.string']], ' ')[[1]][3])")
+        python: \$(python3 -c 'import platform; print(platform.python_version())')
+        pandas: \$(python3 -c 'import pandas as pd; print(pd.__version__)')
+        scanpy: \$(python3 -c 'import scanpy as sc; print(sc.__version__)')
+        numpy: \$(python3 -c 'import numpy as np; print(np.__version__)')
+        mudata: \$(python3 -c 'import mudata as md; print(md.__version__)')
+        pegasusio: \$(python3 -c 'import pegasusio as io; print(io.__version__)')
+        yaml: \$(python3 -c 'import yaml; print(yaml.__version__)')
     END_VERSIONS
     """
 }

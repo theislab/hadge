@@ -17,12 +17,21 @@ workflow GENETIC_DEMULTIPLEXING {
 
     main:
 
-    ch_versions = Channel.empty()
 
+
+    ch_versions = Channel.empty()
     ch_vireo = Channel.empty()
     ch_demuxlet = Channel.empty()
     ch_freemuxlet = Channel.empty()
     ch_souporcell = Channel.empty()
+
+    ch_summary = ch_samplesheet.map{ meta, rna, hto, _bam, barcodes, _vcf ->
+        [meta, rna, hto, barcodes]
+    }
+
+    ch_samplesheet = ch_samplesheet.map{ meta, _rna, _hto, bam, barcodes, vcf ->
+        [meta, bam, barcodes, vcf]
+    }
 
     if (bam_qc) {
         BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
@@ -93,13 +102,17 @@ workflow GENETIC_DEMULTIPLEXING {
         error("Souporcell not implemented")
     }
 
-    ch_summary = ch_samplesheet
+    ch_summary = ch_summary
         .join(ch_vireo, remainder: true)
         .join(ch_demuxlet, remainder: true)
         .join(ch_freemuxlet, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
 
-    GENE_SUMMARY(ch_summary)
+    GENE_SUMMARY(
+        ch_summary,
+        tuple(params.generate_anndata, params.generate_mudata)
+    )
+
     ch_versions = ch_versions.mix(GENE_SUMMARY.out.versions)
 
 

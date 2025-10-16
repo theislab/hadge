@@ -13,10 +13,8 @@ process EXTRACT_HASHES {
 
     script:
     prefix         = task.ext.prefix         ?: "${meta.id}"
-
-    script:
     """
-    zcat $hto_matrix | awk '{print \$2}' | paste -sd, > ${prefix}_hashes.txt
+    zcat $hto_matrix | awk '{print \$2}' | paste -sd, - > ${prefix}_hashes.txt
     """
 
     stub:
