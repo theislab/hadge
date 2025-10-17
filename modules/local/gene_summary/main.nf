@@ -14,9 +14,9 @@ process GENE_SUMMARY {
         path(barcodes),
         path(vireo),
         path(demuxlet),
-        path(freemuxlet)
+        path(freemuxlet),
+        path(souporcell)
     tuple val (generate_anndata), val(generate_mudata)
-
 
     output:
     tuple val(meta), path("*_genetic_summary_assignment.csv")    , emit: assignment    , optional: false

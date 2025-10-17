@@ -39,6 +39,7 @@ class Arguments:
         self.vireo                    = "${vireo}"
         self.demuxlet                 = "${demuxlet}"
         self.freemuxlet               = "${freemuxlet}"
+        self.souporcell               = "${souporcell}"
 
         self.generate_anndata         = "${generate_anndata}"
         self.generate_mudata          = "${generate_mudata}"
@@ -49,7 +50,8 @@ class Arguments:
             "barcodes",
             "vireo",
             "demuxlet",
-            "freemuxlet"
+            "freemuxlet",
+            "souporcell"
         }
 
         boolean_vars = {
@@ -104,7 +106,8 @@ class ProcessDeconvolutionMethodResult:
         self.deconvolution_methods = {
             "vireo",
             "demuxlet",
-            "freemuxlet"
+            "freemuxlet",
+            "souporcell"
         }
 
         self.checkHashNames = True
@@ -125,8 +128,23 @@ class ProcessDeconvolutionMethodResult:
 
         return assignment, classification
 
+    def souporcell(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        results = pd.read_csv(args.souporcell, sep="\t").iloc[:, 0:3]
+        results.loc[results["status"] == "doublet", "assignment"] = "doublet"
+        results.loc[results["status"] == "unassigned", "assignment"] = "negative"
 
-    # TODO continue with demuxlet and freemuxlet
+        assignment = results[["barcode", "assignment"]].rename(columns={'barcode':'Barcode', 'assignment': 'souporcell'})
+
+        classification = assignment.copy()
+        classification["souporcell"] = classification["souporcell"].where(
+            classification["souporcell"].isin(["doublet", "negative"]),
+            "singlet"
+        )
+
+        print(assignment)
+        print(classification)
+
+        return assignment, classification
 
     def demuxlet(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
         return self.demuxlet_or_freemuxlet(args,"demuxlet")
@@ -154,7 +172,11 @@ class ProcessDeconvolutionMethodResult:
         assignment = result[['BARCODE',method]].rename(columns={'BARCODE':'Barcode'})
 
         classification = assignment.copy()
-        classification[~classification.isin([args.doublet_str, args.negative_str])] = args.singlet_str
+        classification[method] = np.where(
+            classification[method].isin([args.doublet_str, args.negative_str]),
+            classification[method],   # keep original value if in the list
+            args.singlet_str                # otherwise set to singlet
+        )
 
         print(assignment)
         print(classification)
@@ -225,12 +247,12 @@ if __name__ == "__main__":
     print(assignment_summary)
 
     for assignment in assignments:
-        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str)
+        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str).fillna(args.negative_str)
 
     assignment_summary.to_csv(args.assignment, index=False)
 
     for classification in classifications:
-            classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
+        classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
 
     classification_summary.to_csv(args.classification, index=False)
 

@@ -6,6 +6,7 @@ include { VIREO              } from '../../../modules/nf-core/vireo'
 include { POPSCLE_DSCPILEUP  } from '../../../modules/nf-core/popscle/dscpileup'
 include { POPSCLE_DEMUXLET   } from '../../../modules/nf-core/popscle/demuxlet'
 include { POPSCLE_FREEMUXLET } from '../../../modules/nf-core/popscle/freemuxlet'
+include { SOUPORCELL         } from '../../../modules/nf-core/souporcell'
 include { GENE_SUMMARY       } from '../../../modules/local/gene_summary'
 
 workflow GENETIC_DEMULTIPLEXING {
@@ -16,9 +17,6 @@ workflow GENETIC_DEMULTIPLEXING {
     common_variants // file
 
     main:
-
-
-
     ch_versions = Channel.empty()
     ch_vireo = Channel.empty()
     ch_demuxlet = Channel.empty()
@@ -99,14 +97,42 @@ workflow GENETIC_DEMULTIPLEXING {
     }
 
     if (methods.contains('souporcell')) {
-        error("Souporcell not implemented")
+                ch_soup_bam_barcodes = ch_samplesheet.map { meta, bam, barcodes, _vcf ->
+            [ meta, bam, barcodes ]
+        }
+
+        ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
+            [ meta, file(params.ref) ]
+        }
+
+        // ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
+        //     [ meta, file(params.fasta) ]
+        // }
+
+        //TODO update souporcell so that the first inputs also have the number of clusters
+
+        ch_soup_clusters = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
+            meta.n_samples
+        }
+
+        SOUPORCELL(
+            ch_soup_bam_barcodes,
+            ch_soup_fasta,
+            ch_soup_clusters
+        )
+
+        ch_souporcell = ch_souporcell.mix(SOUPORCELL.out.tsv_result)
+        ch_versions = ch_versions.mix(SOUPORCELL.out.versions)
     }
 
     ch_summary = ch_summary
         .join(ch_vireo, remainder: true)
         .join(ch_demuxlet, remainder: true)
         .join(ch_freemuxlet, remainder: true)
+        .join(ch_souporcell, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
+
+    ch_summary.view()
 
     GENE_SUMMARY(
         ch_summary,
