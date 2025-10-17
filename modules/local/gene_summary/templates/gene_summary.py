@@ -112,14 +112,13 @@ class ProcessDeconvolutionMethodResult:
 
     def vireo(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-        results = pd.read_csv(args.vireo, index_col=0, sep="\t")
+        results = pd.read_csv(args.vireo, sep="\t")
 
-        assignment = results[['donor_id']].rename(columns={'donor_id': 'vireo'})
-        assignment.index.name = "Barcode"
-        assignment.replace({"unassigned": args.negative_str}, inplace=True)
+        assignment = results[['cell','donor_id']].rename(columns={'cell':'Barcode','donor_id': 'vireo'})
+        assignment['vireo'].replace({"unassigned": args.negative_str}, inplace=True)
 
         classification = assignment.copy()
-        classification['vireo'][~classification['vireo'].isin([args.doublet_str, args.negative_str])] = "singlet"
+        classification['vireo'][~classification['vireo'].isin([args.doublet_str, args.negative_str])] = args.singlet_str
 
         print(assignment)
         print(classification)
@@ -139,8 +138,7 @@ class ProcessDeconvolutionMethodResult:
 
         file_path = getattr(args, method)
 
-        result = pd.read_csv(file_path, index_col=1, sep="\t")
-        result.index.name = "Barcode"
+        result = pd.read_csv(file_path, sep="\t")
 
         result[method] = np.where(
             result["BEST.GUESS"].str.split(",").str[0]
@@ -153,7 +151,7 @@ class ProcessDeconvolutionMethodResult:
             result["DROPLET.TYPE"] == "AMB", args.negative_str, result[method]
         )
 
-        assignment = result[method]
+        assignment = result[['BARCODE',method]].rename(columns={'BARCODE':'Barcode'})
 
         classification = assignment.copy()
         classification[~classification.isin([args.doublet_str, args.negative_str])] = args.singlet_str
@@ -169,7 +167,7 @@ def printProccedOutput() -> None:
     print("")
 
     for assignment in assignments:
-        counts = assignment.value_counts()
+        counts = assignment[assignment.columns[1]].value_counts()
         length = len(assignment)
         print(counts)
         print("length: ", length)
@@ -179,7 +177,7 @@ def printProccedOutput() -> None:
     print("")
 
     for classification in classifications:
-        counts = classification.value_counts()
+        counts = classification[classification.columns[1]].value_counts()
         length = len(classification)
         print(counts)
         print("length: ", length)
@@ -221,16 +219,18 @@ if __name__ == "__main__":
     # https://github.com/lilab-bcb/demuxEM/issues/20
 
     # Read the file as a single-column DataFrame and set the index
-    assignment_summary = pd.read_csv(args.barcodes, header=None, names=["Barcode"]).set_index("Barcode")
+    assignment_summary = pd.read_csv(args.barcodes, header=None, names=["Barcode"])
     classification_summary = assignment_summary.copy()
 
+    print(assignment_summary)
+
     for assignment in assignments:
-        assignment_summary = pd.merge(assignment_summary, assignment, left_index=True, right_index=True, how="left").replace("", args.negative_str)
+        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str)
 
     assignment_summary.to_csv(args.assignment, index=False)
 
     for classification in classifications:
-            classification_summary = pd.merge(classification_summary, classification, left_index=True, right_index=True, how="left")
+            classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
 
     classification_summary.to_csv(args.classification, index=False)
 
