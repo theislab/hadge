@@ -143,5 +143,7 @@ workflow GENETIC_DEMULTIPLEXING {
 
 
     emit:
+    summary_assignment = GENE_SUMMARY.out.assignment
+    summary_classification = GENE_SUMMARY.out.classification
     versions = ch_versions // channel: [ versions.yml ]
 }

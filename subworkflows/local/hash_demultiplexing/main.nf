@@ -190,5 +190,7 @@ workflow HASH_DEMULTIPLEXING {
     ch_versions = ch_versions.mix(HASH_SUMMARY.out.versions)
 
     emit:
+    summary_assignment = HASH_SUMMARY.out.assignment
+    summary_classification = HASH_SUMMARY.out.classification
     versions = ch_versions // channel: [ versions.yml ]
 }

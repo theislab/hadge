@@ -17,7 +17,9 @@ include { EXTRACT_HASHES                                           } from '../mo
 
 include { GENETIC_DEMULTIPLEXING } from '../subworkflows/local/genetic_demultiplexing/main'
 include { HASH_DEMULTIPLEXING    } from '../subworkflows/local/hash_demultiplexing/main'
+include { JOIN_RESULTS           } from '../modules/nf-core/csvtk/join/main'
 include { DONOR_MATCHING         } from '../subworkflows/local/donor_matching/main'
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,9 +36,8 @@ workflow HADGE {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
+
     // ------------------------------ preprocessing start -------------------------------
-
-
 
     ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
                     .branch { _meta, rna ->
@@ -71,15 +72,16 @@ workflow HADGE {
                         .join(ch_hashes)
                         .map {meta, rna, hto, bam, barcodes, vcf, hashes -> [meta+[hashes: file(hashes).text.trim()], rna, hto, bam, barcodes, vcf] }
 
-    // ------------------------------- preprocessing end --------------------------------
-
     ch_hashing = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf ->
         [meta, rna, hto]
     }
-    //TODO maybe remove if genetic still needs rna and hto matrix
-    // ch_genetic = ch_samplesheet.map { meta, rna_matrix, hto_matrix, bam, barcodes, vcf ->
-    //     [meta, rna_matrix, hto_matrix, bam, barcodes, vcf]
-    // }
+
+    ch_donor_match = ch_genetic.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
+        [meta, barcodes]
+    }
+
+    // ------------------------------- preprocessing end --------------------------------
+
 
     if (params.mode == 'genetic' || params.mode == 'rescue') {
         GENETIC_DEMULTIPLEXING(
@@ -88,15 +90,58 @@ workflow HADGE {
             params.bam_qc,
             params.common_variants
         )
+
+        ch_donor_match = ch_donor_match.join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     if (params.mode == 'hashing' || params.mode == 'rescue') {
-        HASH_DEMULTIPLEXING(ch_hashing, params.hash_tools.split(','))
+        HASH_DEMULTIPLEXING(
+            ch_hashing,
+            params.hash_tools.split(',')
+        )
+
+        ch_donor_match = ch_donor_match.join(HASH_DEMULTIPLEXING.out.summary_assignment)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
+
+        if(params.mode == 'rescue'){
+            //TODO ext args for outer
+
+            JOIN_RESULTS(ch_donor_match.map{
+                meta, barcodes, gene_summary, hash_summary ->
+                [meta, [gene_summary,hash_summary]]
+            })
+
+            ch_donor_match.join(JOIN_RESULTS.out.csv)
+                .map{
+                    meta, barcodes, gene_summary, hash_summary, joined_summary ->
+                    [meta, barcodes, joined_summary]
+                }
+            ch_versions = ch_versions(JOIN_RESULTS.out.versions)
+        }
     }
 
+
     if (params.mode == 'donor_match' || params.match_donor) {
-        DONOR_MATCHING()
+        if (params.mode == 'donor_match'){
+            // TODO add params to nextflow.config
+            // ch_donor_match = ch_donor_match.map{
+            //     meta, barcodes ->
+            //     [meta, barcodes, params.demultiplexing_result, params.celldata, params.vireo_parent_dir]
+            // }
+        }else{
+            ch_donor_match = ch_donor_match.map{
+                meta, barcodes, assignment_result ->
+                [meta, bracodes, assignment_result, [], []]
+        }
+
+        // TODO add params to nextflow.config and write DONOR matching
+        DONOR_MATCHING(ch_donor_match,
+            // params.method1_name,
+            // params.method2_name,
+            // params.findVariants,
+            // params.variant_count,
+            // params.variant_pct
+        )
         ch_versions = ch_versions.mix(DONOR_MATCHING.out.versions)
     }
 

@@ -243,7 +243,7 @@ if __name__ == "__main__":
     # Read the file as a single-column DataFrame and set the index
     assignment_summary = pd.read_csv(args.barcodes, header=None, names=["Barcode"])
     classification_summary = assignment_summary.copy()
-
+    # TODO decide what do to if merging as empty values
     print(assignment_summary)
 
     for assignment in assignments:
