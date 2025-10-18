@@ -22,6 +22,7 @@ workflow GENETIC_DEMULTIPLEXING {
     ch_demuxlet = Channel.empty()
     ch_freemuxlet = Channel.empty()
     ch_souporcell = Channel.empty()
+    ch_cellsnp = Channel.empty()
 
     ch_summary = ch_samplesheet.map{ meta, rna, hto, _bam, barcodes, _vcf ->
         [meta, rna, hto, barcodes]
@@ -66,6 +67,8 @@ workflow GENETIC_DEMULTIPLEXING {
         CELLSNP_MODEA(
             ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
+
+        ch_cellsnp = ch_cellsnp.mix(CELLSNP_MODEA.out.cell)
         ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
 
         VIREO(
@@ -145,5 +148,6 @@ workflow GENETIC_DEMULTIPLEXING {
     emit:
     summary_assignment = GENE_SUMMARY.out.assignment
     summary_classification = GENE_SUMMARY.out.classification
+    cellgenotype = ch_cellsnp
     versions = ch_versions // channel: [ versions.yml ]
 }

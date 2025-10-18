@@ -83,6 +83,7 @@ workflow HADGE {
     // ------------------------------- preprocessing end --------------------------------
 
 
+    //TODO geht hash und hash mode mit cell.genozyp?
     if (params.mode == 'genetic' || params.mode == 'rescue') {
         GENETIC_DEMULTIPLEXING(
             ch_genetic,
@@ -91,7 +92,10 @@ workflow HADGE {
             params.common_variants
         )
 
-        ch_donor_match = ch_donor_match.join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+        ch_donor_match = ch_donor_match
+            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+            .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
+
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     if (params.mode == 'hashing' || params.mode == 'rescue') {
@@ -100,7 +104,10 @@ workflow HADGE {
             params.hash_tools.split(',')
         )
 
-        ch_donor_match = ch_donor_match.join(HASH_DEMULTIPLEXING.out.summary_assignment)
+        ch_donor_match = ch_donor_match
+            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+            .join(HASH_DEMULTIPLEXING.out.cell_genotype)
+
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
 
         if(params.mode == 'rescue'){
@@ -121,6 +128,8 @@ workflow HADGE {
     }
 
 
+
+// TODO check again if they are the correct barcodes
     if (params.mode == 'donor_match' || params.match_donor) {
         if (params.mode == 'donor_match'){
             // TODO add params to nextflow.config
@@ -131,7 +140,7 @@ workflow HADGE {
         }else{
             ch_donor_match = ch_donor_match.map{
                 meta, barcodes, assignment_result ->
-                [meta, bracodes, assignment_result, [], []]
+                [meta, barcodes, assignment_result, [], []]
         }
 
         // TODO add params to nextflow.config and write DONOR matching
