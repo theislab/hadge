@@ -8,13 +8,12 @@ process DONOR_MATCH {
         'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
 
     input:
-        tuple val(meta), path(barcode_whitelist), val(cell_genotype), val(vireo_parent_dir), path(demultiplexing_result)
-        val method1_name
-        val method2_name
+        tuple val(meta), path(barcode_whitelist), path(demultiplexing_result), val(cell_genotype), val(vireo_parent_dir)
+        val match_donor_method1
+        val match_donor_method2
         val findVariants
         val variant_count
         val variant_pct
-
 
     //TODO do variants TRUE
 
@@ -38,6 +37,10 @@ process DONOR_MATCH {
     task.ext.when == null || task.ext.when
 
     script:
+    // stays like that if findVaraint is 0
+    def cell_genotype_path = ''
+    def vireo_parent_path = ''
+    def ndonor = "${meta.nsample}"
     template('donor_match.R')
 
     stub:
@@ -59,6 +62,4 @@ process DONOR_MATCH {
         dropletutils: \$(Rscript -e "library(DropletUtils); cat(as.character(packageVersion('DropletUtils')))")
     END_VERSIONS
     """
-}
-
 }
