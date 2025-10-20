@@ -58,21 +58,22 @@ string_to_logical <- function(input) {
 # Set defaults and classes
 args <- list(
     # File inputs
-    result_csv = '$demultiplexing_result'
-    barcode = '$barcode_whitelist'
-    ndonor = as.numric('$ndonor')
-    cell_genotype = '$cell_genotype'
-    vireo_parent_dir = '$vireo_parent_dir'
+    result_csv = '$demultiplexing_result',
+    barcode = '$barcode_whitelist',
+    ndonor = as.numeric('$meta.n_sample'),
+    cell_genotype = '$cell_genotype',
+    vireo_parent_dir = '$vireo_parent_dir',
 
     # second in puts
-    method1 = string_to_null('$match_donor_method1')
-    method2 = string_to_null('$match_donor_method2')
-    findVariants = as.logial('$findVariants')
-    variant_count = as.numeric('$variant_count')
-    variant_pct = as.numeric('$variant_pct')
+    method1 = string_to_null('$match_donor_method1'),
+    method2 = string_to_null('$match_donor_method2'),
+    findVariants = as.logical('$findVariants'),
+    variant_count = as.numeric('$variant_count'),
+    variant_pct = as.numeric('$variant_pct'),
 
     # others
-    prefix = ifelse('$task.ext.prefix' == 'null', '$meta.id', '$task.ext.prefix') # Prefix name for output files.
+    prefix = ifelse('$task.ext.prefix' == 'null', '$meta.id', '$task.ext.prefix'), # Prefix name for output files.
+    outputdir = ""
 )
 opt_types <- lapply(args, class)
 
@@ -98,9 +99,10 @@ for ( ao in names(args_opt)){
 options(digits=5)
 
 # Check if file exists
-if (! file.exists(seuratObj)){
-    stop(paste0(seuratObj, ' is not a valid file'))
-}
+# TODO check if files exist
+# if (! file.exists(seuratObj)){
+#     stop(paste0(seuratObj, ' is not a valid file'))
+# }
 
 ################################################
 ################################################
@@ -134,33 +136,33 @@ convert2binary <- function(result_csv, method_name, min_cell) {
   if (length(unique(method_assign[[method_name]])) == 1) {
     method_assign_binary <-
       as.data.frame(matrix(0, nrow = nrow(result_csv), ncol = 1),
-        row.names = result_csv$Barcode
+        row.names = result_csv\$Barcode
       )
     colnames(method_assign_binary) <-
       c(unique(method_assign[[method_name]]))
-    method_assign_binary[rownames(method_assign_binary) %in% method_assign$Barcode, ] <-
+    method_assign_binary[rownames(method_assign_binary) %in% method_assign\$Barcode, ] <-
       1
   } else {
     method_assign_binary <-
       data.frame(model.matrix(~ method_assign[[method_name]] - 1, data = method_assign))
     names(method_assign_binary) <- sort(donor_id)
-    rownames(method_assign_binary) <- method_assign$Barcode
+    rownames(method_assign_binary) <- method_assign\$Barcode
   }
   return(method_assign_binary)
 }
 
 result_csv <- NULL
 min_cell <- 0
-if (file.exists(args$result_csv) && !dir.exists(args$result_csv)) {
+if (file.exists(args\$result_csv) && !dir.exists(args\$result_csv)) {
   result_csv <-
     fread(
-      args$result_csv,
+      args\$result_csv,
       stringsAsFactors = FALSE,
       na.strings = c(NA_character_, "")
     )
 }
-if (dir.exists(args$result_csv)) {
-  result_csv <- list.files(args$result_csv,
+if (dir.exists(args\$result_csv)) {
+  result_csv <- list.files(args\$result_csv,
     pattern = "assignment_all", full.names = TRUE
   )
   result_csv <-
@@ -170,13 +172,13 @@ if (dir.exists(args$result_csv)) {
       na.strings = c(NA_character_, "")
     )
 }
-if (!is.null(args$barcode)) {
-  barcode_whitelist <- fread(args$barcode,
+if (!is.null(args\$barcode)) {
+  barcode_whitelist <- fread(args\$barcode,
     header = FALSE,
     stringsAsFactors = FALSE
-  )$V1
+  )\$V1
   result_csv <-
-    result_csv[result_csv$Barcode %in% barcode_whitelist, ]
+    result_csv[result_csv\$Barcode %in% barcode_whitelist, ]
 }
 
 colname_with_singlet <-
@@ -203,11 +205,11 @@ genetic_methods <-
   c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
 
 
-if (!is.null(args$method1) && !is.null(args$method2)) {
+if (!is.null(args\$method1) && !is.null(args\$method2)) {
   method1_all <-
-    colname_with_singlet[startsWith(colnames(result_csv), args$method1)]
+    colname_with_singlet[startsWith(colnames(result_csv), args\$method1)]
   method2_all <-
-    colname_with_singlet[startsWith(colnames(result_csv), args$method2)]
+    colname_with_singlet[startsWith(colnames(result_csv), args\$method2)]
 } else {
   genetics_all <-
     Filter(function(x) {
@@ -225,8 +227,8 @@ if (!is.null(args$method1) && !is.null(args$method2)) {
   if (length(hashing_all) > 0 && length(genetics_all) > 0) {
     all_methods_pair <-
       expand.grid(genetics = genetics_all, hashing = hashing_all)
-    method1_all <- as.character(all_methods_pair$genetics)
-    method2_all <- as.character(all_methods_pair$hashing)
+    method1_all <- as.character(all_methods_pair\$genetics)
+    method2_all <- as.character(all_methods_pair\$hashing)
   }
   # Compare only within hashing methods
   else if (length(hashing_all) > 0) {
@@ -272,9 +274,9 @@ for (i in 1:length(method1_all)) {
     method2 <- hash_method
   }
 
-  outputdir <-
-    file.path(args$outputdir, paste0(method1, "_vs_", method2))
-  ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
+  outputdir <- paste0(method1, "_vs_", method2)
+  #  file.path(args\$outputdir, paste0(method1, "_vs_", method2))
+  #ifelse(!dir.exists(outputdir), dir.create(outputdir), FALSE)
 
   method1_res <- convert2binary(result_csv, method1, min_cell)
   method2_res <- convert2binary(result_csv, method2, min_cell)
@@ -314,7 +316,7 @@ for (i in 1:length(method1_all)) {
   }
   write.csv(
     correlation_res,
-    file.path(outputdir, "correlation_res.csv")
+    file.path(paste0(outputdir, "correlation_res.csv"))
   )
 
   match_score <- 0
@@ -322,13 +324,13 @@ for (i in 1:length(method1_all)) {
   geno_match <-
     as.data.frame(matrix(nrow = ncol(correlation_res), ncol = 3))
   colnames(geno_match) <- c("Method1", "Method2", "Correlation")
-  geno_match$Method1 <- colnames(correlation_res)
+  geno_match\$Method1 <- colnames(correlation_res)
 
-  for (id in geno_match$Method1) {
+  for (id in geno_match\$Method1) {
     if (!is.infinite(-max(correlation_res[, id], na.rm = TRUE)) &&
       max(correlation_res[, id], na.rm = TRUE) ==
         max(correlation_res[which.max(correlation_res[, id]), ], na.rm = TRUE)) {
-      geno_match[which(geno_match$Method1 == id), 2:3] <-
+      geno_match[which(geno_match\$Method1 == id), 2:3] <-
         c(
           rownames(correlation_res)[which.max(correlation_res[, id])],
           max(correlation_res[, id], na.rm = TRUE)
@@ -337,13 +339,13 @@ for (i in 1:length(method1_all)) {
         match_score + max(correlation_res[, id], na.rm = TRUE)
       matched_donor <- matched_donor + 1
     } else {
-      geno_match[which(geno_match$Cluster1_ID == id)] <-
+      geno_match[which(geno_match\$Cluster1_ID == id)] <-
         c("unassigned", NA)
     }
   }
   write.table(
     geno_match[, 1:2],
-    file.path(outputdir, "donor_match.csv"),
+    file.path(paste0(outputdir, "donor_match.csv")),
     row.names = FALSE,
     col.names = FALSE,
     sep = " ",
@@ -371,19 +373,19 @@ for (i in 1:length(method1_all)) {
       cluster_cols = FALSE,
       width = 7,
       height = 5,
-      filename = file.path(outputdir, "concordance_heatmap.png")
+      filename = file.path(paste0(outputdir, "concordance_heatmap.png"))
     )
   }
 
   if (grepl(paste(hashing_methods, collapse = "|"), method2) &&
     grepl(paste(genetic_methods, collapse = "|"), method1)) {
-    remain_na <- (matched_donor != args$ndonor)
-    match_score <- match_score / args$ndonor
+    remain_na <- (matched_donor != args\$ndonor)
+    match_score <- match_score / args\$ndonor
 
     if (match_score > best_result && !remain_na) {
       write.table(
         geno_match[, 1:2],
-        file.path(args$outputdir, "donor_match.csv"),
+        file.path(paste0( "donor_match.csv")),
         row.names = FALSE,
         col.names = FALSE,
         sep = " ",
@@ -419,30 +421,30 @@ for (i in 1:length(method1_all)) {
     for (i in 1:nrow(geno_match)) {
       result_merge_new[[method1]] <- replace(
         result_merge_new[[method1]],
-        result_merge[[method1]] == geno_match$Method1[i],
-        geno_match$Method2[i]
+        result_merge[[method1]] == geno_match\$Method1[i],
+        geno_match\$Method2[i]
       )
     }
 
     write.csv(
       result_merge_new,
-      file.path(outputdir, "all_assignment_after_match.csv"),
+      file.path(paste0(outputdir, "all_assignment_after_match.csv")),
       row.names = FALSE
     )
 
     if (best_result == match_score) {
       write.csv(
         result_merge_new,
-        file.path(args$outputdir, "all_assignment_after_match.csv"),
+        file.path(paste0(outputdir, "all_assignment_after_match.csv")),
         row.names = FALSE
       )
     }
     result_merge_new <-
-      result_merge_new[result_merge_new$Barcode %in% intersect_barcode, ]
+      result_merge_new[result_merge_new\$Barcode %in% intersect_barcode, ]
 
     write.csv(
       result_merge_new,
-      file.path(outputdir, "intersect_assignment_after_match.csv"),
+      file.path(paste0(outputdir, "intersect_assignment_after_match.csv")),
       row.names = FALSE
     )
   }
@@ -464,15 +466,15 @@ if (best_method1 != "None" && best_method2 != "None") {
 if (nrow(result_record) > 1) {
   write.csv(result_record,
     row.names = FALSE,
-    file.path(args$outputdir, "score_record.csv")
+    file.path(args\$outputdir, "score_record.csv")
   )
 }
 
-if (args$findVariants == "True" || args$findVariants == "default") {
+if (args\$findVariants == "True" || args\$findVariants == "default") {
   if (startsWith(best_method1, "vireo")) {
     write.table(
       best_method1,
-      file.path(args$outputdir, "best_method_vireo.txt"),
+      file.path(args\$outputdir, "best_method_vireo.txt"),
       sep = "\t",
       row.names = FALSE,
       col.names = FALSE,
@@ -482,7 +484,7 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     stop("Vireo is not the best method for donor matching!")
   }
   outputdir <-
-    file.path(args$outputdir, paste0(best_method1, "_vs_", best_method2))
+    file.path(args\$outputdir, paste0(best_method1, "_vs_", best_method2))
   outputdir_variant <- file.path(outputdir, "variant_filtering")
   ifelse(!dir.exists(outputdir_variant),
     dir.create(outputdir_variant),
@@ -492,12 +494,12 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     fread(file.path(outputdir, "intersect_assignment_after_match.csv"),
       header = T
     )
-  result_merge_new$match <-
+  result_merge_new\$match <-
     result_merge_new[[best_method1]] == result_merge_new[[best_method2]]
-  matched <- result_merge_new[result_merge_new$match, ]
+  matched <- result_merge_new[result_merge_new\$match, ]
   unmatched <-
-    result_csv[!result_csv$Barcode %in% matched$Barcode, ]$Barcode
-  cell_genotype_vcf <- read.vcfR(args$cell_genotype)
+    result_csv[!result_csv\$Barcode %in% matched\$Barcode, ]\$Barcode
+  cell_genotype_vcf <- read.vcfR(args\$cell_genotype)
   cell_genotype_vcf_gt <-
     extract.gt(cell_genotype_vcf,
       element = "GT",
@@ -512,27 +514,27 @@ if (args$findVariants == "True" || args$findVariants == "default") {
 
   for (donorid in donors) {
     matched_barcode <-
-      matched[matched[[best_method1]] == donorid]$Barcode
+      matched[matched[[best_method1]] == donorid]\$Barcode
     matched_gt_list <- cell_genotype_vcf_gt[, matched_barcode]
     matched_gt_list <-
       matched_gt_list[rowSums(is.na(matched_gt_list)) != ncol(matched_gt_list), ]
     matched_gt <-
       as.data.frame(matrix(nrow = nrow(matched_gt_list)))
-    matched_gt$ref <- rowSums(matched_gt_list == 0, na.rm = TRUE)
-    matched_gt$alt <- rowSums(matched_gt_list != 0, na.rm = TRUE)
-    matched_gt$V1 <- rownames(matched_gt_list)
-    matched_gt$count <- matched_gt$ref + matched_gt$alt
-    matched_gt$pct <-
-      matched_gt$alt / (matched_gt$ref + matched_gt$alt)
-    matched_gt$dominant <- ifelse(matched_gt$pct > 0.5, 1, 0)
-    matched_gt <- matched_gt[(matched_gt$pct >= args$variant_pct |
-      matched_gt$pct <= (1 - args$variant_pct)), ]
+    matched_gt\$ref <- rowSums(matched_gt_list == 0, na.rm = TRUE)
+    matched_gt\$alt <- rowSums(matched_gt_list != 0, na.rm = TRUE)
+    matched_gt\$V1 <- rownames(matched_gt_list)
+    matched_gt\$count <- matched_gt\$ref + matched_gt\$alt
+    matched_gt\$pct <-
+      matched_gt\$alt / (matched_gt\$ref + matched_gt\$alt)
+    matched_gt\$dominant <- ifelse(matched_gt\$pct > 0.5, 1, 0)
+    matched_gt <- matched_gt[(matched_gt\$pct >= args\$variant_pct |
+      matched_gt\$pct <= (1 - args\$variant_pct)), ]
     matched_gt <-
-      matched_gt[matched_gt$count >= args$variant_count, ]
+      matched_gt[matched_gt\$count >= args\$variant_count, ]
 
     unmatched_gt_list <- cell_genotype_vcf_gt[, unmatched]
     unmatched_gt_list <-
-      unmatched_gt_list[rownames(unmatched_gt_list) %in% matched_gt$V1, ]
+      unmatched_gt_list[rownames(unmatched_gt_list) %in% matched_gt\$V1, ]
     unmatched_gt_list <-
       unmatched_gt_list[rowSums(is.na(unmatched_gt_list)) != ncol(unmatched_gt_list), ]
     unmatched_gt_list <-
@@ -540,7 +542,7 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     unmatched_gt_list <-
       melt(data.table(unmatched_gt_list), id.vars = "V1")
     unmatched_gt_list <-
-      unmatched_gt_list[!is.na(unmatched_gt_list$value), ]
+      unmatched_gt_list[!is.na(unmatched_gt_list\$value), ]
     colnames(unmatched_gt_list) <- c("variant", "cell", "allele")
 
     write.csv(matched_gt,
@@ -563,13 +565,13 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     num_informative_variants <- informative_variants_cells %>%
       group_by(cell) %>%
       summarise(matched = n())
-    if (nrow(unmatched_gt_list[!unmatched_gt_list$cell %in% num_informative_variants$cell, ]) > 0) {
-      print(unmatched_gt_list[!unmatched_gt_list$cell %in% num_informative_variants$cell, ])
+    if (nrow(unmatched_gt_list[!unmatched_gt_list\$cell %in% num_informative_variants\$cell, ]) > 0) {
+      print(unmatched_gt_list[!unmatched_gt_list\$cell %in% num_informative_variants\$cell, ])
     }
     representative_variant_list[[donorid]] <-
-      list(unique(informative_variants_cells$variant))
+      list(unique(informative_variants_cells\$variant))
     write.table(
-      unique(informative_variants_cells$variant),
+      unique(informative_variants_cells\$variant),
       file.path(
         outputdir_variant,
         paste0(donorid, "_informative_variants.csv")
@@ -586,7 +588,7 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     dcast(data = representative_variant, variant ~ donor, length)
   write.csv(
     representative_variant_df,
-    file.path(args$outputdir, "all_representative_variant_df.csv")
+    file.path(args\$outputdir, "all_representative_variant_df.csv")
   )
 
   upset <- ComplexUpset::upset(
@@ -613,7 +615,7 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     ),
     base_annotations = list("Intersection size" = intersection_size())
   )
-  ggsave(file.path(args$outputdir, "donor_specific_variants_upset.png"))
+  ggsave(file.path(args\$outputdir, "donor_specific_variants_upset.png"))
   representative_variant_single <-
     representative_variant_df[rowSums(representative_variant_df[, -1]) == 1, ]
   representative_variant_single <-
@@ -629,15 +631,15 @@ if (args$findVariants == "True" || args$findVariants == "default") {
     col.names = FALSE,
     sep = "\t",
     row.names = FALSE,
-    file.path(args$outputdir, "donor_specific_variants.csv")
+    file.path(args\$outputdir, "donor_specific_variants.csv")
   )
 }
 
-if (args$findVariants == "True" || args$findVariants == "vireo") {
+if (args\$findVariants == "True" || args\$findVariants == "vireo") {
   if (startsWith(best_method1, "vireo")) {
     write.table(
       best_method1,
-      file.path(args$outputdir, "best_method_vireo.txt"),
+      file.path(args\$outputdir, "best_method_vireo.txt"),
       sep = "\t",
       row.names = FALSE,
       col.names = FALSE,
@@ -647,7 +649,7 @@ if (args$findVariants == "True" || args$findVariants == "vireo") {
     stop("Vireo is not the best method1 for donor matching, variants can not be filtered!")
   }
 
-  vireo_result_dir <- file.path(args$vireo_parent_dir, best_method1)
+  vireo_result_dir <- file.path(args\$vireo_parent_dir, best_method1)
 
   representative_variant <-
     list.files(
@@ -670,7 +672,7 @@ if (args$findVariants == "True" || args$findVariants == "vireo") {
     col.names = FALSE,
     sep = "\t",
     row.names = FALSE,
-    file.path(args$outputdir, "representative_variants_vireo.csv")
+    file.path(args\$outputdir, "representative_variants_vireo.csv")
   )
 }
 
@@ -681,15 +683,21 @@ if (args$findVariants == "True" || args$findVariants == "vireo") {
 ################################################
 
 r.version <- paste(R.version[['major']],R.version[['minor']], sep = ".")
-seurat.version <- as.character(packageVersion('Seurat'))
-dropletutils.version <- as.character(packageVersion('DropletUtils'))
+pheatmap.version <- as.character(packageVersion('pheatmap'))
+data_table.version <- as.character(packageVersion('data.table'))
+complexUpset.version <- as.character(packageVersion('ComplexUpset'))
+tidyverse.version <- as.character(packageVersion('tidyverse'))
+vcfR.version <- as.character(packageVersion('vcfR'))
 
 writeLines(
     c(
         '"${task.process}":',
         paste('    r-base:', r.version),
-        paste('    r-seurat:', seurat.version),
-        paste('    dropletutils:', dropletutils.version)
+        paste('    r-complexupset:', complexUpset.version),
+        paste('    r-data.table:', data_table.version),
+        paste('    r-pheatmap:', pheatmap.version),
+        paste('    r-tidyverse:', tidyverse.version),
+        paste('    r-vcfr:', vcfR.version)
     ),
 'versions.yml')
 

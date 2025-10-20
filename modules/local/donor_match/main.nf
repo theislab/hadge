@@ -4,8 +4,8 @@ process DONOR_MATCH {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d8/d863e56b5ce15b271e8c8666ec22217df5cfc57a9731cc23c7f92674dc7ab0c7/data':
-        'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/45/45b060e69064c7a7894787b0cc29259bbb24357650d06b627912b56d3521899b/data':
+        'community.wave.seqera.io/library/r-complexupset_r-data.table_r-pheatmap_r-r.utils_pruned:3bd8312041c22554' }"
 
     input:
         tuple val(meta), path(barcode_whitelist), path(demultiplexing_result), val(cell_genotype), val(vireo_parent_dir)
@@ -23,14 +23,11 @@ process DONOR_MATCH {
     // then also vireo_parent_dir, cell_genotype
     // write first part of the script and then lets see
     output:
-    tuple val(meta), path("*_emptyDrops.png")         , emit: empty_drops_plot
-    tuple val(meta), path("*_emptyDrops.csv")         , emit: empty_drops_csv
-    tuple val(meta), path("*_emptyDrops.rds")         , emit: empty_drops_rds
-    tuple val(meta), path("*_results_hasheddrops.csv"), emit: results
-    tuple val(meta), path("*_id_to_hash.csv")         , emit: id_to_hash
-    tuple val(meta), path("*_hasheddrops.rds")        , emit: rds
-    tuple val(meta), path("*_plot_hasheddrops.png")   , emit: plot
-    tuple val(meta), path("*_params_hasheddrops.csv") , emit: params
+    tuple val(meta), path("*_vs_*correlation_res.csv")               , emit: correlation_csv
+    tuple val(meta), path("*_vs_*donor_match.csv")                   , emit: donor_match, optional: true
+    tuple val(meta), path("*_vs_*concordance_heatmap.png")           , emit: concordance_heatmap, optional: true
+    tuple val(meta), path("*_vs_*all_assignment_after_match.csv")    , emit: assignment_all_match, optional: true
+    tuple val(meta), path("*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match, optional: true
     path "versions.yml"                               , emit: versions
 
     when:

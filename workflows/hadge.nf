@@ -120,16 +120,17 @@ workflow HADGE {
                 [meta, [gene_summary,hash_summary]]
             })
 
-            ch_donor_match.join(JOIN_RESULTS.out.csv)
+            ch_donor_match = ch_donor_match
+                .join(JOIN_RESULTS.out.csv)
                 .map{
-                    meta, barcodes, gene_summary, cell_genotype, hash_summary, joined_summary ->
-                    [meta, barcodes, joined_summary]
+                    meta, barcodes, _gene_summary, cell_genotype, _hash_summary, joined_summary ->
+                    [meta, barcodes, joined_summary, cell_genotype]
                 }
+
             ch_versions = ch_versions.mix(JOIN_RESULTS.out.versions)
         }else{
             ch_donor_match = ch_donor_match
                 .map{ meta, barcodes, hash_summary-> [meta, barcodes, hash_summary,[]] }
-
         }
     }
 
@@ -141,11 +142,13 @@ workflow HADGE {
                 [meta, barcodes, params.demultiplexing_result, params.celldata, params.vireo_parent_dir]
             }
         }else{
+            ch_donor_match.view()
             ch_donor_match = ch_donor_match.map{
                 meta, barcodes, assignment_result, cell_genotype ->
                 [meta, barcodes, assignment_result, cell_genotype, []]
             }
         }
+
 
         // TODO add params to nextflow.config and write DONOR matching
         DONOR_MATCH(ch_donor_match,
@@ -155,6 +158,8 @@ workflow HADGE {
             params.variant_count,
             params.variant_pct
         )
+
+
         ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
 
