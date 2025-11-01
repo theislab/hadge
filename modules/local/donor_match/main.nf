@@ -23,11 +23,19 @@ process DONOR_MATCH {
     // then also vireo_parent_dir, cell_genotype
     // write first part of the script and then lets see
     output:
-    tuple val(meta), path("*_vs_*correlation_res.csv")               , emit: correlation_csv
-    tuple val(meta), path("*_vs_*donor_match.csv")                   , emit: donor_match, optional: true
-    tuple val(meta), path("*_vs_*concordance_heatmap.png")           , emit: concordance_heatmap, optional: true
-    tuple val(meta), path("*_vs_*all_assignment_after_match.csv")    , emit: assignment_all_match, optional: true
-    tuple val(meta), path("*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match, optional: true
+    // best has to be optional true because it will no results when only hsing or only genetic
+    tuple val(meta), path("best_donor_match.csv")  , emit: best_donor_match, optional:true
+    tuple val(meta), path("best_all_assignment_after_match.csv")  , emit: best_all_assignment_after_match, optional:true
+    tuple val(meta), path("best_intersect_assignment_after_match.csv")  , emit: best_intersect_assignment_after_match, optional:true
+    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")    , emit: assignment_all_match, optional: true
+    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match, optional: true
+
+    tuple val(meta), path("*/*_vs_*correlation_res.csv")               , emit: correlation_csv
+    tuple val(meta), path("*/*_vs_*donor_match.csv")                   , emit: donor_match
+    tuple val(meta), path("*/*_vs_*concordance_heatmap.png")           , emit: concordance_heatmap
+
+
+    tuple val(meta), path("testii"), optional: true
     path "versions.yml"                               , emit: versions
 
     when:
