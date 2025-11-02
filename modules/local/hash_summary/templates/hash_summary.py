@@ -395,10 +395,18 @@ if __name__ == "__main__":
     for assignment in assignments:
         assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str)
 
+    # TODO remove what does values NaN define?
+    # Fill NaN values with negative_str after all merges
+    assignment_summary = assignment_summary.fillna(args.negative_str)
+
     assignment_summary.to_csv(args.assignment, index=False)
 
     for classification in classifications:
             classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
+
+    # TODO remove?
+    # Fill NaN values with negative_str after all merges
+    classification_summary = classification_summary.fillna(args.negative_str)
 
     classification_summary.to_csv(args.classification, index=False)
 
@@ -406,6 +414,8 @@ if __name__ == "__main__":
     print(assignment_summary)
 
     # -------------------------------- save mudata/anndata -----------------------------
+
+    # TODO Writing the MuData object to H5MU failed with: TypeError: Can't implicitly convert non-string objects to strings. The bff_raw column in hto_data.obs contained NaN values from a left join when some barcodes lacked BFF results. H5MU can't convert NaN to strings when writing variable-length string arrays.
 
     if args.generate_mudata or args.generate_anndata:
         # join on index (Barcode)

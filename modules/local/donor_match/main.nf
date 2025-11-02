@@ -45,7 +45,7 @@ process DONOR_MATCH {
     // stays like that if findVaraint is 0
     def cell_genotype_path = ''
     def vireo_parent_path = ''
-    def ndonor = "${meta.nsample}"
+    def ndonor = "${meta.n_sample}"
     template('donor_match.R')
 
     stub:

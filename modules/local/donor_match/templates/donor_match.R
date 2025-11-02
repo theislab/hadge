@@ -99,7 +99,7 @@ args <- list(
     # File inputs
     result_csv = '$demultiplexing_result',
     barcode = '$barcode_whitelist',
-    ndonor = as.numeric('$meta.n_sample'),
+    ndonor = as.numeric('$meta.n_samples'),
     cell_genotype = '$cell_genotype',
     vireo_parent_dir = '$vireo_parent_dir',
 

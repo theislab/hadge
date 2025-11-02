@@ -61,9 +61,12 @@ workflow HADGE {
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
-    ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
-    ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
-    ch_hashes = EXTRACT_HASHES(ch_hto.map { meta, hto -> [meta, "${hto}/features.tsv.gz"] })
+    // TODO remove completely
+    // ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
+    // ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
+
+    // TODO maybe remove changes to extract hashes
+    ch_hashes = EXTRACT_HASHES(ch_hto)
 
     ch_genetic = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
                         .join(ch_rna)
