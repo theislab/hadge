@@ -100,8 +100,9 @@ workflow GENETIC_DEMULTIPLEXING {
     }
 
     if (methods.contains('souporcell')) {
-                ch_soup_bam_barcodes = ch_samplesheet.map { meta, bam, barcodes, _vcf ->
-            [ meta, bam, barcodes ]
+
+        ch_souporcell_bam_barcodes_clusters = ch_samplesheet.map { meta, bam, barcodes, _vcf ->
+            [ meta, bam, barcodes, meta.n_samples ]
         }
 
         ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
@@ -114,17 +115,12 @@ workflow GENETIC_DEMULTIPLEXING {
 
         //TODO update souporcell so that the first inputs also have the number of clusters
 
-        ch_soup_clusters = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
-            meta.n_samples
-        }
-
         SOUPORCELL(
-            ch_soup_bam_barcodes,
-            ch_soup_fasta,
-            ch_soup_clusters
+            ch_souporcell_bam_barcodes_clusters,
+            ch_soup_fasta
         )
 
-        ch_souporcell = ch_souporcell.mix(SOUPORCELL.out.tsv_result)
+        ch_souporcell = ch_souporcell.mix(SOUPORCELL.out.clusters)
         ch_versions = ch_versions.mix(SOUPORCELL.out.versions)
     }
 

@@ -8,15 +8,14 @@ process SOUPORCELL {
         'community.wave.seqera.io/library/souporcell_gxx:f648658dde2cdd53' }"
 
     input:
-    tuple val(meta), path(bam), path(barcodes)
+    tuple val(meta), path(bam), path(barcodes), val(clusters)
     tuple val(meta2), path(fasta)
-    val(clusters)
 
     output:
-    tuple val(meta), path("*/*.vcf"), emit: vcf
-    tuple val(meta), path("*/*clusters.tsv"), emit: tsv_result
-    tuple val(meta), path("*/*clusters_tmp.tsv"), emit: tsv_tmp
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*/clusters.tsv")         , emit: clusters
+    tuple val(meta), path("*/cluster_genotypes.vcf"), emit: vcf
+    tuple val(meta), path("*/ambient_rna.txt")      , emit: ambient_rna
+    path "versions.yml"                             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,7 +35,6 @@ process SOUPORCELL {
         -k $clusters \\
         $args
 
-
     # Build a single-line, YAML-safe version string
     souporcell_version=`souporcell_pipeline.py --version 2>&1 || echo 'N/A'`
     [ -z "\$souporcell_version" ] && souporcell_version=`souporcell --version 2>&1 || echo 'N/A'`
@@ -52,8 +50,9 @@ process SOUPORCELL {
     """
     mkdir -p ${prefix}
 
-    touch ${prefix}/cluster_genotypes.vcf
     touch ${prefix}/clusters.tsv
+    touch ${prefix}/cluster_genotypes.vcf
+    touch ${prefix}/ambient_rna.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
