@@ -4,8 +4,8 @@ process SOUPORCELL {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/92/92c054bdfc9170bd58c09de480160923d35dd67008650733f3d03588520082b1/data' :
-        'community.wave.seqera.io/library/souporcell:2.5--2b23aea4d0753391' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/9a/9a69c552c52aa5b3636a7a596f9406b2ec3e165809ccd58a012b9ea285ba6ecd/data' :
+        'community.wave.seqera.io/library/souporcell_gxx:f648658dde2cdd53' }"
 
     input:
     tuple val(meta), path(bam), path(barcodes), val(clusters)
@@ -23,6 +23,7 @@ process SOUPORCELL {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: ""
+    def VERSION = '2.5' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions. (See this issue: https://github.com/wheaton5/souporcell/issues/262)
     """
     mkdir -p temp
     export TMPDIR=./temp
@@ -37,12 +38,14 @@ process SOUPORCELL {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        souporcell: 2.5
+        souporcell: $VERSION
+        gxx: \$( g++ --version | head -n1 | awk '{print \$NF}' )
     END_VERSIONS
     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def VERSION = '2.5' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions. (See this issue: https://github.com/wheaton5/souporcell/issues/262)
     """
     mkdir -p ${prefix}
 
@@ -52,7 +55,8 @@ process SOUPORCELL {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        souporcell: 2.5
+        souporcell: $VERSION
+        gxx: \$( g++ --version | head -n1 | awk '{print \$NF}' )
     END_VERSIONS
     """
 }
