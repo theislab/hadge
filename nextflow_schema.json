@@ -1162,6 +1162,85 @@
                 }
             }
         },
+        "souporcell_options": {
+            "title": "Souporcell options",
+            "type": "object",
+            "fa_icon": "fas fa-users",
+            "description": "Options specific to the Souporcell tool for clustering mixed-genotype scRNAseq experiments by individual.",
+            "properties": {
+                "souporcell_ploidy": {
+                    "type": "integer",
+                    "description": "Ploidy, must be 1 or 2.",
+                    "default": 2,
+                    "enum": [1, 2],
+                    "fa_icon": "fas fa-dna"
+                },
+                "souporcell_min_alt": {
+                    "type": "integer",
+                    "description": "Min alt to use locus.",
+                    "default": 10,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-arrow-down"
+                },
+                "souporcell_min_ref": {
+                    "type": "integer",
+                    "description": "Min ref to use locus.",
+                    "default": 10,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-arrow-down"
+                },
+                "souporcell_max_loci": {
+                    "type": "integer",
+                    "description": "Max loci per cell, affects speed.",
+                    "default": 2048,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-arrow-up"
+                },
+                "souporcell_restarts": {
+                    "type": "integer",
+                    "description": "Number of restarts in clustering, when there are > 12 clusters we recommend increasing this to avoid local minima.",
+                    "default": 100,
+                    "minimum": 0,
+                    "fa_icon": "fas fa-redo"
+                },
+                "souporcell_common_variants": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "pattern": "^\\S+\\.vcf(\\.gz)?$",
+                    "description": "Common variant loci or known variant loci vcf, must be vs same reference fasta.",
+                    "default": null,
+                    "fa_icon": "fas fa-file-code"
+                },
+                "souporcell_known_genotypes": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "pattern": "^\\S+\\.vcf$",
+                    "description": "Known variants per clone in population vcf mode, must be .vcf right now we dont accept gzip or bcf sorry.",
+                    "default": null,
+                    "fa_icon": "fas fa-dna"
+                },
+                "souporcell_known_genotypes_sample_names": {
+                    "type": "string",
+                    "description": "Which samples in population vcf from known genotypes option represent the donors in your sample. Provide space-separated sample names for multiple donors.",
+                    "default": null,
+                    "fa_icon": "fas fa-tag"
+                },
+                "souporcell_skip_remap": {
+                    "type": "boolean",
+                    "description": "Don't remap with minimap2 (not recommended unless in conjunction with --common_variants).",
+                    "default": false,
+                    "fa_icon": "fas fa-skip-forward"
+                },
+                "souporcell_ignore": {
+                    "type": "boolean",
+                    "description": "Set to True to ignore data error assertions.",
+                    "default": false,
+                    "fa_icon": "fas fa-exclamation-triangle"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -1359,6 +1438,9 @@
         },
         {
             "$ref": "#/$defs/freemuxlet_options"
+        },
+        {
+            "$ref": "#/$defs/souporcell_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
