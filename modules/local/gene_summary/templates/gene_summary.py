@@ -183,42 +183,72 @@ class ProcessDeconvolutionMethodResult:
 
         return assignment, classification
 
-def printProccedOutput() -> None:
-    # TODO add a function that shows and maybe checks processed results before joining
-    print("----- Assignments -----")
-    print("")
+#TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type
+def saveAnnDataMuData(args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data):
+    if args.generate_mudata or args.generate_anndata:
+        assignment_summary.set_index("Barcode", inplace=True)
+        rna_data.obs = rna_data.obs.join(assignment_summary, how="left").fillna(args.negative_str)
 
-    for assignment in assignments:
-        counts = assignment[assignment.columns[1]].value_counts()
-        length = len(assignment)
-        print(counts)
-        print("length: ", length)
-        print("")
+    if args.generate_anndata:
+        rna_data.write(args.h5ad)
 
-    print("----- Classifications -----")
-    print("")
+    if args.generate_mudata:
+        hto_data.obs = hto_data.obs.join(assignment_summary, how="left")
+        mudata = MuData({"rna": rna_data, "hto": hto_data})
+        mudata.update()
+        mudata.write(args.h5mu)
 
-    for classification in classifications:
-        counts = classification[classification.columns[1]].value_counts()
-        length = len(classification)
-        print(counts)
-        print("length: ", length)
-        print("")
+def print_method_item_counts(dfs):
+    """
+    Takes the list of assignment/classification DataFrames and prints a summary table:
+      method name | total count | count(item1) | count(item2) | ...
+    """
+    rows = []
+    all_items = set()
+
+    for df in dfs:
+        # Get second column name
+        method_col = df.columns[1]
+        # Count occurrences
+        counts = df[method_col].value_counts(dropna=False)
+        total = len(df)
+        all_items.update(counts.index)
+        # Build row
+        row = {'method': method_col, 'count_overall': total}
+        row.update(counts.to_dict())
+        rows.append(row)
+
+    # Build dataframe and fill missing item columns
+    summary = pd.DataFrame(rows).fillna(0)
+
+    # Convert all numeric values to int
+    for col in summary.columns:
+        if col != 'method':
+            summary[col] = summary[col].astype(int)
+
+    # Order columns
+    item_cols = [c for c in summary.columns if c not in ['method', 'count_overall']]
+    summary = summary[['method', 'count_overall'] + sorted(item_cols)]
+
+    # Print
+    print(summary.to_string(index=False))
+
 
 if __name__ == "__main__":
 
     # ======================== process nextflow input arguments ========================
 
     args = Arguments()
-    args.print_args()
 
+    # only print for debugging
+    args.print_args()
 
     # ========================= process results from modules ===========================
 
     rna_data = sc.read_10x_mtx(args.rna_matrix)
     hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
-    # call all functions that process the module outptus
+    # call all functions that process the module outputs
 
     assignments = []
     classifications = []
@@ -230,62 +260,39 @@ if __name__ == "__main__":
             assignments.append(assignment)
             classifications.append(classification)
 
-    printProccedOutput()
+    # only print for debugging
+    print_method_item_counts(assignments)
+    print_method_item_counts(classifications)
 
     # ================================== save results ==================================
 
     # ----------------------------------- save csv's -----------------------------------
 
-    # TODO restructure the if statement if I keep using the hto_data
-    # have to to this because demuxem has more barcodes as output that it received as input
-    # https://github.com/lilab-bcb/demuxEM/issues/20
-
-    # Read the file as a single-column DataFrame and set the index
-    assignment_summary = pd.read_csv(args.barcodes, header=None, names=["Barcode"])
+    # Use rna_data.obs_names() as index to perform a left join
+    assignment_summary = pd.DataFrame(rna_data.obs_names, columns=['Barcode'])
     classification_summary = assignment_summary.copy()
-    # TODO decide what do to if merging as empty values
-    print(assignment_summary)
 
     for assignment in assignments:
-        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left").replace("", args.negative_str).fillna(args.negative_str)
-
-    assignment_summary.to_csv(args.assignment, index=False)
+        assignment_summary = (
+            pd.merge(assignment_summary, assignment, on="Barcode", how="left")
+              .fillna(args.negative_str)
+        )
 
     for classification in classifications:
-        classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
+        classification_summary = (
+            pd.merge(classification_summary, classification, on="Barcode", how="left")
+              .fillna(args.negative_str)
+        )
 
+    assignment_summary.to_csv(args.assignment, index=False)
     classification_summary.to_csv(args.classification, index=False)
 
-    print(assignment_summary)
-    print(classification_summary)
     # -------------------------------- save mudata/anndata -----------------------------
 
-    # if args.generate_mudata or args.generate_anndata:
-    #     # join on index (Barcode)
-    #     rna_data.obs = rna_data.obs.join(assignment_summary, how="left")
-    #     # fill all empty of the used modules with negative values (for expression data)
-    #     used_modules = list(assignment_summary.columns)
-    #     for col in used_modules:
-    #         if pd.api.types.is_categorical_dtype(rna_data.obs[col]):
-    #             if args.negative_str not in rna_data.obs[col].cat.categories:
-    #                 rna_data.obs[col] = rna_data.obs[col].cat.add_categories([args.negative_str])
+    saveAnnDataMuData(args, assignment_summary,rna_data,hto_data)
 
-    #     rna_data.obs[used_modules] = rna_data.obs[used_modules].fillna(args.negative_str)
-    #     rna_data.obs[used_modules] = rna_data.obs[used_modules].astype(str)
-
-    #     if args.generate_mudata:
-    #         # join on index (Barcode) and create a mudata object
-    #         hto_data.obs = hto_data.obs.join(assignment_summary, how="left")
-    #         mudata = MuData({"rna": rna_data, "hto": hto_data})
-    #         # TODO mudata update?
-    #         mudata.write(args.h5mu)
-
-    #     if args.generate_anndata:
-    #         rna_data.write(args.h5ad)
 
     # -------------------------------------- versions ----------------------------------
-
-    # TODO vervollständigen
 
     versions = {
         "${task.process}": {
