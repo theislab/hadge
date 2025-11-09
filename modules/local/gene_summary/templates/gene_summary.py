@@ -90,7 +90,7 @@ class Arguments:
             setattr(self, output, self.prefix + directory)
 
     # TODO add testing for the inputs
-    #def testing_inputs(self) -> None:
+    # def testing_inputs(self) -> None:
 
     def print_args(self) -> None:
         """
@@ -123,9 +123,6 @@ class ProcessDeconvolutionMethodResult:
         classification = assignment.copy()
         classification['vireo'][~classification['vireo'].isin([args.doublet_str, args.negative_str])] = args.singlet_str
 
-        print(assignment)
-        print(classification)
-
         return assignment, classification
 
     def souporcell(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -140,9 +137,6 @@ class ProcessDeconvolutionMethodResult:
             classification["souporcell"].isin(["doublet", "negative"]),
             "singlet"
         )
-
-        print(assignment)
-        print(classification)
 
         return assignment, classification
 
@@ -174,16 +168,14 @@ class ProcessDeconvolutionMethodResult:
         classification = assignment.copy()
         classification[method] = np.where(
             classification[method].isin([args.doublet_str, args.negative_str]),
-            classification[method],   # keep original value if in the list
-            args.singlet_str                # otherwise set to singlet
+            classification[method],
+            args.singlet_str
         )
-
-        print(assignment)
-        print(classification)
 
         return assignment, classification
 
 #TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type
+# joins the assignment results with RNA, generate_anndata will return h5ad with RNA matrix
 def saveAnnDataMuData(args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data):
     if args.generate_mudata or args.generate_anndata:
         assignment_summary.set_index("Barcode", inplace=True)
@@ -193,7 +185,6 @@ def saveAnnDataMuData(args: Arguments, assignment_summary: pd.DataFrame, rna_dat
         rna_data.write(args.h5ad)
 
     if args.generate_mudata:
-        hto_data.obs = hto_data.obs.join(assignment_summary, how="left")
         mudata = MuData({"rna": rna_data, "hto": hto_data})
         mudata.update()
         mudata.write(args.h5mu)
@@ -207,6 +198,7 @@ def print_method_item_counts(dfs):
     all_items = set()
 
     for df in dfs:
+        print(df)
         # Get second column name
         method_col = df.columns[1]
         # Count occurrences
@@ -241,18 +233,14 @@ if __name__ == "__main__":
     args = Arguments()
 
     # only print for debugging
-    args.print_args()
+    # args.print_args()
 
     # ========================= process results from modules ===========================
-
-    rna_data = sc.read_10x_mtx(args.rna_matrix)
-    hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
-
-    # call all functions that process the module outputs
 
     assignments = []
     classifications = []
 
+    # call all functions that process the module outputs
     processing_functions = ProcessDeconvolutionMethodResult()
     for method in list(processing_functions.deconvolution_methods):
         if getattr(args,method) is not None:
@@ -261,31 +249,28 @@ if __name__ == "__main__":
             classifications.append(classification)
 
     # only print for debugging
-    print_method_item_counts(assignments)
-    print_method_item_counts(classifications)
+    # print_method_item_counts(assignments)
+    # print_method_item_counts(classifications)
 
     # ================================== save results ==================================
 
     # ----------------------------------- save csv's -----------------------------------
+
+    rna_data = sc.read_10x_mtx(args.rna_matrix)
+    hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
     # Use rna_data.obs_names() as index to perform a left join
     assignment_summary = pd.DataFrame(rna_data.obs_names, columns=['Barcode'])
     classification_summary = assignment_summary.copy()
 
     for assignment in assignments:
-        assignment_summary = (
-            pd.merge(assignment_summary, assignment, on="Barcode", how="left")
-              .fillna(args.negative_str)
-        )
+        assignment_summary = pd.merge(assignment_summary, assignment, on="Barcode", how="left")
 
     for classification in classifications:
-        classification_summary = (
-            pd.merge(classification_summary, classification, on="Barcode", how="left")
-              .fillna(args.negative_str)
-        )
+        classification_summary = pd.merge(classification_summary, classification, on="Barcode", how="left")
 
-    assignment_summary.to_csv(args.assignment, index=False)
-    classification_summary.to_csv(args.classification, index=False)
+    assignment_summary.fillna(args.negative_str).to_csv(args.assignment, index=False)
+    classification_summary.fillna(args.negative_str).to_csv(args.classification, index=False)
 
     # -------------------------------- save mudata/anndata -----------------------------
 
