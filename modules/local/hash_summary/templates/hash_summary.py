@@ -99,10 +99,10 @@ class Arguments:
                             return ['bff_raw']
                         elif value_str == 'CLUSTER':
                             return ['bff_cluster']
-                        elif value_str == 'BOTH':
+                        elif value_str == 'COMBINED':
                             return ['bff_raw', 'bff_cluster','bff_consensuscall']
                         else:
-                            raise ValueError(f"Methods ({value_str}) for bff not specified correctly. Choose RAW, CLUSTER or BOTH as input.")
+                            raise ValueError(f"Methods ({value_str}) for bff not specified correctly. Choose RAW, CLUSTER or COMBINED as input.")
                 elif input_str == "hash_list":
                     return set(hash.strip() for hash in "${hash_list}".strip("[]").split(","))
 
@@ -290,22 +290,39 @@ class ProcessModuleOutput:
     def bff(self, args: Arguments) ->  Tuple[pd.DataFrame, pd.DataFrame]:
 
         df_result = pd.read_csv(args.bff)
+        df_result.rename(columns={'cellbarcode':'Barcode'}, inplace=True)
 
-        df_result.rename(columns={
-            'cellbarcode': 'Barcode',
-            'consensuscall': 'bff_consensuscall'
-        }, inplace=True)
+        if len(args.bff_methods) == 3:
+            cols = ['bff_raw','bff_cluster','consensuscall','consensuscall.global']
+        else:
+            cols = args.bff_methods
 
-        assignment = df_result[['Barcode'] + args.bff_methods].copy()
-
-        assignment[args.bff_methods] = assignment[args.bff_methods].replace({
+        df_result[cols] = df_result[cols].replace({
+            'Singlet': args.singlet_str,
             'Doublet': args.doublet_str,
             'Negative': args.negative_str,
-            'Discordant': 'discordant'
+            'Discordant': args.negative_str,
+            'Not Called': args.negative_str
         })
 
-        valid_values = {args.negative_str, args.doublet_str, 'discordant'}
 
+
+        if len(args.bff_methods) == 3:
+            # use the classification of consensuscall.global
+            assignment =  df_result[['Barcode', 'bff_raw', 'bff_cluster','consensuscall']].rename(columns={
+                'consensuscall': 'bff_consensuscall'
+            })
+
+            classification =  df_result[['Barcode', 'bff_raw', 'bff_cluster','consensuscall.global']].rename(columns={
+                'consensuscall.global': 'bff_consensuscall'
+            })
+        else:
+            assignment = df_result[['Barcode'] + args.bff_methods]
+            classification = assignment.copy()
+
+        valid_values = {args.singlet_str, args.negative_str, args.doublet_str}
+
+        # TODO Define this type of testing to all modules
         # Define classification function
         def classify_value(x):
             if x in valid_values:
@@ -315,17 +332,7 @@ class ProcessModuleOutput:
             else:
                 raise ValueError(f"Value '{x}' in BFF is not 'Negative', 'Doublet', or one of the hashes in the used hashes list")
 
-        if len(args.bff_methods) == 3:
-            # use the classification of consensuscall.global
-            used_methods = args.bff_methods - ["bff_consensuscall"] + ["consensuscall.global"]
-        else:
-            used_methods = args.bff_methods
-
-        # apply classification only to used_methods columns
-        classification = assignment[['Barcode'] + used_methods].copy()
-        classification.rename(columns={'consensuscall.global': 'bff_consensuscall'}, inplace=True)
-
-        classification[used_methods] = classification[used_methods].applymap(classify_value)
+        classification[args.bff_methods] = classification[args.bff_methods].applymap(classify_value)
 
         return assignment, classification
 

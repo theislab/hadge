@@ -209,6 +209,8 @@ colname_with_singlet <-
 colname_with_singlet <-
   colname_with_singlet[colname_with_singlet != "Barcode"]
 
+print(colname_with_singlet)
+
 if (length(colname_with_singlet) < 2) {
   stop("Please choose more methods to run donor matching!")
 }
@@ -219,9 +221,11 @@ hashing_methods <-
     "htodemux",
     "multiseq",
     "hashsolo",
-    "hashedDrops",
-    "bff",
-    "gmm_demux"
+    "hasheddrops",
+    "bff_raw",
+    "bff_cluster",
+    "bff_consensuscall",
+    "gmmdemux"
   )
 genetic_methods <-
   c("demuxlet", "freemuxlet", "vireo", "scsplit", "souporcell")
@@ -285,6 +289,9 @@ if (!is.null(args\$method1) && !is.null(args\$method2)) {
     method2_all <- method_pair[2, ]
   }
 }
+
+print(method1_all)
+print(method2_all)
 
 best_result <- 0
 best_method1 <- "None"
