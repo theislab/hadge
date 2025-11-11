@@ -86,10 +86,7 @@ workflow HADGE {
 
     // ------------------------------- preprocessing end --------------------------------
 
-
-    //TODO mayybe go back to the orignal style with if, if else and so on
-    //TODO geht hash und hash mode mit cell.genozyp?
-    if (params.mode == 'genetic' || params.mode == 'rescue') {
+    if (params.mode == 'genetic'){
         GENETIC_DEMULTIPLEXING(
             ch_genetic,
             params.genetic_tools.split(','),
@@ -97,14 +94,17 @@ workflow HADGE {
             params.common_variants
         )
 
-        ch_donor_match = ch_donor_match
-            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
-            .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
+        if(params.match_donor){
+            ch_donor_match = ch_donor_match
+                .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+                .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
+                .map{ meta, barcodes, gene_summary, cell_genotype -> [meta, barcodes, gene_summary, cell_genotype, []] }
+        }
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
-
-    if (params.mode == 'hashing' || params.mode == 'rescue') {
+    else if (params.mode == 'hashing'){
+        //TODO should mode hashing work with cell_genotype?
         HASH_DEMULTIPLEXING(
             ch_hashing,
             params.hash_tools.split(',')
@@ -112,48 +112,55 @@ workflow HADGE {
 
         ch_donor_match = ch_donor_match
             .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+            .map{ meta, barcodes, hash_summary-> [meta, barcodes, hash_summary,[],[]] }
 
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-
-        if(params.mode == 'rescue'){
-            //TODO ext args for outer
-
-            JOIN_RESULTS(ch_donor_match.map{
-                meta, barcodes, gene_summary, cell_genotype, hash_summary ->
-                [meta, [gene_summary,hash_summary]]
-            })
-
-            ch_donor_match = ch_donor_match
-                .join(JOIN_RESULTS.out.csv)
-                .map{
-                    meta, barcodes, _gene_summary, cell_genotype, _hash_summary, joined_summary ->
-                    [meta, barcodes, joined_summary, cell_genotype]
-                }
-
-            ch_versions = ch_versions.mix(JOIN_RESULTS.out.versions)
-        }else{
-            ch_donor_match = ch_donor_match
-                .map{ meta, barcodes, hash_summary-> [meta, barcodes, hash_summary,[]] }
-        }
     }
+    else if ( params.mode == 'rescue' ){
 
-    if (params.mode == 'donor_match' || params.match_donor) {
-        //TODO testing
-        if (params.mode == 'donor_match'){
-            ch_donor_match = ch_donor_match.map{
+        GENETIC_DEMULTIPLEXING(
+            ch_genetic,
+            params.genetic_tools.split(','),
+            params.bam_qc,
+            params.common_variants
+        )
+
+        HASH_DEMULTIPLEXING(
+            ch_hashing,
+            params.hash_tools.split(',')
+        )
+
+        ch_donor_match = ch_donor_match
+            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+            .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
+            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+
+        JOIN_RESULTS(ch_donor_match.map{
+            meta, _barcodes, gene_summary, _cell_genotype, hash_summary ->
+            [meta, [gene_summary,hash_summary]]
+        })
+
+        ch_donor_match = ch_donor_match
+            .join(JOIN_RESULTS.out.csv)
+            .map{
+                meta, barcodes, _gene_summary, cell_genotype, _hash_summary, joined_summary ->
+                [meta, barcodes, joined_summary, cell_genotype, []]
+            }
+
+        ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
+        ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
+        ch_versions = ch_versions.mix(JOIN_RESULTS.out.versions)
+    }
+    else if ( params.mode == 'donor_match' ){
+
+         ch_donor_match = ch_donor_match.map{
                 meta, barcodes ->
                 [meta, barcodes, params.demultiplexing_result, params.celldata, params.vireo_parent_dir]
-            }
-        }else{
-            ch_donor_match.view()
-            ch_donor_match = ch_donor_match.map{
-                meta, barcodes, assignment_result, cell_genotype ->
-                [meta, barcodes, assignment_result, cell_genotype, []]
-            }
         }
 
+    }
 
-        // TODO add params to nextflow.config and write DONOR matching
+    if (params.match_donor) {
         DONOR_MATCH(ch_donor_match,
             params.match_donor_method1 ?: [],
             params.match_donor_method2 ?: [],
@@ -161,7 +168,6 @@ workflow HADGE {
             params.variant_count,
             params.variant_pct
         )
-
 
         ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
