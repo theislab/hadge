@@ -15,6 +15,7 @@ workflow GENETIC_DEMULTIPLEXING {
     methods         // list of strings
     bam_qc          // boolean
     common_variants // file
+    fasta           // file: /path/to/genome.fasta
 
     main:
     ch_versions = Channel.empty()
@@ -106,14 +107,10 @@ workflow GENETIC_DEMULTIPLEXING {
         }
 
         ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
-            [ meta, file(params.ref) ]
+            [ meta, params.souporcell_fasta ? params.souporcell_fasta : fasta ]
         }
 
-        // ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
-        //     [ meta, file(params.fasta) ]
-        // }
-
-        //TODO update souporcell so that the first inputs also have the number of clusters
+        ch_soup_fasta.view()
 
         SOUPORCELL(
             ch_souporcell_bam_barcodes_clusters,

@@ -1212,6 +1212,16 @@
                     "default": null,
                     "fa_icon": "fas fa-file-code"
                 },
+                "souporcell_fasta": {
+                    "type": ["string", "null"],
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "description": "If this variable is not null it will use the provided FASTA instead of the iGenomes FASTA specified with --genome. Specifying souporcell_fasta can save a lot of time compared to downloading the entire reference genome with --genome.",
+                    "default": null,
+                    "fa_icon": "far fa-file-code"
+                },
                 "souporcell_known_genotypes": {
                     "type": "string",
                     "format": "file-path",

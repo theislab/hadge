@@ -30,6 +30,7 @@ include { DONOR_MATCH                } from '../modules/local/donor_match/main'
 workflow HADGE {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    fasta // file: /path/to/genome.fasta
 
     main:
 
@@ -87,11 +88,13 @@ workflow HADGE {
     // ------------------------------- preprocessing end --------------------------------
 
     if (params.mode == 'genetic'){
+
         GENETIC_DEMULTIPLEXING(
             ch_genetic,
             params.genetic_tools.split(','),
             params.bam_qc,
-            params.common_variants
+            params.common_variants,
+            fasta
         )
 
         if(params.match_donor){
@@ -122,7 +125,8 @@ workflow HADGE {
             ch_genetic,
             params.genetic_tools.split(','),
             params.bam_qc,
-            params.common_variants
+            params.common_variants,
+            fasta
         )
 
         HASH_DEMULTIPLEXING(
