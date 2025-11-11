@@ -62,7 +62,7 @@ workflow HADGE {
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
-    // TODO remove completely
+    // TODO remove completely if not used anymore
     // ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
     // ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
 

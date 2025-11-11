@@ -138,7 +138,7 @@ for ( ao in names(args_opt)){
 options(digits=5)
 
 # Check if file exists
-# TODO check if files exist
+# TODO check if files exist (not necessary for now)
 # if (! file.exists(seuratObj)){
 #     stop(paste0(seuratObj, ' is not a valid file'))
 # }
@@ -161,22 +161,8 @@ library(vcfR)
 ################################################
 ################################################
 
-# Define output paths
-# correlation_path <- file.path("correlation")
-# donor_match_path <- file.path("donor_match")
-# all_assignments_after_match_path <- file.path("all_assignments_after_match")
-# intersect_after_match_path <- file.path("intersect_after_match")
-
-# paths <- c(correlation_path,
-#            donor_match_path,
-#            all_assignments_after_match_path,
-#            intersect_after_match_path)
-
-# for (path in paths) {
-#   if (!dir.exists(path)) {
-#     dir.create(path, recursive = TRUE)
-#     }
-# }
+# set TRUE to see print outputs for debugging
+debugging <- FALSE
 
 # read assignment_all csv
 result_csv <- NULL
@@ -205,11 +191,8 @@ if (!is.null(args\$barcode)) {
 colname_with_singlet <-
   colnames(result_csv %>% select_if(~ any(. != "negative" &
     . != "doublet")))
-    # TODO not also add not NA ?!
 colname_with_singlet <-
   colname_with_singlet[colname_with_singlet != "Barcode"]
-
-print(colname_with_singlet)
 
 if (length(colname_with_singlet) < 2) {
   stop("Please choose more methods to run donor matching!")
@@ -290,9 +273,6 @@ if (!is.null(args\$method1) && !is.null(args\$method2)) {
   }
 }
 
-print(method1_all)
-print(method2_all)
-
 best_result <- 0
 best_method1 <- "None"
 best_method2 <- "None"
@@ -325,8 +305,9 @@ for (i in 1:length(method1_all)) {
     method2 <- hash_method
   }
 
-  # TODO conditional printing
-  print(paste0("Comapring ", method1, " and ", method2))
+  if(debugging){
+    print(paste0("Comapring ", method1, " and ", method2))
+  }
 
   outputdir <- file.path(paste0(method1, "_vs_", method2))
   if (!dir.exists(outputdir)) {
@@ -338,11 +319,8 @@ for (i in 1:length(method1_all)) {
   method1_res <- convert2binary(result_csv, method1, min_cell)
   method2_res <- convert2binary(result_csv, method2, min_cell)
   if (is.null(method1_res) || is.null(method2_res)) {
-    # TODO remove debug printing
-    print("1")
     next
   }
-  print("2")
 
   # Extract barcodes classified as singlets by both methods.
   # This meaning of intersect is not true for  edge cases
@@ -371,7 +349,6 @@ for (i in 1:length(method1_all)) {
   # Skip this method pair if correlation calculation failed
   if (inherits(correlation_res, "try-error")) {
     cat("Failed to calculate phi coefficient")
-    print("3")
     next
   }
 
@@ -446,23 +423,15 @@ for (i in 1:length(method1_all)) {
     )
   }
 
-   print(paste0("method2 ",method2))
-    print(paste0("method1 ",method1))
-
-
   if (grepl(paste(hashing_methods, collapse = "|"), method2) &&
     grepl(paste(genetic_methods, collapse = "|"), method1)) {
     remain_na <- (matched_donor != args\$ndonor)
     match_score <- match_score / args\$ndonor
 
-    print(paste0("match_score ",match_score))
-    print(paste0("best_resulte ",best_result))
-    print(paste0("!remain_na ",!remain_na))
-
     if (match_score > best_result && !remain_na) {
       write.table(
         geno_match[, 1:2],
-        file.path("best_donor_match.csv"),
+        file.path(paste0(args\$prefix,"_best_donor_match.csv")),
         row.names = FALSE,
         col.names = FALSE,
         sep = " ",
@@ -510,21 +479,21 @@ for (i in 1:length(method1_all)) {
     if (best_result == match_score) {
       write.csv(
         result_merge_new,
-        file.path("best_all_assignment_after_match.csv"),
+        file.path(paste0(args\$prefix,"_best_all_assignment_after_match.csv")),
         row.names = FALSE
       )
 
       write.csv(
         result_merge_new_intersect,
-        file.path("best_intersect_assignment_after_match.csv"),
+        file.path(paste0(args\$prefix,"_best_intersect_assignment_after_match.csv")),
         row.names = FALSE
       )
     }
   }
 }
 
-# TODO conditional print statement (val output)
-if (best_method1 != "None" && best_method2 != "None") {
+# TODO what is if there is more than one best match between methods?
+if (best_method1 != "None" && best_method2 != "None" && debugging) {
   print(
     paste0(
       "Best method pair: ",
@@ -541,9 +510,11 @@ if (best_method1 != "None" && best_method2 != "None") {
 if (nrow(result_record) > 1) {
   write.csv(result_record,
     row.names = FALSE,
-    file.path("score_record.csv")
+    file.path(paste0(args\$prefix,"_score_record.csv"))
   )
 }
+
+# TODO findVariants = true not implemented yet
 
 if (args\$findVariants == "True" || args\$findVariants == "default") {
   if (startsWith(best_method1, "vireo")) {

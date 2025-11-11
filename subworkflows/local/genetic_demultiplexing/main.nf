@@ -110,8 +110,6 @@ workflow GENETIC_DEMULTIPLEXING {
             [ meta, params.souporcell_fasta ? params.souporcell_fasta : fasta ]
         }
 
-        ch_soup_fasta.view()
-
         SOUPORCELL(
             ch_souporcell_bam_barcodes_clusters,
             ch_soup_fasta
@@ -127,8 +125,6 @@ workflow GENETIC_DEMULTIPLEXING {
         .join(ch_freemuxlet, remainder: true)
         .join(ch_souporcell, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
-
-    ch_summary.view()
 
     GENE_SUMMARY(
         ch_summary,
