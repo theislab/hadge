@@ -94,7 +94,7 @@
                     },
                     "souporcell": {
                         "branch": "master",
-                        "git_sha": "30f537aa02f7f1a691050fd080cf66d9ae417221",
+                        "git_sha": "6998ba9049ad0d544c243e2f785f94f8e9f8356b",
                         "installed_by": ["modules"]
                     },
                     "umitools/dedup": {
