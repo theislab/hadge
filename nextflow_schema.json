@@ -176,7 +176,7 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If omitted, `--genome` will attempt to download the entire reference dataset, resulting in long download times and high bandwidth usage. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
                 },
                 "igenomes_ignore": {
@@ -1278,16 +1278,6 @@
                     "description": "Common variant loci or known variant loci vcf, must be vs same reference fasta.",
                     "default": null,
                     "fa_icon": "fas fa-file-code"
-                },
-                "souporcell_fasta": {
-                    "type": ["string", "null"],
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "If this variable is not null it will use the provided FASTA instead of the iGenomes FASTA specified with --genome. Specifying souporcell_fasta can save a lot of time compared to downloading the entire reference genome with --genome.",
-                    "default": null,
-                    "fa_icon": "far fa-file-code"
                 },
                 "souporcell_known_genotypes": {
                     "type": "string",

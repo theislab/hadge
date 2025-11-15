@@ -106,13 +106,9 @@ workflow GENETIC_DEMULTIPLEXING {
             [ meta, bam, barcodes, meta.n_samples ]
         }
 
-        ch_soup_fasta = ch_samplesheet.map { meta, _bam, _barcodes, _vcf ->
-            [ meta, params.souporcell_fasta ? params.souporcell_fasta : fasta ]
-        }
-
         SOUPORCELL(
             ch_souporcell_bam_barcodes_clusters,
-            ch_soup_fasta
+            channel.value([[id: 'fasta'], file(fasta, checkIfExists: true)])
         )
 
         ch_souporcell = ch_souporcell.mix(SOUPORCELL.out.clusters)
