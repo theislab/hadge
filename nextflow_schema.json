@@ -176,7 +176,7 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If omitted, `--genome` will attempt to download the entire reference dataset, resulting in long download times and high bandwidth usage. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified, and is generally recommended to speed up execution. If omitted, the pipeline will download the entire iGenomes reference dataset specified with '--genome', resulting in long download times and high bandwidth usage. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
                     "fa_icon": "far fa-file-code"
                 },
                 "igenomes_ignore": {
