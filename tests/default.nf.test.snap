@@ -1,7 +1,6 @@
 {
     "-profile test": {
         "content": [
-            79,
             {
                 "BFF": {
                     "r-base": "4.3.3",
@@ -86,8 +85,7 @@
                     "samtools": 1.21
                 },
                 "SOUPORCELL": {
-                    "souporcell": 2.5,
-                    "gxx": "9.5.0"
+                    "souporcell": 2.5
                 },
                 "UMITOOLS_DEDUP": {
                     "umitools": "1.1.5"
@@ -890,7 +888,7 @@
                 "test3_best_all_assignment_after_match.csv:md5,b91311fcd88917173444e25e593f8ea1",
                 "test3_best_donor_match.csv:md5,102fd8c326c1bf1a7ba7b0bd11ea3838",
                 "test3_best_intersect_assignment_after_match.csv:md5,aba41e1480b6e2cbad259ba7374ba032",
-                "test3_score_record.csv:md5,3708ca053d6aa9040f4200d0f99f4433",
+                "test3_score_record.csv:md5,8b885c914fe9e3c5189d161a134c4103",
                 "test1_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
                 "test2_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
                 "test3_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
@@ -898,35 +896,35 @@
                 "test2.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test3.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test1.clust1.vcf.gz:md5,1bfb982072ce8a1e6e417ca1ff3e9859",
+                "test1.clust1.vcf.gz:md5,bfbcb4bfe4436575d44ec91beef6cc3c",
                 "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test2.clust1.vcf.gz:md5,1bfb982072ce8a1e6e417ca1ff3e9859",
+                "test2.clust1.vcf.gz:md5,bfbcb4bfe4436575d44ec91beef6cc3c",
                 "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test3.clust1.vcf.gz:md5,1bfb982072ce8a1e6e417ca1ff3e9859",
+                "test3.clust1.vcf.gz:md5,bfbcb4bfe4436575d44ec91beef6cc3c",
                 "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
-                "ambient_rna.txt:md5,d9a81ef5a446f7e383ff6049e79db45d",
-                "cluster_genotypes.vcf:md5,7220238afdaa5430409053604b59b6df",
+                "ambient_rna.txt:md5,f67dd4d5b97ca8645db1cce0f02b43cb",
+                "cluster_genotypes.vcf:md5,63d62a7dff0bc557e6a87340878d25a4",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
-                "ambient_rna.txt:md5,27d4cb794ef5fd3ea59a55f818b043e6",
-                "cluster_genotypes.vcf:md5,2e6b8240683469f2c7d3ad59b68d2436",
+                "ambient_rna.txt:md5,867a1a8a06e6f669f7146da55ffb89d5",
+                "cluster_genotypes.vcf:md5,5b78ae31beed658707ecc578608d5237",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
-                "ambient_rna.txt:md5,a499ea2a76193747913575c516bd38be",
-                "cluster_genotypes.vcf:md5,8cdf1de0f741cbc08f16036195e0254b",
+                "ambient_rna.txt:md5,b4e811d531f5f546908dab7bd5ed4906",
+                "cluster_genotypes.vcf:md5,9f224e16c118996b9f0c73fcc5dacdb1",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
-                "test1_genetic_summary.h5ad:md5,26c8732e21198cc79ba43d125b0f28bd",
-                "test1_genetic_summary.h5mu:md5,fb2624f40e31526a7cdbafcd6bf792c3",
-                "test1_genetic_summary_assignment.csv:md5,d2f690ee039277baca1d0c6cd2a9e5d0",
-                "test1_genetic_summary_classification.csv:md5,636096984c0a8e0d0e641ab76cf47903",
-                "test2_genetic_summary.h5ad:md5,5dc79a84c69a8cac850ba0823ad4a271",
-                "test2_genetic_summary.h5mu:md5,07b662991a839aea646acdeb79a7ac80",
-                "test2_genetic_summary_assignment.csv:md5,af894fc9602de8b103ad380930196d24",
-                "test2_genetic_summary_classification.csv:md5,1b141813ce2c1a52e4e7db9cac854264",
-                "test3_genetic_summary.h5ad:md5,75d5b8bf9fca56c5af07d2f1df772450",
-                "test3_genetic_summary.h5mu:md5,3990958f3c0ccfdde5b17270d7fae034",
-                "test3_genetic_summary_assignment.csv:md5,59e572a94b71c4682f5e66ab415bcf4c",
-                "test3_genetic_summary_classification.csv:md5,be741188392323f0e2f34e5d4acc125c",
+                "test1_genetic_summary.h5ad:md5,167d63e4615560198439ea0a4898f89f",
+                "test1_genetic_summary.h5mu:md5,a8e5cf70cef8876e87236ccfef4b4551",
+                "test1_genetic_summary_assignment.csv:md5,6c36a9e64deea3d473924878f8ec7b9b",
+                "test1_genetic_summary_classification.csv:md5,569ca8a32a8bc67a25bdbb845731ce5e",
+                "test2_genetic_summary.h5ad:md5,4268c4061c824670f155ecb901ffccb4",
+                "test2_genetic_summary.h5mu:md5,99c21f934d4bc081a3ccd7774e284551",
+                "test2_genetic_summary_assignment.csv:md5,4211532c212993f9135ecdf1fcaab83c",
+                "test2_genetic_summary_classification.csv:md5,b76f3944167297692ed4df53953182b6",
+                "test3_genetic_summary.h5ad:md5,5dc79a84c69a8cac850ba0823ad4a271",
+                "test3_genetic_summary.h5mu:md5,07b662991a839aea646acdeb79a7ac80",
+                "test3_genetic_summary_assignment.csv:md5,af894fc9602de8b103ad380930196d24",
+                "test3_genetic_summary_classification.csv:md5,1b141813ce2c1a52e4e7db9cac854264",
                 "test1.base.vcf.gz:md5,36eccb4bd3e2130f395985e09a66a60d",
                 "test1.cells.vcf.gz:md5,b28d8acaf17777c7cf9e2c7d01d93a66",
                 "test1.samples.tsv:md5,9e488782c1bcd63c37ee3d1c4c0a9217",
@@ -957,9 +955,9 @@
                 "test3_prob_doublet.tsv.gz:md5,0226d8043ee03b790fe2d130093b40df",
                 "test3_prob_singlet.tsv.gz:md5,959b21543d21f2214e399e541848d81a",
                 "test3_summary.tsv:md5,94b0ce40cc86bbe7fbacebf98e685ee7",
-                "test1.csv:md5,2f3c66957f0ef0052f44377c693e9787",
-                "test2.csv:md5,69c8feb3862d535d91fd25dc4b6146ee",
-                "test3.csv:md5,d5c45a6dd8533398cf00acc49c5f0c0a",
+                "test1.csv:md5,35918cd4fa677aa96c7312bae0e6415a",
+                "test2.csv:md5,93720f6dd4fe92296cd070bc64b643a1",
+                "test3.csv:md5,69c8feb3862d535d91fd25dc4b6146ee",
                 "GMM_full.config:md5,8b2a9c372a7982d815a05b01e2964cb6",
                 "barcodes.tsv.gz:md5,e4cd9ce9929a07d6763304ec1bf64c23",
                 "features.tsv.gz:md5,e244612671c0667117cf06b846e7307a",
@@ -1053,8 +1051,6 @@
                 "test3_hashing_summary.h5mu:md5,1a92c7c16375fc15733f96d4556e86c4",
                 "test3_hashing_summary_assignment.csv:md5,a94123318ba681f2beecd73383fba621",
                 "test3_hashing_summary_classification.csv:md5,052d8aad0e934cb2384fae9b9f313e37",
-                "llms-full.txt:md5,40089390804bc0a68d1714924cf97ec0",
-                "multiqc.parquet:md5,4366576f4a8e21a262c898f42c0557a6",
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "barcodes.tsv.gz:md5,298331318a633cd9fdcb29416bf6ae41",
                 "features.tsv.gz:md5,e244612671c0667117cf06b846e7307a",
@@ -1080,6 +1076,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-11-11T18:05:05.57895401"
+        "timestamp": "2025-11-15T13:22:24.120134108"
     }
 }
