@@ -14,3 +14,5 @@ hashing/gmm-demux/*/GMM_full.csv
 hashing/htodemux/*/*_htodemux.rds
 hashing/multiseqdemux/*/*_multiseqdemux.rds
 hashing/preprocessing/*/*_preprocessed.rds
+genetic/souporcell/*/*/ambient_rna.txt
+genetic/souporcell/*/*/cluster_genotypes.vcf
