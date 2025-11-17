@@ -107,12 +107,12 @@ class ProcessDeconvolutionMethodResult:
 
     def __init__(self):
 
-        self.deconvolution_methods = {
-            "vireo",
+        self.deconvolution_methods = [
             "demuxlet",
             "freemuxlet",
-            "souporcell"
-        }
+            "souporcell",
+            "vireo"
+        ]
 
         self.checkHashNames = True
         self.chechEmptyInput = True
@@ -246,7 +246,7 @@ if __name__ == "__main__":
 
     # call all functions that process the module outputs
     processing_functions = ProcessDeconvolutionMethodResult()
-    for method in list(processing_functions.deconvolution_methods):
+    for method in processing_functions.deconvolution_methods:
         if getattr(args,method) is not None:
             assignment, classification = getattr(processing_functions, method)(args)
             assignments.append(assignment)
