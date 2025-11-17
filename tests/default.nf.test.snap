@@ -531,21 +531,21 @@
                 "test3_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
                 "test1.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
-                "test1.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
                 "test2.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
-                "test2.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
                 "test3.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
-                "test3.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
-                "ambient_rna.txt:md5,e07cbe23d97d5c3b3eb289208fed6991",
-                "cluster_genotypes.vcf:md5,b05c64201ad16bcb52230b9ff023b932",
+                "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
+                "ambient_rna.txt:md5,2cf59a325c4973a775726fbc8435ce3f",
+                "cluster_genotypes.vcf:md5,a126a5beeb35fc7374f756cb455d6174",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
-                "ambient_rna.txt:md5,8136e3d5bf2361cea98f4213f771aa6f",
-                "cluster_genotypes.vcf:md5,c3333a2d52b8cc851e831d59e3b96e91",
+                "ambient_rna.txt:md5,38e84e291e12cd34e2a86d500685b97d",
+                "cluster_genotypes.vcf:md5,d0bc167cf5e6a45d09480fbeec5c924a",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
-                "ambient_rna.txt:md5,71428148a6281ebdcee09311a56c7598",
-                "cluster_genotypes.vcf:md5,ef96c4be9beb0d898da8744305a60610",
+                "ambient_rna.txt:md5,8c4e357e9e744a045524c8a56a223de5",
+                "cluster_genotypes.vcf:md5,15e6c0a2117ac401bde2ca56c7c07c3b",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "test1_genetic_summary.h5ad:md5,10587503bf9706b5e2bd6db031acd1f3",
                 "test1_genetic_summary.h5mu:md5,42349934b0d68f6b817d954e719f905f",
@@ -669,8 +669,8 @@
         ],
         "meta": {
             "nf-test": "0.9.2",
-            "nextflow": "25.10.0"
+            "nextflow": "25.04.6"
         },
-        "timestamp": "2025-11-17T13:36:22.541741"
+        "timestamp": "2025-11-17T14:06:32.963081473"
     }
 }
