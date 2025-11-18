@@ -530,13 +530,10 @@
                 "test2_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
                 "test3_hashes.txt:md5,56390704cb4a0f31ca5a2d9293d673c0",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test1.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
                 "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test2.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
                 "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test3.clust1.vcf.gz:md5,40fe46ef721fc15f99fe7c8a919d9401",
                 "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
@@ -665,6 +662,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-11-17T15:34:18.427527937"
+        "timestamp": "2025-11-18T07:57:56.931146669"
     }
 }
