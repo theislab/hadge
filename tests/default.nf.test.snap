@@ -19,8 +19,7 @@
                     "pandas": "2.3.1",
                     "pegasusio": "0.10.0",
                     "python": "3.11.14",
-                    "scanpy": "1.11.2",
-                    "yaml": "6.0.3"
+                    "scanpy": "1.11.2"
                 },
                 "HASHEDDROPS": {
                     "r-base": "4.4.3",
@@ -39,8 +38,7 @@
                     "pandas": "2.3.1",
                     "pegasusio": "0.10.0",
                     "python": "3.11.14",
-                    "scanpy": "1.11.2",
-                    "yaml": "6.0.3"
+                    "scanpy": "1.11.2"
                 },
                 "JOIN_RESULTS": {
                     "csvtk": "0.31.0"
@@ -662,6 +660,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-11-18T07:57:56.931146669"
+        "timestamp": "2025-11-22T07:38:00.471623041"
     }
 }
