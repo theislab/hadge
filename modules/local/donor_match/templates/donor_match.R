@@ -111,7 +111,7 @@ args <- list(
     variant_pct = as.numeric('$variant_pct'),
 
     # others
-    prefix = ifelse('$task.ext.prefix' == 'null', '$meta.id', '$task.ext.prefix'), # Prefix name for output files.
+    prefix = '$prefix', # Prefix name for output files.
     outputdir = ""
 )
 opt_types <- lapply(args, class)
@@ -746,8 +746,3 @@ writeLines(
         paste('    r-vcfr:', vcfR.version)
     ),
 'versions.yml')
-
-################################################
-################################################
-################################################
-################################################

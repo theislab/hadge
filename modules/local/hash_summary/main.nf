@@ -8,7 +8,16 @@ process HASH_SUMMARY {
         'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
 
     input:
-    tuple val(meta), path(rna_matrix), path(hto_matrix), path(htodemux_assignments), path (htodemux_classification), path(multiseq), path(bff), path(demuxem), path(gmmdemux_results), path(gmmdemux_config), path(hasheddrops_results), path(hasheddrops_id_to_hash), path(hashsolo)
+    tuple val(meta),
+        path(rna_matrix),
+        path(hto_matrix),
+        path(htodemux_assignments), path (htodemux_classification),
+        path(multiseq),
+        path(bff),
+        path(demuxem),
+        path(gmmdemux_results), path(gmmdemux_config),
+        path(hasheddrops_results), path(hasheddrops_id_to_hash),
+        path(hashsolo)
     tuple val (generate_anndata), val(generate_mudata), val(bff_methods)
 
     output:
@@ -41,7 +50,6 @@ process HASH_SUMMARY {
         numpy: \$(python3 -c 'import numpy as np; print(np.__version__)')
         mudata: \$(python3 -c 'import mudata as md; print(md.__version__)')
         pegasusio: \$(python3 -c 'import pegasusio as io; print(io.__version__)')
-        yaml: \$(python3 -c 'import yaml; print(yaml.__version__)')
     END_VERSIONS
     """
 }

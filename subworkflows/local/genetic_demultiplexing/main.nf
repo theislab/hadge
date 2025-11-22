@@ -60,7 +60,6 @@ workflow GENETIC_DEMULTIPLEXING {
             .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
     }
 
-
     if (methods.contains('vireo')) {
         SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
@@ -80,6 +79,7 @@ workflow GENETIC_DEMULTIPLEXING {
 
 
     }
+
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
         ch_dscpileup = ch_samplesheet.map { meta, bam, _barcodes, vcf -> [meta, bam, vcf] }
         POPSCLE_DSCPILEUP(ch_dscpileup)

@@ -47,7 +47,6 @@ process GENE_SUMMARY {
         numpy: \$(python3 -c 'import numpy as np; print(np.__version__)')
         mudata: \$(python3 -c 'import mudata as md; print(md.__version__)')
         pegasusio: \$(python3 -c 'import pegasusio as io; print(io.__version__)')
-        yaml: \$(python3 -c 'import yaml; print(yaml.__version__)')
     END_VERSIONS
     """
 }

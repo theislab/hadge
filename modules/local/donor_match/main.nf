@@ -24,12 +24,12 @@ process DONOR_MATCH {
     tuple val(meta), path("*_score_record.csv")                          , emit: score_record                         , optional:true
 
     // comparison between deconvolution methods
-    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")      , emit: assignment_after_match               , optional: false
-    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match           , optional: false
-    tuple val(meta), path("*/*_vs_*correlation_res.csv")                 , emit: correlation                          , optional: false
-    tuple val(meta), path("*/*_vs_*donor_match.csv")                     , emit: donor_match                          , optional: false
-    tuple val(meta), path("*/*_vs_*concordance_heatmap.png")             , emit: concordance_heatmap                  , optional: false
-    path "versions.yml"                                                  , emit: versions                             , optional: false
+    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")      , emit: assignment_after_match
+    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match
+    tuple val(meta), path("*/*_vs_*correlation_res.csv")                 , emit: correlation
+    tuple val(meta), path("*/*_vs_*donor_match.csv")                     , emit: donor_match
+    tuple val(meta), path("*/*_vs_*concordance_heatmap.png")             , emit: concordance_heatmap
+    path "versions.yml"                                                  , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -39,10 +39,10 @@ process DONOR_MATCH {
     def cell_genotype_path = ''
     def vireo_parent_path = ''
     def ndonor = "${meta.n_sample}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     template('donor_match.R')
 
     stub:
-    //TODO is method1_vs_method2 correct for stub (number of new directories depends on the input data)?
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     mkdir -p method1_vs_method2

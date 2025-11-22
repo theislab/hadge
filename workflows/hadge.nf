@@ -80,7 +80,6 @@ workflow HADGE {
         [meta, rna, hto]
     }
 
-    // TODO check again if they are the correct barcodes
     ch_donor_match = ch_genetic.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
         [meta, barcodes]
     }
