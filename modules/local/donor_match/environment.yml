@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::r-pheatmap=1.0.8
+  - conda-forge::r-complexupset=1.3.3
+  - conda-forge::r-data.table=1.17.8
+  - conda-forge::r-tidyverse=2.0.0
+  - conda-forge::r-vcfr=1.15.0

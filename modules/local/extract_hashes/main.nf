@@ -3,7 +3,7 @@ process EXTRACT_HASHES {
     label 'process_low'
 
     input:
-    tuple val(meta), path(hto_matrix)
+    tuple val(meta), path(hto_dir)
 
     output:
     tuple val(meta), path("*_hashes.txt"), emit: hashes
@@ -13,10 +13,8 @@ process EXTRACT_HASHES {
 
     script:
     prefix         = task.ext.prefix         ?: "${meta.id}"
-
-    script:
     """
-    zcat $hto_matrix | awk '{print \$2}' | paste -sd, > ${prefix}_hashes.txt
+    gunzip -c ${hto_dir}/features.tsv.gz | awk '{print \$2}' | paste -sd, - > ${prefix}_hashes.txt
     """
 
     stub:

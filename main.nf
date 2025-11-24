@@ -44,6 +44,7 @@ workflow NFCORE_HADGE {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    fasta // file: /path/to/genome.fasta
 
     main:
 
@@ -51,7 +52,8 @@ workflow NFCORE_HADGE {
     // WORKFLOW: Run pipeline
     //
     HADGE (
-        samplesheet
+        samplesheet,
+        fasta
     )
     emit:
     multiqc_report = HADGE.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -84,7 +86,8 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_HADGE (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        params.fasta
     )
     //
     // SUBWORKFLOW: Run completion tasks
