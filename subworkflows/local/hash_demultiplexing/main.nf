@@ -88,7 +88,7 @@ workflow HASH_DEMULTIPLEXING {
     }
 
     // TODO rename to bff since we named the module bff
-    if (methods.contains('cellhashr')) {
+    if (methods.contains('bff')) {
         BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
         ch_versions = ch_versions.mix(BFF.out.versions)

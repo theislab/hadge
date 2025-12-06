@@ -19,7 +19,8 @@ include { GENETIC_DEMULTIPLEXING     } from '../subworkflows/local/genetic_demul
 include { HASH_DEMULTIPLEXING        } from '../subworkflows/local/hash_demultiplexing/main'
 include { CSVTK_JOIN as JOIN_RESULTS } from '../modules/nf-core/csvtk/join/main'
 include { DONOR_MATCH                } from '../modules/local/donor_match/main'
-
+include { FIND_VARIANTS              } from '../modules/local/find_variants/main'
+include { SUBSET_GT_DONORS           } from '../modules/local/subset_gt_donors/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,6 +85,9 @@ workflow HADGE {
         [meta, barcodes]
     }
 
+    ch_find_variants = ch_donor_match.map { meta, barcodes -> [meta] }
+    ch_subset_gt_donors = ch_donor_match.map { meta, barcodes -> [meta] }
+
     // ------------------------------- preprocessing end --------------------------------
 
     if (params.mode == 'genetic'){
@@ -96,17 +100,15 @@ workflow HADGE {
             fasta
         )
 
-        if(params.match_donor){
-            ch_donor_match = ch_donor_match
-                .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
-                .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
-                .map{ meta, barcodes, gene_summary, cell_genotype -> [meta, barcodes, gene_summary, cell_genotype, []] }
-        }
+        ch_donor_match = ch_donor_match
+            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'hashing'){
-        //TODO should mode hashing work with cell_genotype?
+        //TODO should mode hashing work with cell_genotype? nooo! -> maybe yes default would work
+        // also maybe just for hashing
+
         HASH_DEMULTIPLEXING(
             ch_hashing,
             params.hash_tools.split(',')
@@ -114,7 +116,6 @@ workflow HADGE {
 
         ch_donor_match = ch_donor_match
             .join(HASH_DEMULTIPLEXING.out.summary_assignment)
-            .map{ meta, barcodes, hash_summary-> [meta, barcodes, hash_summary,[],[]] }
 
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
@@ -133,22 +134,22 @@ workflow HADGE {
             params.hash_tools.split(',')
         )
 
-        ch_donor_match = ch_donor_match
-            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
-            .join(GENETIC_DEMULTIPLEXING.out.cell_genotype)
-            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
-
-        JOIN_RESULTS(ch_donor_match.map{
-            meta, _barcodes, gene_summary, _cell_genotype, hash_summary ->
-            [meta, [gene_summary,hash_summary]]
-        })
+        JOIN_RESULTS(
+            GENETIC_DEMULTIPLEXING.out.summary_assignment
+                .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+                .map{meta, gene_summary, hash_summary ->
+                    [meta, [gene_summary,hash_summary]]
+                }
+        )
 
         ch_donor_match = ch_donor_match
             .join(JOIN_RESULTS.out.csv)
-            .map{
-                meta, barcodes, _gene_summary, cell_genotype, _hash_summary, joined_summary ->
-                [meta, barcodes, joined_summary, cell_genotype, []]
-            }
+
+        if ( params.find_variants ){
+            ch_find_variants = ch_find_variants
+                .join(GENETIC_DEMULTIPLEXING.out.gt_cells)
+                .join(GENETIC_DEMULTIPLEXING.out.vireo_filtered_variants)
+        }
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
@@ -156,24 +157,94 @@ workflow HADGE {
     }
     else if ( params.mode == 'donor_match' ){
 
-         ch_donor_match = ch_donor_match.map{
-                meta, barcodes ->
-                [meta, barcodes, params.demultiplexing_result, params.celldata, params.vireo_parent_dir]
+        ['vireo_filtered_variants'].each { p ->
+            if( !params[p] )
+                error "Parameter '${p}' must be specified to run DONOR_MATCH with mode 'donor_match'"
+            if( !file(params[p]).exists() )
+                error "File specified for parameter '${p}' does not exist: ${params[p]}"
+        }
+
+        ch_donor_match = ch_donor_match.map{
+            meta, barcodes ->
+            [meta, barcodes, params.demultiplexing_result]
+        }
+
+        if ( params.find_variants ){
+
+            ['cell_genotype', 'vireo_filtered_variants'].each { p ->
+                if( !params[p] )
+                    error "Parameter '${p}' must be specified to run FIND_VARIANTS with mode 'donor_match'"
+                if( !file(params[p]).exists() )
+                    error "File specified for parameter '${p}' does not exist: ${params[p]}"
+            }
+
+            ch_find_variants = ch_find_variants.map{ meta ->
+                [meta, params.cell_genotype, params.vireo_filtered_variants]
+            }
         }
 
     }
 
     if (params.match_donor) {
+
         DONOR_MATCH(ch_donor_match,
             params.match_donor_method1 ?: [],
-            params.match_donor_method2 ?: [],
-            params.findVariants,
-            params.variant_count,
-            params.variant_pct
+            params.match_donor_method2 ?: []
         )
 
-        ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
+        // there only is a best_intersect_assignment_after_match output in donor_match and rescue mode
+        if ( (params.mode == 'donor_match' | params.mode == 'rescue') && params.find_variants ){
+
+            ch_find_variants = DONOR_MATCH.out.best_intersect_assignment_after_match
+                .join(ch_find_variants)
+                .join(ch_donor_match.map {
+                        meta, barcode_whitelist, demultiplexing_result ->
+                        [meta, demultiplexing_result]
+                    }
+                )
+
+            FIND_VARIANTS(
+                ch_find_variants,
+                params.variant_count,
+                params.variant_pct
+            )
+
+            // only vireo produces gt_donors
+            if (params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) {
+
+                ch_subset_gt_donors = FIND_VARIANTS.out.donor_match_representative_variants
+                    .map { meta, subset_variants ->
+                        tuple(meta, subset_variants, 'donor_match')
+                    }
+                    .mix(
+                        FIND_VARIANTS.out.vireo_representative_variants
+                            .map { meta, subset_variants ->
+                                tuple(meta, subset_variants, 'vireo')
+                            }
+                    )
+                // ch_subset_gt_donors.view()
+
+                ch_subset_gt_donors = ch_subset_gt_donors
+                    .combine(GENETIC_DEMULTIPLEXING.out.gt_donors, by: 0)
+                    .combine(DONOR_MATCH.out.best_donor_match, by: 0)
+                    // .join(GENETIC_DEMULTIPLEXING.out.gt_donors)
+                    // .join(DONOR_MATCH.out.best_donor_match)
+
+                ch_subset_gt_donors.view()
+
+                SUBSET_GT_DONORS(ch_subset_gt_donors)
+
+            }
+
+            ch_versions = ch_versions.mix(SUBSET_GT_DONORS.out.versions)
+            ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
+            ch_versions = ch_versions.mix(FIND_VARIANTS.out.versions)
+        }
+
+
     }
+
+
 
     //
     // Collate and save software versions

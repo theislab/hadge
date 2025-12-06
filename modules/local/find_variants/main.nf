@@ -1,4 +1,4 @@
-process DONOR_MATCH {
+process FIND_VARIANTS {
     tag "${meta.id}"
     label 'process_low'
 
@@ -7,37 +7,27 @@ process DONOR_MATCH {
         'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/45/45b060e69064c7a7894787b0cc29259bbb24357650d06b627912b56d3521899b/data':
         'community.wave.seqera.io/library/r-complexupset_r-data.table_r-pheatmap_r-r.utils_pruned:3bd8312041c22554' }"
 
-    //TODO findVariant = true not implemented
     input:
-        tuple val(meta), path(barcode_whitelist), path(demultiplexing_result)
-        val match_donor_method1
-        val match_donor_method2
+    tuple val(meta), path(best_intersect_assignment_after_match), path(cell_genotype), path(variants_vireo), path(demultiplexing_result)
+    val variant_count
+    val variant_pct
 
     output:
-    // best method combination for rescue/donor_match mode (has to be optional because runs with only genetic or hashing won't return this output)
-    tuple val(meta), path("*_best_donor_match.csv")                      , emit: best_donor_match                     , optional:true
-    tuple val(meta), path("*_best_all_assignment_after_match.csv")       , emit: best_all_assignment_after_match      , optional:true
-    tuple val(meta), path("*_best_intersect_assignment_after_match.csv") , emit: best_intersect_assignment_after_match, optional:true
-    tuple val(meta), path("*_score_record.csv")                          , emit: score_record                         , optional:true
-
-    // comparison between deconvolution methods
-    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")      , emit: assignment_after_match
-    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match
-    tuple val(meta), path("*/*_vs_*correlation_res.csv")                 , emit: correlation
-    tuple val(meta), path("*/*_vs_*donor_match.csv")                     , emit: donor_match
-    tuple val(meta), path("*/*_vs_*concordance_heatmap.png")             , emit: concordance_heatmap
-    path "versions.yml"                                                  , emit: versions
+    tuple val(meta), path("*/*_matched_gt.csv")                       , emit: matched_gt
+    tuple val(meta), path("*/*_unmatched_gt.csv")                     , emit: unmatched_gt
+    tuple val(meta), path("*/*_informative_variants.csv")             , emit: informative_variants
+    tuple val(meta), path("*_all_representative_variant_df.csv")      , emit: all_representative_variant_df
+    tuple val(meta), path("*_donor_specific_variants_upset.png")      , emit: donor_specific_variants_upset
+    tuple val(meta), path("*_donor_match_representative_variants.csv"), emit: donor_match_representative_variants
+    tuple val(meta), path("*_vireo_representative_variants.csv")      , emit: vireo_representative_variants, optional: true
+    path "versions.yml"                                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    // TODO for findVariant = true (not used by findVariant = false)
-    def cell_genotype_path = ''
-    def vireo_parent_path = ''
-    def ndonor = "${meta.n_sample}"
     prefix = task.ext.prefix ?: "${meta.id}"
-    template('donor_match.R')
+    template('find_variants.R')
 
     stub:
     prefix = task.ext.prefix ?: "${meta.id}"
