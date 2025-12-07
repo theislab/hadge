@@ -28,6 +28,21 @@ include { SUBSET_GT_DONORS           } from '../modules/local/subset_gt_donors/m
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+def checkParams(String paramName, String process, String mode, boolean isFile) {
+    def value = params[paramName]
+
+    if( !value )
+        error "Parameter '${paramName}' must be specified to run ${process} with mode '${mode}'"
+
+    if( !value && !mode )
+        error "Parameter '${paramName}' must be specified to run ${process}"
+
+    if( isFile and !file(value).exists() )
+        error "File specified for parameter '${paramName}' does not exist: ${value}"
+
+    return true
+}
+
 workflow HADGE {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
@@ -157,12 +172,7 @@ workflow HADGE {
     }
     else if ( params.mode == 'donor_match' ){
 
-        ['vireo_filtered_variants'].each { p ->
-            if( !params[p] )
-                error "Parameter '${p}' must be specified to run DONOR_MATCH with mode 'donor_match'"
-            if( !file(params[p]).exists() )
-                error "File specified for parameter '${p}' does not exist: ${params[p]}"
-        }
+        checkParams('demultiplexing_result', 'DONOR_MATCH', 'donor_match', true)
 
         ch_donor_match = ch_donor_match.map{
             meta, barcodes ->
@@ -172,10 +182,7 @@ workflow HADGE {
         if ( params.find_variants ){
 
             ['cell_genotype', 'vireo_filtered_variants'].each { p ->
-                if( !params[p] )
-                    error "Parameter '${p}' must be specified to run FIND_VARIANTS with mode 'donor_match'"
-                if( !file(params[p]).exists() )
-                    error "File specified for parameter '${p}' does not exist: ${params[p]}"
+                checkParams(p, 'FIND_VARIANTS', 'donor_match', true)
             }
 
             ch_find_variants = ch_find_variants.map{ meta ->
@@ -192,7 +199,7 @@ workflow HADGE {
             params.match_donor_method2 ?: []
         )
 
-        // there only is a best_intersect_assignment_after_match output in donor_match and rescue mode
+        // there only is a best_intersect_assignment_after_match output in donor_match and rescue mode to run FIND_VARIANTS
         if ( (params.mode == 'donor_match' | params.mode == 'rescue') && params.find_variants ){
 
             ch_find_variants = DONOR_MATCH.out.best_intersect_assignment_after_match
@@ -209,8 +216,12 @@ workflow HADGE {
                 params.variant_pct
             )
 
-            // only vireo produces gt_donors
-            if (params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) {
+            // subset gt_donors vcf with representative_variants
+            // only vireo can produce gt_donors in rescue mode or user has to provide gt_donors in donor_match mode
+            if (
+                (params.mode == 'rescue' && params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) |
+                (params.mode == 'donor_match' && params.gt_donors && checkParams(p, 'SUBSET_GT_DONORS', 'donor_match', true))
+            ) {
 
                 ch_subset_gt_donors = FIND_VARIANTS.out.donor_match_representative_variants
                     .map { meta, subset_variants ->
@@ -222,26 +233,21 @@ workflow HADGE {
                                 tuple(meta, subset_variants, 'vireo')
                             }
                     )
-                // ch_subset_gt_donors.view()
 
                 ch_subset_gt_donors = ch_subset_gt_donors
-                    .combine(GENETIC_DEMULTIPLEXING.out.gt_donors, by: 0)
+                    .combine(params.mode == 'rescue'
+                                ? GENETIC_DEMULTIPLEXING.out.gt_donors
+                                : params.gt_donors
+                                , by: 0)
                     .combine(DONOR_MATCH.out.best_donor_match, by: 0)
-                    // .join(GENETIC_DEMULTIPLEXING.out.gt_donors)
-                    // .join(DONOR_MATCH.out.best_donor_match)
-
-                ch_subset_gt_donors.view()
 
                 SUBSET_GT_DONORS(ch_subset_gt_donors)
 
+                ch_versions = ch_versions.mix(SUBSET_GT_DONORS.out.versions)
             }
-
-            ch_versions = ch_versions.mix(SUBSET_GT_DONORS.out.versions)
-            ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
             ch_versions = ch_versions.mix(FIND_VARIANTS.out.versions)
         }
-
-
+        ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
 
 
