@@ -4,8 +4,8 @@ process SUBSET_GT_DONORS {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bcftools:1.22--h5c8b2f0_0':
-        'community.wave.seqera.io/library/bcftools_bedtools_samtools:f1acc4ec7fbdba9e' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/4e/4eb863d427b6e327abab4be2112d17760f86947eeaf3a214e1450bc680f14a49/data':
+        'community.wave.seqera.io/library/bcftools:1.22--a51ee80717c2467e' }"
 
     input:
     tuple val(meta), path(subset_variants), val(output_basename), path(gt_donors_vcf), path(donor_match)
