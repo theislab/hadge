@@ -189,9 +189,9 @@
                 },
                 "variant_pct": {
                     "type": "number",
-                    "description": "Minimum variant percentage threshold.",
+                    "description": "The Minimal percentage of a variant for filtering. Has to be in a range between `[0,5;1[`. For example, 0.9 means that we only keep variants with a frequency higher than 90% or lower than 10%.",
                     "default": 0.9,
-                    "minimum": 0,
+                    "minimum": 0.5,
                     "maximum": 1,
                     "fa_icon": "fas fa-percentage"
                 },

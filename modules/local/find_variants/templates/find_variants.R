@@ -6,86 +6,27 @@
 ################################################
 ################################################
 
-#' Check for Non-Empty, Non-Whitespace String
-#'
-#' This function checks if the input is non-NULL and contains more than just whitespace.
-#' It returns TRUE if the input is a non-empty, non-whitespace string, and FALSE otherwise.
-#'
-#' @param input A variable to check.
-#' @return A logical value: TRUE if the input is a valid, non-empty, non-whitespace string; FALSE otherwise.
-
-is_valid_string <- function(input) {
-    !is.null(input) && nzchar(trimws(input))
-}
-
-# Helper function for NULL condition
 string_to_null <- function(x, val = "[]") if (x == val) NULL else x
-null_to_string <- function(x, val = "NULL") if (is.null(x)) val else x
 
-#' Parse out options from a string without recourse to optparse
-#'
-#' @param x Long-form argument list like --opt1 val1 --opt2 val2
-#'
-#' @return named list of options and values similar to optparse
+check_files <- function(args) {
 
-parse_args <- function(x){
-    args_list <- unlist(strsplit(x, ' ?--')[[1]])[-1]
-    args_vals <- lapply(args_list, function(x) scan(text=x, what='character', quiet = TRUE))
-
-    # Ensure the option vectors are length 2 (key/ value) to catch empty ones
-    args_vals <- lapply(args_vals, function(z){ length(z) <- 2; z})
-
-    parsed_args <- structure(lapply(args_vals, function(x) x[2]), names = lapply(args_vals, function(x) x[1]))
-    parsed_args[! is.na(parsed_args)]
-}
-
-string_to_logical <- function(input) {
-  if (input == "FALSE") {
-    FALSE
-  } else if (input == "TRUE") {
-    TRUE
-  } else {
-    stop(paste0(input, " is not a valid logical. Use 'FALSE' or 'TRUE'."))
-  }
-}
-
-################################################
-################################################
-## Functions for the script                   ##
-################################################
-################################################
-
-convert2binary <- function(result_csv, method_name, min_cell) {
-    #' Convert categorical donor assignments from a method into a binary (one-hot encoded) matrix of cells vs donors.
-    #' Filters out invalid labels ("negative", "doublet", NA) if at least two different singlets assigments exist.
-    #' Returns NULL if the number of valid cells is below the specified threshold.
-
-  method_assign <- result_csv %>% select(all_of(c("Barcode", method_name)))
-  donor_id <- setdiff(
-    unique(method_assign[[method_name]]),
-    c(NA, "negative", "doublet")
+  files <- c(
+    "best_intersect_assignment_after_match",
+    "cell_genotype",
+    "variants_vireo",
+    "result_csv"
   )
-  method_assign <-
-    method_assign[method_assign[[method_name]] %in% donor_id, ]
-  if (nrow(method_assign) < min_cell) {
-    return(NULL)
+
+  for (f in files) {
+    if (!is.null(args[[f]])){
+      if(!file.exists(args[[f]])){
+        stop(sprintf("'%s' does not exist.", f))
+      }
+      if(dir.exists(args[[f]])){
+        stop(sprintf("'%s' is a directory but must be a file.", f))
+      }
+    }
   }
-  if (length(unique(method_assign[[method_name]])) == 1) {
-    method_assign_binary <-
-      as.data.frame(matrix(0, nrow = nrow(result_csv), ncol = 1),
-        row.names = result_csv\$Barcode
-      )
-    colnames(method_assign_binary) <-
-      c(unique(method_assign[[method_name]]))
-    method_assign_binary[rownames(method_assign_binary) %in% method_assign\$Barcode, ] <-
-      1
-  } else {
-    method_assign_binary <-
-      data.frame(model.matrix(~ method_assign[[method_name]] - 1, data = method_assign))
-    names(method_assign_binary) <- sort(donor_id)
-    rownames(method_assign_binary) <- method_assign\$Barcode
-  }
-  return(method_assign_binary)
 }
 
 ################################################
@@ -94,48 +35,25 @@ convert2binary <- function(result_csv, method_name, min_cell) {
 ################################################
 ################################################
 
-# Set defaults and classes
 args <- list(
     # File inputs
     best_intersect_assignment_after_match = '$best_intersect_assignment_after_match',
-    cell_genotype = '$cell_genotype',
-    variants_vireo = '$variants_vireo',
-    result_csv = '$demultiplexing_result', # only to have all barcodes
+    cell_genotype = string_to_null('$cell_genotype'),
+    variants_vireo = string_to_null('$variants_vireo'),
+    result_csv = string_to_null('$demultiplexing_result'), # only to have all barcodes
 
     # second in puts
     variant_count = as.numeric('$variant_count'),
     variant_pct = as.numeric('$variant_pct'),
+
     # others
     prefix = '$prefix' # Prefix name for output files.
 )
-opt_types <- lapply(args, class)
 
-# Apply parameter overrides
-args_opt <- parse_args('$task.ext.args')
-for ( ao in names(args_opt)){
-    if (! ao %in% names(opt)){
-        stop(paste("Invalid option:", ao))
-    }else{
-        # Handle special cases for logicals
-        if (opt_types[[ao]] == "logical") {
-            opt[[ao]] <- string_to_logical(args_opt[[ao]])
-        } else if (! is.null(opt[[ao]])){
-            # Preserve classes from defaults where possible
-            opt[[ao]] <- as(args_opt[[ao]], opt_types[[ao]])
-        } else {
-            opt[[ao]] <- args_opt[[ao]]
-        }
-    }
-}
+check_files(args)
 
 # Configure output precision
 options(digits=5)
-
-# Check if file exists
-# TODO check if files exist (not necessary for now)
-# if (! file.exists(seuratObj)){
-#     stop(paste0(seuratObj, ' is not a valid file'))
-# }
 
 ################################################
 ################################################
@@ -143,7 +61,6 @@ options(digits=5)
 ################################################
 ################################################
 
-library(pheatmap)
 library(data.table)
 library(ComplexUpset)
 library(tidyverse)
@@ -158,18 +75,14 @@ library(vcfR)
 # set TRUE to see print outputs for debugging
 debugging <- FALSE
 
-# TODO findVariants = true not implemented yet
+if (!is.null(args\$cell_genotype)) {
 
-if (args\$cell_genotype != "[]") {
-  result_csv <- NULL
-  if (file.exists(args\$result_csv) && !dir.exists(args\$result_csv)) {
-    result_csv <-
-      fread(
-        args\$result_csv,
-        stringsAsFactors = FALSE,
-        na.strings = c(NA_character_, "")
-      )
-  }
+  result_csv <-
+    fread(
+      args\$result_csv,
+      stringsAsFactors = FALSE,
+      na.strings = c(NA_character_, "")
+    )
 
   result_merge_new <-
     fread(file.path(args\$best_intersect_assignment_after_match),
@@ -178,14 +91,6 @@ if (args\$cell_genotype != "[]") {
 
   best_method1 <- names(result_merge_new)[2]
   best_method2 <- names(result_merge_new)[3]
-
-  # outputdir <-
-  #   file.path(args\$outputdir, paste0(best_method1, "_vs_", best_method2))
-  # outputdir_variant <- file.path(outputdir, "variant_filtering")
-  # ifelse(!dir.exists(outputdir_variant),
-  #   dir.create(outputdir_variant),
-  #   FALSE
-  # )
 
   result_merge_new\$match <-
     result_merge_new[[best_method1]] == result_merge_new[[best_method2]]
@@ -213,13 +118,20 @@ if (args\$cell_genotype != "[]") {
       matched_gt_list[rowSums(is.na(matched_gt_list)) != ncol(matched_gt_list), ]
     matched_gt <-
       as.data.frame(matrix(nrow = nrow(matched_gt_list)))
+
+    # how many cells show homozygous reference
     matched_gt\$ref <- rowSums(matched_gt_list == 0, na.rm = TRUE)
+    # how many cells show heterozygous or homozygous alternative
     matched_gt\$alt <- rowSums(matched_gt_list != 0, na.rm = TRUE)
+    # chromosome positions
     matched_gt\$V1 <- rownames(matched_gt_list)
     matched_gt\$count <- matched_gt\$ref + matched_gt\$alt
     matched_gt\$pct <-
       matched_gt\$alt / (matched_gt\$ref + matched_gt\$alt)
     matched_gt\$dominant <- ifelse(matched_gt\$pct > 0.5, 1, 0)
+
+    # variant_pct has to be in a range between [0,5;1[
+    # 0.9 for example means we only keep variabts with higher than 90% or lower than 10% frequency
     matched_gt <- matched_gt[(matched_gt\$pct >= args\$variant_pct |
       matched_gt\$pct <= (1 - args\$variant_pct)), ]
     matched_gt <-
@@ -264,7 +176,7 @@ if (args\$cell_genotype != "[]") {
     num_informative_variants <- informative_variants_cells %>%
       group_by(cell) %>%
       summarise(matched = n())
-    if (nrow(unmatched_gt_list[!unmatched_gt_list\$cell %in% num_informative_variants\$cell, ]) > 0) {
+    if (nrow(unmatched_gt_list[!unmatched_gt_list\$cell %in% num_informative_variants\$cell, ]) > 0 | debugging) {
       print(unmatched_gt_list[!unmatched_gt_list\$cell %in% num_informative_variants\$cell, ])
     }
     representative_variant_list[[donorid]] <-
@@ -314,6 +226,8 @@ if (args\$cell_genotype != "[]") {
     base_annotations = list("Intersection size" = intersection_size())
   )
   ggsave(file.path(paste0(args\$prefix, "_donor_specific_variants_upset.png")))
+
+  # variants that are unique to exactly one donor
   representative_variant_single <-
     representative_variant_df[rowSums(representative_variant_df[, -1]) == 1, ]
   representative_variant_single <-
@@ -333,7 +247,7 @@ if (args\$cell_genotype != "[]") {
   )
 }
 
-if (args\$variants_vireo != "[]") {
+if (!is.null(args\$variants_vireo)) {
 
   representative_variant <- fread(args\$variants_vireo)
   representative_variant <- separate(
@@ -360,7 +274,6 @@ if (args\$variants_vireo != "[]") {
 ################################################
 
 r.version <- paste(R.version[['major']],R.version[['minor']], sep = ".")
-pheatmap.version <- as.character(packageVersion('pheatmap'))
 data_table.version <- as.character(packageVersion('data.table'))
 complexUpset.version <- as.character(packageVersion('ComplexUpset'))
 tidyverse.version <- as.character(packageVersion('tidyverse'))
@@ -372,7 +285,6 @@ writeLines(
         paste('    r-base:', r.version),
         paste('    r-complexupset:', complexUpset.version),
         paste('    r-data.table:', data_table.version),
-        paste('    r-pheatmap:', pheatmap.version),
         paste('    r-tidyverse:', tidyverse.version),
         paste('    r-vcfr:', vcfR.version)
     ),

@@ -4,8 +4,8 @@ process FIND_VARIANTS {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/45/45b060e69064c7a7894787b0cc29259bbb24357650d06b627912b56d3521899b/data':
-        'community.wave.seqera.io/library/r-complexupset_r-data.table_r-pheatmap_r-r.utils_pruned:3bd8312041c22554' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/75/755e81f7b523df9db3a6f574fdb876ddfc1e1faf1e912260b99bca773f6dba2d/data':
+        'community.wave.seqera.io/library/r-complexupset_r-data.table_r-tidyverse_r-vcfr:87602a1274fab432' }"
 
     input:
     tuple val(meta), path(best_intersect_assignment_after_match), path(cell_genotype), path(variants_vireo), path(demultiplexing_result)
@@ -32,24 +32,21 @@ process FIND_VARIANTS {
     stub:
     prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir -p method1_vs_method2
+    mkdir -p hto1
 
-    touch ${prefix}_best_donor_match.csv
-    touch ${prefix}_best_all_assignment_after_match.csv
-    touch ${prefix}_best_intersect_assignment_after_match.csv
-    touch ${prefix}_score_record.csv
-    touch method1_vs_method2/${prefix}_method1_vs_method2_all_assignment_after_match.csv
-    touch method1_vs_method2/${prefix}_method1_vs_method2_intersect_assignment_after_match.csv
-    touch method1_vs_method2/${prefix}_method1_vs_method2_correlation_res.csv
-    touch method1_vs_method2/${prefix}_method1_vs_method2_donor_match.csv
-    touch method1_vs_method2/${prefix}_method1_vs_method2_concordance_heatmap.png
+    touch ${prefix}_all_representative_variant_df.csv
+    touch ${prefix}_donor_specific_variants_upset.png
+    touch ${prefix}_donor_match_representative_variants.csv
+    touch ${prefix}_vireo_representative_variants.csv
+    touch hto1/${prefix}_hto1_matched_gt.csv
+    touch hto1/${prefix}_hto1_unmatched_gt.csv
+    touch hto1/${prefix}_hto1_informative_variants.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         r-base: \$(Rscript -e "cat(paste(R.version[['major']], R.version[['minor']], sep='.'))")
         r-complexupset: \$(Rscript -e "library(ComplexUpset); cat(as.character(packageVersion('ComplexUpset')))")
         r-data.table: \$(Rscript -e "library(data.table); cat(as.character(packageVersion('data.table')))")
-        r-pheatmap: \$(Rscript -e "library(pheatmap); cat(as.character(packageVersion('pheatmap')))")
         r-tidyverse: \$(Rscript -e "library(tidyverse); cat(as.character(packageVersion('tidyverse')))")
         r-vcfr: \$(Rscript -e "library(vcfR); cat(as.character(packageVersion('vcfR')))")
     END_VERSIONS
