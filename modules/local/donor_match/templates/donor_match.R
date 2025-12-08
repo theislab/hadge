@@ -477,6 +477,6 @@ writeLines(
         paste('    r-base:', r.version),
         paste('    r-data.table:', data_table.version),
         paste('    r-pheatmap:', pheatmap.version),
-        paste('    r-tidyverse:', tidyverse.version),
+        paste('    r-tidyverse:', tidyverse.version)
     ),
 'versions.yml')
