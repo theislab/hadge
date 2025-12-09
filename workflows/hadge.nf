@@ -11,8 +11,6 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hadg
 
 include { UNTAR as UNTAR_RNA                                       } from '../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_HTO                                       } from '../modules/nf-core/untar/main'
-include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_RNA } from '../modules/local/rename_genes_to_features/main'
-include { RENAME_GENES_TO_FEATURES as RENAME_GENES_TO_FEATURES_HTO } from '../modules/local/rename_genes_to_features/main'
 include { EXTRACT_HASHES                                           } from '../modules/local/extract_hashes/main'
 
 include { GENETIC_DEMULTIPLEXING     } from '../subworkflows/local/genetic_demultiplexing/main'
@@ -77,10 +75,6 @@ workflow HADGE {
 
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
-
-    // TODO remove completely if not used anymore
-    // ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
-    // ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
 
     ch_hashes = EXTRACT_HASHES(ch_hto)
     ch_genetic = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
