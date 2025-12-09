@@ -350,6 +350,13 @@
                     "default": null,
                     "fa_icon": "fas fa-file-alt"
                 },
+                "gmmdemux_estimated_n_cells": {
+                    "type": ["integer", "null"],
+                    "description": "If specified, it will generate the statistic summary of the dataset, including MSM and SSM rates. This requires an estimated total number of cells in the assay as input.",
+                    "default": null,
+                    "minimum": 1,
+                    "fa_icon": "fas fa-calculator"
+                },
                 "gmmdemux_type_report": {
                     "type": "boolean",
                     "description": "If true, full classification report is generated, otherwise the simplified classification report.",

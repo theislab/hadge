@@ -32,7 +32,7 @@ process HASH_SUMMARY {
 
     script:
     prefix         = task.ext.prefix         ?: "${meta.id}"
-    hash_list      = "${meta.hashes}".split(",")
+    hash_list      = "${meta.hto_names}".split(",")
 
     template 'hash_summary.py'
 

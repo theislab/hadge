@@ -157,7 +157,7 @@ class ProcessModuleOutput:
             {"unknown": args.negative_str}
         )
 
-        # TODO demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
+        # TODO demuxem: demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
         assignment = data.obs["assignment"].to_frame()
         assignment.reset_index(inplace=True)
         assignment.columns = ["Barcode", "demuxem"]
@@ -449,7 +449,7 @@ if __name__ == "__main__":
             classification_summary, classification, on="Barcode", how="left"
         )
 
-    # TODO update if demuxEM works (https://github.com/theislab/hadge/issues/81)
+    # TODO demuxem: update if demuxEM works (https://github.com/theislab/hadge/issues/81)
     # .replace("", args.negative_str)
     # maybe also in demuxem()
     assignment_summary.fillna(args.negative_str).to_csv(args.assignment, index=False)

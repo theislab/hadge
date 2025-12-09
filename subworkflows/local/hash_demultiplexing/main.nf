@@ -44,6 +44,15 @@ workflow HASH_DEMULTIPLEXING {
     }
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
+        ch_samplesheet.map { meta, rna, hto ->
+            if(meta.hto_names.split(",").any { it.contains('_') }){
+                def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
+                throw new IllegalArgumentException(
+                    "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
+                )
+            }
+        }
+
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
             ch_samplesheet
         )
@@ -87,7 +96,6 @@ workflow HASH_DEMULTIPLEXING {
         }
     }
 
-    // TODO rename to bff since we named the module bff
     if (methods.contains('bff')) {
         BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
@@ -115,12 +123,11 @@ workflow HASH_DEMULTIPLEXING {
 
     if (methods.contains('gmm-demux')) {
 
-        // TODO do the same as for meta.n_cells as for hash_list
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hashes,
-                    meta.n_cells
+                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hto_names,
+                    params.gmmdemux_estimated_n_cells ? gmmdemux_estimated_n_cells : [],
                 ]
             }
 

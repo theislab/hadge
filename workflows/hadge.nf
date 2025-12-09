@@ -82,19 +82,21 @@ workflow HADGE {
     // ch_rna = RENAME_GENES_TO_FEATURES_RNA(ch_rna)
     // ch_hto = RENAME_GENES_TO_FEATURES_HTO(ch_hto)
 
-    // TODO maybe remove changes to extract hashes
     ch_hashes = EXTRACT_HASHES(ch_hto)
-
     ch_genetic = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
                         .join(ch_rna)
                         .join(ch_hto)
                         .join(ch_remaining_input)
                         .join(ch_hashes)
-                        .map {meta, rna, hto, bam, barcodes, vcf, hashes -> [meta+[hashes: file(hashes).text.trim()], rna, hto, bam, barcodes, vcf] }
+                        .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
+                        if(meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
+                        [meta, rna, hto, bam, barcodes, vcf]
+                        }
 
     ch_hashing = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf ->
         [meta, rna, hto]
     }
+
 
     ch_donor_match = ch_genetic.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
         [meta, barcodes]
@@ -121,8 +123,6 @@ workflow HADGE {
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
     else if (params.mode == 'hashing'){
-        //TODO should mode hashing work with cell_genotype? nooo! -> maybe yes default would work
-        // also maybe just for hashing
 
         HASH_DEMULTIPLEXING(
             ch_hashing,
