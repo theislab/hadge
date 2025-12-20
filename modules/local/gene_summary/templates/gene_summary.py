@@ -19,7 +19,6 @@ from pathlib import Path
 from mudata import MuData
 from typing import Tuple
 
-
 class Arguments:
     """Parses the arguments, including the ones coming from $task.ext.args.
     Adopted from mygene module (Suzanne Jin)."""
@@ -42,9 +41,6 @@ class Arguments:
         self.freemuxlet = "${freemuxlet}"
         self.souporcell = "${souporcell}"
 
-        self.generate_anndata = "${generate_anndata}"
-        self.generate_mudata = "${generate_mudata}"
-
         path_vars = {
             "rna_matrix",
             "hto_matrix",
@@ -55,23 +51,16 @@ class Arguments:
             "souporcell",
         }
 
-        boolean_vars = {"generate_anndata", "generate_mudata"}
-
         def _tranlate_to_python(input_str, value_str):
             if value_str.strip() == "":
                 return None
             else:
-                if input_str in path_vars:
-                    return Path(value_str)
-                elif input_str in boolean_vars:
-                    if value_str == "true":
-                        return True
-                    else:
-                        return False
+                path = Path(value_str)
+                if not path.exists():
+                    raise FileNotFoundError(f"Path does not exist: {path}")
+                return path
 
-        vars = path_vars | boolean_vars
-
-        for var in vars:
+        for var in path_vars:
             raw_value = getattr(self, var)
             processed_value = _tranlate_to_python(var, raw_value)
             setattr(self, var, processed_value)
@@ -165,27 +154,6 @@ class ProcessDeconvolutionMethodResult:
 
         return assignment, classification
 
-
-# TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type (https://github.com/theislab/hadge/issues/83)
-# joins the assignment results with RNA, generate_anndata will return h5ad with RNA matrix
-def saveAnnDataMuData(
-    args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data
-):
-    if args.generate_mudata or args.generate_anndata:
-        assignment_summary.set_index("Barcode", inplace=True)
-        rna_data.obs = rna_data.obs.join(assignment_summary, how="left").fillna(
-            args.negative_str
-        )
-
-    if args.generate_anndata:
-        rna_data.write(args.h5ad)
-
-    if args.generate_mudata:
-        mudata = MuData({"rna": rna_data, "hto": hto_data})
-        mudata.update()
-        mudata.write(args.h5mu)
-
-
 def print_method_item_counts(dfs):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
@@ -264,10 +232,6 @@ if __name__ == "__main__":
     classification_summary.fillna(args.negative_str).to_csv(
         args.classification, index=False
     )
-
-    # -------------------------------- save mudata/anndata -----------------------------
-
-    saveAnnDataMuData(args, assignment_summary, rna_data, hto_data)
 
     # -------------------------------------- versions ----------------------------------
 

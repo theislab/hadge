@@ -189,10 +189,7 @@ workflow HASH_DEMULTIPLEXING {
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
-    HASH_SUMMARY(
-        ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods)
-    )
+    HASH_SUMMARY(ch_summary,params.bff_methods)
 
     ch_versions = ch_versions.mix(HASH_SUMMARY.out.versions)
 

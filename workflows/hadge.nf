@@ -15,6 +15,7 @@ include { EXTRACT_HASHES                                           } from '../mo
 
 include { GENETIC_DEMULTIPLEXING     } from '../subworkflows/local/genetic_demultiplexing/main'
 include { HASH_DEMULTIPLEXING        } from '../subworkflows/local/hash_demultiplexing/main'
+include { CREATE_ANNDATA_MUDATA      } from '../modules/local/create_anndata_mudata/main'
 include { CSVTK_JOIN as JOIN_RESULTS } from '../modules/nf-core/csvtk/join/main'
 include { DONOR_MATCH                } from '../modules/local/donor_match/main'
 include { FIND_VARIANTS              } from '../modules/local/find_variants/main'
@@ -96,6 +97,7 @@ workflow HADGE {
         [meta, barcodes]
     }
 
+    ch_create_anndata_mudata = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
     ch_find_variants = ch_donor_match.map { meta, barcodes -> [meta] }
     ch_subset_gt_donors = ch_donor_match.map { meta, barcodes -> [meta] }
 
@@ -111,11 +113,19 @@ workflow HADGE {
             fasta
         )
 
+        ch_create_anndata_mudata = ch_create_anndata_mudata
+            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+            .join(GENETIC_DEMULTIPLEXING.out.summary_classification)
+            .map { meta, rna, hto, gene_a, gene_c ->
+                [meta, rna, hto, gene_a, gene_c, [], []]
+            }
+
         ch_donor_match = ch_donor_match
             .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
+
     else if (params.mode == 'hashing'){
 
         HASH_DEMULTIPLEXING(
@@ -123,11 +133,19 @@ workflow HADGE {
             params.hash_tools.split(',')
         )
 
+        ch_create_anndata_mudata = ch_create_anndata_mudata
+            .map { meta, rna, hto -> [meta, rna, hto, [], []]}
+            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+            .join(HASH_DEMULTIPLEXING.out.summary_classification)
+
         ch_donor_match = ch_donor_match
             .join(HASH_DEMULTIPLEXING.out.summary_assignment)
 
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
+
+
+
     else if ( params.mode == 'rescue' ){
 
         GENETIC_DEMULTIPLEXING(
@@ -150,6 +168,12 @@ workflow HADGE {
                     [meta, [gene_summary,hash_summary]]
                 }
         )
+
+        ch_create_anndata_mudata = ch_create_anndata_mudata
+            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+            .join(GENETIC_DEMULTIPLEXING.out.summary_classification)
+            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+            .join(HASH_DEMULTIPLEXING.out.summary_classification)
 
         ch_donor_match = ch_donor_match
             .join(JOIN_RESULTS.out.csv)
@@ -184,6 +208,10 @@ workflow HADGE {
             }
         }
 
+    }
+
+    if (params.mode == 'genetic' | params.mode == 'hasing' | params.mode == 'rescue'){
+        CREATE_ANNDATA_MUDATA(ch_create_anndata_mudata)
     }
 
     if (params.match_donor) {

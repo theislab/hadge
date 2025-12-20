@@ -129,10 +129,7 @@ workflow GENETIC_DEMULTIPLEXING {
         .join(ch_souporcell, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
 
-    GENE_SUMMARY(
-        ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata)
-    )
+    GENE_SUMMARY(ch_summary)
 
     ch_versions = ch_versions.mix(GENE_SUMMARY.out.versions)
 

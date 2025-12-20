@@ -48,8 +48,6 @@ class Arguments:
         self.hasheddrops_id_to_hash = "${hasheddrops_id_to_hash}"
         self.hashsolo = "${hashsolo}"
 
-        self.generate_anndata = "${generate_anndata}"
-        self.generate_mudata = "${generate_mudata}"
         self.bff_methods = "${bff_methods}"
         self.hash_list = "${hash_list}"
 
@@ -68,8 +66,6 @@ class Arguments:
             "hashsolo",
         }
 
-        boolean_vars = {"generate_anndata", "generate_mudata"}
-
         other_vars = {"bff_methods", "hash_list"}
 
         def _tranlate_to_python(input_str, value_str):
@@ -77,12 +73,10 @@ class Arguments:
                 return None
             else:
                 if input_str in path_vars:
-                    return Path(value_str)
-                elif input_str in boolean_vars:
-                    if value_str == "true":
-                        return True
-                    else:
-                        return False
+                    path = Path(value_str)
+                    if not path.exists():
+                        raise FileNotFoundError(f"Path does not exist: {path}")
+                    return path
                 elif input_str == "bff_methods":
                     if value_str == "RAW":
                         return ["bff_raw"]
@@ -99,7 +93,7 @@ class Arguments:
                         hash.strip() for hash in "${hash_list}".strip("[]").split(",")
                     )
 
-        vars = path_vars | boolean_vars | other_vars
+        vars = path_vars | other_vars
 
         for var in vars:
             raw_value = getattr(self, var)
@@ -347,27 +341,6 @@ class ProcessModuleOutput:
 
         return assignment, classification
 
-
-# TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type (https://github.com/theislab/hadge/issues/83)
-# joins the assignment results with HTO, generate_anndata will return h5ad with HTO matrix
-def saveAnnDataMuData(
-    args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data
-):
-    if args.generate_mudata or args.generate_anndata:
-        assignment_summary.set_index("Barcode", inplace=True)
-        hto_data.obs = hto_data.obs.join(assignment_summary, how="left").fillna(
-            args.negative_str
-        )
-
-    if args.generate_anndata:
-        hto_data.write(args.h5ad)
-
-    if args.generate_mudata:
-        mudata = MuData({"rna": rna_data, "hto": hto_data})
-        mudata.update()
-        mudata.write(args.h5mu)
-
-
 def print_method_item_counts(dfs):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
@@ -456,10 +429,6 @@ if __name__ == "__main__":
     classification_summary.fillna(args.negative_str).to_csv(
         args.classification, index=False
     )
-
-    # -------------------------------- save mudata/anndata -----------------------------
-
-    saveAnnDataMuData(args, assignment_summary, rna_data, hto_data)
 
     # -------------------------------------- versions ----------------------------------
 

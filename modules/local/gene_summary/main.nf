@@ -16,14 +16,11 @@ process GENE_SUMMARY {
         path(demuxlet),
         path(freemuxlet),
         path(souporcell)
-    tuple val (generate_anndata), val(generate_mudata)
 
     output:
-    tuple val(meta), path("*_genetic_summary_assignment.csv")    , emit: assignment    , optional: false
-    tuple val(meta), path("*_genetic_summary_classification.csv"), emit: classification, optional: false
-    tuple val(meta), path("*_genetic_summary.h5ad")              , emit: h5ad          , optional: true
-    tuple val(meta), path("*_genetic_summary.h5mu")              , emit: h5mu          , optional: true
-    path "versions.yml"                                          , emit: versions      , optional: false
+    tuple val(meta), path("*_genetic_summary_assignment.csv")    , emit: assignment
+    tuple val(meta), path("*_genetic_summary_classification.csv"), emit: classification
+    path "versions.yml"                                          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
