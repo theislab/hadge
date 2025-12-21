@@ -13,13 +13,14 @@ include { UNTAR as UNTAR_RNA                                       } from '../mo
 include { UNTAR as UNTAR_HTO                                       } from '../modules/nf-core/untar/main'
 include { EXTRACT_HASHES                                           } from '../modules/local/extract_hashes/main'
 
-include { GENETIC_DEMULTIPLEXING     } from '../subworkflows/local/genetic_demultiplexing/main'
-include { HASH_DEMULTIPLEXING        } from '../subworkflows/local/hash_demultiplexing/main'
-include { CREATE_ANNDATA_MUDATA      } from '../modules/local/create_anndata_mudata/main'
-include { CSVTK_JOIN as JOIN_RESULTS } from '../modules/nf-core/csvtk/join/main'
-include { DONOR_MATCH                } from '../modules/local/donor_match/main'
-include { FIND_VARIANTS              } from '../modules/local/find_variants/main'
-include { SUBSET_GT_DONORS           } from '../modules/local/subset_gt_donors/main'
+include { GENETIC_DEMULTIPLEXING                    } from '../subworkflows/local/genetic_demultiplexing/main'
+include { HASH_DEMULTIPLEXING                       } from '../subworkflows/local/hash_demultiplexing/main'
+include { CREATE_ANNDATA_MUDATA                     } from '../modules/local/create_anndata_mudata/main'
+include { CSVTK_JOIN as JOIN_RESULTS_ASSIGNMENT     } from '../modules/nf-core/csvtk/join/main'
+include { CSVTK_JOIN as JOIN_RESULTS_CLASSIFICATION } from '../modules/nf-core/csvtk/join/main'
+include { DONOR_MATCH                               } from '../modules/local/donor_match/main'
+include { FIND_VARIANTS                             } from '../modules/local/find_variants/main'
+include { SUBSET_GT_DONORS                          } from '../modules/local/subset_gt_donors/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,6 +69,7 @@ workflow HADGE {
 
     ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
 
+    // @nictru do I have to track versions of both modules even tough it is from the same module?
     UNTAR_RNA(ch_rna.tar)
     ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
@@ -167,9 +169,17 @@ workflow HADGE {
             params.hash_tools.split(',')
         )
 
-        JOIN_RESULTS(
+        JOIN_RESULTS_ASSIGNMENT(
             GENETIC_DEMULTIPLEXING.out.summary_assignment
                 .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+                .map{meta, gene_summary, hash_summary ->
+                    [meta, [gene_summary,hash_summary]]
+                }
+        )
+
+        JOIN_RESULTS_CLASSIFICATION(
+            GENETIC_DEMULTIPLEXING.out.summary_classification
+                .join(HASH_DEMULTIPLEXING.out.summary_classification)
                 .map{meta, gene_summary, hash_summary ->
                     [meta, [gene_summary,hash_summary]]
                 }
@@ -182,7 +192,7 @@ workflow HADGE {
             .join(HASH_DEMULTIPLEXING.out.summary_classification)
 
         ch_donor_match = ch_donor_match
-            .join(JOIN_RESULTS.out.csv)
+            .join(JOIN_RESULTS_ASSIGNMENT.out.csv)
 
         if ( params.find_variants ){
             ch_find_variants = ch_find_variants
@@ -192,7 +202,9 @@ workflow HADGE {
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-        ch_versions = ch_versions.mix(JOIN_RESULTS.out.versions)
+        // @nictru do I have to track versions of both modules even tough it is from the same module?
+        ch_versions = ch_versions.mix(JOIN_RESULTS_ASSIGNMENT.out.versions)
+        ch_versions = ch_versions.mix(JOIN_RESULTS_CLASSIFICATION.out.versions)
     }
     else if ( params.mode == 'donor_match' ){
 
