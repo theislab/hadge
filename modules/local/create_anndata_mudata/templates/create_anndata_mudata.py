@@ -13,6 +13,7 @@ from anndata import AnnData
 from pathlib import Path
 from mudata import MuData
 
+
 class Arguments:
     """Parses the arguments, including the ones coming from $task.ext.args.
     Adopted from mygene module (Suzanne Jin)."""
@@ -69,22 +70,18 @@ class Arguments:
         for attr in vars(self):
             print(f"{attr}: {getattr(self, attr)}")
 
-def saveAnnData(
-    args: Arguments, isRNA: bool, count_data: AnnData
-):
 
+def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData):
     if isRNA:
         summary_files = {
             "genetic_summary_assignment",
             "genetic_summary_classification",
         }
-        file_name = "genetic"
     else:
         summary_files = {
             "hashing_summary_assignment",
             "hashing_summary_classification",
         }
-        file_name = "hashing"
 
     for file in summary_files:
         path = getattr(args, file)
@@ -102,16 +99,16 @@ def saveAnnData(
 
     return count_data
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     args = Arguments()
 
     if args.rna_matrix is not None and args.hto_matrix is not None:
         rna_data = sc.read_10x_mtx(args.rna_matrix)
         hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
-        rna_data = saveAnnData(args,True,rna_data)
-        hto_data = saveAnnData(args,False,hto_data)
+        rna_data = saveAnnData(args, True, rna_data)
+        hto_data = saveAnnData(args, False, hto_data)
 
         mudata = MuData({"rna": rna_data, "hto": hto_data})
         mudata.update()
@@ -119,11 +116,11 @@ if __name__ == "__main__":
 
     elif args.rna_matrix is not None:
         rna_data = sc.read_10x_mtx(args.rna_matrix)
-        saveAnnData(args,True,rna_data)
+        saveAnnData(args, True, rna_data)
 
     elif args.hto_matrix is not None:
         hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
-        saveAnnData(args,False,hto_data)
+        saveAnnData(args, False, hto_data)
 
     versions = {
         "${task.process}": {

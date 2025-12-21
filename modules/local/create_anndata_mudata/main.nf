@@ -4,8 +4,8 @@ process CREATE_ANNDATA_MUDATA {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d8/d863e56b5ce15b271e8c8666ec22217df5cfc57a9731cc23c7f92674dc7ab0c7/data':
-        'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/31/31c261a4a1ed9c3b409457fe778a363fb941152f7307bfa76cb4c42d44235ddf/data':
+        'community.wave.seqera.io/library/anndata_mudata_pandas_pyyaml_scanpy:e96a91e210372525' }"
 
     input:
     tuple val(meta),
@@ -17,10 +17,10 @@ process CREATE_ANNDATA_MUDATA {
         path(hashing_summary_classification)
 
     output:
-    tuple val(meta), path("*_genetic.h5ad")              , emit: h5ad_genetic, optional: true
-    tuple val(meta), path("*_hashing.h5ad")              , emit: h5ad_hashing, optional: true
-    tuple val(meta), path("*_genetic_and_hashing.h5mu")  , emit: h5mu        , optional: true
-    path "versions.yml"                                  , emit: versions
+    tuple val(meta), path("*_genetic.h5ad")            , emit: h5ad_genetic, optional: true
+    tuple val(meta), path("*_hashing.h5ad")            , emit: h5ad_hashing, optional: true
+    tuple val(meta), path("*_genetic_and_hashing.h5mu"), emit: h5mu        , optional: true
+    path "versions.yml"                                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,8 +33,9 @@ process CREATE_ANNDATA_MUDATA {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}_genetic_summary_assignment.csv
-    touch ${prefix}_genetic_summary_classification.csv
+    touch ${prefix}_genetic.h5ad
+    touch ${prefix}_hashing.h5ad
+    touch ${prefix}_genetic_and_hashing.h5mu
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
