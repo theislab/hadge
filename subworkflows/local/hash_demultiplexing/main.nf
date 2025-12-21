@@ -174,7 +174,7 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
 
-    ch_summary = ch_samplesheet
+    ch_summary = ch_samplesheet.map { meta, rna, hto -> [meta,hto] }
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)

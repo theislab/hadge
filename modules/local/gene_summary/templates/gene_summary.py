@@ -12,12 +12,10 @@ os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
 import pandas as pd
 import scanpy as sc
 import numpy as np
-import mudata as md
-import pegasusio as io
 
 from pathlib import Path
-from mudata import MuData
 from typing import Tuple
+
 
 class Arguments:
     """Parses the arguments, including the ones coming from $task.ext.args.
@@ -34,7 +32,6 @@ class Arguments:
         self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
         self.rna_matrix = "${rna_matrix}"
-        self.hto_matrix = "${hto_matrix}"
         self.barcodes = "${barcodes}"
         self.vireo = "${vireo}"
         self.demuxlet = "${demuxlet}"
@@ -43,7 +40,6 @@ class Arguments:
 
         path_vars = {
             "rna_matrix",
-            "hto_matrix",
             "barcodes",
             "vireo",
             "demuxlet",
@@ -154,6 +150,7 @@ class ProcessDeconvolutionMethodResult:
 
         return assignment, classification
 
+
 def print_method_item_counts(dfs):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
@@ -212,7 +209,6 @@ if __name__ == "__main__":
     # ----------------------------------- save csv's -----------------------------------
 
     rna_data = sc.read_10x_mtx(args.rna_matrix)
-    hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
     # Use rna_data.obs_names() as index to perform a left join
     assignment_summary = pd.DataFrame(rna_data.obs_names, columns=["Barcode"])
@@ -241,8 +237,6 @@ if __name__ == "__main__":
             "pandas": pd.__version__,
             "scanpy": sc.__version__,
             "numpy": np.__version__,
-            "mudata": md.__version__,
-            "pegasusio": io.__version__,
         }
     }
 

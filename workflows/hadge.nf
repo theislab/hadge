@@ -78,7 +78,7 @@ workflow HADGE {
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
     ch_hashes = EXTRACT_HASHES(ch_hto)
-    ch_genetic = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
+    ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
                         .join(ch_rna)
                         .join(ch_hto)
                         .join(ch_remaining_input)
@@ -88,16 +88,22 @@ workflow HADGE {
                         [meta, rna, hto, bam, barcodes, vcf]
                         }
 
-    ch_hashing = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf ->
+    // ------------------------------- preprocessing end --------------------------------
+
+
+    ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf ->
+        [meta, rna, bam, barcodes, vcf]
+    }
+
+    ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf ->
         [meta, rna, hto]
     }
 
-
-    ch_donor_match = ch_genetic.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
+    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
         [meta, barcodes]
     }
 
-    ch_create_anndata_mudata = ch_genetic.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
+    ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
     ch_find_variants = ch_donor_match.map { meta, barcodes -> [meta] }
     ch_subset_gt_donors = ch_donor_match.map { meta, barcodes -> [meta] }
 

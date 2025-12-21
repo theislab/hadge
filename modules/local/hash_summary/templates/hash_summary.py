@@ -12,11 +12,9 @@ os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
 import pandas as pd
 import scanpy as sc
 import numpy as np
-import mudata as md
 import pegasusio as io
 
 from pathlib import Path
-from mudata import MuData
 from typing import Tuple
 
 
@@ -35,7 +33,6 @@ class Arguments:
     def parse_input_args(self) -> None:
         self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
-        self.rna_matrix = "${rna_matrix}"
         self.hto_matrix = "${hto_matrix}"
         self.htodemux_assignments = "${htodemux_assignments}"
         self.htodemux_classification = "${htodemux_classification}"
@@ -52,7 +49,6 @@ class Arguments:
         self.hash_list = "${hash_list}"
 
         path_vars = {
-            "rna_matrix",
             "hto_matrix",
             "htodemux_assignments",
             "htodemux_classification",
@@ -341,6 +337,7 @@ class ProcessModuleOutput:
 
         return assignment, classification
 
+
 def print_method_item_counts(dfs):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
@@ -402,7 +399,6 @@ if __name__ == "__main__":
 
     # ----------------------------------- save csv's -----------------------------------
 
-    rna_data = sc.read_10x_mtx(args.rna_matrix)
     hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
     # Need to use a left join — demuxEM outputs extra barcodes not present in the input.
@@ -438,7 +434,6 @@ if __name__ == "__main__":
             "pandas": pd.__version__,
             "scanpy": sc.__version__,
             "numpy": np.__version__,
-            "mudata": md.__version__,
             "pegasusio": io.__version__,
         }
     }

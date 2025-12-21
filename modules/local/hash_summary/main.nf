@@ -4,12 +4,11 @@ process HASH_SUMMARY {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/d8/d863e56b5ce15b271e8c8666ec22217df5cfc57a9731cc23c7f92674dc7ab0c7/data':
-        'community.wave.seqera.io/library/pegasusio_mudata_numpy_pandas_pruned:ecdbf7e42b2f3213' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/cb/cb8601e2171467026ea36c22328a15eb25025bbe686ff1a0ea04ab407c735aee/data':
+        'community.wave.seqera.io/library/pegasusio_numpy_pandas_pyyaml_scanpy:e16c3756496aa20c' }"
 
     input:
     tuple val(meta),
-        path(rna_matrix),
         path(hto_matrix),
         path(htodemux_assignments), path (htodemux_classification),
         path(multiseq),
@@ -46,7 +45,6 @@ process HASH_SUMMARY {
         pandas: \$(python3 -c 'import pandas as pd; print(pd.__version__)')
         scanpy: \$(python3 -c 'import scanpy as sc; print(sc.__version__)')
         numpy: \$(python3 -c 'import numpy as np; print(np.__version__)')
-        mudata: \$(python3 -c 'import mudata as md; print(md.__version__)')
         pegasusio: \$(python3 -c 'import pegasusio as io; print(io.__version__)')
     END_VERSIONS
     """
