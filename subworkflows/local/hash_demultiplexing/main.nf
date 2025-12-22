@@ -103,7 +103,7 @@ workflow HASH_DEMULTIPLEXING {
     }
 
     if (methods.contains('demuxem')) {
-
+        // @nictru do I have to track versions of both modules even tough it is from the same module?
         MTXCONVERT_RNA(ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }, false)
         ch_versions = ch_versions.mix(MTXCONVERT_RNA.out.versions)
 
