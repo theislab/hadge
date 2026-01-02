@@ -14,7 +14,7 @@ import scanpy as sc
 import numpy as np
 
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
 
 class Arguments:
@@ -65,8 +65,8 @@ class Arguments:
         directories = {
             "assignment": "_genetic_summary_assignment.csv",
             "classification": "_genetic_summary_classification.csv",
-            "h5mu": "_genetic_summary.h5mu",
-            "h5ad": "_genetic_summary.h5ad",
+            "overview_assignment": "_genetic_overview_assignment.csv",
+            "overview_classification": "_genetic_overview_classification.csv",
         }
 
         for output, directory in directories.items():
@@ -151,39 +151,54 @@ class ProcessDeconvolutionMethodResult:
         return assignment, classification
 
 
-def print_method_item_counts(dfs):
+def create_overview_table(dfs: List[pd.DataFrame]):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
-      method name | total count | count(item1) | count(item2) | ...
+    method name | total count | match_method1 | match_method2 | ... | count(item1) | count(item2) | ...
+    Match to a method counts the number of barcodes that a method has in common with another method.
     An item refers to the donor label in the assignment (HTO-1, HTO-2, ...) or the classification (singlet, doublet, negative).
     """
     rows = []
     all_items = set()
+    match_cols = set()
 
-    # Extract items and their counts for every deconvolution method
+    # extract items and their counts for every deconvolution method
     for df in dfs:
-        print(df)
-
+        # add method name and number of barcodes
         method_name = df.columns[1]
-        counts = df[method_name].value_counts(dropna=False)
         total = len(df)
-        all_items.update(counts.index)
-
         row = {"method": method_name, "count_overall": total}
+
+        # add the number of matching barcodes to the other methods
+        for df2 in dfs:
+            method_name_2 = df2.columns[1]
+            match_col_name = f"match_{method_name_2}"
+            match_cols.add(match_col_name)
+            new_match_col = {
+                match_col_name: len(pd.merge(df, df2, on="Barcode", how="inner"))
+            }
+            row.update(new_match_col)
+
+        # add the counts for each item
+        counts = df[method_name].value_counts(dropna=False)
+        all_items.update(counts.index)
         row.update(counts.to_dict())
+
         rows.append(row)
 
     summary = pd.DataFrame(rows).fillna(0)
 
-    # Convert all numeric values to int
+    # convert all numeric values to int
     for col in summary.columns:
         if col != "method":
             summary[col] = summary[col].astype(int)
 
-    # Order columns
-    summary = summary[["method", "count_overall"] + sorted(list(all_items))]
+    # order columns
+    summary = summary[
+        ["method", "count_overall"] + sorted(match_cols) + sorted(list(all_items))
+    ]
 
-    print(summary.to_string(index=False))
+    return summary
 
 
 if __name__ == "__main__":
@@ -208,6 +223,13 @@ if __name__ == "__main__":
 
     # ----------------------------------- save csv's -----------------------------------
 
+    # save overview tables
+    overview_assignment = create_overview_table(assignments)
+    overview_assignment.to_csv(args.overview_assignment, index=False)
+    overview_classifications = create_overview_table(classifications)
+    overview_classifications.to_csv(args.overview_classification, index=False)
+
+    # save summary of all deconvolution methods
     rna_data = sc.read_10x_mtx(args.rna_matrix)
 
     # Use rna_data.obs_names() as index to perform a left join

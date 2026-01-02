@@ -20,9 +20,11 @@ process HASH_SUMMARY {
     val(bff_methods)
 
     output:
-    tuple val(meta), path("*_hashing_summary_assignment.csv")    , emit: assignment
-    tuple val(meta), path("*_hashing_summary_classification.csv"), emit: classification
-    path "versions.yml"                                          , emit: versions
+    tuple val(meta), path("*_hashing_summary_assignment.csv")     , emit: assignment
+    tuple val(meta), path("*_hashing_summary_classification.csv") , emit: classification
+    tuple val(meta), path("*_hashing_overview_assignment.csv")    , emit: overview_assignment
+    tuple val(meta), path("*_hashing_overview_classification.csv"), emit: overview_classification
+    path "versions.yml"                                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -38,6 +40,8 @@ process HASH_SUMMARY {
     """
     touch ${prefix}_hashing_summary_assignment.csv
     touch ${prefix}_hashing_summary_classification.csv
+    touch ${prefix}_hashing_overview_assignment.csv
+    touch ${prefix}_hashing_overview_classification.csv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
