@@ -228,7 +228,7 @@ workflow HADGE {
 
     }
 
-    if (params.mode == 'genetic' | params.mode == 'hasing' | params.mode == 'rescue'){
+    if (params.mode == 'genetic' | params.mode == 'hashing' | params.mode == 'rescue'){
         CREATE_ANNDATA_MUDATA(ch_create_anndata_mudata)
     }
 

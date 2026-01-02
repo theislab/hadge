@@ -30,8 +30,8 @@ class Arguments:
         self.rna_matrix = "${rna_matrix}"
         self.hashing_summary_assignment = "${hashing_summary_assignment}"
         self.hashing_summary_classification = "${hashing_summary_classification}"
-        self.genetic_summary_assignment = "${hashing_summary_assignment}"
-        self.genetic_summary_classification = "${hashing_summary_classification}"
+        self.genetic_summary_assignment = "${genetic_summary_assignment}"
+        self.genetic_summary_classification = "${genetic_summary_classification}"
 
         path_vars = {
             "rna_matrix",
@@ -85,6 +85,8 @@ def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData):
 
     for file in summary_files:
         path = getattr(args, file)
+        if path is None:
+            continue
         summary_table = pd.read_csv(path)
         summary_table.set_index("Barcode", inplace=True)
         summary_table = summary_table.add_suffix(f"_{file.split('_')[-1]}")

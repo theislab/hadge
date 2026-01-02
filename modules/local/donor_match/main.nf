@@ -13,15 +13,16 @@ process DONOR_MATCH {
         val match_donor_method2
 
     output:
-    // best method combination for rescue/donor_match mode (has to be optional because runs with only genetic or hashing won't return this output)
+    // donor match will return the optional outputs in rescue and donor_match mode but not in genetic or hashing mode
+    // best combination of a genetic and hashing deconvolution method
     tuple val(meta), path("*_best_donor_match.csv")                      , emit: best_donor_match                     , optional:true
     tuple val(meta), path("*_best_all_assignment_after_match.csv")       , emit: best_all_assignment_after_match      , optional:true
     tuple val(meta), path("*_best_intersect_assignment_after_match.csv") , emit: best_intersect_assignment_after_match, optional:true
     tuple val(meta), path("*_score_record.csv")                          , emit: score_record                         , optional:true
 
     // comparison between deconvolution methods
-    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")      , emit: assignment_after_match
-    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match
+    tuple val(meta), path("*/*_vs_*all_assignment_after_match.csv")      , emit: assignment_after_match               , optional:true
+    tuple val(meta), path("*/*_vs_*intersect_assignment_after_match.csv"), emit: assignment_intersect_match           , optional:true
     tuple val(meta), path("*/*_vs_*correlation_res.csv")                 , emit: correlation
     tuple val(meta), path("*/*_vs_*donor_match.csv")                     , emit: donor_match
     tuple val(meta), path("*/*_vs_*concordance_heatmap.png")             , emit: concordance_heatmap
