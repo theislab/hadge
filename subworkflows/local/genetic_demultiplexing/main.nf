@@ -113,6 +113,10 @@ workflow GENETIC_DEMULTIPLEXING {
             [ meta, bam, barcodes, meta.n_samples ]
         }
 
+        if (! params.fasta ) {
+            log.warn("The pipeline is downloading the full reference genome from ${params.genome} because only `genome` and not `fasta` is set. To reduce long download times and high bandwidth usage, provide your own reference by specifying `fasta`.")
+        }
+
         SOUPORCELL(
             ch_souporcell_bam_barcodes_clusters,
             channel.value([[id: 'fasta'], file(fasta, checkIfExists: true)])
