@@ -109,7 +109,7 @@
                     },
                     "vireo": {
                         "branch": "master",
-                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "git_sha": "adfd5ba7915e96ccf41ccc0b4be859c398d0eb95",
                         "installed_by": ["modules"]
                     }
                 }

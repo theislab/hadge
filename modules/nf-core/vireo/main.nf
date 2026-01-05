@@ -23,12 +23,14 @@ process VIREO {
 
     script:
     def args   = task.ext.args   ?: ''
+    // hardcode a default random seed
+    if (!(args ==~ /.*--randSeed.*/)) {args += " --randSeed 42"}
     // use the same randSeed of vireo for GTbarcode if specified in args
     def matcher = (args =~ /(--randSeed\s+\d+)/)
     def randSeed_GTbarcode = matcher ? matcher[0][1] : ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def input  = cell_data       ? "-c ${cell_data}" : "--vartrixData ${vartrix_data}"
-    
+
     """
     vireo \\
         $input \\
@@ -56,12 +58,21 @@ process VIREO {
     stub:
     def args   = task.ext.args   ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def optional_files = ''
+    if (args.contains('--forceLearnGT')) {
+        optional_files = """
+        echo "" | gzip > ${prefix}_GT_donors.vireo.vcf.gz
+        touch ${prefix}_filtered_variants.tsv
+        """
+    }
 
     """
     touch ${prefix}_summary.tsv
     touch ${prefix}_donor_ids.tsv
     echo "" | gzip > ${prefix}_prob_singlet.tsv.gz
     echo "" | gzip > ${prefix}_prob_doublet.tsv.gz
+
+    ${optional_files}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
