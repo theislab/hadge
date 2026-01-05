@@ -37,7 +37,7 @@ def checkParams(String paramName, String process, String mode, boolean isFile) {
     if( !value && !mode )
         error "Parameter '${paramName}' must be specified to run ${process}"
 
-    if( isFile and !file(value).exists() )
+    if( isFile && !file(value).exists() )
         error "File specified for parameter '${paramName}' does not exist: ${value}"
 
     return true
@@ -53,61 +53,63 @@ workflow HADGE {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-
     // ------------------------------ preprocessing start -------------------------------
-
-    ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
-                    .branch { _meta, rna ->
-                        tar: rna.endsWith('.tar.gz')
-                        directory: true
-                    }
-    ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
-                    .branch { _meta, hto ->
-                        tar: hto.endsWith('.tar.gz')
-                        directory: true
-                    }
-
-    ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
-
-    // @nictru do I have to track versions of both modules even tough it is from the same module?
-    UNTAR_RNA(ch_rna.tar)
-    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
-
-    UNTAR_HTO(ch_hto.tar)
-    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
-
-    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
-    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
-
-    ch_hashes = EXTRACT_HASHES(ch_hto)
-    ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
-                        .join(ch_rna)
-                        .join(ch_hto)
-                        .join(ch_remaining_input)
-                        .join(ch_hashes)
-                        .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
-                        if(meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
-                        [meta, rna, hto, bam, barcodes, vcf]
+    if ( params.mode != 'donor_match' ){
+        ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
+                        .branch { _meta, rna ->
+                            tar: rna.endsWith('.tar.gz')
+                            directory: true
+                        }
+        ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
+                        .branch { _meta, hto ->
+                            tar: hto.endsWith('.tar.gz')
+                            directory: true
                         }
 
-    // ------------------------------- preprocessing end --------------------------------
+        ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
 
+        // @nictru do I have to track versions of both modules even tough it is from the same module?
+        UNTAR_RNA(ch_rna.tar)
+        ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
-    ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf ->
-        [meta, rna, bam, barcodes, vcf]
+        UNTAR_HTO(ch_hto.tar)
+        ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
+
+        ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
+        ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
+
+        ch_hashes = EXTRACT_HASHES(ch_hto)
+        ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
+                            .join(ch_rna)
+                            .join(ch_hto)
+                            .join(ch_remaining_input)
+                            .join(ch_hashes)
+                            .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
+                            if(meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
+                            [meta, rna, hto, bam, barcodes, vcf]
+                            }
+
+        // create channels for deconvolution tools
+        ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf ->
+            [meta, rna, bam, barcodes, vcf]
+        }
+
+        ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf ->
+            [meta, rna, hto]
+        }
+
+        ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
+    }else{
+        // meta changes when extracting hashes
+        ch_preprocessed = ch_samplesheet
     }
 
-    ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf ->
-        [meta, rna, hto]
-    }
-
+    // channels for donor matching
     ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
         [meta, barcodes]
     }
-
-    ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
-    ch_find_variants = ch_donor_match.map { meta, barcodes -> [meta] }
-    ch_subset_gt_donors = ch_donor_match.map { meta, barcodes -> [meta] }
+    ch_find_variants = ch_donor_match.map { meta, _barcodes -> [meta] }
+    ch_subset_gt_donors = ch_donor_match.map { meta, _barcodes -> [meta] }
 
     // ------------------------------- preprocessing end --------------------------------
 
@@ -222,7 +224,7 @@ workflow HADGE {
             }
 
             ch_find_variants = ch_find_variants.map{ meta ->
-                [meta, params.cell_genotype, params.vireo_filtered_variants]
+                [meta[0], params.cell_genotype, params.vireo_filtered_variants]
             }
         }
 
@@ -260,7 +262,7 @@ workflow HADGE {
             // only vireo can produce gt_donors in rescue mode or user has to provide gt_donors in donor_match mode
             if (
                 (params.mode == 'rescue' && params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) |
-                (params.mode == 'donor_match' && params.gt_donors && checkParams(p, 'SUBSET_GT_DONORS', 'donor_match', true))
+                (params.mode == 'donor_match' && params.gt_donors && checkParams('gt_donors', 'SUBSET_GT_DONORS', 'donor_match', true))
             ) {
 
                 ch_subset_gt_donors = FIND_VARIANTS.out.donor_match_representative_variants
@@ -277,7 +279,7 @@ workflow HADGE {
                 ch_subset_gt_donors = ch_subset_gt_donors
                     .combine(params.mode == 'rescue'
                                 ? GENETIC_DEMULTIPLEXING.out.gt_donors
-                                : params.gt_donors
+                                : ch_subset_gt_donors.first().map{ meta, _variants, _type -> [meta, params.gt_donors] }
                                 , by: 0)
                     .combine(DONOR_MATCH.out.best_donor_match, by: 0)
 
