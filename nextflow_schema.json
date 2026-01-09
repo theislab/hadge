@@ -30,11 +30,6 @@
                     "enum": ["genetic", "hashing", "rescue", "donor_match"],
                     "default": "rescue"
                 },
-                "match_donor": {
-                    "type": "boolean",
-                    "description": "Match donor.",
-                    "fa_icon": "fas fa-user-check"
-                },
                 "hash_tools": {
                     "type": "string",
                     "description": "Tools used for hash demultiplexing.",
