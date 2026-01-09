@@ -269,7 +269,7 @@
                 "bff_preprocessing": {
                     "type": "boolean",
                     "description": "Whether to run preprocessing steps for BFF.",
-                    "default": false,
+                    "default": true,
                     "fa_icon": "fas fa-cogs"
                 },
                 "bff_barcodeWhitelist": {
