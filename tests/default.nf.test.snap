@@ -632,8 +632,8 @@
                 "test1_hto-2_informative_variants.csv:md5,f641c48375833e592aa6f8c102ac1160",
                 "test1_hto-2_matched_gt.csv:md5,fc8bdfc73587eaf63925f658b6fb1c5c",
                 "test1_hto-2_unmatched_gt.csv:md5,e53bfe5050c7197a53acec1f30f2daec",
-                "test1_donor_match.vcf.gz:md5,f180f8682ba6fc791a9a9379b8d210e8",
-                "test1_vireo.vcf.gz:md5,83b9b380179adf9724e13b13b4831456",
+                "test1_donor_match.vcf.gz:md5,284203b2ad934ef01d0b607d435fb5ef",
+                "test1_vireo.vcf.gz:md5,a16bbbb6168bf4fe810bc548afcfeb2a",
                 "test1_all_representative_variant_df.csv:md5,93cf3fde5b1236b83abd53369b250f64",
                 "test1_donor_match_representative_variants.csv:md5,bd137190cb87b1ad68a7283571e9a4b6",
                 "test1_donor_specific_variants_upset.png:md5,5d0abe01aa07abd018d20abe8e2e99ab",
@@ -644,8 +644,8 @@
                 "test2_hto-2_informative_variants.csv:md5,f641c48375833e592aa6f8c102ac1160",
                 "test2_hto-2_matched_gt.csv:md5,fc8bdfc73587eaf63925f658b6fb1c5c",
                 "test2_hto-2_unmatched_gt.csv:md5,e53bfe5050c7197a53acec1f30f2daec",
-                "test2_donor_match.vcf.gz:md5,6a0ef1d6905307ccfdbaeab05c8b5a7a",
-                "test2_vireo.vcf.gz:md5,0912150776b09b676a07f862deea41b8",
+                "test2_donor_match.vcf.gz:md5,39096b00229f206b7ea05f740e97a0e6",
+                "test2_vireo.vcf.gz:md5,a3590ef8f6337406b9c7487442828a0e",
                 "test2_all_representative_variant_df.csv:md5,93cf3fde5b1236b83abd53369b250f64",
                 "test2_donor_match_representative_variants.csv:md5,bd137190cb87b1ad68a7283571e9a4b6",
                 "test2_donor_specific_variants_upset.png:md5,5d0abe01aa07abd018d20abe8e2e99ab",
@@ -656,18 +656,18 @@
                 "test3_hto-2_informative_variants.csv:md5,f641c48375833e592aa6f8c102ac1160",
                 "test3_hto-2_matched_gt.csv:md5,fc8bdfc73587eaf63925f658b6fb1c5c",
                 "test3_hto-2_unmatched_gt.csv:md5,e53bfe5050c7197a53acec1f30f2daec",
-                "test3_donor_match.vcf.gz:md5,bdc43f113ccc36c4c5cf103a28f2d077",
-                "test3_vireo.vcf.gz:md5,17d8747087d266d650edce7661c3535a",
+                "test3_donor_match.vcf.gz:md5,84cb13938de480c87ca0a9f5155d4d3a",
+                "test3_vireo.vcf.gz:md5,82fb01820067d8e741d60e3e6ca1c668",
                 "test3_all_representative_variant_df.csv:md5,93cf3fde5b1236b83abd53369b250f64",
                 "test3_donor_match_representative_variants.csv:md5,bd137190cb87b1ad68a7283571e9a4b6",
                 "test3_donor_specific_variants_upset.png:md5,5d0abe01aa07abd018d20abe8e2e99ab",
                 "test3_vireo_representative_variants.csv:md5,34bf574b4fe7c16db53a86f5cf6cdbf3",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test1.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test2.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test3.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
@@ -795,9 +795,9 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.2",
+            "nf-test": "0.9.3",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-09T12:33:22.987562"
+        "timestamp": "2026-01-09T13:48:07.226550444"
     }
 }
