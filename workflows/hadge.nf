@@ -60,9 +60,11 @@ workflow HADGE {
                             tar: rna.endsWith('.tar.gz')
                             directory: true
                         }
+
+
         ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
                         .branch { _meta, hto ->
-                            tar: hto.endsWith('.tar.gz')
+                            tar: hto != null && hto.endsWith('.tar.gz')
                             directory: true
                         }
 
@@ -78,14 +80,18 @@ workflow HADGE {
         ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
         ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
-        ch_hashes = EXTRACT_HASHES(ch_hto)
+        // hto can be null in genetic mode
+        ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
+        ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
+        ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
+
         ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
                             .join(ch_rna)
                             .join(ch_hto)
                             .join(ch_remaining_input)
                             .join(ch_hashes)
                             .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
-                            if(meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
+                            if(hashes != null && meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
                             [meta, rna, hto, bam, barcodes, vcf]
                             }
 
