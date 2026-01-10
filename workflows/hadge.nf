@@ -237,7 +237,13 @@ workflow HADGE {
     }
 
     if (params.mode == 'genetic' | params.mode == 'hashing' | params.mode == 'rescue'){
-        CREATE_ANNDATA_MUDATA(ch_create_anndata_mudata)
+        CREATE_ANNDATA_MUDATA(
+            ch_create_anndata_mudata.map { tuple ->
+                // hto can be null in genetic mode
+                if (params.mode == 'genetic'){ tuple.collect { it == null ? [] : it } }
+                else{ tuple }
+            }
+        )
     }
 
     if (params.match_donor) {
