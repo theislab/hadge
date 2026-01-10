@@ -531,7 +531,7 @@
                     "type": "boolean",
                     "description": "Generate feature scatter plot. If no features are provided (one of them is null), the first two features from the assay will be used.",
                     "default": true,
-                    "fa_icon": "fas fa-scatter-chart"
+                    "fa_icon": "far fa-chart-bar"
                 },
                 "htodemux_visualization_scatterFeat1": {
                     "type": "string",
@@ -549,7 +549,7 @@
                     "type": "boolean",
                     "description": "Generate violin plot.",
                     "default": true,
-                    "fa_icon": "fas fa-violin"
+                    "fa_icon": "far fa-chart-bar"
                 },
                 "htodemux_visualization_vlnFeatures": {
                     "type": "string",
@@ -1003,7 +1003,8 @@
                 "vireo_force_learn_gt": {
                     "type": "boolean",
                     "description": "If true, treat donor GT as prior only and learn genotypes from data.",
-                    "fa_icon": "fas fa-graduation-cap"
+                    "fa_icon": "fas fa-graduation-cap",
+                    "default": true
                 },
                 "vireo_ase_mode": {
                     "type": "boolean",
@@ -1308,7 +1309,7 @@
                     "type": "boolean",
                     "description": "Don't remap with minimap2 (not recommended unless in conjunction with --common_variants).",
                     "default": false,
-                    "fa_icon": "fas fa-skip-forward"
+                    "fa_icon": "fas fa-angle-double-right"
                 },
                 "souporcell_ignore": {
                     "type": "boolean",
