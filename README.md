@@ -21,48 +21,68 @@
 
 ## Introduction
 
-**nf-core/hadge** is a bioinformatics pipeline that ...
+**nf-core/hadge** (**ha**shing **d**econvolution combined with **ge**notype information) is a bioinformatics pipeline that combines 11 methods to perform both hashing- and genotype-based deconvolution on single cell multiplexing data. It takes a samplesheet with count matrices, BAM and VCF files as input, performs deconvolution with every method, joins all results and finally recovers previously discarded cells by combining the best performing methods.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+![nf-core/rhadge metro map](docs/images/pipeline.png)
 
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+1. Untar matrices
+2. Extract hto names from matrix
+3. Perform genetic-based deconvolution
+4. Get single cell genotype [`cellSNP`](https://github.com/single-cell-genetics/cellSNP)
+5. [`vireo`](https://github.com/single-cell-genetics/vireo)
+6. [`demuxlet`](https://github.com/statgen/popscle)
+7. [`freemuxlet`](https://github.com/statgen/popscle)
+8. [`souporcell`](https://github.com/wheaton5/souporcell)
+9. summarize assignments and classifications
+10. Perform hashing-based deconvolution
+11. [`htodemux`](https://satijalab.org/seurat/articles/hashing_vignette)
+12. [`multiseq`](https://satijalab.org/seurat/reference/multiseqdemux)
+13. [`bff`](https://github.com/BimberLab/cellhashR)
+14. [`demuxem`](https://demuxem.readthedocs.io/en/latest/)
+15. [`gmm-demux`](https://github.com/CHPGenetics/GMM-demux)
+16. [`hasheddrops`](https://github.com/MarioniLab/DropletUtils)
+17. [`hashsolo`](https://scanpy.readthedocs.io/en/stable/generated/scanpy.external.pp.hashsolo.html)
+18. summarize assignments and classifications
+19. Join all results
+20. Donor match
+21. Find informative variants
+22. Create AnnData and Mudata objects
+23. [`MultiQC`](http://multiqc.info/)
+
+24. Present QC for raw reads ()
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
+Each row contains data from a single-cell multiplexing experiment. The RNA-seq (`rna_matrix`) and hashing (`hto_matrix`) count matrices are provided in a 10x Genomics format and compressed as `.tar.gz`. Genetic deconvolution requires both the alignment file (`bam`) and a list of common SNPs (`vcf`). Users must specify the number of multiplexed donors (`n_samples`) and identify the target cells for deconvolution (`barcodes`).
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run nf-core/hadge \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
-   --outdir <OUTDIR>
+   --outdir <OUTDIR> \
+   --mode rescue \
+   --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
 ```
 
 > [!WARNING]
@@ -78,10 +98,13 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/hadge was originally written by Fabiola Curion.
+nf-core/hadge was originally written by Fabiola Curion ([@bio-la](https://github.com/bio-la)), Xichen Wu ([@wxicu](https://github.com/wxicu)), Lukas Heumos ([@zethson](https://github.com/Zethson)) and Mariana Gonzales Andre ([@mari-ga](https://github.com/mari-ga)).
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
+- [Luis Heinzlmeier](https://github.com/LuisHeinzlmeier)
+- [Nico Trummer](https://github.com/nictru)
+- [Seo Hyon Kim](https://github.com/seohyonkim)
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
