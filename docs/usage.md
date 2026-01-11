@@ -6,23 +6,7 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
-
-## Samplesheet input
-
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file, and a header row as shown in the examples below.
-
-```bash
---input '[path to samplesheet file]'
-```
-
-### Multiple runs maxmial smaple sheet
-
-The `sample` identifiers have to be the
-
-hto_names and so on
-
-#### The rescue mode
+### The rescue mode
 
 The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy. hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct. In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously. Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP- based donor deconvolution tools.
 
@@ -46,7 +30,7 @@ nextflow run nf-core/hadge \
    --fasta <FASTADIR>
 ```
 
-#### The genetic mode
+### The genetic mode
 
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
 
@@ -73,6 +57,17 @@ nextflow run nf-core/hadge \
 A FASTA file is only required if `--genetic_tools` includes souporcell. If a FASTA file is unavailable, you can specify the organism using `--genome`, and the pipeline will download the full reference genome automatically. However, to avoid long download times and high bandwidth usage, we recommend providing your own local reference genome with `--fasta`.
 :::
 
+### The hashing mode
+
+Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
+
+```csv title="samplesheet.csv"
+sample,rna_matrix,hto_matrix,barcodes
+id1,rna.tar.gz,hto.tar.gz,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,barcodes.tsv
+```
+
 Now, you can run the pipeline using:
 
 ```bash
@@ -80,34 +75,61 @@ nextflow run nf-core/hadge \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR> \
-   --mode rescue \
+   --mode hashing
    --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
-   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
-   --fasta <FASTADIR>
+```
+
+### The donor match mode
+
+This mode utilizes the donor matching component from the rescue mode, but requires manual input for several stages. To run all steps of donor matching, you must provide the demultiplexing results, filtered variants, and both cell and donor genotypes. For detailed specifications on these input parameters, refer to the [parameter documentation](https://nf-co.re/hadge/parameters).
+
+```csv title="samplesheet.csv"
+sample,n_samples,barcodes
+id1,2,barcodes.tsv
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode donor_match
+   --demultiplexing_result <DIR> \
+   --vireo_filtered_variants <DIR> \
+   --cell_genotype <DIR> \
+   --gt_donors <DIR> \
+```
+
+## Samplesheet input
+
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row as shown in the examples below.
+
+```bash
+--input '[path to samplesheet file]'
 ```
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
-
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+Each row in the sample sheet represents a distinct single-cell multiplexing experiment. The `sample` column must contain a unique identifier for each experiment. This format allows you to process multiple deconvolutions in a single run. While a full example is provided below, some columns may be optional depending on the mode you select.
 
 ```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
+sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| Column       | Description                                                                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`     | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `rna_matrix` | Full path to the RNA-Seq count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
+| `hto_matrix` | Full path to the hashing count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
+| `bam`        | Full path to the alignment file (`.bam`).                                                                                                                                              |
+| `vcf`        | Full path to the list of common SNPs (`.vcf`).                                                                                                                                         |
+| `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
+| `barcodes`   | TODO                                                                                                                                                                                   |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 

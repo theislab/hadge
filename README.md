@@ -21,12 +21,9 @@
 
 ## Introduction
 
-**nf-core/hadge** (**ha**shing **d**econvolution combined with **ge**notype information) is a bioinformatics pipeline that combines 11 methods to perform both hashing- and genotype-based deconvolution on single cell multiplexing data. It takes a samplesheet with count matrices, BAM and VCF files as input, performs deconvolution with every method, joins all results and finally recovers previously discarded cells by combining the best performing methods.
+**nf-core/hadge** (**ha**shing **d**econvolution combined with **ge**notype information) is a bioinformatics pipeline that combines 11 methods to perform both hashing- and genotype-based deconvolution on single cell multiplexing data. It takes a samplesheet with count matrices, BAM and VCF files as input, performs deconvolution with every method, joins all results and finally recovers previously discarded cells by combining the best performing methods (donor matching).
 
-![nf-core/rhadge metro map](docs/images/pipeline.png)
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/guidelines/graphic_design/workflow_diagrams#examples for examples.   -->
+![nf-core/hadge metro map](docs/images/pipeline.png)
 
 1. Untar matrices
 2. Extract hto names from matrix

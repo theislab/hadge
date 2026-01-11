@@ -91,7 +91,7 @@ workflow HADGE {
                             .join(ch_remaining_input)
                             .join(ch_hashes)
                             .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
-                            if(hashes != null && meta.hto_names == []){meta += [hto_names: file(hashes).text.trim()]}
+                            if(hashes!= null){meta += [hto_names: file(hashes).text.trim()]}
                             [meta, rna, hto, bam, barcodes, vcf]
                             }
 
@@ -105,6 +105,7 @@ workflow HADGE {
         }
 
         ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
+
     }else{
         // meta changes when extracting hashes
         ch_preprocessed = ch_samplesheet
