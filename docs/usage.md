@@ -10,21 +10,80 @@
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-### Multiple runs of the same sample
+### Multiple runs maxmial smaple sheet
 
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
+The `sample` identifiers have to be the
+
+hto_names and so on
+
+#### The rescue mode
+
+The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy. hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct. In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously. Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP- based donor deconvolution tools.
 
 ```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode rescue \
+   --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
+```
+
+#### The genetic mode
+
+Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
+
+```csv title="samplesheet.csv"
+sample,rna_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode genetic \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
+```
+
+:::info
+A FASTA file is only required if `--genetic_tools` includes souporcell. If a FASTA file is unavailable, you can specify the organism using `--genome`, and the pipeline will download the full reference genome automatically. However, to avoid long download times and high bandwidth usage, we recommend providing your own local reference genome with `--fasta`.
+:::
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode rescue \
+   --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
 ```
 
 ### Full samplesheet
