@@ -10,16 +10,6 @@ The directories listed below will be created in the results directory after the 
 
 ### Genetic-based deconvolution
 
-This subworkflow runs when the `--mode` is set to `genetic` or `rescue`. It saves the results of each genetic-based deconvolution specified with `--genetic_tools` in a folder named after the corresponding tool. Additionally, this step summarizes all deconvolution results in a single summary table. The assignments CSV provides, for each cell barcode, one of the following categories:
-
-| Category      | Description                                    |
-| ------------- | ---------------------------------------------- |
-| Cluster label | A cluster label (e.g., `0`, `1`, …)            |
-| doublet       | More than one cluster is assigned to this cell |
-| negative      | All other cases (e.g., undetected cells)       |
-
-Classification works similarly, except that cluster labels are replaced by the label `singlet`.
-
 <details markdown="1">
 <summary>Output files</summary>
 
@@ -33,17 +23,17 @@ Classification works similarly, except that cluster labels are replaced by the l
 
 </details>
 
-### Hashing-based deconvolution
+This subworkflow runs when the `--mode` is set to `genetic` or `rescue`. It saves the results of each genetic-based deconvolution specified with `--genetic_tools` in a folder named after the corresponding tool. Additionally, this step summarizes all deconvolution results in a single summary table. The assignments CSV provides, for each cell barcode, one of the following categories:
 
-This subworkflow runs when the `--mode` is set to `hashing` or `rescue`. It saves the results of each hashing-based deconvolution specified with `--hash_tools` in a folder named after the corresponding tool. Additionally, this step summarizes all deconvolution results in a single summary table. The assignments CSV provides, for each cell barcode, one of the following categories:
-
-| Category    | Description                                                       |
-| ----------- | ----------------------------------------------------------------- |
-| Donor label | A HTO label that identifies the donor (e.g., `HTO-1`, `HTO-2`, …) |
-| doublet     | More than one cluster is assigned to this cell                    |
-| negative    | All other cases (e.g., undetected cells)                          |
+| Category      | Description                                    |
+| ------------- | ---------------------------------------------- |
+| Cluster label | A cluster label (e.g., `0`, `1`, …)            |
+| doublet       | More than one cluster is assigned to this cell |
+| negative      | All other cases (e.g., undetected cells)       |
 
 Classification works similarly, except that cluster labels are replaced by the label `singlet`.
+
+### Hashing-based deconvolution
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -58,13 +48,21 @@ Classification works similarly, except that cluster labels are replaced by the l
 
 </details>
 
+This subworkflow runs when the `--mode` is set to `hashing` or `rescue`. It saves the results of each hashing-based deconvolution specified with `--hash_tools` in a folder named after the corresponding tool. Additionally, this step summarizes all deconvolution results in a single summary table. The assignments CSV provides, for each cell barcode, one of the following categories:
+
+| Category    | Description                                                       |
+| ----------- | ----------------------------------------------------------------- |
+| Donor label | A HTO label that identifies the donor (e.g., `HTO-1`, `HTO-2`, …) |
+| doublet     | More than one cluster is assigned to this cell                    |
+| negative    | All other cases (e.g., undetected cells)                          |
+
+Classification works similarly, except that cluster labels are replaced by the label `singlet`.
+
 ### Donor matching
 
 <!-- TODO add output files -->
 
 ### Summary
-
-When running the pipeline in `rescue` mode, the combined assignment/classification table from all used genetic- and hashing-based deconvolution tools will be generated here. Additionally, an AnnData/MuData object is created with the corresponding count matrices.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -76,6 +74,8 @@ When running the pipeline in `rescue` mode, the combined assignment/classificati
   - `*_genetic_and_hashing.h5mu`: Both `genetic.h5ad` and `hashing.h5ad` combined in a MuData object.
 
 </details>
+
+When running the pipeline in `rescue` mode, the combined assignment/classification table from all used genetic- and hashing-based deconvolution tools will be generated here. Additionally, an AnnData/MuData object is created with the corresponding count matrices.
 
 ## Pipeline overview
 
