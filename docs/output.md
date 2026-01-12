@@ -31,6 +31,8 @@ Classification works similarly, except that cluster labels are replaced by the l
   - `/*/*_genetic_summary_(assignment|classification).csv`: Summary of all assigned/classified cells from each genetic-based deconvolution tool, merged into a single table.
   - `/*/*_genetic_overview_(assignment|classification).csv`: This table summarizes each genetic-based deconvolution tool (before merging) by reporting its total barcode count, the number of barcodes it shares with every other method, and the counts of each donor label or classification category (e.g., `0`, `1`, `singlet`, `doublet`, `negative`).
 
+</details>
+
 ### Hashing-based deconvolution
 
 This subworkflow runs when the `--mode` is set to `hashing` or `rescue`. It saves the results of each hashing-based deconvolution specified with `--hash_tools` in a folder named after the corresponding tool. Additionally, this step summarizes all deconvolution results in a single summary table. The assignments CSV provides, for each cell barcode, one of the following categories:
