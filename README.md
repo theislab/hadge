@@ -28,28 +28,26 @@
 1. Untar matrices
 2. Extract hto names from matrix
 3. Perform genetic-based deconvolution
-4. Get single cell genotype [`cellSNP`](https://github.com/single-cell-genetics/cellSNP)
-5. [`vireo`](https://github.com/single-cell-genetics/vireo)
-6. [`demuxlet`](https://github.com/statgen/popscle)
-7. [`freemuxlet`](https://github.com/statgen/popscle)
-8. [`souporcell`](https://github.com/wheaton5/souporcell)
-9. summarize assignments and classifications
-10. Perform hashing-based deconvolution
-11. [`htodemux`](https://satijalab.org/seurat/articles/hashing_vignette)
-12. [`multiseq`](https://satijalab.org/seurat/reference/multiseqdemux)
-13. [`bff`](https://github.com/BimberLab/cellhashR)
-14. [`demuxem`](https://demuxem.readthedocs.io/en/latest/)
-15. [`gmm-demux`](https://github.com/CHPGenetics/GMM-demux)
-16. [`hasheddrops`](https://github.com/MarioniLab/DropletUtils)
-17. [`hashsolo`](https://scanpy.readthedocs.io/en/stable/generated/scanpy.external.pp.hashsolo.html)
-18. summarize assignments and classifications
-19. Join all results
-20. Donor match
-21. Find informative variants
-22. Create AnnData and Mudata objects
-23. [`MultiQC`](http://multiqc.info/)
-
-24. Present QC for raw reads ()
+   1. Get single cell genotype [`cellSNP`](https://github.com/single-cell-genetics/cellSNP)
+   2. [`vireo`](https://github.com/single-cell-genetics/vireo)
+   3. [`demuxlet`](https://github.com/statgen/popscle)
+   4. [`freemuxlet`](https://github.com/statgen/popscle)
+   5. [`souporcell`](https://github.com/wheaton5/souporcell)
+4. summarize assignments and classifications
+5. Perform hashing-based deconvolution
+   1. [`htodemux`](https://satijalab.org/seurat/articles/hashing_vignette)
+   2. [`multiseq`](https://satijalab.org/seurat/reference/multiseqdemux)
+   3. [`bff`](https://github.com/BimberLab/cellhashR)
+   4. [`demuxem`](https://demuxem.readthedocs.io/en/latest/)
+   5. [`gmm-demux`](https://github.com/CHPGenetics/GMM-demux)
+   6. [`hasheddrops`](https://github.com/MarioniLab/DropletUtils)
+   7. [`hashsolo`](https://scanpy.readthedocs.io/en/stable/generated/scanpy.external.pp.hashsolo.html)
+6. summarize assignments and classifications
+7. Join all results
+8. Donor match
+9. Find informative variants
+10. Create AnnData and Mudata objects
+11. [`MultiQC`](http://multiqc.info/)
 
 ## Usage
 
