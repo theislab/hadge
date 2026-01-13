@@ -278,12 +278,12 @@ workflow HADGE {
                 (params.mode == 'donor_match' && params.gt_donors && checkParams('gt_donors', 'SUBSET_GT_DONORS', 'donor_match', true))
             ) {
 
-                ch_subset_gt_donors = FIND_VARIANTS.out.donor_match_representative_variants
+                ch_subset_gt_donors = FIND_VARIANTS.out.donor_specific_variants
                     .map { meta, subset_variants ->
-                        tuple(meta, subset_variants, 'donor_match')
+                        tuple(meta, subset_variants, 'donor_specific')
                     }
                     .mix(
-                        FIND_VARIANTS.out.vireo_representative_variants
+                        FIND_VARIANTS.out.vireo_variants
                             .map { meta, subset_variants ->
                                 tuple(meta, subset_variants, 'vireo')
                             }

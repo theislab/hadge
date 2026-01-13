@@ -198,7 +198,7 @@ if (!is.null(args\$cell_genotype)) {
     dcast(data = representative_variant, variant ~ donor, length)
   write.csv(
     representative_variant_df,
-    file.path(paste0(args\$prefix, "_all_representative_variant_df.csv"))
+    file.path(paste0(args\$prefix, "_all_representative_variants.csv"))
   )
 
   upset <- ComplexUpset::upset(
@@ -243,7 +243,7 @@ if (!is.null(args\$cell_genotype)) {
     col.names = FALSE,
     sep = "\t",
     row.names = FALSE,
-    file.path(paste0(args\$prefix, "_donor_match_representative_variants.csv"))
+    file.path(paste0(args\$prefix, "_donor_specific_variants.csv"))
   )
 }
 
@@ -263,7 +263,7 @@ if (!is.null(args\$variants_vireo)) {
     col.names = FALSE,
     sep = "\t",
     row.names = FALSE,
-    file.path(paste0(args\$prefix, "_vireo_representative_variants.csv"))
+    file.path(paste0(args\$prefix, "_vireo_variants.csv"))
   )
 }
 

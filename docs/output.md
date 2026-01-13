@@ -6,17 +6,16 @@ This document describes the output produced by the pipeline. Most of the plots a
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
-
 ### Genetic-based deconvolution
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `genetic/`
-  - TODO add every tool ...
-  - `*.fastp.html`: Trimming report in html format.
-  - `*.fastp.json`: Trimming report in json format.
+  - `popscle/demuxlet/`: See [modules/popscle_demuxlet](https://nf-co.re/modules/popscle_demuxlet/) for detailed output information.
+  - `popscle/freemuxlet/`: See [modules/popscle_freemuxlet](https://nf-co.re/modules/popscle_freemuxlet/) for detailed output information.
+  - `souporcell/`: See [modules/souporcell](https://nf-co.re/modules/souporcell/) for detailed output information.
+  - `vireo/`: See [modules/vireo](https://nf-co.re/modules/vireo/) for detailed output information.
 - `genetic/summary/`
   - `/*/*_genetic_summary_(assignment|classification).csv`: Summary of all assigned/classified cells from each genetic-based deconvolution tool, merged into a single table.
   - `/*/*_genetic_overview_(assignment|classification).csv`: This table summarizes each genetic-based deconvolution tool (before merging) by reporting its total barcode count, the number of barcodes it shares with every other method, and the counts of each donor label or classification category (e.g., `0`, `1`, `singlet`, `doublet`, `negative`).
@@ -39,9 +38,14 @@ Classification works similarly, except that cluster labels are replaced by the l
 <summary>Output files</summary>
 
 - `hashing/`
-  - TODO add every tool ...
-  - `*.fastp.html`: Trimming report in html format.
-  - `*.fastp.json`: Trimming report in json format.
+  - `bff/`: See [modules/bff](https://nf-co.re/modules/bff/) for detailed output information.
+  - `demuxem/`: See [modules/demuxem](https://nf-co.re/modules/bff/) for detailed output information.
+  - `gmm-demux/`: See [modules/gmmdemux](https://nf-co.re/modules/gmmdemux/) for detailed output information.
+  - `hasheddrops/`: See [modules/hasheddrops](https://nf-co.re/modules/hasheddrops/) for detailed output information.
+  - `hashsolo/`: See [modules/scanpy_hashsolo](https://nf-co.re/modules/scanpy_hashsolo/) for detailed output information.
+  - `htodemux/`: See [modules/htodemux](https://nf-co.re/modules/htodemux/) for detailed output information.
+  - `htodemux/visualization/`: Visualizations of htodemux results.
+  - `multiseq/`: See [modules/multiseqdemux](https://nf-co.re/modules/multiseqdemux/) for detailed output information.
 - `hashing/summary/`
   - `/*/*_hashing_summary_(assignment|classification).csv`: Summary of all assigned/classified cells from each hashing-based deconvolution tool, merged into a single table.
   - `/*/*_hashing_overview_(assignment|classification).csv`: This table summarizes each hashing-based deconvolution tool (before merging) by reporting its total barcode count, the number of barcodes it shares with every other method, and the counts of each donor label or classification category (e.g., `HTO-1`, `HTO-2`, `singlet`, `doublet`, `negative`).
@@ -60,7 +64,52 @@ Classification works similarly, except that cluster labels are replaced by the l
 
 ### Donor matching
 
-<!-- TODO add output files -->
+<details markdown="1">
+<summary>Output files</summary>
+
+- `donor_match/`
+  - `*_best_all_assignment_after_match.csv`: assignment of all cell barcodes based on the donor matching of the optimal match
+  - `*_best_donor_match.csv`: a map between hashtags and donor identities based on the donor matching of the optimal match
+  - `*_best_intersect_assignment_after_match.csv`: assignment of joint singlets based on the donor matching of the optimal match
+  - `*_score_record.csv`: a CSV file storing the matching score and the number of matched donors for each method pair
+- `donor_match/[method1]_vs_[method2]/`
+  - `*_all_assignment_after_match.csv`: assignment of all cell barcodes after donor matching
+  - `*_concordance_heatmap.png`: a heatmap visualising the the correlation scores
+  - `*_correlation_res.csv`: correlation scores of donor matching
+  - `*_donor_match.csv`: a map between hashtag and donor identity.
+  - `*_intersect_assignment_after_match.csv`: assignment of joint singlets after donor matching
+
+</details>
+
+For each hashing–genetic deconvolution method pair, pairwise Pearson correlations are computed between binarized cell assignment vectors to match donors.
+A matching score is obtained by summing the non-negative correlations and dividing by the number of expected donors, providing a measure of agreement between methods.
+
+Donor matching is executed only when `--match_donor` is enabled (default).
+Full output is produced in `rescue` and `donor_match` mode, while other modes generate a reduced set of files, as matching is restricted to comparisons within the same method type (genetic-to-genetic and hashing-to-hashing) and not across types.
+
+### Find variants
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `find_variants/`
+  - `*_all_representative_variants.csv`: a list of representative variants from all donors
+  - `*_donor_specific_variants.csv`: a list of donor-specific variants
+  - `*_donor_specific_variants_upset.png`: an upset plot showing the number of donor-specific variants
+  - `*_vireo_variants.csv`: a list of discriminatory variants filtered by Vireo
+- `donor_match/[hto_name]/`
+  - `*_informative_variants.csv`: informative variants for the donor indicated in the file name
+  - `*_matched_gt.csv`: genotype of the donor indicated in the file name
+  - `*_unmatched_gt.csv`: genotype of all other donors
+- `donor_match/subset_gt_donors/`
+  - `_donor_specific.vcf.gz`: Donor genotypes of donor-specific variants
+  - `_vireo.vcf.gz`: Donor genotypes of a set of discriminatory variants filtered by Vireo
+
+</details>
+
+Find variants runs only when `--match_donor` is enabled (default) and the workflow is in `rescue` or `donor_match` mode.
+It outputs two sets of variants: informative variants from vireo and donor specific variants as described in the [paper](https://link.springer.com/article/10.1186/s13059-024-03249-z#:~:text=Vireo%20is%20implemented,others%20during%20deconvolution.).
+A subset VCF of donor genotypes (produced by vireo) is then generated.
 
 ### Summary
 

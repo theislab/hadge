@@ -13,14 +13,14 @@ process FIND_VARIANTS {
     val variant_pct
 
     output:
-    tuple val(meta), path("*/*_matched_gt.csv")                       , emit: matched_gt
-    tuple val(meta), path("*/*_unmatched_gt.csv")                     , emit: unmatched_gt
-    tuple val(meta), path("*/*_informative_variants.csv")             , emit: informative_variants
-    tuple val(meta), path("*_all_representative_variant_df.csv")      , emit: all_representative_variant_df
-    tuple val(meta), path("*_donor_specific_variants_upset.png")      , emit: donor_specific_variants_upset
-    tuple val(meta), path("*_donor_match_representative_variants.csv"), emit: donor_match_representative_variants
-    tuple val(meta), path("*_vireo_representative_variants.csv")      , emit: vireo_representative_variants, optional: true
-    path "versions.yml"                                               , emit: versions
+    tuple val(meta), path("*/*_matched_gt.csv")                 , emit: matched_gt
+    tuple val(meta), path("*/*_unmatched_gt.csv")               , emit: unmatched_gt
+    tuple val(meta), path("*/*_informative_variants.csv")       , emit: informative_variants
+    tuple val(meta), path("*_all_representative_variants.csv")  , emit: all_representative_variants
+    tuple val(meta), path("*_donor_specific_variants_upset.png"), emit: donor_specific_variants_upset
+    tuple val(meta), path("*_donor_specific_variants.csv")      , emit: donor_specific_variants
+    tuple val(meta), path("*_vireo_variants.csv")               , emit: vireo_variants, optional: true
+    path "versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -34,9 +34,9 @@ process FIND_VARIANTS {
     """
     mkdir -p hto1
 
-    touch ${prefix}_all_representative_variant_df.csv
+    touch ${prefix}_all_representative_variant.csv
     touch ${prefix}_donor_specific_variants_upset.png
-    touch ${prefix}_donor_match_representative_variants.csv
+    touch ${prefix}_donor_specific_representative_variants.csv
     touch ${prefix}_vireo_representative_variants.csv
     touch hto1/${prefix}_hto1_matched_gt.csv
     touch hto1/${prefix}_hto1_unmatched_gt.csv
