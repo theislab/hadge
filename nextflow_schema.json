@@ -175,6 +175,12 @@
                     "default": true,
                     "fa_icon": "fas fa-search"
                 },
+                "subset_gt_donors": {
+                    "type": "boolean",
+                    "description": "Option to subset the donor genotype based on detected variants.",
+                    "default": true,
+                    "fa_icon": "fas fa-filter"
+                },
                 "variant_count": {
                     "type": "integer",
                     "description": "Minimum variant count threshold.",

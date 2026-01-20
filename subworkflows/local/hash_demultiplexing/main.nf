@@ -32,18 +32,8 @@ workflow HASH_DEMULTIPLEXING {
     ch_hasheddrops_id_to_hash = Channel.empty()
     ch_hashsolo = Channel.empty()
 
-    ch_samplesheet.map { meta, rna, hto ->
-        {
-            if (!rna) {
-                error("RNA matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
-            }
-            if (!hto) {
-                error("HTO matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
-            }
-        }
-    }
-
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
+
         ch_samplesheet.map { meta, rna, hto ->
             if(meta.hto_names.split(",").any { it.contains('_') }){
                 def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
@@ -103,7 +93,7 @@ workflow HASH_DEMULTIPLEXING {
     }
 
     if (methods.contains('demuxem')) {
-        // @nictru do I have to track versions of both modules even tough it is from the same module?
+
         MTXCONVERT_RNA(ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }, false)
         ch_versions = ch_versions.mix(MTXCONVERT_RNA.out.versions)
 

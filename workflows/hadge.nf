@@ -28,21 +28,6 @@ include { SUBSET_GT_DONORS                          } from '../modules/local/sub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def checkParams(String paramName, String process, String mode, boolean isFile) {
-    def value = params[paramName]
-
-    if( !value )
-        error "Parameter '${paramName}' must be specified to run ${process} with mode '${mode}'"
-
-    if( !value && !mode )
-        error "Parameter '${paramName}' must be specified to run ${process}"
-
-    if( isFile && !file(value).exists() )
-        error "File specified for parameter '${paramName}' does not exist: ${value}"
-
-    return true
-}
-
 workflow HADGE {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
@@ -70,7 +55,6 @@ workflow HADGE {
 
         ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
 
-        // @nictru do I have to track versions of both modules even tough it is from the same module?
         UNTAR_RNA(ch_rna.tar)
         ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
@@ -211,13 +195,12 @@ workflow HADGE {
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-        // @nictru do I have to track versions of both modules even tough it is from the same module?
         ch_versions = ch_versions.mix(JOIN_RESULTS_ASSIGNMENT.out.versions)
         ch_versions = ch_versions.mix(JOIN_RESULTS_CLASSIFICATION.out.versions)
     }
     else if ( params.mode == 'donor_match' ){
 
-        checkParams('demultiplexing_result', 'DONOR_MATCH', 'donor_match', true)
+
 
         ch_donor_match = ch_donor_match.map{
             meta, barcodes ->
@@ -225,11 +208,6 @@ workflow HADGE {
         }
 
         if ( params.find_variants ){
-
-            ['cell_genotype', 'vireo_filtered_variants'].each { p ->
-                checkParams(p, 'FIND_VARIANTS', 'donor_match', true)
-            }
-
             ch_find_variants = ch_find_variants.map{ meta ->
                 [meta[0], params.cell_genotype, params.vireo_filtered_variants]
             }
@@ -272,12 +250,7 @@ workflow HADGE {
             )
 
             // subset gt_donors vcf with representative_variants
-            // only vireo can produce gt_donors in rescue mode or user has to provide gt_donors in donor_match mode
-            if (
-                (params.mode == 'rescue' && params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) |
-                (params.mode == 'donor_match' && params.gt_donors && checkParams('gt_donors', 'SUBSET_GT_DONORS', 'donor_match', true))
-            ) {
-
+            if ( params.subset_gt_donors ) {
                 ch_subset_gt_donors = FIND_VARIANTS.out.donor_specific_variants
                     .map { meta, subset_variants ->
                         tuple(meta, subset_variants, 'donor_specific')
