@@ -164,6 +164,9 @@ workflow PIPELINE_COMPLETION {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+//
+// Check and validate pipeline parameters
+//
 
 def checkParams(String paramName, String process, String mode, boolean isFile) {
     def value = params[paramName]
@@ -180,10 +183,6 @@ def checkParams(String paramName, String process, String mode, boolean isFile) {
     return true
 }
 
-
-//
-// Check and validate pipeline parameters
-//
 def validateInputParameters() {
 
     // check parameters to run DONOR_MATCH or FIND_VARIANTS in 'donor_match' mode
@@ -209,6 +208,20 @@ def validateInputParameters() {
     genomeExistsError()
 }
 
+
+//
+// Validate channels from input samplesheet
+//
+
+def validateHtoNames(Map meta){
+    if(meta.hto_names.split(",").any { it.contains('_') }){
+        def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
+        throw new IllegalArgumentException(
+            "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
+        )
+    }
+}
+
 def checkSamplesheetInput(String colName, Object colValue, String mode, boolean isFile) {
     if( !colValue )
         error "Samplesheet input '${colName}' must be specified to run hadge with mode '${mode}'"
@@ -216,9 +229,7 @@ def checkSamplesheetInput(String colName, Object colValue, String mode, boolean 
     if( isFile && !file(colValue).exists() )
         error "File specified for samplesheet input '${colName}' does not exist: ${colValue}"
 }
-//
-// Validate channels from input samplesheet
-//
+
 def validateInputSamplesheet(input) {
 
     def (meta, rna, hto, bam, barcodes, vcf) = input

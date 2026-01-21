@@ -1,3 +1,4 @@
+include { validateHtoNames                                         } from '../../../subworkflows/local/utils_nfcore_hadge_pipeline'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
 include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
@@ -10,7 +11,6 @@ include { GMMDEMUX                                                 } from '../..
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
-
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -34,13 +34,8 @@ workflow HASH_DEMULTIPLEXING {
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
 
-        ch_samplesheet.map { meta, rna, hto ->
-            if(meta.hto_names.split(",").any { it.contains('_') }){
-                def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
-                throw new IllegalArgumentException(
-                    "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
-                )
-            }
+        ch_samplesheet.map { meta, _rna, _hto ->
+            validateHtoNames(meta)
         }
 
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
