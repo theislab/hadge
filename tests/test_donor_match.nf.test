@@ -3,8 +3,8 @@ nextflow_pipeline {
     name "Test pipeline with donor_match config"
     script "../main.nf"
     tag "pipeline"
-    tag "donor_match"
-    profile "donor_match"
+    tag "test_donor_match"
+    profile "test_donor_match"
 
     test("-profile test_donor_match") {
 
