@@ -1,0 +1,67 @@
+{
+    "-profile test_hashing": {
+        "content": [
+            {
+                "GMMDEMUX": {
+                    "GMM-Demux": "0.2.2.3"
+                },
+                "HASHEDDROPS": {
+                    "r-base": "4.4.3",
+                    "r-seurat": "5.3.0",
+                    "dropletutils": "1.26.0"
+                },
+                "UNTAR_HTO": {
+                    "untar": 1.34
+                },
+                "UNTAR_RNA": {
+                    "untar": 1.34
+                },
+                "Workflow": {
+                    "nf-core/hadge": "v1.0.0dev"
+                }
+            },
+            [
+                "hashing",
+                "hashing/gmm-demux",
+                "hashing/gmm-demux/test2",
+                "hashing/gmm-demux/test2/GMM_full.config",
+                "hashing/gmm-demux/test2/GMM_full.csv",
+                "hashing/gmm-demux/test2/barcodes.tsv.gz",
+                "hashing/gmm-demux/test2/features.tsv.gz",
+                "hashing/gmm-demux/test2/matrix.mtx.gz",
+                "hashing/hasheddrops",
+                "hashing/hasheddrops/test2",
+                "hashing/hasheddrops/test2/test2_emptyDrops.csv",
+                "hashing/hasheddrops/test2/test2_emptyDrops.png",
+                "hashing/hasheddrops/test2/test2_emptyDrops.rds",
+                "hashing/hasheddrops/test2/test2_hasheddrops.rds",
+                "hashing/hasheddrops/test2/test2_id_to_hash.csv",
+                "hashing/hasheddrops/test2/test2_params_hasheddrops.csv",
+                "hashing/hasheddrops/test2/test2_plot_hasheddrops.png",
+                "hashing/hasheddrops/test2/test2_results_hasheddrops.csv",
+                "pipeline_info",
+                "pipeline_info/nf_core_hadge_software_mqc_versions.yml"
+            ],
+            [
+                "GMM_full.config:md5,0a18f3d5729c4b6399ce4161609362b6",
+                "barcodes.tsv.gz:md5,e4cd9ce9929a07d6763304ec1bf64c23",
+                "features.tsv.gz:md5,441a968b2c7ee68eae8388b04bee328d",
+                "matrix.mtx.gz:md5,6f855b8bf68573d2e09139c29f9a2d41",
+                "test2_emptyDrops.csv:md5,a227d42afbcc590b4e949075cde4a5b6",
+                "test2_emptyDrops.png:md5,2d7113a76a494b2b2c18b77c4a664063",
+                "test2_emptyDrops.rds:md5,bda2e88b1e3e8c8ea5a22e19e3ab243d",
+                "test2_hasheddrops.rds:md5,7bb71fa6f28e3fc97b20bbdeffbb81d2",
+                "test2_id_to_hash.csv:md5,e8f577103f3e0c17604f89c3bcda2ffb",
+                "test2_params_hasheddrops.csv:md5,3612264937e5c5962fefddc43afb595f",
+                "test2_plot_hasheddrops.png:md5,2d7113a76a494b2b2c18b77c4a664063",
+                "test2_results_hasheddrops.csv:md5,9614789e65fc843e6a11fa60686fe89a"
+            ],
+            "No VCF files"
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.2"
+        },
+        "timestamp": "2026-01-23T08:33:35.916291256"
+    }
+}

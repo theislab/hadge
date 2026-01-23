@@ -193,6 +193,9 @@
                 "find_variants/test1/hto-2/test1_hto-2_informative_variants.csv",
                 "find_variants/test1/hto-2/test1_hto-2_matched_gt.csv",
                 "find_variants/test1/hto-2/test1_hto-2_unmatched_gt.csv",
+                "find_variants/test1/subset_gt_donors",
+                "find_variants/test1/subset_gt_donors/test1_donor_specific.vcf.gz",
+                "find_variants/test1/subset_gt_donors/test1_vireo.vcf.gz",
                 "find_variants/test1/test1_all_representative_variants.csv",
                 "find_variants/test1/test1_donor_specific_variants.csv",
                 "find_variants/test1/test1_donor_specific_variants_upset.png",
@@ -206,9 +209,6 @@
                 "find_variants/test2/hto-2/test2_hto-2_informative_variants.csv",
                 "find_variants/test2/hto-2/test2_hto-2_matched_gt.csv",
                 "find_variants/test2/hto-2/test2_hto-2_unmatched_gt.csv",
-                "find_variants/test2/subset_gt_donors",
-                "find_variants/test2/subset_gt_donors/test2_donor_specific.vcf.gz",
-                "find_variants/test2/subset_gt_donors/test2_vireo.vcf.gz",
                 "find_variants/test2/test2_all_representative_variants.csv",
                 "find_variants/test2/test2_donor_specific_variants.csv",
                 "find_variants/test2/test2_donor_specific_variants_upset.png",
@@ -405,14 +405,14 @@
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f"
             ],
             [
-                "test2_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
-                "test2_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
+                "test1_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
+                "test1_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
             ]
         ],
         "meta": {
-            "nf-test": "0.9.2",
+            "nf-test": "0.9.3",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-22T07:41:10.252095"
+        "timestamp": "2026-01-23T08:25:19.133970416"
     }
 }

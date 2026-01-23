@@ -773,19 +773,19 @@
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "test1_assignment.csv:md5,5b22ffd6f7e5062815fd94cac7bcf0b0",
                 "test1_classification.csv:md5,90d41dfa44e04de1a0f48007c5b084fd",
-                "test1_genetic.h5ad:md5,e4692e28d4b08611163d46dea8e0155b",
-                "test1_genetic_and_hashing.h5mu:md5,e1fa1bf8b0232e38baeae9d836d766c9",
-                "test1_hashing.h5ad:md5,188a1f70d70c099f9bfc31c7b16f3df7",
+                "test1_genetic.h5ad:md5,c1cec22be88ca7440034dccdd1d21722",
+                "test1_genetic_and_hashing.h5mu:md5,bdef3ba1ff44ea3ed9cd8b4bdf0396f5",
+                "test1_hashing.h5ad:md5,9ad6217e86b5118e358ca5aaa5d4bff1",
                 "test2_assignment.csv:md5,5b22ffd6f7e5062815fd94cac7bcf0b0",
                 "test2_classification.csv:md5,90d41dfa44e04de1a0f48007c5b084fd",
-                "test2_genetic.h5ad:md5,d04577c5dfce44db64e3fb613a6a301b",
-                "test2_genetic_and_hashing.h5mu:md5,041bcea66103c5c85db7adcf8c73ea13",
-                "test2_hashing.h5ad:md5,992b4021bcab71452f1250ee7b84973f",
+                "test2_genetic.h5ad:md5,c1cec22be88ca7440034dccdd1d21722",
+                "test2_genetic_and_hashing.h5mu:md5,bdef3ba1ff44ea3ed9cd8b4bdf0396f5",
+                "test2_hashing.h5ad:md5,9ad6217e86b5118e358ca5aaa5d4bff1",
                 "test3_assignment.csv:md5,5b22ffd6f7e5062815fd94cac7bcf0b0",
                 "test3_classification.csv:md5,90d41dfa44e04de1a0f48007c5b084fd",
-                "test3_genetic.h5ad:md5,e4692e28d4b08611163d46dea8e0155b",
-                "test3_genetic_and_hashing.h5mu:md5,ed14595f67f439598d5f4d50e484a267",
-                "test3_hashing.h5ad:md5,992b4021bcab71452f1250ee7b84973f"
+                "test3_genetic.h5ad:md5,c1cec22be88ca7440034dccdd1d21722",
+                "test3_genetic_and_hashing.h5mu:md5,bdef3ba1ff44ea3ed9cd8b4bdf0396f5",
+                "test3_hashing.h5ad:md5,9ad6217e86b5118e358ca5aaa5d4bff1"
             ],
             [
                 "test1_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
@@ -797,8 +797,8 @@
                 "test1.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test2.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test3.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
+                "cluster_genotypes.vcf:md5,fbe6f0f90e22e6590fb783d71997775f",
                 "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
-                "cluster_genotypes.vcf:md5,4fe17e1f85de2ca76b5b6ed269555d56",
                 "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
                 "test1.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
                 "test1.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
@@ -815,6 +815,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-22T08:15:00.126985762"
+        "timestamp": "2026-01-23T08:24:25.772821074"
     }
 }
