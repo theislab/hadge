@@ -71,7 +71,7 @@ class Arguments:
             print(f"{attr}: {getattr(self, attr)}")
 
 
-def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData):
+def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData) -> AnnData:
     if isRNA:
         summary_files = {
             "genetic_summary_assignment",
@@ -93,6 +93,9 @@ def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData):
         count_data.obs = count_data.obs.join(summary_table, how="left").fillna(
             args.negative_str
         )
+
+    # sort columns for consistent output
+    count_data.obs = count_data.obs[sorted(count_data.obs.columns)]
 
     if isRNA:
         count_data.write(args.genetic)
