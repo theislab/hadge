@@ -196,11 +196,11 @@
                 "test2.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test3.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
+                "test1.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
+                "test2.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
+                "test3.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
@@ -261,9 +261,6 @@
                 "test1.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test2.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test3.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
-                "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
-                "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
-                "cluster_genotypes.vcf:md5,fbe6f0f90e22e6590fb783d71997775f",
                 "test1.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
                 "test1.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
                 "test1_GT_donors.vireo.vcf.gz:md5,b92d531491566870c247cf3a122b2dc1",
@@ -276,9 +273,9 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.3",
+            "nf-test": "0.9.2",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-23T08:45:47.554545421"
+        "timestamp": "2026-01-23T17:48:04.52295"
     }
 }

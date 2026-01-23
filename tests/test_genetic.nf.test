@@ -20,7 +20,7 @@ nextflow_pipeline {
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             // VCF files
-            def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'], ignore: ['**/genetic/souporcell/*/*/cluster_genotypes.vcf'])
+            def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'], ignore: ['genetic/souporcell/*/*/cluster_genotypes.vcf'])
 
             assertAll(
                 { assert workflow.success},
