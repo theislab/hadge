@@ -262,8 +262,8 @@
                 "test2.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test3.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
-                "cluster_genotypes.vcf:md5,42a2791acf4888b065c9f734c87944b9",
                 "cluster_genotypes.vcf:md5,37abc628d0593e71c70856d3b33c8209",
+                "cluster_genotypes.vcf:md5,fbe6f0f90e22e6590fb783d71997775f",
                 "test1.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
                 "test1.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
                 "test1_GT_donors.vireo.vcf.gz:md5,b92d531491566870c247cf3a122b2dc1",
@@ -279,6 +279,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-23T08:31:58.552359477"
+        "timestamp": "2026-01-23T08:45:47.554545421"
     }
 }
