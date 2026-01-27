@@ -131,6 +131,24 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
 | `barcodes`   | TODO                                                                                                                                                                                   |
 
+:::tip{collapse title="Samplesheet Input Requirements by Module"}
+| Module | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
+|------------|:------:|:----------:|:----------:|:---:|:--------:|:---------:|:---:|
+| htodemux | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| multiseq | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| bff | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| demuxem | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| gmm-demux | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| hasheddrops | ✅ | ✅\* | ✅ | ❌ | ❌ | ❌ | ❌ |
+| hashsolo | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| vireo | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| demuxlet | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+| freemuxlet | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| souporcell | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+\* if `params.hasheddrops_runEmptyDrops` is true
+:::
+
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
 ## Running the pipeline
