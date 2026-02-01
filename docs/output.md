@@ -118,7 +118,7 @@ A subset VCF of donor genotypes (produced by vireo) is then generated.
 
 - `summary/`
   - `*_(assignment|classification).csv`: Combined assignment/classification table from all used genetic- and hashing-based deconvolution tools.
-  - `*_genetic.h5ad`: The RNA-seq count matrix with the assignments/classifications of all genetic tools saved in `.obs`.
+  - `*_genetic.h5ad`: The RNA-seq count matrix with the assignments/classifications of all genetic tools saved in `.obs`. If the `barcodes.tsv` from the samplesheet input contains barcodes not present in the RNA-seq count matrix, those barcodes will be dropped when joining the results from the genetic tools. Therefore, it is recommended that both files share the same set of barcodes.
   - `*_hashing.h5ad`: The hashing count matrix with the assignments/classifications of all hashing tools saved in `.obs`.
   - `*_genetic_and_hashing.h5mu`: Both `genetic.h5ad` and `hashing.h5ad` combined in a MuData object.
 

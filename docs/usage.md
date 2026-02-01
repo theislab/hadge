@@ -129,22 +129,30 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | `bam`        | Full path to the alignment file (`.bam`).                                                                                                                                              |
 | `vcf`        | Full path to the list of common SNPs (`.vcf`).                                                                                                                                         |
 | `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
-| `barcodes`   | TODO                                                                                                                                                                                   |
+| `barcodes`   | Full path to the list of cell barcodes (e.g., `barcodes.tsv` from Cell Ranger)                                                                                                         |
 
 :::tip{collapse title="Samplesheet Input Requirements by Module"}
-| Module | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
-|------------|:------:|:----------:|:----------:|:---:|:--------:|:---------:|:---:|
-| htodemux | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| multiseq | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| bff | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| demuxem | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| gmm-demux | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| hasheddrops | ✅ | ✅\* | ✅ | ❌ | ❌ | ❌ | ❌ |
-| hashsolo | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| vireo | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| demuxlet | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
-| freemuxlet | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
-| souporcell | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ |
+
+| Mode        | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
+| ----------- | :----: | :--------: | :--------: | :-: | :------: | :-------: | :-: |
+| rescue      |   ✅   |     ✅     |     ✅     | ✅  |    ✅    |    ✅     | ✅  |
+| genetic     |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ✅  |
+| hashing     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| donor_match |   ✅   |     ❌     |     ❌     | ❌  |    ❌    |    ✅     | ❌  |
+
+| Module      | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
+| ----------- | :----: | :--------: | :--------: | :-: | :------: | :-------: | :-: |
+| htodemux    |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| multiseq    |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| bff         |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| demuxem     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| gmm-demux   |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| hasheddrops |   ✅   |    ✅\*    |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| hashsolo    |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| vireo       |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ✅  |
+| demuxlet    |   ✅   |     ❌     |     ❌     | ✅  |    ❌    |    ❌     | ✅  |
+| freemuxlet  |   ✅   |     ❌     |     ❌     | ✅  |    ❌    |    ✅     | ✅  |
+| souporcell  |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ❌  |
 
 \* if `params.hasheddrops_runEmptyDrops` is true
 :::
