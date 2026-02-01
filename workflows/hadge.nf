@@ -34,6 +34,9 @@ workflow HADGE {
     main:
 
     ch_versions = Channel.empty()
+    ch_donor_match = Channel.empty()
+    ch_find_variants = Channel.empty()
+    ch_subset_gt_donors = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
     // ------------------------------ preprocessing start -------------------------------
@@ -73,7 +76,7 @@ workflow HADGE {
                         .join(ch_remaining_input)
                         .join(ch_hashes)
                         .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
-                        if(hashes!= null){meta += [hto_names: file(hashes).text.trim()]}
+                        if(hashes!= null){ meta += [hto_names: file(hashes).text.trim()] }
                         [meta, rna, hto, bam, barcodes, vcf]
                         }
 
@@ -81,11 +84,6 @@ workflow HADGE {
     ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
     ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
     ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
-
-    // channels for donor matching
-    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf -> [meta] }
-    ch_find_variants = ch_donor_match
-    ch_subset_gt_donors = ch_donor_match
 
     // ------------------------------- preprocessing end --------------------------------
 
@@ -106,8 +104,7 @@ workflow HADGE {
                 [meta, rna, hto, gene_a, gene_c, [], []]
             }
 
-        ch_donor_match = ch_donor_match
-            .join(GENETIC_DEMULTIPLEXING.out.summary_assignment)
+        ch_donor_match = GENETIC_DEMULTIPLEXING.out.summary_assignment
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
     }
@@ -124,8 +121,7 @@ workflow HADGE {
             .join(HASH_DEMULTIPLEXING.out.summary_assignment)
             .join(HASH_DEMULTIPLEXING.out.summary_classification)
 
-        ch_donor_match = ch_donor_match
-            .join(HASH_DEMULTIPLEXING.out.summary_assignment)
+        ch_donor_match = HASH_DEMULTIPLEXING.out.summary_assignment
 
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
@@ -168,12 +164,10 @@ workflow HADGE {
             .join(HASH_DEMULTIPLEXING.out.summary_assignment)
             .join(HASH_DEMULTIPLEXING.out.summary_classification)
 
-        ch_donor_match = ch_donor_match
-            .join(JOIN_RESULTS_ASSIGNMENT.out.csv)
+        ch_donor_match = JOIN_RESULTS_ASSIGNMENT.out.csv
 
         if ( params.find_variants ){
-            ch_find_variants = ch_find_variants
-                .join(GENETIC_DEMULTIPLEXING.out.gt_cells)
+            ch_find_variants = GENETIC_DEMULTIPLEXING.out.gt_cells
                 .join(GENETIC_DEMULTIPLEXING.out.vireo_filtered_variants)
         }
 
@@ -184,14 +178,13 @@ workflow HADGE {
     }
     else if ( params.mode == 'donor_match' ){
 
-        ch_donor_match = ch_donor_match.map{ meta -> [meta, params.demultiplexing_result] }
+        ch_donor_match = ch_preprocessed.map{ meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta, params.demultiplexing_result] }
 
         if ( params.find_variants ){
-            ch_find_variants = ch_find_variants.map{ meta ->
-                [meta[0], params.cell_genotype, params.vireo_filtered_variants]
+            ch_find_variants = ch_preprocessed.map{ meta, _rna, _hto, _bam, _barcodes, _vcf ->
+                [meta, params.cell_genotype, params.vireo_filtered_variants]
             }
         }
-
     }
 
     if (params.mode == 'genetic' | params.mode == 'hashing' | params.mode == 'rescue'){
@@ -253,8 +246,6 @@ workflow HADGE {
         ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
 
-
-
     //
     // Collate and save software versions
     //
@@ -266,7 +257,6 @@ workflow HADGE {
             newLine: true,
         )
         .set { ch_collated_versions }
-
 
     //
     // MODULE: MultiQC
