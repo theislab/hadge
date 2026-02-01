@@ -454,16 +454,6 @@
                 "hashing/summary/test3/test3_hashing_overview_classification.csv",
                 "hashing/summary/test3/test3_hashing_summary_assignment.csv",
                 "hashing/summary/test3/test3_hashing_summary_classification.csv",
-                "multiqc",
-                "multiqc/multiqc_data",
-                "multiqc/multiqc_data/llms-full.txt",
-                "multiqc/multiqc_data/multiqc.log",
-                "multiqc/multiqc_data/multiqc.parquet",
-                "multiqc/multiqc_data/multiqc_citations.txt",
-                "multiqc/multiqc_data/multiqc_data.json",
-                "multiqc/multiqc_data/multiqc_software_versions.txt",
-                "multiqc/multiqc_data/multiqc_sources.txt",
-                "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_hadge_software_mqc_versions.yml",
                 "summary",
@@ -730,7 +720,7 @@
                 "test1_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test1_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test1_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test1_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
+                "test1_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test1_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test1_visual_params_htodemux.csv:md5,2a7879b87128e173b715275e8ee6bc0f",
                 "test2_assignment_htodemux.csv:md5,33d72b27c3d0b0f7394af18a18490a5c",
@@ -739,7 +729,7 @@
                 "test2_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test2_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test2_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test2_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
+                "test2_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test2_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test2_visual_params_htodemux.csv:md5,f6d8b87037257a326ede03ab50a09047",
                 "test3_assignment_htodemux.csv:md5,33d72b27c3d0b0f7394af18a18490a5c",
@@ -748,7 +738,7 @@
                 "test3_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test3_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test3_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test3_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
+                "test3_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test3_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test3_visual_params_htodemux.csv:md5,b472c6612b966110e7241b6bbdb5c052",
                 "test1_params_multiseqdemux.csv:md5,60a096f79d78655870aef2af9130cf9d",
@@ -769,7 +759,6 @@
                 "test3_hashing_overview_classification.csv:md5,73e83a9cc51560a08c28357921d1baf9",
                 "test3_hashing_summary_assignment.csv:md5,53ccb1fc3a6b85d10ff2cf580e9dfbe3",
                 "test3_hashing_summary_classification.csv:md5,052d8aad0e934cb2384fae9b9f313e37",
-                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "test1_genetic.h5ad:md5,6493fa69aa7797d7530e5fdeb1e60048",
                 "test1_genetic_and_hashing.h5mu:md5,dc47ea1661289d1f61f7fa2d2dc4cf2d",
                 "test1_hashing.h5ad:md5,d3f3c7a57e654e70ce3c4cf40b99f227",
@@ -783,9 +772,9 @@
             "No VCF files"
         ],
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
         },
-        "timestamp": "2026-01-24T07:44:44.79938"
+        "timestamp": "2026-02-01T15:42:16.067128469"
     }
 }
