@@ -190,11 +190,11 @@
                 "test2.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test3.best:md5,1afa27ec59d7ea6b37e1b9ffbc6007e8",
                 "test1.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test1.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test1.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test2.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test2.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test2.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "test3.clust1.samples.gz:md5,42f8c8ba281fccf6edaf6dbd30144210",
-                "test3.lmix:md5,ab1a80b4c5857dcb228d095aea1868a4",
+                "test3.lmix:md5,d8be4c936ff56980a476d5ba82290b8e",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
@@ -264,9 +264,9 @@
             ]
         ],
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
         },
-        "timestamp": "2026-02-01T09:49:29.462153"
+        "timestamp": "2026-02-01T17:01:19.138557743"
     }
 }
