@@ -41,9 +41,6 @@
                 "UMITOOLS_DEDUP": {
                     "umitools": "1.1.5"
                 },
-                "UNTAR_RNA": {
-                    "untar": 1.34
-                },
                 "VIREO": {
                     "vireo": "v0.5.8"
                 },
@@ -176,11 +173,8 @@
                 "pipeline_info/nf_core_hadge_software_mqc_versions.yml",
                 "summary",
                 "summary/test1",
-                "summary/test1/test1_genetic.h5ad",
                 "summary/test2",
-                "summary/test2/test2_genetic.h5ad",
-                "summary/test3",
-                "summary/test3/test3_genetic.h5ad"
+                "summary/test3"
             ],
             [
                 "test1_freemuxlet_vs_souporcell_concordance_heatmap.png:md5,dd2e92af065ab80b23767797978d05b6",
@@ -206,16 +200,16 @@
                 "clusters.tsv:md5,3443284fb0e0ace31b5da0f329568392",
                 "test1_genetic_overview_assignment.csv:md5,6e912c78c50b84deffdaf9fb5e8e3b20",
                 "test1_genetic_overview_classification.csv:md5,812a950b1eef4515079b2d7028b6658c",
-                "test1_genetic_summary_assignment.csv:md5,7cd0b643ca685c163f204850fa7ecac2",
-                "test1_genetic_summary_classification.csv:md5,5b418eed89d6b16d687ad297dca7bb5d",
+                "test1_genetic_summary_assignment.csv:md5,4a8a3b1c59ff015db2dba50eefde4f53",
+                "test1_genetic_summary_classification.csv:md5,938d7daf0ba588923fbc5b7c38bae90e",
                 "test2_genetic_overview_assignment.csv:md5,6e912c78c50b84deffdaf9fb5e8e3b20",
                 "test2_genetic_overview_classification.csv:md5,812a950b1eef4515079b2d7028b6658c",
-                "test2_genetic_summary_assignment.csv:md5,7cd0b643ca685c163f204850fa7ecac2",
-                "test2_genetic_summary_classification.csv:md5,5b418eed89d6b16d687ad297dca7bb5d",
+                "test2_genetic_summary_assignment.csv:md5,4a8a3b1c59ff015db2dba50eefde4f53",
+                "test2_genetic_summary_classification.csv:md5,938d7daf0ba588923fbc5b7c38bae90e",
                 "test3_genetic_overview_assignment.csv:md5,6e912c78c50b84deffdaf9fb5e8e3b20",
                 "test3_genetic_overview_classification.csv:md5,812a950b1eef4515079b2d7028b6658c",
-                "test3_genetic_summary_assignment.csv:md5,7cd0b643ca685c163f204850fa7ecac2",
-                "test3_genetic_summary_classification.csv:md5,5b418eed89d6b16d687ad297dca7bb5d",
+                "test3_genetic_summary_assignment.csv:md5,4a8a3b1c59ff015db2dba50eefde4f53",
+                "test3_genetic_summary_classification.csv:md5,938d7daf0ba588923fbc5b7c38bae90e",
                 "test1.base.vcf.gz:md5,36eccb4bd3e2130f395985e09a66a60d",
                 "test1.cells.vcf.gz:md5,b28d8acaf17777c7cf9e2c7d01d93a66",
                 "test1.samples.tsv:md5,9e488782c1bcd63c37ee3d1c4c0a9217",
@@ -252,10 +246,7 @@
                 "test3_prob_doublet.tsv.gz:md5,3dae1d20888be460d02782eb776043bb",
                 "test3_prob_singlet.tsv.gz:md5,90a717e3bdb50090c72fa73a18330e38",
                 "test3_summary.tsv:md5,94b0ce40cc86bbe7fbacebf98e685ee7",
-                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
-                "test1_genetic.h5ad:md5,0752f9fdd905fa371eb8b5c3a6bb14de",
-                "test2_genetic.h5ad:md5,0752f9fdd905fa371eb8b5c3a6bb14de",
-                "test3_genetic.h5ad:md5,0752f9fdd905fa371eb8b5c3a6bb14de"
+                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f"
             ],
             [
                 "test1.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
@@ -276,6 +267,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-01-23T17:48:04.52295"
+        "timestamp": "2026-02-01T09:49:29.462153"
     }
 }
