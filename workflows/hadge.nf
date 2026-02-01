@@ -39,68 +39,53 @@ workflow HADGE {
     ch_multiqc_files = Channel.empty()
 
     // ------------------------------ preprocessing start -------------------------------
-    if ( params.mode != 'donor_match' ){
+    // untar matrices
+    ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
+                    .branch { _meta, rna ->
+                        tar: rna != null && rna.endsWith('.tar.gz')
+                        directory: true
+                    }
 
-        // untar matrices
-        ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
-                        .branch { _meta, rna ->
-                            tar: rna != null && rna.endsWith('.tar.gz')
-                            directory: true
+
+    ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
+                    .branch { _meta, hto ->
+                        tar: hto != null && hto.endsWith('.tar.gz')
+                        directory: true
+                    }
+
+    UNTAR_RNA(ch_rna.tar)
+    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
+
+    UNTAR_HTO(ch_hto.tar)
+    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
+
+    ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
+    ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
+
+    // extract hto names (hto can be null in genetic or donor_match mode)
+    ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
+    ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
+    ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
+
+    // join preprocessed channels
+    ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
+    ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
+                        .join(ch_rna)
+                        .join(ch_hto)
+                        .join(ch_remaining_input)
+                        .join(ch_hashes)
+                        .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
+                        if(hashes!= null){meta += [hto_names: file(hashes).text.trim()]}
+                        [meta, rna, hto, bam, barcodes, vcf]
                         }
 
-
-        ch_hto = ch_samplesheet.map { meta, _rna, hto, _bam, _barcodes, _vcf -> [meta, hto] }
-                        .branch { _meta, hto ->
-                            tar: hto != null && hto.endsWith('.tar.gz')
-                            directory: true
-                        }
-
-        UNTAR_RNA(ch_rna.tar)
-        ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
-
-        UNTAR_HTO(ch_hto.tar)
-        ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
-
-        ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
-        ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
-
-        // extract hto names (hto can be null in genetic or donor_match mode)
-        ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
-        ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
-        ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
-
-        // join preprocessed channels
-        ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
-        ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
-                            .join(ch_rna)
-                            .join(ch_hto)
-                            .join(ch_remaining_input)
-                            .join(ch_hashes)
-                            .map {meta, rna, hto, bam, barcodes, vcf, hashes ->
-                            if(hashes!= null){meta += [hto_names: file(hashes).text.trim()]}
-                            [meta, rna, hto, bam, barcodes, vcf]
-                            }
-
-        // create channels for deconvolution tools
-        ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf ->
-            [meta, bam, barcodes, vcf]
-        }
-
-        ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf ->
-            [meta, rna, hto]
-        }
-
-        ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
-
-    }else{
-        // meta changes when extracting hashes
-        ch_preprocessed = ch_samplesheet
-    }
+    // create channels for deconvolution tools
+    ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
+    ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
+    ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
 
     // channels for donor matching
-    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf ->
-        [meta, barcodes]
-    }
+    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf -> [meta, barcodes] }
     ch_find_variants = ch_donor_match.map { meta, _barcodes -> [meta] }
     ch_subset_gt_donors = ch_donor_match.map { meta, _barcodes -> [meta] }
 
