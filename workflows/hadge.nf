@@ -3,16 +3,14 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hadge_pipeline'
-
-include { UNTAR as UNTAR_RNA                                       } from '../modules/nf-core/untar/main'
-include { UNTAR as UNTAR_HTO                                       } from '../modules/nf-core/untar/main'
-include { EXTRACT_HASHES                                           } from '../modules/local/extract_hashes/main'
-
+include { MULTIQC                                   } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap                          } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc                      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML                    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText                    } from '../subworkflows/local/utils_nfcore_hadge_pipeline'
+include { UNTAR as UNTAR_RNA                        } from '../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_HTO                        } from '../modules/nf-core/untar/main'
+include { EXTRACT_HASHES                            } from '../modules/local/extract_hashes/main'
 include { GENETIC_DEMULTIPLEXING                    } from '../subworkflows/local/genetic_demultiplexing/main'
 include { HASH_DEMULTIPLEXING                       } from '../subworkflows/local/hash_demultiplexing/main'
 include { CREATE_ANNDATA_MUDATA                     } from '../modules/local/create_anndata_mudata/main'
