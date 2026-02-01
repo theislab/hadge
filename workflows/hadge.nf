@@ -29,7 +29,7 @@ include { SUBSET_GT_DONORS                          } from '../modules/local/sub
 workflow HADGE {
     take:
     ch_samplesheet // channel: samplesheet read in from --input
-    fasta // file: /path/to/genome.fasta
+    fasta          // file: /path/to/genome.fasta
 
     main:
 
@@ -83,9 +83,9 @@ workflow HADGE {
     ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
 
     // channels for donor matching
-    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf -> [meta, barcodes] }
-    ch_find_variants = ch_donor_match.map { meta, _barcodes -> [meta] }
-    ch_subset_gt_donors = ch_donor_match.map { meta, _barcodes -> [meta] }
+    ch_donor_match = ch_preprocessed.map { meta, _rna, _hto, _bam, barcodes, _vcf -> [meta] }
+    ch_find_variants = ch_donor_match
+    ch_subset_gt_donors = ch_donor_match
 
     // ------------------------------- preprocessing end --------------------------------
 
@@ -129,7 +129,6 @@ workflow HADGE {
 
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
     }
-
 
 
     else if ( params.mode == 'rescue' ){
@@ -185,12 +184,7 @@ workflow HADGE {
     }
     else if ( params.mode == 'donor_match' ){
 
-
-
-        ch_donor_match = ch_donor_match.map{
-            meta, barcodes ->
-            [meta, barcodes, params.demultiplexing_result]
-        }
+        ch_donor_match = ch_donor_match.map{ meta -> [meta, params.demultiplexing_result] }
 
         if ( params.find_variants ){
             ch_find_variants = ch_find_variants.map{ meta ->
@@ -222,11 +216,7 @@ workflow HADGE {
 
             ch_find_variants = DONOR_MATCH.out.best_intersect_assignment_after_match
                 .join(ch_find_variants)
-                .join(ch_donor_match.map {
-                        meta, barcode_whitelist, demultiplexing_result ->
-                        [meta, demultiplexing_result]
-                    }
-                )
+                .join(ch_donor_match)
 
             FIND_VARIANTS(
                 ch_find_variants,
@@ -326,5 +316,5 @@ workflow HADGE {
 
     emit:
     multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    versions       = ch_versions // channel: [ path(versions.yml) ]
+    versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }

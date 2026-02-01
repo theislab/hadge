@@ -104,7 +104,6 @@ def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData) -> AnnData:
 
     return count_data
 
-
 if __name__ == "__main__":
     args = Arguments()
 

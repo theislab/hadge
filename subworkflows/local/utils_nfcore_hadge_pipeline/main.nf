@@ -246,9 +246,9 @@ def validateInputSamplesheet(input) {
     // define required columns for each mode
     def modeColumns = [
         genetic:     ['bam', 'vcf', 'n_samples', 'barcodes'],
-        hashing:     ['rna_matrix', 'hto_matrix', 'barcodes'],
+        hashing:     ['rna_matrix', 'hto_matrix'],
         rescue:      ['rna_matrix', 'hto_matrix', 'bam', 'vcf', 'n_samples', 'barcodes'],
-        donor_match: ['n_samples', 'barcodes']
+        donor_match: ['n_samples']
     ]
 
     def colsToCheck = modeColumns[params.mode]

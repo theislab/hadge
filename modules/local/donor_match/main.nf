@@ -8,7 +8,7 @@ process DONOR_MATCH {
         'community.wave.seqera.io/library/r-data.table_r-pheatmap_r-tidyverse:ac2dbc33f827dbb9' }"
 
     input:
-        tuple val(meta), path(barcode_whitelist), path(demultiplexing_result)
+        tuple val(meta), path(demultiplexing_result)
         val match_donor_method1
         val match_donor_method2
 

@@ -35,10 +35,10 @@ nextflow run nf-core/hadge \
 Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
 
 ```csv title="samplesheet.csv"
-sample,rna_matrix,bam,vcf,n_samples,barcodes
-id1,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
-id2,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
-id3,rna.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+sample,bam,vcf,n_samples,barcodes
+id1,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
 Now, you can run the pipeline using:
@@ -62,10 +62,10 @@ A FASTA file is only required if `--genetic_tools` includes souporcell. If a FAS
 Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
 
 ```csv title="samplesheet.csv"
-sample,rna_matrix,hto_matrix,barcodes
-id1,rna.tar.gz,hto.tar.gz,barcodes.tsv
-id2,rna.tar.gz,hto.tar.gz,barcodes.tsv
-id3,rna.tar.gz,hto.tar.gz,barcodes.tsv
+sample,rna_matrix,hto_matrix
+id1,rna.tar.gz,hto.tar.gz
+id2,rna.tar.gz,hto.tar.gz
+id3,rna.tar.gz,hto.tar.gz
 ```
 
 Now, you can run the pipeline using:
@@ -84,8 +84,8 @@ nextflow run nf-core/hadge \
 This mode utilizes the donor matching component from the rescue mode, but requires manual input for several stages. To run all steps of donor matching, you must provide the demultiplexing results, filtered variants, and both cell and donor genotypes. For detailed specifications on these input parameters, refer to the [parameter documentation](https://nf-co.re/hadge/parameters).
 
 ```csv title="samplesheet.csv"
-sample,n_samples,barcodes
-id1,2,barcodes.tsv
+sample,n_samples
+id1,2
 ```
 
 Now, you can run the pipeline using:

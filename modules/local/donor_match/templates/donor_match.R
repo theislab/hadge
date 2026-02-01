@@ -50,7 +50,6 @@ string_to_null <- function(x, val = "[]") if (x == val) NULL else x
 check_files <- function(args) {
 
   files <- c(
-    "barcode",
     "result_csv"
   )
 
@@ -74,7 +73,6 @@ check_files <- function(args) {
 args <- list(
     # File inputs
     result_csv = '$demultiplexing_result',
-    barcode = '$barcode_whitelist',
     ndonor = as.numeric('$meta.n_samples'),
 
     # second in puts
@@ -121,17 +119,6 @@ if (file.exists(args\$result_csv) && !dir.exists(args\$result_csv)) {
       na.strings = c(NA_character_, "")
     )
 }
-
-# remove barcode that are not in the whitelist
-if (!is.null(args\$barcode)) {
-  barcode_whitelist <- fread(args\$barcode,
-    header = FALSE,
-    stringsAsFactors = FALSE
-  )\$V1
-  result_csv <-
-    result_csv[result_csv\$Barcode %in% barcode_whitelist, ]
-}
-
 
 # finds all columns in the CSV that contain at least one real donor label (not “negative” or “doublet”), and returns their column names
 colname_with_singlet <-
