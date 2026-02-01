@@ -34,7 +34,6 @@ tSNEVerbose <- as.logical('$tSNEVerbose')
 tSNEApprox <- as.logical('$tSNEApprox')
 tSNEDimMax <- as.numeric('$tSNEDimMax')
 tSNEPerplexity <- as.numeric('$tSNEPerplexity')
-tSNESeed <- as.numeric('$tSNESeed')
 heatMap <- as.logical('$heatMap')
 heatMapNcells <- as.numeric('$heatMapNcells')
 prefix <- '$prefix'
@@ -95,9 +94,6 @@ if (vlnPlot) {
 # tSNE Plot
 if (tSNE) {
   print("Generating tSNE plot...")
-
-  set.seed(tSNESeed)  # <- ensure reproducible t-SNE and PCA for a stable *_tSNE_htodemux.jpeg
-
   hashtag.subset <- subset(hashtag, idents = tSNEIdents, invert = tSNEInvert)
   DefaultAssay(hashtag.subset) <- assay
   hashtag.subset <- ScaleData(hashtag.subset,
@@ -142,7 +138,6 @@ Argument <- c(
   "tSNEApprox",
   "tSNEDimMax",
   "tSNEPerplexity",
-  "tSNESeed",
   "heatMap",
   "heatMapNcells"
 )
@@ -165,7 +160,6 @@ Value <- c(
   tSNEApprox,
   tSNEDimMax,
   tSNEPerplexity,
-  tSNESeed,
   heatMap,
   heatMapNcells
 )

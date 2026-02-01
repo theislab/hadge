@@ -242,7 +242,7 @@
                 "demuxem_min_signal_hashtag": {
                     "type": "number",
                     "description": "Any cell/nucleus with less than this count of hashtags from the signal will be marked as unknown.",
-                    "default": 10,
+                    "default": 10.0,
                     "minimum": 0,
                     "fa_icon": "fas fa-signal"
                 },
@@ -611,12 +611,6 @@
                     "default": 100,
                     "minimum": 1,
                     "fa_icon": "fas fa-sliders-h"
-                },
-                "htodemux_visualization_tSNESeed": {
-                    "type": "integer",
-                    "description": "Seed for reproducible t-SNE and PCA.",
-                    "default": 1234,
-                    "fa_icon": "fas fa-seedling"
                 },
                 "htodemux_visualization_heatMap": {
                     "type": "boolean",

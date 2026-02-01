@@ -45,7 +45,6 @@ process HTODEMUX_VISUALIZATION {
     tSNEApprox     = task.ext.tSNEApprox     ?: false        // Approximate tSNE
     tSNEDimMax     = task.ext.tSNEDimMax     ?: 2            // Max number of donors
     tSNEPerplexity = task.ext.tSNEPerplexity ?: 100          // Value for perplexity
-    tSNESeed       = task.ext.tSNESeed       ?: 1234         // Seed for reproducible t-SNE and PCA
 
     // Heatmap Parameters
     heatMap        = task.ext.heatMap        ?: true         // Generate heatmap
