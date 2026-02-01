@@ -230,11 +230,15 @@ workflow HADGE {
                             }
                     )
 
+                ch_subset_gt_donors = params.mode == 'rescue'
+                    ? ch_subset_gt_donors
+                        .combine(GENETIC_DEMULTIPLEXING.out.gt_donors, by: 0)
+                    : ch_subset_gt_donors
+                        .map { meta, variants, type ->
+                            [ meta, variants, type, params.gt_donors ]
+                        }
+
                 ch_subset_gt_donors = ch_subset_gt_donors
-                    .combine(params.mode == 'rescue'
-                                ? GENETIC_DEMULTIPLEXING.out.gt_donors
-                                : ch_subset_gt_donors.first().map{ meta, _variants, _type -> [meta, params.gt_donors] }
-                                , by: 0)
                     .combine(DONOR_MATCH.out.best_donor_match, by: 0)
 
                 SUBSET_GT_DONORS(ch_subset_gt_donors)

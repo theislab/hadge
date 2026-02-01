@@ -209,6 +209,9 @@
                 "find_variants/test2/hto-2/test2_hto-2_informative_variants.csv",
                 "find_variants/test2/hto-2/test2_hto-2_matched_gt.csv",
                 "find_variants/test2/hto-2/test2_hto-2_unmatched_gt.csv",
+                "find_variants/test2/subset_gt_donors",
+                "find_variants/test2/subset_gt_donors/test2_donor_specific.vcf.gz",
+                "find_variants/test2/subset_gt_donors/test2_vireo.vcf.gz",
                 "find_variants/test2/test2_all_representative_variants.csv",
                 "find_variants/test2/test2_donor_specific_variants.csv",
                 "find_variants/test2/test2_donor_specific_variants_upset.png",
@@ -222,6 +225,9 @@
                 "find_variants/test3/hto-2/test3_hto-2_informative_variants.csv",
                 "find_variants/test3/hto-2/test3_hto-2_matched_gt.csv",
                 "find_variants/test3/hto-2/test3_hto-2_unmatched_gt.csv",
+                "find_variants/test3/subset_gt_donors",
+                "find_variants/test3/subset_gt_donors/test3_donor_specific.vcf.gz",
+                "find_variants/test3/subset_gt_donors/test3_vireo.vcf.gz",
                 "find_variants/test3/test3_all_representative_variants.csv",
                 "find_variants/test3/test3_donor_specific_variants.csv",
                 "find_variants/test3/test3_donor_specific_variants_upset.png",
@@ -406,13 +412,17 @@
             ],
             [
                 "test1_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
-                "test1_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
+                "test1_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977",
+                "test2_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
+                "test2_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977",
+                "test3_donor_specific.vcf.gz:md5,8c51c5ed9e880089a8532e30a659adac",
+                "test3_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.10.2"
         },
-        "timestamp": "2026-02-01T10:15:25.726018"
+        "timestamp": "2026-02-01T15:54:40.941507"
     }
 }
