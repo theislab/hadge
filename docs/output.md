@@ -57,7 +57,7 @@ This subworkflow runs when the `--mode` is set to `hashing` or `rescue`. It save
 | Category    | Description                                                       |
 | ----------- | ----------------------------------------------------------------- |
 | Donor label | A HTO label that identifies the donor (e.g., `HTO-1`, `HTO-2`, …) |
-| `doublet`   | More than one cluster is assigned to this cell                    |
+| `doublet`   | More than one donor is assigned to this cell                      |
 | `negative`  | All other cases (e.g., undetected cells)                          |
 
 Classification works similarly, except that cluster labels are replaced by the label `singlet`.
