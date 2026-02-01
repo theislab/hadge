@@ -31,7 +31,6 @@ class Arguments:
     def parse_input_args(self) -> None:
         self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
-        self.rna_matrix = "${rna_matrix}"
         self.barcodes = "${barcodes}"
         self.vireo = "${vireo}"
         self.demuxlet = "${demuxlet}"
@@ -39,7 +38,6 @@ class Arguments:
         self.souporcell = "${souporcell}"
 
         path_vars = {
-            "rna_matrix",
             "barcodes",
             "vireo",
             "demuxlet",
@@ -230,11 +228,11 @@ if __name__ == "__main__":
     overview_classifications.to_csv(args.overview_classification, index=False)
 
     # save summary of all deconvolution methods
-    rna_data = sc.read_10x_mtx(args.rna_matrix)
+    barcodes_df = pd.read_csv(args.barcodes, header=None, sep="\t", names=["Barcode"])
 
-    # Use rna_data.obs_names() as index to perform a left join
-    assignment_summary = pd.DataFrame(rna_data.obs_names, columns=["Barcode"])
-    classification_summary = assignment_summary.copy()
+    # Use barcodes.tsv as index to perform a left join
+    assignment_summary = barcodes_df.copy()
+    classification_summary = barcodes_df.copy()
 
     for assignment in assignments:
         assignment_summary = pd.merge(

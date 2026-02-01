@@ -9,7 +9,6 @@ process GENE_SUMMARY {
 
     input:
     tuple val(meta),
-        path(rna_matrix),
         path(barcodes),
         path(vireo),
         path(demuxlet),

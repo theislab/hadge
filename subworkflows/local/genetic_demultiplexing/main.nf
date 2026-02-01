@@ -27,11 +27,11 @@ workflow GENETIC_DEMULTIPLEXING {
     ch_gt_donors =  Channel.empty()
     ch_vireo_filtered_variants = Channel.empty()
 
-    ch_summary = ch_samplesheet.map{ meta, rna, _bam, barcodes, _vcf ->
-        [meta, rna, barcodes]
+    ch_summary = ch_samplesheet.map{ meta, _bam, barcodes, _vcf ->
+        [meta, barcodes]
     }
 
-    ch_samplesheet = ch_samplesheet.map{ meta, _rna, bam, barcodes, vcf ->
+    ch_samplesheet = ch_samplesheet.map{ meta, bam, barcodes, vcf ->
         [meta, bam, barcodes, vcf]
     }
 

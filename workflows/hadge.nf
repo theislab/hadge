@@ -40,9 +40,11 @@ workflow HADGE {
 
     // ------------------------------ preprocessing start -------------------------------
     if ( params.mode != 'donor_match' ){
+
+        // untar matrices
         ch_rna = ch_samplesheet.map { meta, rna, _hto, _bam, _barcodes, _vcf -> [meta, rna] }
                         .branch { _meta, rna ->
-                            tar: rna.endsWith('.tar.gz')
+                            tar: rna != null && rna.endsWith('.tar.gz')
                             directory: true
                         }
 
@@ -53,8 +55,6 @@ workflow HADGE {
                             directory: true
                         }
 
-        ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
-
         UNTAR_RNA(ch_rna.tar)
         ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
@@ -64,11 +64,13 @@ workflow HADGE {
         ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
         ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
-        // hto can be null in genetic mode
+        // extract hto names (hto can be null in genetic or donor_match mode)
         ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
         ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
         ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
 
+        // join preprocessed channels
+        ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
         ch_preprocessed = ch_samplesheet.map { meta, _rna, _hto, _bam, _barcodes, _vcf -> [meta] }
                             .join(ch_rna)
                             .join(ch_hto)
@@ -81,7 +83,7 @@ workflow HADGE {
 
         // create channels for deconvolution tools
         ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf ->
-            [meta, rna, bam, barcodes, vcf]
+            [meta, bam, barcodes, vcf]
         }
 
         ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf ->
