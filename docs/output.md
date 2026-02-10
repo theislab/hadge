@@ -124,7 +124,8 @@ A subset VCF of donor genotypes (produced by vireo) is then generated.
 
 </details>
 
-When running the pipeline in `rescue` mode, the combined assignment/classification table from all used genetic- and hashing-based deconvolution tools will be generated here. Additionally, an AnnData/MuData object is created with the corresponding count matrices.
+When running the pipeline in `rescue` mode, the combined assignment/classification table from all used genetic- and hashing-based deconvolution tools will be generated here.
+Additionally, an AnnData/MuData object is created with the corresponding count matrices.
 
 ## Pipeline overview
 
