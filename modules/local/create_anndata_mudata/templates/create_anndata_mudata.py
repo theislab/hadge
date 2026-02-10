@@ -71,8 +71,8 @@ class Arguments:
             print(f"{attr}: {getattr(self, attr)}")
 
 
-def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData) -> AnnData:
-    if isRNA:
+def save_adata(args: Arguments, is_rna: bool, count_data: AnnData) -> AnnData:
+    if is_rna:
         summary_files = {
             "genetic_summary_assignment",
             "genetic_summary_classification",
@@ -97,7 +97,7 @@ def saveAnnData(args: Arguments, isRNA: bool, count_data: AnnData) -> AnnData:
     # sort columns for consistent output
     count_data.obs = count_data.obs[sorted(count_data.obs.columns)]
 
-    if isRNA:
+    if is_rna:
         count_data.write(args.genetic)
     else:
         count_data.write(args.hashing)
@@ -111,8 +111,8 @@ if __name__ == "__main__":
         rna_data = sc.read_10x_mtx(args.rna_matrix)
         hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
-        rna_data = saveAnnData(args, True, rna_data)
-        hto_data = saveAnnData(args, False, hto_data)
+        rna_data = save_adata(args, True, rna_data)
+        hto_data = save_adata(args, False, hto_data)
 
         mudata = MuData({"rna": rna_data, "hto": hto_data})
         mudata.update()
@@ -120,11 +120,11 @@ if __name__ == "__main__":
 
     elif args.rna_matrix is not None:
         rna_data = sc.read_10x_mtx(args.rna_matrix)
-        saveAnnData(args, True, rna_data)
+        save_adata(args, True, rna_data)
 
     elif args.hto_matrix is not None:
         hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
-        saveAnnData(args, False, hto_data)
+        save_adata(args, False, hto_data)
 
     versions = {
         "${task.process}": {

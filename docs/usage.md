@@ -8,7 +8,10 @@
 
 ### The rescue mode
 
-The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy. hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct. In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously. Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP-based donor deconvolution tools.
+The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy.
+hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct.
+In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously.
+Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP-based donor deconvolution tools.
 
 ```csv title="samplesheet.csv"
 sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
@@ -32,7 +35,9 @@ nextflow run nf-core/hadge \
 
 ### The genetic mode
 
-Genotyped-based deconvolution leverages the unique genetic composition of individual samples to guarantee that the final cell mixture can be deconvolved. This can be conducted with genotype of origin or in a genotype-free mode using a genomic reference from unmatched donors, for example the 1000 genome project genotypes in a genotype-free. The result of this approach is a table of SNP assignment to cells that can be used to computationally infer the donors. One limitation of this approach is the need to produce additional data to genotype the individual donors in order to correctly assign the cell mixtures.
+Genotyped-based deconvolution assigns cells to donors using genetic variation.
+This can be performed with donor genotypes or, if these are unavailable, using reference panels in genotype-free mode (e.g., 1000 Genomes).
+Finally, it assigns SNPs to cells to determine donor identity but requires additional genotyping.
 
 ```csv title="samplesheet.csv"
 sample,bam,vcf,n_samples,barcodes
@@ -54,12 +59,15 @@ nextflow run nf-core/hadge \
 ```
 
 :::info
-A FASTA file is only required if `--genetic_tools` includes souporcell. If a FASTA file is unavailable, you can specify the organism using `--genome`, and the pipeline will download the full reference genome automatically. However, to avoid long download times and high bandwidth usage, we recommend providing your own local reference genome with `--fasta`.
+A FASTA file is only required if `--genetic_tools` includes souporcell.
+If a FASTA file is unavailable, you can specify the organism using `--genome`, and the pipeline will download the full reference genome automatically.
+However, to avoid long download times and high bandwidth usage, we recommend providing your own local reference genome with `--fasta`.
 :::
 
 ### The hashing mode
 
-Cell hashing is a sample processing technique that requires processing individual samples to “tag” the membrane of the cell or the nuclei with unique oligonucleotide barcodes. The cells are then washed or the reaction is quenched, and the samples can be safely mixed and processed following the standard library preparation procedure. Two libraries are generated after this process, one for the scRNA and one for the hashing oligos (HTO), which are independently sequenced to produce each a single cell count matrix, one for the RNA library and one for the HTO library. The hashtag counts are then bioinformatically processed to deconvolve the cell’s source sample.
+Cell hashing tags cells with unique oligo barcodes so samples can be pooled.
+Separate scRNA and HTO libraries are sequenced, producing count matrices used to determine each cell’s sample of origin.
 
 ```csv title="samplesheet.csv"
 sample,rna_matrix,hto_matrix
@@ -81,7 +89,9 @@ nextflow run nf-core/hadge \
 
 ### The donor match mode
 
-This mode utilizes the donor matching component from the rescue mode, but requires manual input for several stages. To run all steps of donor matching, you must provide the demultiplexing results, filtered variants, and both cell and donor genotypes. For detailed specifications on these input parameters, refer to the [parameter documentation](https://nf-co.re/hadge/parameters).
+This mode utilizes the donor matching component from the rescue mode, but requires manual input for several stages.
+To run all steps of donor matching, you must provide the demultiplexing results, filtered variants, and both cell and donor genotypes.
+For detailed specifications on these input parameters, refer to the [parameter documentation](https://nf-co.re/hadge/parameters).
 
 ```csv title="samplesheet.csv"
 sample,n_samples
@@ -104,7 +114,9 @@ nextflow run nf-core/hadge \
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline.
+Use this parameter to specify its location.
+It has to be a comma-separated file with a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
@@ -112,7 +124,10 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-Each row in the sample sheet represents a distinct single-cell multiplexing experiment. The `sample` column must contain a unique identifier for each experiment. This format allows you to process multiple deconvolutions in a single run. While a full example is provided below, some columns may be optional depending on the mode you select.
+Each row in the sample sheet represents a distinct single-cell multiplexing experiment.
+The `sample` column must contain a unique identifier for each experiment.
+This format allows you to process multiple deconvolutions in a single run.
+While a full example is provided below, some columns may be optional depending on the mode you select.
 
 ```csv title="samplesheet.csv"
 sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes

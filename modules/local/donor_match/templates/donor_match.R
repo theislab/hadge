@@ -9,7 +9,6 @@
 convert2binary <- function(result_csv, method_name, min_cell) {
     #' Convert categorical donor assignments from a method into a binary (one-hot encoded) matrix of cells vs donors.
     #' Filters out invalid labels ("negative", "doublet", NA) if at least two different singlets assigments exist.
-    #' Returns NULL if the number of valid cells is below the specified threshold.
 
   method_assign <- result_csv %>% select(all_of(c("Barcode", method_name)))
   donor_id <- setdiff(
@@ -69,24 +68,18 @@ check_files <- function(args) {
 ################################################
 ################################################
 
-# Set defaults and classes
 args <- list(
-    # File inputs
     result_csv = '$demultiplexing_result',
     ndonor = as.numeric('$meta.n_samples'),
-
-    # second in puts
     method1 = string_to_null('$match_donor_method1'),
     method2 = string_to_null('$match_donor_method2'),
-
-    # others
-    prefix = '$prefix', # Prefix name for output files.
+    prefix = '$prefix',
     outputdir = ""
 )
 
 check_files(args)
 
-# Configure output precision
+# configure output precision
 options(digits=5)
 
 ################################################
@@ -108,7 +101,6 @@ library(tidyverse)
 # set TRUE to see print outputs for debugging
 debugging <- FALSE
 
-# read assignment_all csv
 result_csv <- NULL
 min_cell <- 0
 if (file.exists(args\$result_csv) && !dir.exists(args\$result_csv)) {
@@ -120,7 +112,7 @@ if (file.exists(args\$result_csv) && !dir.exists(args\$result_csv)) {
     )
 }
 
-# finds all columns in the CSV that contain at least one real donor label (not “negative” or “doublet”), and returns their column names
+# finds all columns in the CSV that contain at least one real donor label (not negative or doublet)
 colname_with_singlet <-
   colnames(result_csv %>% select_if(~ any(. != "negative" &
     . != "doublet")))
@@ -164,7 +156,7 @@ if (!is.null(args\$method1) && !is.null(args\$method2)) {
 
 } else {
 
-  # get all column names that are genetic
+  # genetic column names
   genetics_all <-
     Filter(function(x) {
       any(sapply(genetic_methods, function(y) {
@@ -172,7 +164,7 @@ if (!is.null(args\$method1) && !is.null(args\$method2)) {
       }))
     }, colname_with_singlet)
 
-  # get all column names that are hashing
+  # hashing column names
   hashing_all <-
     Filter(function(x) {
       any(sapply(hashing_methods, function(y) {
@@ -182,23 +174,17 @@ if (!is.null(args\$method1) && !is.null(args\$method2)) {
 
 
   # Build pairs of methods that we want to compare in the for-loop
-
-  # Match between genetics- and hashing-based methods
   if (length(hashing_all) > 0 && length(genetics_all) > 0) {
     all_methods_pair <-
       expand.grid(genetics = genetics_all, hashing = hashing_all)
     method1_all <- as.character(all_methods_pair\$genetics)
     method2_all <- as.character(all_methods_pair\$hashing)
   }
-
-  # Compare only within hashing methods
   else if (length(hashing_all) > 0) {
     method_pair <- combn(hashing_all, 2)
     method1_all <- method_pair[1, ]
     method2_all <- method_pair[2, ]
   }
-
-  # Compare only within genetics methods
   else if (length(genetics_all) > 0) {
     method_pair <- combn(genetics_all, 2)
     method1_all <- method_pair[1, ]
@@ -226,7 +212,6 @@ if (is.null(method1_all) || is.null(method2_all)) {
 
 for (i in 1:length(method1_all)) {
 
-  # extract the pair of methods we would like to compare now
   method1 <- method1_all[i]
   method2 <- method2_all[i]
 
@@ -256,7 +241,7 @@ for (i in 1:length(method1_all)) {
   }
 
   # Extract barcodes classified as singlets by both methods.
-  # This meaning of intersect is not true for  edge cases
+  # This meaning of intersect is not true for edge cases
   # where a method assigned only one singlet label (see convert2binary if-statement).
   intersect_barcode <-
     intersect(rownames(method1_res), rownames(method2_res))
@@ -279,7 +264,7 @@ for (i in 1:length(method1_all)) {
     },
     silent = TRUE
   )
-  # Skip this method pair if correlation calculation failed
+
   if (inherits(correlation_res, "try-error")) {
     cat("Failed to calculate phi coefficient")
     next

@@ -21,7 +21,8 @@
 
 ## Introduction
 
-**nf-core/hadge** (**ha**shing **d**econvolution combined with **ge**notype information) is a bioinformatics pipeline that combines 11 methods to perform both hashing- and genotype-based deconvolution on single cell multiplexing data. It takes a samplesheet with count matrices, BAM and VCF files as input, performs deconvolution with every method, joins all results and finally recovers previously discarded cells by combining the best performing methods (donor matching).
+**nf-core/hadge** (**ha**shing **d**econvolution combined with **ge**notype information) is a bioinformatics pipeline that combines 11 methods to perform both hashing- and genotype-based deconvolution on single cell multiplexing data.
+It takes a samplesheet with count matrices, BAM and VCF files as input, performs deconvolution with every method, joins all results and finally recovers previously discarded cells by combining the best performing methods (donor matching).
 
 ![nf-core/hadge metro map](docs/images/pipeline.png)
 
@@ -65,7 +66,8 @@ id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
-Each row contains data from a single-cell multiplexing experiment. The RNA-seq (`rna_matrix`) and hashing (`hto_matrix`) count matrices are provided in a 10x Genomics format and compressed as `.tar.gz`. Genetic deconvolution requires both the alignment file (`bam`) and a list of common SNPs (`vcf`). Users must specify the number of multiplexed donors (`n_samples`) and identify the target cells for deconvolution (`barcodes`).
+Each row contains data from a single-cell multiplexing experiment. The RNA-seq (`rna_matrix`) and hashing (`hto_matrix`) count matrices are provided in a 10x Genomics format and compressed as `.tar.gz`.
+Genetic deconvolution requires both the alignment file (`bam`) and a list of common SNPs (`vcf`). Users must specify the number of multiplexed donors (`n_samples`) and identify the target cells for deconvolution (`barcodes`).
 
 Now, you can run the pipeline using:
 
