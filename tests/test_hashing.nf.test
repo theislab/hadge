@@ -1,11 +1,12 @@
 nextflow_pipeline {
 
-    name "Test pipeline"
+    name "Test pipeline with hashing config"
     script "../main.nf"
     tag "pipeline"
-    tag "test"
+    tag "test_hashing"
+    profile "test_hashing"
 
-    test("-profile test") {
+    test("-profile test_hashing") {
 
         when {
             params {
@@ -18,8 +19,8 @@ nextflow_pipeline {
             def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
-            // VCF files (cluster_genotypes.vcf md5 differs but unused in pipeline)
-            def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'], ignore: ['genetic/souporcell/*/*/cluster_genotypes.vcf'])
+            // VCF files
+            def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'])
 
             assertAll(
                 { assert workflow.success},

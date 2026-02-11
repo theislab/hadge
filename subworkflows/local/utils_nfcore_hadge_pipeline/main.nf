@@ -163,17 +163,102 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
 //
 // Check and validate pipeline parameters
 //
+
+def checkParams(String paramName, String process, String mode, boolean isFile) {
+    def value = params[paramName]
+
+    if( !value )
+        error "Parameter '${paramName}' must be specified to run ${process} with mode '${mode}'"
+
+    if( !value && !mode )
+        error "Parameter '${paramName}' must be specified to run ${process}"
+
+    if( isFile && !file(value).exists() )
+        error "File specified for parameter '${paramName}' does not exist: ${value}"
+
+    return true
+}
+
 def validateInputParameters() {
+
+    // check parameters to run DONOR_MATCH or FIND_VARIANTS in 'donor_match' mode
+    if ( params.mode == 'donor_match' ){
+        checkParams('demultiplexing_result', 'DONOR_MATCH', 'donor_match', true)
+        if ( params.find_variants ){
+            ['cell_genotype', 'vireo_filtered_variants'].each { p ->
+                checkParams(p, 'FIND_VARIANTS', 'donor_match', true)
+            }
+        }
+    }
+
+    // check parameters to run SUBSET_GT_DONORS in 'rescue' or 'donor_match' mode
+    if ( params.find_variants && params.subset_gt_donors ) {
+        if ( params.mode == 'rescue' &&  !(params.genetic_tools && params.genetic_tools.split(',').contains('vireo')) ){
+            error "'SUBSET_GT_DONORS' requires the donor genotype as input. In rescue mode, please add 'vireo' to 'genetic_tools' or set 'subset_gt_donors' to false."
+        }
+        else if ( params.mode == 'donor_match' && !params.gt_donors ) {
+            error "'SUBSET_GT_DONORS' requires the donor genotype as input. In donor_match mode, please provide an existing file in 'gt_donors' or set 'subset_gt_donors' to false."
+        }
+    }
+
     genomeExistsError()
 }
+
 
 //
 // Validate channels from input samplesheet
 //
+
+def validateHtoNames(Map meta){
+    if(meta.hto_names.split(",").any { it.contains('_') }){
+        def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
+        throw new IllegalArgumentException(
+            "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
+        )
+    }
+}
+
+def checkSamplesheetInput(String colName, Object colValue, String mode, boolean isFile) {
+    if( !colValue )
+        error "Samplesheet input '${colName}' must be specified to run hadge with mode '${mode}'"
+
+    if( isFile && !file(colValue).exists() )
+        error "File specified for samplesheet input '${colName}' does not exist: ${colValue}"
+}
+
 def validateInputSamplesheet(input) {
+
+    def (meta, rna, hto, bam, barcodes, vcf) = input
+
+    def inputs = [
+        rna_matrix: rna,
+        hto_matrix: hto,
+        bam: bam,
+        barcodes: barcodes,
+        n_samples: meta.n_samples,
+        vcf: vcf
+    ]
+
+    // define required columns for each mode
+    def modeColumns = [
+        genetic:     ['bam', 'vcf', 'n_samples', 'barcodes'],
+        hashing:     ['rna_matrix', 'hto_matrix'],
+        rescue:      ['rna_matrix', 'hto_matrix', 'bam', 'vcf', 'n_samples', 'barcodes'],
+        donor_match: ['n_samples']
+    ]
+
+    def colsToCheck = modeColumns[params.mode]
+
+    colsToCheck.each { colName ->
+        def colValue = inputs[colName]
+        def isFile = colName != 'n_samples' // n_samples is not a file
+        checkSamplesheetInput(colName, colValue, params.mode, isFile)
+    }
+
     return input
 }
 

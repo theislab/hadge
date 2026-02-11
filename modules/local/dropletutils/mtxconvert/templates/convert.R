@@ -18,7 +18,7 @@ if ("${write_csv}" == "true") {
     write.csv(as.matrix(count_matrix), file = "${prefix}.csv", row.names = TRUE)
 }
 
-# TODO remove if demuxEM issue is solved
+# TODO demuxem: remove if demuxEM issue is solved (https://github.com/theislab/hadge/issues/81)
 # Write to h5 file
 # write10xCounts(
 #   path        = "${prefix}.h5",

@@ -12,12 +12,9 @@ os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
 import pandas as pd
 import scanpy as sc
 import numpy as np
-import mudata as md
-import pegasusio as io
 
 from pathlib import Path
-from mudata import MuData
-from typing import Tuple
+from typing import Tuple, List
 
 
 class Arguments:
@@ -34,20 +31,13 @@ class Arguments:
     def parse_input_args(self) -> None:
         self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
-        self.rna_matrix = "${rna_matrix}"
-        self.hto_matrix = "${hto_matrix}"
         self.barcodes = "${barcodes}"
         self.vireo = "${vireo}"
         self.demuxlet = "${demuxlet}"
         self.freemuxlet = "${freemuxlet}"
         self.souporcell = "${souporcell}"
 
-        self.generate_anndata = "${generate_anndata}"
-        self.generate_mudata = "${generate_mudata}"
-
         path_vars = {
-            "rna_matrix",
-            "hto_matrix",
             "barcodes",
             "vireo",
             "demuxlet",
@@ -55,23 +45,16 @@ class Arguments:
             "souporcell",
         }
 
-        boolean_vars = {"generate_anndata", "generate_mudata"}
-
         def _tranlate_to_python(input_str, value_str):
             if value_str.strip() == "":
                 return None
             else:
-                if input_str in path_vars:
-                    return Path(value_str)
-                elif input_str in boolean_vars:
-                    if value_str == "true":
-                        return True
-                    else:
-                        return False
+                path = Path(value_str)
+                if not path.exists():
+                    raise FileNotFoundError(f"Path does not exist: {path}")
+                return path
 
-        vars = path_vars | boolean_vars
-
-        for var in vars:
+        for var in path_vars:
             raw_value = getattr(self, var)
             processed_value = _tranlate_to_python(var, raw_value)
             setattr(self, var, processed_value)
@@ -80,8 +63,8 @@ class Arguments:
         directories = {
             "assignment": "_genetic_summary_assignment.csv",
             "classification": "_genetic_summary_classification.csv",
-            "h5mu": "_genetic_summary.h5mu",
-            "h5ad": "_genetic_summary.h5ad",
+            "overview_assignment": "_genetic_overview_assignment.csv",
+            "overview_classification": "_genetic_overview_classification.csv",
         }
 
         for output, directory in directories.items():
@@ -166,59 +149,54 @@ class ProcessDeconvolutionMethodResult:
         return assignment, classification
 
 
-# TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type (https://github.com/theislab/hadge/issues/83)
-# joins the assignment results with RNA, generate_anndata will return h5ad with RNA matrix
-def saveAnnDataMuData(
-    args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data
-):
-    if args.generate_mudata or args.generate_anndata:
-        assignment_summary.set_index("Barcode", inplace=True)
-        rna_data.obs = rna_data.obs.join(assignment_summary, how="left").fillna(
-            args.negative_str
-        )
-
-    if args.generate_anndata:
-        rna_data.write(args.h5ad)
-
-    if args.generate_mudata:
-        mudata = MuData({"rna": rna_data, "hto": hto_data})
-        mudata.update()
-        mudata.write(args.h5mu)
-
-
-def print_method_item_counts(dfs):
+def create_overview_table(dfs: List[pd.DataFrame]):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
-      method name | total count | count(item1) | count(item2) | ...
+    method name | total count | match_method1 | match_method2 | ... | count(item1) | count(item2) | ...
+    Match to a method counts the number of barcodes that a method has in common with another method.
     An item refers to the donor label in the assignment (HTO-1, HTO-2, ...) or the classification (singlet, doublet, negative).
     """
     rows = []
     all_items = set()
+    match_cols = set()
 
-    # Extract items and their counts for every deconvolution method
+    # extract items and their counts for every deconvolution method
     for df in dfs:
-        print(df)
-
+        # add method name and number of barcodes
         method_name = df.columns[1]
-        counts = df[method_name].value_counts(dropna=False)
         total = len(df)
-        all_items.update(counts.index)
-
         row = {"method": method_name, "count_overall": total}
+
+        # add the number of matching barcodes to the other methods
+        for df2 in dfs:
+            method_name_2 = df2.columns[1]
+            match_col_name = f"match_{method_name_2}"
+            match_cols.add(match_col_name)
+            new_match_col = {
+                match_col_name: len(pd.merge(df, df2, on="Barcode", how="inner"))
+            }
+            row.update(new_match_col)
+
+        # add the counts for each item
+        counts = df[method_name].value_counts(dropna=False)
+        all_items.update(counts.index)
         row.update(counts.to_dict())
+
         rows.append(row)
 
     summary = pd.DataFrame(rows).fillna(0)
 
-    # Convert all numeric values to int
+    # convert all numeric values to int
     for col in summary.columns:
         if col != "method":
             summary[col] = summary[col].astype(int)
 
-    # Order columns
-    summary = summary[["method", "count_overall"] + sorted(list(all_items))]
+    # order columns
+    summary = summary[
+        ["method", "count_overall"] + sorted(match_cols) + sorted(list(all_items))
+    ]
 
-    print(summary.to_string(index=False))
+    return summary
 
 
 if __name__ == "__main__":
@@ -243,12 +221,18 @@ if __name__ == "__main__":
 
     # ----------------------------------- save csv's -----------------------------------
 
-    rna_data = sc.read_10x_mtx(args.rna_matrix)
-    hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
+    # save overview tables
+    overview_assignment = create_overview_table(assignments)
+    overview_assignment.to_csv(args.overview_assignment, index=False)
+    overview_classifications = create_overview_table(classifications)
+    overview_classifications.to_csv(args.overview_classification, index=False)
 
-    # Use rna_data.obs_names() as index to perform a left join
-    assignment_summary = pd.DataFrame(rna_data.obs_names, columns=["Barcode"])
-    classification_summary = assignment_summary.copy()
+    # save summary of all deconvolution methods
+    barcodes_df = pd.read_csv(args.barcodes, header=None, sep="\t", names=["Barcode"])
+
+    # Use barcodes.tsv as index to perform a left join
+    assignment_summary = barcodes_df.copy()
+    classification_summary = barcodes_df.copy()
 
     for assignment in assignments:
         assignment_summary = pd.merge(
@@ -265,10 +249,6 @@ if __name__ == "__main__":
         args.classification, index=False
     )
 
-    # -------------------------------- save mudata/anndata -----------------------------
-
-    saveAnnDataMuData(args, assignment_summary, rna_data, hto_data)
-
     # -------------------------------------- versions ----------------------------------
 
     versions = {
@@ -277,8 +257,6 @@ if __name__ == "__main__":
             "pandas": pd.__version__,
             "scanpy": sc.__version__,
             "numpy": np.__version__,
-            "mudata": md.__version__,
-            "pegasusio": io.__version__,
         }
     }
 

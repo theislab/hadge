@@ -12,12 +12,10 @@ os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
 import pandas as pd
 import scanpy as sc
 import numpy as np
-import mudata as md
 import pegasusio as io
 
 from pathlib import Path
-from mudata import MuData
-from typing import Tuple
+from typing import Tuple, List
 
 
 class Arguments:
@@ -35,7 +33,6 @@ class Arguments:
     def parse_input_args(self) -> None:
         self.prefix = "$task.ext.prefix" if "$task.ext.prefix" != "null" else "$meta.id"
 
-        self.rna_matrix = "${rna_matrix}"
         self.hto_matrix = "${hto_matrix}"
         self.htodemux_assignments = "${htodemux_assignments}"
         self.htodemux_classification = "${htodemux_classification}"
@@ -48,13 +45,10 @@ class Arguments:
         self.hasheddrops_id_to_hash = "${hasheddrops_id_to_hash}"
         self.hashsolo = "${hashsolo}"
 
-        self.generate_anndata = "${generate_anndata}"
-        self.generate_mudata = "${generate_mudata}"
         self.bff_methods = "${bff_methods}"
         self.hash_list = "${hash_list}"
 
         path_vars = {
-            "rna_matrix",
             "hto_matrix",
             "htodemux_assignments",
             "htodemux_classification",
@@ -68,8 +62,6 @@ class Arguments:
             "hashsolo",
         }
 
-        boolean_vars = {"generate_anndata", "generate_mudata"}
-
         other_vars = {"bff_methods", "hash_list"}
 
         def _tranlate_to_python(input_str, value_str):
@@ -77,12 +69,10 @@ class Arguments:
                 return None
             else:
                 if input_str in path_vars:
-                    return Path(value_str)
-                elif input_str in boolean_vars:
-                    if value_str == "true":
-                        return True
-                    else:
-                        return False
+                    path = Path(value_str)
+                    if not path.exists():
+                        raise FileNotFoundError(f"Path does not exist: {path}")
+                    return path
                 elif input_str == "bff_methods":
                     if value_str == "RAW":
                         return ["bff_raw"]
@@ -99,7 +89,7 @@ class Arguments:
                         hash.strip() for hash in "${hash_list}".strip("[]").split(",")
                     )
 
-        vars = path_vars | boolean_vars | other_vars
+        vars = path_vars | other_vars
 
         for var in vars:
             raw_value = getattr(self, var)
@@ -110,8 +100,8 @@ class Arguments:
         directories = {
             "assignment": "_hashing_summary_assignment.csv",
             "classification": "_hashing_summary_classification.csv",
-            "h5mu": "_hashing_summary.h5mu",
-            "h5ad": "_hashing_summary.h5ad",
+            "overview_assignment": "_hashing_overview_assignment.csv",
+            "overview_classification": "_hashing_overview_classification.csv",
         }
 
         for output, directory in directories.items():
@@ -157,7 +147,7 @@ class ProcessModuleOutput:
             {"unknown": args.negative_str}
         )
 
-        # TODO demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
+        # TODO demuxem: demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
         assignment = data.obs["assignment"].to_frame()
         assignment.reset_index(inplace=True)
         assignment.columns = ["Barcode", "demuxem"]
@@ -348,59 +338,54 @@ class ProcessModuleOutput:
         return assignment, classification
 
 
-# TODO if we keep saving AnnData/MuData in gene/hash_summary add AnnData to container for input type (https://github.com/theislab/hadge/issues/83)
-# joins the assignment results with HTO, generate_anndata will return h5ad with HTO matrix
-def saveAnnDataMuData(
-    args: Arguments, assignment_summary: pd.DataFrame, rna_data, hto_data
-):
-    if args.generate_mudata or args.generate_anndata:
-        assignment_summary.set_index("Barcode", inplace=True)
-        hto_data.obs = hto_data.obs.join(assignment_summary, how="left").fillna(
-            args.negative_str
-        )
-
-    if args.generate_anndata:
-        hto_data.write(args.h5ad)
-
-    if args.generate_mudata:
-        mudata = MuData({"rna": rna_data, "hto": hto_data})
-        mudata.update()
-        mudata.write(args.h5mu)
-
-
-def print_method_item_counts(dfs):
+def create_overview_table(dfs: List[pd.DataFrame]):
     """
     Takes the list of assignment/classification DataFrames (assignments/classifications) and prints a summary table:
-      method name | total count | count(item1) | count(item2) | ...
+    method name | total count | match_method1 | match_method2 | ... | count(item1) | count(item2) | ...
+    Match to a method counts the number of barcodes that a method has in common with another method.
     An item refers to the donor label in the assignment (HTO-1, HTO-2, ...) or the classification (singlet, doublet, negative).
     """
     rows = []
     all_items = set()
+    match_cols = set()
 
-    # Extract items and their counts for every deconvolution method
+    # extract items and their counts for every deconvolution method
     for df in dfs:
-        print(df)
-
+        # add method name and number of barcodes
         method_name = df.columns[1]
-        counts = df[method_name].value_counts(dropna=False)
         total = len(df)
-        all_items.update(counts.index)
-
         row = {"method": method_name, "count_overall": total}
+
+        # add the number of matching barcodes to the other methods
+        for df2 in dfs:
+            method_name_2 = df2.columns[1]
+            match_col_name = f"match_{method_name_2}"
+            match_cols.add(match_col_name)
+            new_match_col = {
+                match_col_name: len(pd.merge(df, df2, on="Barcode", how="inner"))
+            }
+            row.update(new_match_col)
+
+        # add the counts for each item
+        counts = df[method_name].value_counts(dropna=False)
+        all_items.update(counts.index)
         row.update(counts.to_dict())
+
         rows.append(row)
 
     summary = pd.DataFrame(rows).fillna(0)
 
-    # Convert all numeric values to int
+    # convert all numeric values to int
     for col in summary.columns:
         if col != "method":
             summary[col] = summary[col].astype(int)
 
-    # Order columns
-    summary = summary[["method", "count_overall"] + sorted(list(all_items))]
+    # order columns
+    summary = summary[
+        ["method", "count_overall"] + sorted(match_cols) + sorted(list(all_items))
+    ]
 
-    print(summary.to_string(index=False))
+    return summary
 
 
 if __name__ == "__main__":
@@ -429,7 +414,13 @@ if __name__ == "__main__":
 
     # ----------------------------------- save csv's -----------------------------------
 
-    rna_data = sc.read_10x_mtx(args.rna_matrix)
+    # save overview tables
+    overview_assignment = create_overview_table(assignments)
+    overview_assignment.to_csv(args.overview_assignment, index=False)
+    overview_classifications = create_overview_table(classifications)
+    overview_classifications.to_csv(args.overview_classification, index=False)
+
+    # save summary of all deconvolution methods
     hto_data = sc.read_10x_mtx(args.hto_matrix, gex_only=False)
 
     # Need to use a left join — demuxEM outputs extra barcodes not present in the input.
@@ -449,17 +440,13 @@ if __name__ == "__main__":
             classification_summary, classification, on="Barcode", how="left"
         )
 
-    # TODO update if demuxEM works (https://github.com/theislab/hadge/issues/81)
+    # TODO demuxem: update if demuxEM works (https://github.com/theislab/hadge/issues/81)
     # .replace("", args.negative_str)
     # maybe also in demuxem()
     assignment_summary.fillna(args.negative_str).to_csv(args.assignment, index=False)
     classification_summary.fillna(args.negative_str).to_csv(
         args.classification, index=False
     )
-
-    # -------------------------------- save mudata/anndata -----------------------------
-
-    saveAnnDataMuData(args, assignment_summary, rna_data, hto_data)
 
     # -------------------------------------- versions ----------------------------------
 
@@ -469,7 +456,6 @@ if __name__ == "__main__":
             "pandas": pd.__version__,
             "scanpy": sc.__version__,
             "numpy": np.__version__,
-            "mudata": md.__version__,
             "pegasusio": io.__version__,
         }
     }

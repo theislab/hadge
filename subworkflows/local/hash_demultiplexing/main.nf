@@ -1,3 +1,4 @@
+include { validateHtoNames                                         } from '../../../subworkflows/local/utils_nfcore_hadge_pipeline'
 include { PREPROCESSING_FOR_HTODEMUX_MULTISEQ                      } from '../../../modules/local/preprocessing_for_htodemux_multiseq'
 include { HTODEMUX                                                 } from '../../../modules/nf-core/htodemux'
 include { HTODEMUX_VISUALIZATION                                   } from '../../../modules/local/htodemux_visualization'
@@ -10,7 +11,6 @@ include { GMMDEMUX                                                 } from '../..
 include { SCANPY_HASHSOLO as HASHSOLO                              } from '../../../modules/nf-core/scanpy/hashsolo'
 include { HASHEDDROPS                                              } from '../../../modules/nf-core/hasheddrops'
 include { HASH_SUMMARY                                             } from '../../../modules/local/hash_summary'
-
 
 workflow HASH_DEMULTIPLEXING {
     take:
@@ -32,18 +32,12 @@ workflow HASH_DEMULTIPLEXING {
     ch_hasheddrops_id_to_hash = Channel.empty()
     ch_hashsolo = Channel.empty()
 
-    ch_samplesheet.map { meta, rna, hto ->
-        {
-            if (!rna) {
-                error("RNA matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
-            }
-            if (!hto) {
-                error("HTO matrix not provided for sample ${meta.id}, but this is required for hash demultiplexing. Please check your input samplesheet.")
-            }
-        }
-    }
-
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
+
+        ch_samplesheet.map { meta, _rna, _hto ->
+            validateHtoNames(meta)
+        }
+
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
             ch_samplesheet
         )
@@ -87,8 +81,7 @@ workflow HASH_DEMULTIPLEXING {
         }
     }
 
-    // TODO rename to bff since we named the module bff
-    if (methods.contains('cellhashr')) {
+    if (methods.contains('bff')) {
         BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
         ch_versions = ch_versions.mix(BFF.out.versions)
@@ -115,12 +108,11 @@ workflow HASH_DEMULTIPLEXING {
 
     if (methods.contains('gmm-demux')) {
 
-        // TODO do the same as for meta.n_cells as for hash_list
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hashes,
-                    meta.n_cells
+                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hto_names,
+                    params.gmmdemux_estimated_n_cells ? gmmdemux_estimated_n_cells : [],
                 ]
             }
 
@@ -167,7 +159,7 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
 
-    ch_summary = ch_samplesheet
+    ch_summary = ch_samplesheet.map { meta, rna, hto -> [meta,hto] }
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)
@@ -182,10 +174,7 @@ workflow HASH_DEMULTIPLEXING {
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
-    HASH_SUMMARY(
-        ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata, params.bff_methods)
-    )
+    HASH_SUMMARY(ch_summary,params.bff_methods)
 
     ch_versions = ch_versions.mix(HASH_SUMMARY.out.versions)
 

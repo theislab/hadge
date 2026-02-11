@@ -23,13 +23,15 @@ workflow GENETIC_DEMULTIPLEXING {
     ch_demuxlet = Channel.empty()
     ch_freemuxlet = Channel.empty()
     ch_souporcell = Channel.empty()
-    ch_cellsnp = Channel.empty()
+    ch_gt_cells = Channel.empty()
+    ch_gt_donors =  Channel.empty()
+    ch_vireo_filtered_variants = Channel.empty()
 
-    ch_summary = ch_samplesheet.map{ meta, rna, hto, _bam, barcodes, _vcf ->
-        [meta, rna, hto, barcodes]
+    ch_summary = ch_samplesheet.map{ meta, _bam, barcodes, _vcf ->
+        [meta, barcodes]
     }
 
-    ch_samplesheet = ch_samplesheet.map{ meta, _rna, _hto, bam, barcodes, vcf ->
+    ch_samplesheet = ch_samplesheet.map{ meta, bam, barcodes, vcf ->
         [meta, bam, barcodes, vcf]
     }
 
@@ -60,7 +62,9 @@ workflow GENETIC_DEMULTIPLEXING {
             .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
     }
 
-    if (methods.contains('vireo')) {
+
+
+    if ( params.find_variants | methods.contains('vireo')){
         SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
@@ -68,16 +72,19 @@ workflow GENETIC_DEMULTIPLEXING {
             ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
 
-        ch_cellsnp = ch_cellsnp.mix(CELLSNP_MODEA.out.cell)
+        ch_gt_cells = ch_gt_cells.mix(CELLSNP_MODEA.out.cell)
         ch_versions = ch_versions.mix(CELLSNP_MODEA.out.versions)
+    }
 
+    if (methods.contains('vireo')) {
         VIREO(
-            ch_samplesheet.join(CELLSNP_MODEA.out.cell).map { meta, _bam, _barcodes, vcf, cell -> [meta, cell, meta.n_samples, vcf, []] }
+            ch_samplesheet.join(ch_gt_cells).map { meta, _bam, _barcodes, vcf, cell -> [meta, cell, meta.n_samples, vcf, []] }
         )
+
         ch_vireo = ch_vireo.mix(VIREO.out.donor_ids)
+        ch_vireo_filtered_variants = ch_vireo_filtered_variants.mix(VIREO.out.filtered_variants)
+        ch_gt_donors = ch_gt_donors.mix(VIREO.out.genotype_vcf)
         ch_versions = ch_versions.mix(VIREO.out.versions)
-
-
     }
 
     if (methods.contains('demuxlet') || methods.contains('freemuxlet')) {
@@ -106,6 +113,10 @@ workflow GENETIC_DEMULTIPLEXING {
             [ meta, bam, barcodes, meta.n_samples ]
         }
 
+        if (! params.fasta ) {
+            log.warn("The pipeline is downloading the full reference genome from ${params.genome} because only `genome` and not `fasta` is set. To reduce long download times and high bandwidth usage, provide your own reference by specifying `fasta`.")
+        }
+
         SOUPORCELL(
             ch_souporcell_bam_barcodes_clusters,
             channel.value([[id: 'fasta'], file(fasta, checkIfExists: true)])
@@ -122,10 +133,7 @@ workflow GENETIC_DEMULTIPLEXING {
         .join(ch_souporcell, remainder: true)
         .map { tuple -> tuple.collect { it == null ? [] : it } }
 
-    GENE_SUMMARY(
-        ch_summary,
-        tuple(params.generate_anndata, params.generate_mudata)
-    )
+    GENE_SUMMARY(ch_summary)
 
     ch_versions = ch_versions.mix(GENE_SUMMARY.out.versions)
 
@@ -133,6 +141,8 @@ workflow GENETIC_DEMULTIPLEXING {
     emit:
     summary_assignment = GENE_SUMMARY.out.assignment
     summary_classification = GENE_SUMMARY.out.classification
-    cell_genotype = ch_cellsnp
+    vireo_filtered_variants = ch_vireo_filtered_variants
+    gt_cells = ch_gt_cells
+    gt_donors = ch_gt_donors
     versions = ch_versions // channel: [ versions.yml ]
 }

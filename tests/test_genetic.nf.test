@@ -1,11 +1,12 @@
 nextflow_pipeline {
 
-    name "Test pipeline"
+    name "Test pipeline with genetic config"
     script "../main.nf"
     tag "pipeline"
-    tag "test"
+    tag "test_genetic"
+    profile "test_genetic"
 
-    test("-profile test") {
+    test("-profile test_genetic") {
 
         when {
             params {

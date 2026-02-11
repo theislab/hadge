@@ -17,3 +17,4 @@ hashing/preprocessing/*/*_preprocessed.rds
 genetic/popscle/freemuxlet/*/*.clust1.vcf.gz
 genetic/souporcell/*/*/ambient_rna.txt
 genetic/souporcell/*/*/cluster_genotypes.vcf
+find_variants/*/subset_gt_donors/*.vcf.gz
