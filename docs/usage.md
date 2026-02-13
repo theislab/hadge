@@ -41,8 +41,8 @@ Finally, it assigns SNPs to cells to determine donor identity but requires addit
 
 ```csv title="samplesheet.csv"
 sample,bam,vcf,n_samples,barcodes
-id1,donor_genotype_chr21.vcf,2,barcodes.tsv
-id2,donor_genotype_chr21.vcf,2,barcodes.tsv
+id1,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 id3,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
