@@ -30,7 +30,7 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
     gene_col    = task.ext.gene_col    ?: 2               // Specify which column of genes.tsv or features.tsv to use for gene names
 
     // others
-    prefix      = task.ext.prefix      ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
 
     template 'pre_processing.R'
 

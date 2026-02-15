@@ -30,8 +30,8 @@ process HASH_SUMMARY {
     task.ext.when == null || task.ext.when
 
     script:
-    prefix         = task.ext.prefix         ?: "${meta.id}"
-    hash_list      = "${meta.hto_names}".split(",")
+    prefix = task.ext.prefix ?: "${meta.id}"
+    hash_list = "${meta.hto_names}".split(",")
 
     template 'hash_summary.py'
 

@@ -17,7 +17,7 @@ process EXTRACT_HASHES {
     task.ext.when == null || task.ext.when
 
     script:
-    prefix         = task.ext.prefix         ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     gunzip -c ${hto_dir}/features.tsv.gz | awk '{print \$2}' | paste -sd, - > ${prefix}_hashes.txt
 

@@ -26,15 +26,15 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 
 workflow PIPELINE_INITIALISATION {
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-    help              // boolean: Display help message and exit
-    help_full         // boolean: Show the full help message
-    show_hidden       // boolean: Show hidden parameters in the help message
+    version            // boolean: Display version and exit
+    validate_params    // boolean: Boolean whether to validate parameters against the schema at runtime
+    _monochrome_logs   // boolean: Do not use coloured log outputs
+    nextflow_cli_args  //   array: List of positional nextflow CLI args
+    outdir             //  string: The output directory where the results will be saved
+    _input             //  string: Path to input samplesheet
+    help               // boolean: Display help message and exit
+    help_full          // boolean: Show the full help message
+    show_hidden        // boolean: Show hidden parameters in the help message
 
     main:
 
@@ -100,7 +100,7 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
-    Channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+    channel.fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map { samplesheet ->
             validateInputSamplesheet(samplesheet)
         }
@@ -214,8 +214,8 @@ def validateInputParameters() {
 //
 
 def validateHtoNames(Map meta){
-    if(meta.hto_names.split(",").any { it.contains('_') }){
-        def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
+    if(meta.hto_names.split(",").any { name -> name.contains('_') }){
+        def bad = meta.hto_names.split(",").findAll { name -> name.contains('_') }.join(', ')
         throw new IllegalArgumentException(
             "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
         )

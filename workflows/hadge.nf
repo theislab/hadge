@@ -81,7 +81,7 @@ workflow HADGE {
                         }
 
     // create channels for deconvolution tools
-    ch_genetic = ch_preprocessed.map { meta, rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
+    ch_genetic = ch_preprocessed.map { meta, __rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
     ch_hashing = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
     ch_create_anndata_mudata = ch_preprocessed.map { meta, rna, hto, _bam, _barcodes, _vcf -> [meta, rna, hto] }
 
@@ -191,7 +191,7 @@ workflow HADGE {
         CREATE_ANNDATA_MUDATA(
             ch_create_anndata_mudata.map { tuple ->
                 // hto can be null in genetic mode
-                if (params.mode == 'genetic'){ tuple.collect { it == null ? [] : it } }
+                if (params.mode == 'genetic'){ tuple.collect { item -> item == null ? [] : item } }
                 else{ tuple }
             }
         )
@@ -253,7 +253,7 @@ workflow HADGE {
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path

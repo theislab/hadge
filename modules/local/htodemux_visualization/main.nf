@@ -51,7 +51,7 @@ process HTODEMUX_VISUALIZATION {
     heatMapNcells  = task.ext.heatMapNcells  ?: 500          // Number of cells for heatmap
 
     // Output Parameters
-    prefix         = task.ext.prefix         ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
 
     template 'htodemux_visualization.R'
 
