@@ -111,15 +111,19 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-If you use nf-core/hadge for your analysis, please cite it using the following doi: [10.5281/zenodo.10634731](https://doi.org/10.5281/zenodo.10634731)
-
-or
-
-> **hadge: a comprehensive pipeline for donor deconvolution in single-cell studies.**
->
-> Fabiola Curion, Xichen Wu, Lukas Heumos, Mariana Gonzales Andre, Lennard Halle, Melissa Grant-Peters, Charlotte Rich-Griffin, Hing-Yuen Yeung, Calliope A. Dendrou, Herbert B. Schiller & Fabian J. Theis.
->
-> _Genome Biol._ 2024 Apr 26. doi: [10.1186/s13059-024-03249-z](https://doi.org/10.1186/s13059-024-03249-z).
+If you use nf-core/hadge for your analysis, please cite it using the following BibTeX:
+```bibtex
+@article{curion2024hadge,
+  title={hadge: a comprehensive pipeline for donor deconvolution in single-cell studies},
+  author={Curion, Fabiola and Wu, Xichen and Heumos, Lukas and Andr{\'e}, Mylene Mariana Gonzales and Halle, Lennard and Ozols, Matiss and Grant-Peters, Melissa and Rich-Griffin, Charlotte and Yeung, Hing-Yuen and Dendrou, Calliope A and others},
+  journal={Genome Biology},
+  volume={25},
+  number={1},
+  pages={109},
+  year={2024},
+  publisher={Springer}
+}
+```
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
