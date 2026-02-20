@@ -120,6 +120,7 @@ If you use nf-core/hadge for your analysis, please cite it as follows:
 > _Genome Biol._ 2024 Apr 26. doi: [10.1186/s13059-024-03249-z](https://doi.org/10.1186/s13059-024-03249-z).
 
 :::note{collapse title="BibTeX"}
+
 ```bibtex
 @article{curion2024hadge,
   title={hadge: a comprehensive pipeline for donor deconvolution in single-cell studies},
@@ -132,6 +133,7 @@ If you use nf-core/hadge for your analysis, please cite it as follows:
   publisher={Springer}
 }
 ```
+
 :::
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
