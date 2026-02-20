@@ -19,7 +19,7 @@ workflow HASH_DEMULTIPLEXING {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     ch_htodemux_assignments = Channel.empty()
     ch_htodemux_classifications = Channel.empty()
