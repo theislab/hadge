@@ -19,18 +19,18 @@ workflow HASH_DEMULTIPLEXING {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
-    ch_htodemux_assignments = Channel.empty()
-    ch_htodemux_classifications = Channel.empty()
-    ch_multiseq = Channel.empty()
-    ch_bff = Channel.empty()
-    ch_demuxem = Channel.empty()
-    ch_gmmdemux_results = Channel.empty()
-    ch_gmmdemux_config = Channel.empty()
-    ch_hasheddrops_results = Channel.empty()
-    ch_hasheddrops_id_to_hash = Channel.empty()
-    ch_hashsolo = Channel.empty()
+    ch_htodemux_assignments = channel.empty()
+    ch_htodemux_classifications = channel.empty()
+    ch_multiseq = channel.empty()
+    ch_bff = channel.empty()
+    ch_demuxem = channel.empty()
+    ch_gmmdemux_results = channel.empty()
+    ch_gmmdemux_config = channel.empty()
+    ch_hasheddrops_results = channel.empty()
+    ch_hasheddrops_id_to_hash = channel.empty()
+    ch_hashsolo = channel.empty()
 
     if (methods.contains('htodemux') || methods.contains('multiseq')) {
 

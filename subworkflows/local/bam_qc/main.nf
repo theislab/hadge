@@ -9,7 +9,7 @@ workflow BAM_QC {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     SAMTOOLS_VIEW(ch_bam.map { meta, bam -> [meta, bam, []] }, [[], []], [], 'bai')
     ch_versions = ch_versions.mix(SAMTOOLS_VIEW.out.versions)

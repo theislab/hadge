@@ -18,14 +18,14 @@ workflow GENETIC_DEMULTIPLEXING {
     fasta           // file: /path/to/genome.fasta
 
     main:
-    ch_versions = Channel.empty()
-    ch_vireo = Channel.empty()
-    ch_demuxlet = Channel.empty()
-    ch_freemuxlet = Channel.empty()
-    ch_souporcell = Channel.empty()
-    ch_gt_cells = Channel.empty()
-    ch_gt_donors =  Channel.empty()
-    ch_vireo_filtered_variants = Channel.empty()
+    ch_versions = channel.empty()
+    ch_vireo = channel.empty()
+    ch_demuxlet = channel.empty()
+    ch_freemuxlet = channel.empty()
+    ch_souporcell = channel.empty()
+    ch_gt_cells = channel.empty()
+    ch_gt_donors =  channel.empty()
+    ch_vireo_filtered_variants = channel.empty()
 
     ch_summary = ch_samplesheet.map{ meta, _bam, barcodes, _vcf ->
         [meta, barcodes]
