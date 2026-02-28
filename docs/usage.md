@@ -170,6 +170,7 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌       |
 
 <sup>1</sup> if `params.hasheddrops_runEmptyDrops` is true
+
 <sup>2</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
 :::
 
