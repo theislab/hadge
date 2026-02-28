@@ -155,22 +155,22 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | hashing     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
 | donor_match |   ✅   |     ❌     |     ❌     | ❌  |    ❌    |    ✅     | ❌  |
 
-| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples |  vcf   |
-| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :----: |
-| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| hasheddrops |   ✅   | ✅<sup>1</sup> |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |   ❌   |
-| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |   ✅   |
-| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅[^2] |
-| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |   ✅   |
-| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |   ❌   |
+| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples |      vcf       |
+| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :------------: |
+| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| hasheddrops |   ✅   | ✅<sup>1</sup> |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
+| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ✅       |
+| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅<sup>2</sup> |
+| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |       ✅       |
+| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌       |
 
 <sup>1</sup> if `params.hasheddrops_runEmptyDrops` is true
-[^2] reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
+<sup>2</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
 :::
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
