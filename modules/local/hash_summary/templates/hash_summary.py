@@ -152,7 +152,7 @@ class ProcessModuleOutput:
         df["assignment"] = df["assignment"].cat.remove_unused_categories()
         assignment = df[["Barcode", "assignment"]].rename(columns={"assignment": "demuxem"})
         classification = df[["Barcode", "demux_type"]].rename(columns={"demux_type": "demuxem"})
-        # TODO demuxem: demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
+
         return assignment, classification
 
     def hashsolo(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -446,9 +446,6 @@ if __name__ == "__main__":
             if args.negative_str not in df[col].cat.categories:
                 df[col] = df[col].cat.add_categories(args.negative_str)
 
-    # TODO demuxem: update if demuxEM works (https://github.com/theislab/hadge/issues/81)
-    # .replace("", args.negative_str)
-    # maybe also in demuxem()
     assignment_summary.fillna(args.negative_str).to_csv(args.assignment, index=False)
     classification_summary.fillna(args.negative_str).to_csv(
         args.classification, index=False
