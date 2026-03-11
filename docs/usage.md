@@ -174,6 +174,25 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 <sup>2</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
 :::
 
+:::tip{collapse title="Recommendations for naming HTO-labels and barcodes"}
+
+1. Avoid single DNA base letters as suffixes
+
+- **Incorrect:** `HTO-A`, `HTO-C`, `HTO-G`, `HTO-T`
+- **Reason:** The `BFF` module uses `cellhashR`'s `ProcessCountMatrix()`, which internally calls `SimplifyHtoNames()` and incorrectly strips single DNA base letters, collapsing `HTO-A`, `HTO-C`, `HTO-G` all to `HTO` and causing a crash.
+
+2. Avoid barcode sequences as part of the label
+
+- **Incorrect:** `HTO-1-ACTGTCTAACGG`
+- **Reason:** `SimplifyHtoNames()` strips the barcode suffix in `BFF`, causing the same HTO to appear as `HTO-1` in `BFF` output but `HTO-1-ACTGTCTAACGG` in other methods, making cross-method comparison unreliable.
+
+3. Avoid using the same trailing suffixes on all barcodes
+
+- **Incorrect:** `AAACCCAAGAAACACT-1` (`-1` at all barcodes)
+- **Reason:** In the `DEMUXEM` module, `pegasusio.read_input()` only removes the suffix from RNA barcodes, but not from HTO barcodes, which leads to a known issue (see [#21](https://github.com/lilab-bcb/demuxEM/issues/21)).
+
+:::
+
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
 ## Running the pipeline

@@ -140,18 +140,19 @@ class ProcessModuleOutput:
 
     def demuxem(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
         data = io.read_input(str(args.demuxem))
-        classification = data.obs["demux_type"].to_frame()
-        classification.reset_index(inplace=True)
-        classification.columns = ["Barcode", "demuxem"]
-        classification["demuxem"] = classification["demuxem"].cat.rename_categories(
-            {"unknown": args.negative_str}
+        df = data.obs[["assignment","demux_type"]].copy()
+        df.index.name = "Barcode"
+        df.reset_index(inplace=True)
+        df["demux_type"] = df["demux_type"].cat.rename_categories(
+            lambda x: args.negative_str if x == "unknown" else x
         )
-
+        df["assignment"] = df["assignment"].cat.add_categories([args.negative_str, args.doublet_str])
+        df.loc[df["demux_type"] == args.negative_str, "assignment"] = args.negative_str
+        df.loc[df["demux_type"] == args.doublet_str, "assignment"] = args.doublet_str
+        df["assignment"] = df["assignment"].cat.remove_unused_categories()
+        assignment = df[["Barcode", "assignment"]].rename(columns={"assignment": "demuxem"})
+        classification = df[["Barcode", "demux_type"]].rename(columns={"demux_type": "demuxem"})
         # TODO demuxem: demuxem has more output barcodes than input barcodes metioned here: https://github.com/lilab-bcb/demuxEM/issues/20
-        assignment = data.obs["assignment"].to_frame()
-        assignment.reset_index(inplace=True)
-        assignment.columns = ["Barcode", "demuxem"]
-
         return assignment, classification
 
     def hashsolo(self, args: Arguments) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -439,6 +440,11 @@ if __name__ == "__main__":
         classification_summary = pd.merge(
             classification_summary, classification, on="Barcode", how="left"
         )
+
+    for df in [assignment_summary, classification_summary]:
+        for col in df.select_dtypes(["category"]):
+            if args.negative_str not in df[col].cat.categories:
+                df[col] = df[col].cat.add_categories(args.negative_str)
 
     # TODO demuxem: update if demuxEM works (https://github.com/theislab/hadge/issues/81)
     # .replace("", args.negative_str)
