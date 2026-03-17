@@ -876,26 +876,6 @@
                 }
             }
         },
-        "hash_summary_options": {
-            "title": "Hash summary options",
-            "type": "object",
-            "fa_icon": "fas fa-list",
-            "description": "Options controlling hash summary and downstream exported formats.",
-            "properties": {
-                "generate_anndata": {
-                    "type": "boolean",
-                    "description": "Generate AnnData (.h5ad) outputs for hashing results.",
-                    "fa_icon": "fas fa-database",
-                    "default": true
-                },
-                "generate_mudata": {
-                    "type": "boolean",
-                    "description": "Generate MuData outputs for hashing results.",
-                    "fa_icon": "fas fa-layer-group",
-                    "default": true
-                }
-            }
-        },
         "cellsnp_options": {
             "title": "CellSNP-lite options",
             "type": "object",
