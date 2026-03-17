@@ -142,7 +142,7 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | `rna_matrix` | Full path to the RNA-Seq count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
 | `hto_matrix` | Full path to the hashing count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
 | `bam`        | Full path to the alignment file (`.bam`).                                                                                                                                              |
-| `vcf`        | Full path to the list of common SNPs (`.vcf`).                                                                                                                                         |
+| `vcf`        | Full path to common SNP genotypes vcf (`.vcf`).                                                                                                                                        |
 | `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
 | `barcodes`   | Full path to the list of cell barcodes (e.g., `barcodes.tsv` from Cell Ranger)                                                                                                         |
 
@@ -155,23 +155,28 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | hashing     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
 | donor_match |   ✅   |     ❌     |     ❌     | ❌  |    ❌    |    ✅     | ❌  |
 
-| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples |      vcf       |
-| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :------------: |
-| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| hasheddrops |   ✅   | ✅<sup>1</sup> |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌       |
-| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ✅       |
-| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅<sup>2</sup> |
-| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |       ✅       |
-| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌       |
+| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples | vcf<sup>1</sup> |
+| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :-------------: |
+| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hasheddrops |   ✅   | ✅<sup>2</sup> |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ✅        |
+| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅<sup>3</sup>  |
+| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |       ✅        |
+| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌        |
 
-<sup>1</sup> if `params.hasheddrops_runEmptyDrops` is true
+<sup>1</sup> The requirements for the VCF file differ between genetic deconvolution methods.
+Check out [Demuxafy](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/DemultiplexingSoftwares.html) to find the right VCF file for the methods you want to use.
+`POPSCLE_DSCPILEUP` (needed for `freemuxlet` and `demuxlet`) requires the VCF file to be sorted the same way as the BAM file. If you encounter an error due to this, consider using `picard SortVcf`.
 
-<sup>2</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
+<sup>2</sup> if `params.hasheddrops_runEmptyDrops` is true
+
+<sup>3</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
+
 :::
 
 :::tip{collapse title="Recommendations for naming HTO-labels and barcodes"}
