@@ -50,13 +50,13 @@
                     "type": "boolean",
                     "description": "Perform BAM QC.",
                     "fa_icon": "fas fa-chart-line",
-                    "default": true
+                    "default": true,
+                    "help_text": "Consider setting this option to false, as it may consume major computational resources. Review the steps of `BAM_QC` to determine if it is necessary for your input data."
                 },
                 "common_variants": {
                     "type": "string",
                     "description": "File with common variants. If provided, the BAM files will be filtered to only include reads that overlap with the common variants.",
                     "fa_icon": "fas fa-dna",
-                    "default": null,
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "exists": true
                 },
@@ -140,33 +140,28 @@
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Path to demultiplexing result CSV file (necessary only for donor_match mode).",
-                    "default": null,
                     "fa_icon": "fas fa-file-csv"
                 },
                 "vireo_filtered_variants": {
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Path to Vireo filtered variants file (necessary only for donor_match mode).",
-                    "default": null,
                     "fa_icon": "fas fa-file-code"
                 },
                 "cell_genotype": {
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Path to cell genotype file (necessary only for donor_match mode).",
-                    "default": null,
                     "fa_icon": "fas fa-dna"
                 },
                 "match_donor_method1": {
                     "type": ["string", "null"],
                     "description": "First method to use for donor matching.",
-                    "default": null,
                     "fa_icon": "fas fa-list"
                 },
                 "match_donor_method2": {
                     "type": ["string", "null"],
                     "description": "Second method to use for donor matching.",
-                    "default": null,
                     "fa_icon": "fas fa-list"
                 },
                 "find_variants": {
@@ -200,7 +195,6 @@
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Path to cell genotype file (necessary only for donor_match mode).",
-                    "default": null,
                     "fa_icon": "fas fa-dna"
                 }
             }
@@ -208,7 +202,7 @@
         "demuxem_options": {
             "title": "demuxEM options",
             "type": "object",
-            "fa_icon": "fas fa-vial",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the demuxEM tool for cell hashing demultiplexing.",
             "properties": {
                 "demuxem_generate_diagnostic_plots": {
@@ -220,7 +214,7 @@
                 "demuxem_alpha_on_samples": {
                     "type": "number",
                     "description": "The Dirichlet prior concentration parameter (alpha) on samples. An alpha value < 1.0 will make the prior sparse.",
-                    "default": 0.0,
+                    "default": 0,
                     "minimum": 0,
                     "maximum": 1,
                     "fa_icon": "fas fa-sliders-h"
@@ -242,7 +236,7 @@
                 "demuxem_min_signal_hashtag": {
                     "type": "number",
                     "description": "Any cell/nucleus with less than this count of hashtags from the signal will be marked as unknown.",
-                    "default": 10.0,
+                    "default": 10,
                     "minimum": 0,
                     "fa_icon": "fas fa-signal"
                 },
@@ -263,14 +257,15 @@
         "bff_options": {
             "title": "BFF options",
             "type": "object",
-            "fa_icon": "fas fa-bolt",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the BFF cell hashing demultiplexing.",
             "properties": {
                 "bff_methods": {
                     "type": "string",
                     "description": "Method(s) to use within BFF.",
                     "default": "COMBINED",
-                    "fa_icon": "fas fa-list"
+                    "fa_icon": "fas fa-list",
+                    "enum": ["COMBINED", "RAW", "CLUSTER"]
                 },
                 "bff_preprocessing": {
                     "type": "boolean",
@@ -281,25 +276,21 @@
                 "bff_barcodeWhitelist": {
                     "type": ["string", "null"],
                     "description": "Path to barcode whitelist for preprocessing.",
-                    "default": null,
                     "fa_icon": "fas fa-file"
                 },
                 "bff_cellbarcodeWhitelist": {
                     "type": ["string", "null"],
                     "description": "Path to cell barcode whitelist for GenerateCellHashingCalls().",
-                    "default": null,
                     "fa_icon": "fas fa-file"
                 },
                 "bff_methodsForConsensus": {
                     "type": ["string", "null"],
                     "description": "Methods to use for consensus calling.",
-                    "default": null,
                     "fa_icon": "fas fa-layer-group"
                 },
                 "bff_metricsFile": {
                     "type": ["string", "null"],
                     "description": "Optional metrics file path.",
-                    "default": null,
                     "fa_icon": "fas fa-file-alt"
                 },
                 "bff_doTSNE": {
@@ -316,13 +307,11 @@
                 "bff_perCellSaturation": {
                     "type": ["number", "null"],
                     "description": "Per-cell saturation value.",
-                    "default": null,
                     "fa_icon": "fas fa-tint"
                 },
                 "bff_majorityConsensusThreshold": {
                     "type": ["number", "null"],
                     "description": "Majority consensus threshold.",
-                    "default": null,
                     "fa_icon": "fas fa-percentage"
                 },
                 "bff_chemistry": {
@@ -334,7 +323,6 @@
                 "bff_callerDisagreementThreshold": {
                     "type": ["number", "null"],
                     "description": "Threshold for caller disagreement.",
-                    "default": null,
                     "fa_icon": "fas fa-exclamation-triangle"
                 }
             }
@@ -342,19 +330,17 @@
         "gmmdemux_options": {
             "title": "GMM-Demux options",
             "type": "object",
-            "fa_icon": "fas fa-layer-group",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the GMM-Demux tool for cell hashing demultiplexing.",
             "properties": {
                 "gmmdemux_hto_names": {
                     "type": ["string", "null"],
                     "description": "Comma separated list of HTO names, without whitespace. If null, hto_names are extracted from the input hto matrix from features.tsv.gz.",
-                    "default": null,
                     "fa_icon": "fas fa-file-alt"
                 },
                 "gmmdemux_estimated_n_cells": {
                     "type": ["integer", "null"],
                     "description": "If specified, it will generate the statistic summary of the dataset, including MSM and SSM rates. This requires an estimated total number of cells in the assay as input.",
-                    "default": null,
                     "minimum": 1,
                     "fa_icon": "fas fa-calculator"
                 },
@@ -374,20 +360,17 @@
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Load a full classification report and skip the mtx folder as input. Requires a file path argument.",
-                    "default": null,
                     "fa_icon": "fas fa-file-import"
                 },
                 "gmmdemux_examine": {
                     "type": ["string", "null"],
                     "format": "file-path",
                     "description": "Provide the cell list. Requires a file path argument. Only executes if -u is set.",
-                    "default": null,
                     "fa_icon": "fas fa-file"
                 },
                 "gmmdemux_extract": {
                     "type": "string",
                     "description": "Names of the HTO tag(s) to extract, separated by ','. Joint HTO samples are combined with '+', such as 'HTO_1+HTO_2'.",
-                    "default": null,
                     "fa_icon": "fas fa-filter"
                 },
                 "gmmdemux_threshold": {
@@ -411,7 +394,7 @@
         "hashsolo_options": {
             "title": "Hashsolo options",
             "type": "object",
-            "fa_icon": "fas fa-hashtag",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the Scanpy Hashsolo demultiplexing module.",
             "properties": {
                 "hashsolo_cell_hashing_columns": {
@@ -420,7 +403,6 @@
                         "type": "string"
                     },
                     "description": "Groovy list (['hash_1', 'hash_2']) of .obs columns that contain cell hashing counts. Can be null if the data is in 10x Genomics format, as the columns are derived from the input.",
-                    "default": null,
                     "fa_icon": "fas fa-list"
                 },
                 "hashsolo_priors": {
@@ -435,20 +417,17 @@
                 "hashsolo_pre_existing_clusters": {
                     "type": ["string", "null"],
                     "description": "Column in cell_hashing_adata.obs for how to break up demultiplexing.",
-                    "default": null,
                     "fa_icon": "fas fa-columns"
                 },
                 "hashsolo_clustering_data": {
                     "type": ["string", "null"],
                     "format": "directory-path",
                     "description": "Input directory containing transcriptomic data in 10x mtx format.",
-                    "default": null,
                     "fa_icon": "fas fa-folder-open"
                 },
                 "hashsolo_number_of_noise_barcodes": {
                     "type": ["integer", "null"],
                     "description": "Number of barcodes to use to create noise distribution.",
-                    "default": null,
                     "fa_icon": "fas fa-sort-numeric-up"
                 },
                 "hashsolo_round_digits": {
@@ -463,7 +442,7 @@
         "htodemux_options": {
             "title": "HTODemux options",
             "type": "object",
-            "fa_icon": "fas fa-tags",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the HTODemux tool for cell hashing demultiplexing.",
             "properties": {
                 "htodemux_quantile": {
@@ -517,7 +496,7 @@
         "htodemux_visualization_options": {
             "title": "HTODemux visualization options",
             "type": "object",
-            "fa_icon": "fas fa-chart-bar",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the HTODemux visualization tool for generating plots and visualizations.",
             "properties": {
                 "htodemux_visualization_ridgePlot": {
@@ -542,13 +521,11 @@
                 "htodemux_visualization_scatterFeat1": {
                     "type": "string",
                     "description": "Name of a Hash Tag Oligo (HTO) identifiers, usually defined in the `feature.tsv` of the hto matrix folder.",
-                    "default": null,
                     "fa_icon": "fas fa-tag"
                 },
                 "htodemux_visualization_scatterFeat2": {
                     "type": "string",
                     "description": "Name of a Hash Tag Oligo (HTO) identifiers, usually defined in the `feature.tsv` of the hto matrix folder.",
-                    "default": null,
                     "fa_icon": "fas fa-tag"
                 },
                 "htodemux_visualization_vlnPlot": {
@@ -630,7 +607,7 @@
         "multiseqdemux_options": {
             "title": "MultiSeqDemux options",
             "type": "object",
-            "fa_icon": "fas fa-list-ol",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the MultiSeqDemux tool for cell hashing demultiplexing.",
             "properties": {
                 "multiseqdemux_quantile": {
@@ -689,7 +666,7 @@
         "hasheddrops_options": {
             "title": "HashedDrops options",
             "type": "object",
-            "fa_icon": "fas fa-tint",
+            "fa_icon": "fas fa-tag",
             "description": "Options specific to the HashedDrops tool for cell hashing demultiplexing.",
             "properties": {
                 "hasheddrops_lower": {
@@ -721,7 +698,6 @@
                 "hasheddrops_byRank": {
                     "type": ["integer", "null"],
                     "description": "Alternative method for identifying empty droplets.",
-                    "default": null,
                     "fa_icon": "fas fa-sort-numeric-down"
                 },
                 "hasheddrops_isCellFDR": {
@@ -742,13 +718,11 @@
                 "hasheddrops_ignore": {
                     "type": ["number", "null"],
                     "description": "Lower bound for ignoring barcodes.",
-                    "default": null,
                     "fa_icon": "fas fa-ban"
                 },
                 "hasheddrops_alpha": {
                     "type": ["number", "null"],
                     "description": "Scaling parameter for Dirichlet-multinomial sampling.",
-                    "default": null,
                     "fa_icon": "fas fa-adjust"
                 },
                 "hasheddrops_ambient": {
@@ -816,7 +790,6 @@
                         "type": "integer"
                     },
                     "description": "An integer matrix specifying valid combinations of HTOs. Number of items in each row has to be the same.",
-                    "default": null,
                     "fa_icon": "fas fa-th-large"
                 },
                 "hasheddrops_runEmptyDrops": {
@@ -829,7 +802,7 @@
         "preprocessing_options": {
             "title": "Preprocessing options",
             "type": "object",
-            "fa_icon": "fas fa-cogs",
+            "fa_icon": "fas fa-tag",
             "description": "Options for preprocessing data for HTODemux and MultiSeq demultiplexing.",
             "properties": {
                 "preprocessing_sel_method": {
@@ -904,7 +877,7 @@
                 "cellsnp_minmaf": {
                     "type": "number",
                     "description": "Minimum minor allele frequency (MAF) for SNPs to be included in the output.",
-                    "default": 0.0,
+                    "default": 0,
                     "minimum": 0,
                     "maximum": 0.5,
                     "fa_icon": "fas fa-percentage"
@@ -950,7 +923,7 @@
         "vireo_options": {
             "title": "Vireo options",
             "type": "object",
-            "fa_icon": "fas fa-users",
+            "fa_icon": "fas fa-dna",
             "description": "Options specific to the Vireo tool for donor demultiplexing from single-cell RNA-seq data.",
             "properties": {
                 "vireo_genotag": {
@@ -1025,7 +998,7 @@
         "dsc_pileup_options": {
             "title": "DSC-Pileup options",
             "type": "object",
-            "fa_icon": "fas fa-layer-group",
+            "fa_icon": "fas fa-dna",
             "description": "Options specific to the DSC-Pileup tool for pileup generation from single-cell BAM files.",
             "properties": {
                 "dsc_pileup_tag_group": {
@@ -1101,7 +1074,7 @@
         "demuxlet_options": {
             "title": "Demuxlet options",
             "type": "object",
-            "fa_icon": "fas fa-users-cog",
+            "fa_icon": "fas fa-dna",
             "description": "Options specific to the Demuxlet tool for genotype-based demultiplexing of single-cell RNA-seq data.",
             "properties": {
                 "demuxlet_field": {
@@ -1121,7 +1094,7 @@
                 "demuxlet_geno_error_coeff": {
                     "type": "number",
                     "description": "Slope of genotype error rate. [error] = [offset] + [1-offset]*[coeff]*[1-r2]",
-                    "default": 0.0,
+                    "default": 0,
                     "minimum": 0,
                     "maximum": 1,
                     "fa_icon": "fas fa-chart-line"
@@ -1166,7 +1139,7 @@
         "freemuxlet_options": {
             "title": "Freemuxlet options",
             "type": "object",
-            "fa_icon": "fas fa-users",
+            "fa_icon": "fas fa-dna",
             "description": "Options specific to the Freemuxlet tool for reference-free genotype-based demultiplexing.",
             "properties": {
                 "freemuxlet_doublet_prior": {
@@ -1195,7 +1168,7 @@
                 "freemuxlet_frac_init_clust": {
                     "type": "number",
                     "description": "Fraction of droplets to be clustered in the very first round of initial clustering procedure.",
-                    "default": 1.0,
+                    "default": 1,
                     "minimum": 0,
                     "maximum": 1,
                     "fa_icon": "fas fa-object-ungroup"
@@ -1229,7 +1202,7 @@
         "souporcell_options": {
             "title": "Souporcell options",
             "type": "object",
-            "fa_icon": "fas fa-users",
+            "fa_icon": "fas fa-dna",
             "description": "Options specific to the Souporcell tool for clustering mixed-genotype scRNAseq experiments by individual.",
             "properties": {
                 "souporcell_ploidy": {
@@ -1273,7 +1246,6 @@
                     "exists": true,
                     "pattern": "^\\S+\\.vcf(\\.gz)?$",
                     "description": "Common variant loci or known variant loci vcf, must be vs same reference fasta.",
-                    "default": null,
                     "fa_icon": "fas fa-file-code"
                 },
                 "souporcell_known_genotypes": {
@@ -1282,25 +1254,21 @@
                     "exists": true,
                     "pattern": "^\\S+\\.vcf$",
                     "description": "Known variants per clone in population vcf mode, must be .vcf right now we dont accept gzip or bcf sorry.",
-                    "default": null,
                     "fa_icon": "fas fa-dna"
                 },
                 "souporcell_known_genotypes_sample_names": {
                     "type": "string",
                     "description": "Which samples in population vcf from known genotypes option represent the donors in your sample. Provide space-separated sample names for multiple donors.",
-                    "default": null,
                     "fa_icon": "fas fa-tag"
                 },
                 "souporcell_skip_remap": {
                     "type": "boolean",
                     "description": "Don't remap with minimap2 (not recommended unless in conjunction with --common_variants).",
-                    "default": false,
                     "fa_icon": "fas fa-angle-double-right"
                 },
                 "souporcell_ignore": {
                     "type": "boolean",
                     "description": "Set to True to ignore data error assertions.",
-                    "default": false,
                     "fa_icon": "fas fa-exclamation-triangle"
                 }
             }
@@ -1496,9 +1464,6 @@
         },
         {
             "$ref": "#/$defs/hasheddrops_options"
-        },
-        {
-            "$ref": "#/$defs/hash_summary_options"
         },
         {
             "$ref": "#/$defs/preprocessing_options"
