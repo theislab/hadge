@@ -112,7 +112,7 @@ workflow HASH_DEMULTIPLEXING {
                     meta,
                     hto,
                     params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hto_names,
-                    params.gmmdemux_estimated_n_cells ? gmmdemux_estimated_n_cells : [],
+                    params.gmmdemux_estimated_n_cells ? params.gmmdemux_estimated_n_cells : [],
                 ]
             }
 

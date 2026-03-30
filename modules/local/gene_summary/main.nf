@@ -31,7 +31,7 @@ process GENE_SUMMARY {
     template 'gene_summary.py'
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_genetic_summary_assignment.csv
     touch ${prefix}_genetic_summary_classification.csv

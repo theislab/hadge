@@ -30,7 +30,7 @@ process EXTRACT_HASHES {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     touch ${prefix}_hashes.txt
