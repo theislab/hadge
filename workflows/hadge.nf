@@ -191,7 +191,7 @@ workflow HADGE {
         CREATE_ANNDATA_MUDATA(
             ch_create_anndata_mudata.map { tuple ->
                 // hto can be null in genetic mode
-                if (params.mode == 'genetic'){ tuple.collect { it == null ? [] : it } }
+                if (params.mode == 'genetic'){ tuple.collect { val -> val == null ? [] : val } }
                 else{ tuple }
             }
         )

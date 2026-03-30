@@ -170,7 +170,7 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_hasheddrops_results, remainder: true)
         .join(ch_hasheddrops_id_to_hash, remainder: true)
         .join(ch_hashsolo, remainder: true)
-        .map { tuple -> tuple.collect { it == null ? [] : it } }
+        .map { tuple -> tuple.collect { val -> val == null ? [] : val } }
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 

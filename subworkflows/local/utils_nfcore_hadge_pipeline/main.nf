@@ -214,8 +214,8 @@ def validateInputParameters() {
 //
 
 def validateHtoNames(Map meta){
-    if(meta.hto_names.split(",").any { it.contains('_') }){
-        def bad = meta.hto_names.split(",").findAll { it.contains('_') }.join(', ')
+    if(meta.hto_names.split(",").any { name -> name.contains('_') }){
+        def bad = meta.hto_names.split(",").findAll { name -> name.contains('_') }.join(', ')
         throw new IllegalArgumentException(
             "Running hadge with the methods htodemux or multiseq does not allow to use underscores ('_') in HTO names. Both tools require a SeuratObject as input, which will replace '_' with '-' leading to ambiguous or misleading assignment summaries. Please remove underscores ('_') from: ${bad}"
         )
