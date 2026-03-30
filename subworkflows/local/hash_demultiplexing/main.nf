@@ -48,16 +48,6 @@ workflow HASH_DEMULTIPLEXING {
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
 
-            ch_assignments = HTODEMUX.out.assignment
-                .map { meta, assignment ->
-                    [meta, [result: assignment, method: 'htodemux_assignment']]
-                }
-
-            ch_classifications = HTODEMUX.out.classification
-                .map { meta, classification ->
-                    [meta, [result: classification, method: 'htodemux_classification']]
-                }
-
             ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
