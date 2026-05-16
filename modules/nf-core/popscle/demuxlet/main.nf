@@ -8,7 +8,7 @@ process POPSCLE_DEMUXLET {
         'biocontainers/popscle:0.1beta--h2c78cec_0' }"
 
     input:
-    tuple val(meta), val(plp), path(bam), path(donor_genotype)
+    tuple val(meta), path(plp), path(bam), path(donor_genotype)
 
     output:
     tuple val(meta), path('*.best'), emit: demuxlet_result
