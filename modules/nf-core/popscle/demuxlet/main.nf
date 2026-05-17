@@ -20,11 +20,7 @@ process POPSCLE_DEMUXLET {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def plp_file = plp.listFiles()?.find { it.name.endsWith('.plp.gz') }
-    if (!plp_file) {
-        error "No .plp.gz file found in directory: ${plp} ${plp.listFiles()}"
-    }
-    def input = plp_file ? "--plp ${plp_file.toString() - '.plp.gz'}" : "--sam $bam"
+    def input = plp ? "--plp ${plp}/${prefix}" : "--sam $bam"
     def VERSION = '0.1' // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
 
     """
