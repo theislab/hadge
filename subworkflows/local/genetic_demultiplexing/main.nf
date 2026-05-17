@@ -93,7 +93,7 @@ workflow GENETIC_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(POPSCLE_DSCPILEUP.out.versions)
 
         if (methods.contains('demuxlet')) {
-            ch_demuxlet_input = POPSCLE_DSCPILEUP.out.plp.join(ch_samplesheet).map { meta, plp, bam, _barcodes, vcf -> [meta, plp, bam, vcf] }
+            ch_demuxlet_input = POPSCLE_DSCPILEUP.out.directory.join(ch_samplesheet).map { meta, plp, bam, _barcodes, vcf -> [meta, plp, bam, vcf] }
             POPSCLE_DEMUXLET(ch_demuxlet_input)
             ch_demuxlet = ch_demuxlet.mix(POPSCLE_DEMUXLET.out.demuxlet_result)
             ch_versions = ch_versions.mix(POPSCLE_DEMUXLET.out.versions)

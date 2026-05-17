@@ -20,7 +20,8 @@ process POPSCLE_DEMUXLET {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def input = plp ? "--plp ${plp.toString() - '.plp.gz'}" : "--sam $bam"
+    def plp_file = file("${plp}/*.plp.gz").first()
+    def input = plp_file ? "--plp ${plp_file.toString() - '.plp.gz'}" : "--sam $bam"
     def VERSION = '0.1' // WARN: Version information not provided by tool on CLI. Please update version string below when bumping container versions.
 
     """
