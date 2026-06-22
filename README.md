@@ -97,7 +97,7 @@ For more details about the output files and reports, please refer to the
 
 nf-core/hadge was originally written by Fabiola Curion ([@bio-la](https://github.com/bio-la)), Xichen Wu ([@wxicu](https://github.com/wxicu)), Lukas Heumos ([@zethson](https://github.com/Zethson)) and Mariana Gonzales Andre ([@mari-ga](https://github.com/mari-ga)).
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+We thank the following people for rewriting the original pipeline within the nf-core framework:
 
 - [Luis Heinzlmeier](https://github.com/LuisHeinzlmeier)
 - [Nico Trummer](https://github.com/nictru)
