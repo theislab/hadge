@@ -24,7 +24,7 @@ for test_file in "${test_files[@]}"; do
         test_profile="test"
     fi
 
-    command="nf-test test tests/${test_file}.nf.test --profile ${test_profile},docker --update-snapshot"
+    command="nf-test test tests/${test_file}.nf.test --profile ${test_profile},apptainer --update-snapshot"
 
     echo "Updating snapshot for: $test_file"
     echo "Running: ${command}"
@@ -36,7 +36,7 @@ for test_file in "${test_files[@]}"; do
     # test if testing is consistent
     if [[ "$CHECK_CONSISTENCY" == "true" ]]; then
         echo "Re-running test to verify snapshot consistency for: $test_file"
-        command="nf-test test tests/${test_file}.nf.test --profile ${test_profile},docker"
+        command="nf-test test tests/${test_file}.nf.test --profile ${test_profile},apptainer"
         echo "Running: ${command}"
         eval "$command"
         echo "✓ Consistency check passed for: $test_file"

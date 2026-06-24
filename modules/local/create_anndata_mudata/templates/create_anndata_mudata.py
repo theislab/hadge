@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import os
+os.environ["NUMBA_CACHE_DIR"] = "./tmp/numba"
+
 # versions
 import platform
 import yaml

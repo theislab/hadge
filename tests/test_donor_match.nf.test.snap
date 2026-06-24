@@ -419,10 +419,10 @@
                 "test3_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
             ]
         ],
+        "timestamp": "2026-04-23T17:22:11.804693089",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-01T15:54:40.941507"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

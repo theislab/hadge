@@ -7,7 +7,7 @@
 
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/hadge)
 [![GitHub Actions CI Status](https://github.com/nf-core/hadge/actions/workflows/nf-test.yml/badge.svg)](https://github.com/nf-core/hadge/actions/workflows/nf-test.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/hadge/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/hadge/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/hadge/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions Linting Status](https://github.com/nf-core/hadge/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/hadge/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/hadge/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.10634731-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.10634731)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.04.0-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
@@ -97,12 +97,11 @@ For more details about the output files and reports, please refer to the
 
 nf-core/hadge was originally written by Fabiola Curion ([@bio-la](https://github.com/bio-la)), Xichen Wu ([@wxicu](https://github.com/wxicu)), Lukas Heumos ([@zethson](https://github.com/Zethson)) and Mariana Gonzales Andre ([@mari-ga](https://github.com/mari-ga)).
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+We thank the following people for rewriting the original pipeline within the nf-core framework:
 
 - [Luis Heinzlmeier](https://github.com/LuisHeinzlmeier)
 - [Nico Trummer](https://github.com/nictru)
 - [Seo Hyon Kim](https://github.com/seohyonkim)
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 
@@ -112,10 +111,31 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/hadge for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+If you use nf-core/hadge for your analysis, please cite it as follows:
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+> **hadge: a comprehensive pipeline for donor deconvolution in single-cell studies.**
+>
+> Fabiola Curion, Xichen Wu, Lukas Heumos, Mariana Gonzales Andre, Lennard Halle, Melissa Grant-Peters, Charlotte Rich-Griffin, Hing-Yuen Yeung, Calliope A. Dendrou, Herbert B. Schiller & Fabian J. Theis.
+>
+> _Genome Biol._ 2024 Apr 26. doi: [10.1186/s13059-024-03249-z](https://doi.org/10.1186/s13059-024-03249-z).
+
+<details><summary>BibTeX</summary>
+
+```bibtex
+@article{curion2024hadge,
+  title={hadge: a comprehensive pipeline for donor deconvolution in single-cell studies},
+  author={Curion, Fabiola and Wu, Xichen and Heumos, Lukas and Andr{\'e}, Mylene Mariana Gonzales and Halle, Lennard and Ozols, Matiss and Grant-Peters, Melissa and Rich-Griffin, Charlotte and Yeung, Hing-Yuen and Dendrou, Calliope A and others},
+  journal={Genome Biology},
+  volume={25},
+  number={1},
+  pages={109},
+  year={2024},
+  publisher={Springer}
+}
+
+```
+
+</details>
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

@@ -94,7 +94,11 @@ if (vlnPlot) {
 # tSNE Plot
 if (tSNE) {
   print("Generating tSNE plot...")
-  hashtag.subset <- subset(hashtag, idents = tSNEIdents, invert = tSNEInvert)
+  if (tSNEIdents %in% levels(Idents(hashtag))) {
+    hashtag.subset <- subset(hashtag, idents = tSNEIdents, invert = tSNEInvert)
+  } else {
+    hashtag.subset <- hashtag
+  }
   DefaultAssay(hashtag.subset) <- assay
   hashtag.subset <- ScaleData(hashtag.subset,
     features = rownames(hashtag.subset),

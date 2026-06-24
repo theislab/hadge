@@ -41,8 +41,8 @@ Finally, it assigns SNPs to cells to determine donor identity but requires addit
 
 ```csv title="samplesheet.csv"
 sample,bam,vcf,n_samples,barcodes
-id1,donor_genotype_chr21.vcf,2,barcodes.tsv
-id2,donor_genotype_chr21.vcf,2,barcodes.tsv
+id1,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 id3,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
@@ -142,7 +142,7 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | `rna_matrix` | Full path to the RNA-Seq count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
 | `hto_matrix` | Full path to the hashing count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
 | `bam`        | Full path to the alignment file (`.bam`).                                                                                                                                              |
-| `vcf`        | Full path to the list of common SNPs (`.vcf`).                                                                                                                                         |
+| `vcf`        | Full path to common SNP genotypes vcf (`.vcf`).                                                                                                                                        |
 | `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
 | `barcodes`   | Full path to the list of cell barcodes (e.g., `barcodes.tsv` from Cell Ranger)                                                                                                         |
 
@@ -155,21 +155,47 @@ id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 | hashing     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
 | donor_match |   ✅   |     ❌     |     ❌     | ❌  |    ❌    |    ✅     | ❌  |
 
-| Module      | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
-| ----------- | :----: | :--------: | :--------: | :-: | :------: | :-------: | :-: |
-| htodemux    |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| multiseq    |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| bff         |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| demuxem     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| gmm-demux   |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| hasheddrops |   ✅   |    ✅\*    |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| hashsolo    |   ✅   |     ❌     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
-| vireo       |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ✅  |
-| demuxlet    |   ✅   |     ❌     |     ❌     | ✅  |    ❌    |    ❌     | ✅  |
-| freemuxlet  |   ✅   |     ❌     |     ❌     | ✅  |    ❌    |    ✅     | ✅  |
-| souporcell  |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ❌  |
+| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples | vcf<sup>1</sup> |
+| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :-------------: |
+| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hasheddrops |   ✅   | ✅<sup>2</sup> |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ✅        |
+| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅<sup>3</sup>  |
+| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |       ✅        |
+| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌        |
 
-\* if `params.hasheddrops_runEmptyDrops` is true
+<sup>1</sup> The requirements for the VCF file differ between genetic deconvolution methods.
+Check out [Demuxafy](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/DemultiplexingSoftwares.html) to find the right VCF file for the methods you want to use.
+`POPSCLE_DSCPILEUP` (needed for `freemuxlet` and `demuxlet`) requires the VCF file to be sorted the same way as the BAM file. If you encounter an error due to this, consider using `picard SortVcf`.
+
+<sup>2</sup> if `params.hasheddrops_runEmptyDrops` is true
+
+<sup>3</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
+
+:::
+
+:::tip{collapse title="Recommendations for naming HTO-labels and barcodes"}
+
+1. Avoid single DNA base letters as suffixes
+
+- **Incorrect:** `HTO-A`, `HTO-C`, `HTO-G`, `HTO-T`
+- **Reason:** The `BFF` module uses `cellhashR`'s `ProcessCountMatrix()`, which internally calls `SimplifyHtoNames()` and incorrectly strips single DNA base letters, collapsing `HTO-A`, `HTO-C`, `HTO-G` all to `HTO` and causing a crash.
+
+2. Avoid barcode sequences as part of the label
+
+- **Incorrect:** `HTO-1-ACTGTCTAACGG`
+- **Reason:** `SimplifyHtoNames()` strips the barcode suffix in `BFF`, causing the same HTO to appear as `HTO-1` in `BFF` output but `HTO-1-ACTGTCTAACGG` in other methods, making cross-method comparison unreliable.
+
+3. Avoid using the same trailing suffixes on all barcodes
+
+- **Incorrect:** `AAACCCAAGAAACACT-1` (`-1` at all barcodes)
+- **Reason:** In the `DEMUXEM` module, `pegasusio.read_input()` only removes the suffix from RNA barcodes, but not from HTO barcodes, which leads to a known issue (see [#21](https://github.com/lilab-bcb/demuxEM/issues/21)).
+
 :::
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
