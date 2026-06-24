@@ -35,7 +35,7 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
     template 'pre_processing.R'
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_preprocessed.rds
     touch ${prefix}_params_preprocessing.csv

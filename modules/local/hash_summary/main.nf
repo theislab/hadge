@@ -36,7 +36,7 @@ process HASH_SUMMARY {
     template 'hash_summary.py'
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_hashing_summary_assignment.csv
     touch ${prefix}_hashing_summary_classification.csv
