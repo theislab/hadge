@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::anndata=0.12.7
+  - conda-forge::mudata=0.3.2
+  - conda-forge::pandas=2.3.3
+  - conda-forge::pyyaml=6.0.3
+  - conda-forge::scanpy=1.11.5
