@@ -101,8 +101,8 @@ workflow HASH_DEMULTIPLEXING {
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hto_names,
-                    params.gmmdemux_estimated_n_cells ? params.gmmdemux_estimated_n_cells : [],
+                    params.gmmdemux_hto_names ?: meta.hto_names,
+                    params.gmmdemux_estimated_n_cells ?: [],
                 ]
             }
 
@@ -110,8 +110,8 @@ workflow HASH_DEMULTIPLEXING {
             ch_gmmdemux_input,
             params.gmmdemux_type_report,
             params.gmmdemux_summary_report,
-            params.gmmdemux_skip ? params.gmmdemux_skip : [],
-            params.gmmdemux_examine ? params.gmmdemux_examine : []
+            params.gmmdemux_skip ?: [],
+            params.gmmdemux_examine ?: []
         )
 
         ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
@@ -140,7 +140,7 @@ workflow HASH_DEMULTIPLEXING {
             ch_samplesheet.map {meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.hashsolo_cell_hashing_columns ? params.hashsolo_cell_hashing_columns : []
+                    params.hashsolo_cell_hashing_columns ?: []
                 ]
             }
         )
