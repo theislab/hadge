@@ -131,7 +131,7 @@ workflow GENETIC_DEMULTIPLEXING {
         .join(ch_demuxlet, remainder: true)
         .join(ch_freemuxlet, remainder: true)
         .join(ch_souporcell, remainder: true)
-        .map { tuple -> tuple.collect { it == null ? [] : it } }
+        .map { tuple -> tuple.collect { item -> item == null ? [] : item } }
 
     GENE_SUMMARY(ch_summary)
 
