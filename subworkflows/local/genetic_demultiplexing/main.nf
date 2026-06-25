@@ -65,7 +65,7 @@ workflow GENETIC_DEMULTIPLEXING {
         SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
 
         CELLSNP_MODEA(
-            ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
+            ch_samplesheet.join(SAMTOOLS_INDEX.out.index).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
 
         ch_gt_cells = ch_gt_cells.mix(CELLSNP_MODEA.out.cell)

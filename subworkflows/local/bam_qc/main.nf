@@ -19,7 +19,7 @@ workflow BAM_QC {
 
     SAMTOOLS_INDEX(SAMTOOLS_VIEW.out.bam)
 
-    UMITOOLS_DEDUP(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_INDEX.out.bai), true)
+    UMITOOLS_DEDUP(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_INDEX.out.index), true)
 
     SAMTOOLS_SORT(UMITOOLS_DEDUP.out.bam, [[], [], []], '')
 

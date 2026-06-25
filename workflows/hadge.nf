@@ -66,7 +66,8 @@ workflow HADGE {
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
     // extract hto names (hto can be null in genetic or donor_match mode)
-    ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
+    EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
+    ch_hashes_non_null = EXTRACT_HASHES.out.hashes
     ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
     ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
 
