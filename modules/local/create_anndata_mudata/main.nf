@@ -31,7 +31,7 @@ process CREATE_ANNDATA_MUDATA {
     template 'create_anndata_mudata.py'
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_genetic.h5ad
     touch ${prefix}_hashing.h5ad

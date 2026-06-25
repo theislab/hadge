@@ -48,16 +48,6 @@ workflow HASH_DEMULTIPLEXING {
                 PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.seurat_object.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
 
-            ch_assignments = HTODEMUX.out.assignment
-                .map { meta, assignment ->
-                    [meta, [result: assignment, method: 'htodemux_assignment']]
-                }
-
-            ch_classifications = HTODEMUX.out.classification
-                .map { meta, classification ->
-                    [meta, [result: classification, method: 'htodemux_classification']]
-                }
-
             ch_htodemux_assignments = ch_htodemux_assignments.mix(HTODEMUX.out.assignment)
             ch_htodemux_classifications = ch_htodemux_classifications.mix(HTODEMUX.out.classification)
 
@@ -111,8 +101,8 @@ workflow HASH_DEMULTIPLEXING {
         ch_gmmdemux_input = ch_samplesheet.map { meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.gmmdemux_hto_names ? params.gmmdemux_hto_names : meta.hto_names,
-                    params.gmmdemux_estimated_n_cells ? gmmdemux_estimated_n_cells : [],
+                    params.gmmdemux_hto_names ?: meta.hto_names,
+                    params.gmmdemux_estimated_n_cells ?: [],
                 ]
             }
 
@@ -120,8 +110,8 @@ workflow HASH_DEMULTIPLEXING {
             ch_gmmdemux_input,
             params.gmmdemux_type_report,
             params.gmmdemux_summary_report,
-            params.gmmdemux_skip ? params.gmmdemux_skip : [],
-            params.gmmdemux_examine ? params.gmmdemux_examine : []
+            params.gmmdemux_skip ?: [],
+            params.gmmdemux_examine ?: []
         )
 
         ch_versions = ch_versions.mix(GMMDEMUX.out.versions)
@@ -150,7 +140,7 @@ workflow HASH_DEMULTIPLEXING {
             ch_samplesheet.map {meta, _rna, hto -> [
                     meta,
                     hto,
-                    params.hashsolo_cell_hashing_columns ? params.hashsolo_cell_hashing_columns : []
+                    params.hashsolo_cell_hashing_columns ?: []
                 ]
             }
         )
@@ -159,7 +149,7 @@ workflow HASH_DEMULTIPLEXING {
         ch_versions = ch_versions.mix(HASHSOLO.out.versions)
     }
 
-    ch_summary = ch_samplesheet.map { meta, rna, hto -> [meta,hto] }
+    ch_summary = ch_samplesheet.map { meta, _rna, hto -> [meta,hto] }
         .join(ch_htodemux_assignments, remainder: true)
         .join(ch_htodemux_classifications, remainder: true)
         .join(ch_multiseq, remainder: true)
@@ -170,7 +160,7 @@ workflow HASH_DEMULTIPLEXING {
         .join(ch_hasheddrops_results, remainder: true)
         .join(ch_hasheddrops_id_to_hash, remainder: true)
         .join(ch_hashsolo, remainder: true)
-        .map { tuple -> tuple.collect { it == null ? [] : it } }
+        .map { tuple -> tuple.collect { item -> item == null ? [] : item } }
     // Empty inputs solved as recommended here:
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 

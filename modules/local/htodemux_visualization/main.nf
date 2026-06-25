@@ -56,7 +56,7 @@ process HTODEMUX_VISUALIZATION {
     template 'htodemux_visualization.R'
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_ridge_htodemux.jpeg
     touch ${prefix}_featureScatter_htodemux.jpeg

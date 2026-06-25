@@ -48,7 +48,7 @@ process DEMUXEM {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
     """
     export MPLCONFIGDIR=./tmp/mpl
     touch ${prefix}.out.demuxEM.zarr.zip

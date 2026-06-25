@@ -22,7 +22,7 @@ nextflow_pipeline {
             def vcf_files = getAllFilesFromDir(params.outdir, include: ['**/*.vcf{,.gz}'], ignore: ['genetic/souporcell/*/*/cluster_genotypes.vcf'])
 
             assertAll(
-                { assert workflow.success},
+                { assert workflow.success },
                 { assert snapshot(
                     // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
                     removeNextflowVersion("$outputDir/pipeline_info/nf_core_hadge_software_mqc_versions.yml"),
