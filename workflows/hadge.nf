@@ -66,10 +66,12 @@ workflow HADGE {
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
     // extract hto names (hto can be null in genetic or donor_match mode)
-    EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
-    ch_hashes_non_null = EXTRACT_HASHES.out.hashes
-    ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
-    ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
+    ch_hto = ch_hto.branch { _meta, hto ->
+        null: hto == null
+        not_null: true
+    }
+    EXTRACT_HASHES(ch_hto.not_null)
+    ch_hashes = ch_hto.not_null.mix(EXTRACT_HASHES.out.hashes)
 
     // join preprocessed channels
     ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
