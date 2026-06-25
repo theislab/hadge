@@ -1179,7 +1179,6 @@
                 "test1_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test1_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test1_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test1_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
                 "test1_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test1_visual_params_htodemux.csv:md5,0a175b9868be2b4447867ab38705c11d",
                 "test2_assignment_htodemux.csv:md5,7217cd9d30a3c6f7f69e8b4f8aaa679d",
@@ -1188,7 +1187,6 @@
                 "test2_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test2_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test2_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test2_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
                 "test2_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test2_visual_params_htodemux.csv:md5,062e94620e3207810ddf2c65bf0d2914",
                 "test3_assignment_htodemux.csv:md5,7217cd9d30a3c6f7f69e8b4f8aaa679d",
@@ -1197,7 +1195,6 @@
                 "test3_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test3_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test3_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test3_tSNE_htodemux.jpeg:md5,43a7ba0a297e8b2cb867b6de19e40fee",
                 "test3_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test3_visual_params_htodemux.csv:md5,b6f8f5593aeb86d846292f2f23fc518d",
                 "test1_params_multiseqdemux.csv:md5,60a096f79d78655870aef2af9130cf9d",
@@ -1256,7 +1253,7 @@
                 "test3_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6"
             ]
         ],
-        "timestamp": "2026-06-25T12:07:47.236345",
+        "timestamp": "2026-06-25T13:53:35.37241",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.3"
