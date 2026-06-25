@@ -85,8 +85,6 @@ for ( ao in names(args_opt)){
     }
 }
 
-print(opt)
-
 # Set individual variables for backward compatibility and cleaner code
 hto_matrix                  <- opt\$hto_matrix
 methods                     <- opt\$methods
