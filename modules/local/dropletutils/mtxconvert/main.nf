@@ -13,8 +13,8 @@ process DROPLETUTILS_MTXCONVERT {
 
     output:
     tuple val(meta), path("*.csv"), emit: csv, optional: true
-    tuple val(meta), path("*.h5"), emit: h5
-    path "versions.yml", emit: versions, topic: versions
+    tuple val(meta), path("*.h5") , emit: h5
+    path "versions.yml"           , emit: versions, topic: versions
 
     script:
     prefix = task.ext.prefix ?: "${meta.id}"

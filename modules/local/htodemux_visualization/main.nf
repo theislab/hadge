@@ -17,7 +17,7 @@ process HTODEMUX_VISUALIZATION {
     tuple val(meta), path("*_tSNE_htodemux.jpeg")          , emit: tsne_plot      , optional: true
     tuple val(meta), path("*_heatMap_htodemux.jpeg")       , emit: heatmap_plot   , optional: true
     tuple val(meta), path("*_visual_params_htodemux.csv")  , emit: params
-    path "versions.yml", emit: versions, topic: versions
+    path "versions.yml"                                    , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

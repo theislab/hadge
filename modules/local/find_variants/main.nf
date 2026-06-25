@@ -20,7 +20,7 @@ process FIND_VARIANTS {
     tuple val(meta), path("*_donor_specific_variants_upset.png"), emit: donor_specific_variants_upset
     tuple val(meta), path("*_donor_specific_variants.csv")      , emit: donor_specific_variants
     tuple val(meta), path("*_vireo_variants.csv")               , emit: vireo_variants, optional: true
-    path "versions.yml", emit: versions, topic: versions
+    path "versions.yml"                                         , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

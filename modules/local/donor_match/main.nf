@@ -26,7 +26,7 @@ process DONOR_MATCH {
     tuple val(meta), path("*/*_vs_*correlation_res.csv")                 , emit: correlation
     tuple val(meta), path("*/*_vs_*donor_match.csv")                     , emit: donor_match
     tuple val(meta), path("*/*_vs_*concordance_heatmap.png")             , emit: concordance_heatmap
-    path "versions.yml", emit: versions, topic: versions
+    path "versions.yml"                                                  , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

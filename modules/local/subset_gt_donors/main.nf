@@ -12,7 +12,7 @@ process SUBSET_GT_DONORS {
 
     output:
     tuple val(meta), path("*_${output_basename}.vcf.gz"), emit: donor_subset_vcf
-    path "versions.yml", emit: versions, topic: versions
+    path "versions.yml"                                 , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when
