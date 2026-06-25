@@ -242,12 +242,8 @@ workflow HADGE {
                     .combine(DONOR_MATCH.out.best_donor_match, by: 0)
 
                 SUBSET_GT_DONORS(ch_subset_gt_donors)
-
-                ch_versions = ch_versions.mix(SUBSET_GT_DONORS.out.versions)
             }
-            ch_versions = ch_versions.mix(FIND_VARIANTS.out.versions)
         }
-        ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
 
     //

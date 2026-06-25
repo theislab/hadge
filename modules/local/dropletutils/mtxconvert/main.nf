@@ -14,7 +14,7 @@ process DROPLETUTILS_MTXCONVERT {
     output:
     tuple val(meta), path("*.csv"), emit: csv, optional: true
     tuple val(meta), path("*.h5"), emit: h5
-    path "versions.yml", emit: versions
+    path "versions.yml", emit: versions, topic: versions
 
     script:
     prefix = task.ext.prefix ?: "${meta.id}"
@@ -27,5 +27,11 @@ process DROPLETUTILS_MTXCONVERT {
         touch ${prefix}.csv
     fi
     touch ${prefix}.h5
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        r-base: \$(Rscript -e "cat(paste(R.version[['major']], R.version[['minor']], sep='.'))")
+        bioconductor-dropletutils: \$(Rscript -e "library(DropletUtils); cat(as.character(packageVersion('DropletUtils')))")
+    END_VERSIONS
     """
 }

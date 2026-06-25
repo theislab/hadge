@@ -20,7 +20,7 @@ process CREATE_ANNDATA_MUDATA {
     tuple val(meta), path("*_genetic.h5ad")            , emit: h5ad_genetic, optional: true
     tuple val(meta), path("*_hashing.h5ad")            , emit: h5ad_hashing, optional: true
     tuple val(meta), path("*_genetic_and_hashing.h5mu"), emit: h5mu        , optional: true
-    path "versions.yml"                                , emit: versions
+    path "versions.yml", emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

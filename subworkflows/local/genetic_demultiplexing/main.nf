@@ -54,8 +54,6 @@ workflow GENETIC_DEMULTIPLEXING {
             },
             common_variants,
         )
-        ch_versions = ch_versions.mix(FILTER_BAM.out.versions)
-
         ch_samplesheet = ch_samplesheet
             .join(FILTER_BAM.out.bam)
             .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
@@ -132,8 +130,6 @@ workflow GENETIC_DEMULTIPLEXING {
         .map { tuple -> tuple.collect { item -> item == null ? [] : item } }
 
     GENE_SUMMARY(ch_summary)
-
-    ch_versions = ch_versions.mix(GENE_SUMMARY.out.versions)
 
 
     emit:
