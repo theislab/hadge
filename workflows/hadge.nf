@@ -59,10 +59,8 @@ workflow HADGE {
                     }
 
     UNTAR_RNA(ch_rna.tar)
-    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
     UNTAR_HTO(ch_hto.tar)
-    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
 
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
@@ -177,8 +175,6 @@ workflow HADGE {
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-        ch_versions = ch_versions.mix(JOIN_RESULTS_ASSIGNMENT.out.versions)
-        ch_versions = ch_versions.mix(JOIN_RESULTS_CLASSIFICATION.out.versions)
     }
     else if ( params.mode == 'donor_match' ){
 

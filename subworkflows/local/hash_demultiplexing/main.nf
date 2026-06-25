@@ -74,7 +74,6 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('bff')) {
         BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
-        ch_versions = ch_versions.mix(BFF.out.versions)
     }
 
     if (methods.contains('demuxem')) {
@@ -132,7 +131,6 @@ workflow HASH_DEMULTIPLEXING {
 
         ch_hasheddrops_results = ch_hasheddrops_results.mix(HASHEDDROPS.out.results)
         ch_hasheddrops_id_to_hash = ch_hasheddrops_id_to_hash.mix(HASHEDDROPS.out.id_to_hash)
-        ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
 

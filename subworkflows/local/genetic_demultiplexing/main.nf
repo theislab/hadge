@@ -37,7 +37,6 @@ workflow GENETIC_DEMULTIPLEXING {
 
     if (bam_qc) {
         BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
-        ch_versions = ch_versions.mix(BAM_QC.out.versions)
 
         ch_samplesheet = ch_samplesheet
             .join(BAM_QC.out.bam)
@@ -66,7 +65,6 @@ workflow GENETIC_DEMULTIPLEXING {
 
     if ( params.find_variants | methods.contains('vireo')){
         SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
-        ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
         CELLSNP_MODEA(
             ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
