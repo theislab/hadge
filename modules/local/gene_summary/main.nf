@@ -20,7 +20,7 @@ process GENE_SUMMARY {
     tuple val(meta), path("*_genetic_summary_classification.csv") , emit: classification
     tuple val(meta), path("*_genetic_overview_assignment.csv")    , emit: overview_assignment
     tuple val(meta), path("*_genetic_overview_classification.csv"), emit: overview_classification
-    path "versions.yml"                                           , emit: versions
+    path "versions.yml"                                           , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

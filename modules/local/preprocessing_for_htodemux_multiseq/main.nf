@@ -14,7 +14,7 @@ process PREPROCESSING_FOR_HTODEMUX_MULTISEQ {
     output:
     tuple val(meta), path("*_preprocessed.rds")        , emit: seurat_object
     tuple val(meta), path("*_params_preprocessing.csv"), emit: params
-    path "versions.yml"                                , emit: versions
+    path "versions.yml"                                , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

@@ -37,7 +37,6 @@ workflow GENETIC_DEMULTIPLEXING {
 
     if (bam_qc) {
         BAM_QC(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
-        ch_versions = ch_versions.mix(BAM_QC.out.versions)
 
         ch_samplesheet = ch_samplesheet
             .join(BAM_QC.out.bam)
@@ -55,8 +54,6 @@ workflow GENETIC_DEMULTIPLEXING {
             },
             common_variants,
         )
-        ch_versions = ch_versions.mix(FILTER_BAM.out.versions)
-
         ch_samplesheet = ch_samplesheet
             .join(FILTER_BAM.out.bam)
             .map { meta, _bam, barcodes, vcf, new_bam -> [meta, new_bam, barcodes, vcf] }
@@ -66,10 +63,9 @@ workflow GENETIC_DEMULTIPLEXING {
 
     if ( params.find_variants | methods.contains('vireo')){
         SAMTOOLS_INDEX(ch_samplesheet.map { meta, bam, _barcodes, _vcf -> [meta, bam] })
-        ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
         CELLSNP_MODEA(
-            ch_samplesheet.join(SAMTOOLS_INDEX.out.bai).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
+            ch_samplesheet.join(SAMTOOLS_INDEX.out.index).map { meta, bam, barcodes, vcf, bai -> [meta, bam, bai, vcf, barcodes] }
         )
 
         ch_gt_cells = ch_gt_cells.mix(CELLSNP_MODEA.out.cell)
@@ -134,8 +130,6 @@ workflow GENETIC_DEMULTIPLEXING {
         .map { tuple -> tuple.collect { item -> item == null ? [] : item } }
 
     GENE_SUMMARY(ch_summary)
-
-    ch_versions = ch_versions.mix(GENE_SUMMARY.out.versions)
 
 
     emit:

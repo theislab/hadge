@@ -12,6 +12,7 @@ process EXTRACT_HASHES {
 
     output:
     tuple val(meta), path("*_hashes.txt"), emit: hashes
+    path "versions.yml"                  , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

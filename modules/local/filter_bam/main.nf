@@ -13,7 +13,7 @@ process FILTER_BAM {
 
     output:
     tuple val(meta), path("${prefix}.bam"), emit: bam
-    path 'versions.yml', emit: versions
+    path 'versions.yml'                   , emit: versions, topic: versions
 
     script:
     prefix = task.ext.prefix ?: "${meta.id}"

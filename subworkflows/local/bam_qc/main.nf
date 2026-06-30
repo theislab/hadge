@@ -9,21 +9,20 @@ workflow BAM_QC {
 
     main:
 
-    ch_versions = channel.empty()
-
-    SAMTOOLS_VIEW(ch_bam.map { meta, bam -> [meta, bam, []] }, [[], []], [], 'bai')
-    ch_versions = ch_versions.mix(SAMTOOLS_VIEW.out.versions)
+    SAMTOOLS_VIEW(
+        ch_bam.map { meta, bam -> [meta, bam, []] },
+        [[], [], []],
+        [[], []],
+        [[], []],
+        'bai'
+    )
 
     SAMTOOLS_INDEX(SAMTOOLS_VIEW.out.bam)
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions)
 
-    UMITOOLS_DEDUP(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_INDEX.out.bai), true)
-    ch_versions = ch_versions.mix(UMITOOLS_DEDUP.out.versions)
+    UMITOOLS_DEDUP(SAMTOOLS_VIEW.out.bam.join(SAMTOOLS_INDEX.out.index), true)
 
-    SAMTOOLS_SORT(UMITOOLS_DEDUP.out.bam, [[], []])
-    ch_versions = ch_versions.mix(SAMTOOLS_SORT.out.versions)
+    SAMTOOLS_SORT(UMITOOLS_DEDUP.out.bam, [[], [], []], '')
 
     emit:
-    bam      = SAMTOOLS_SORT.out.bam
-    versions = ch_versions // channel: [ versions.yml ]
+    bam = SAMTOOLS_SORT.out.bam
 }

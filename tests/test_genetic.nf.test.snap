@@ -5,6 +5,13 @@
                 "CELLSNP_MODEA": {
                     "cellsnp": "1.2.3"
                 },
+                "CREATE_ANNDATA_MUDATA": {
+                    "anndata": "0.12.7",
+                    "mudata": "0.3.2",
+                    "pandas": "2.3.3",
+                    "python": "3.14.2",
+                    "scanpy": "1.11.5"
+                },
                 "DONOR_MATCH": {
                     "r-base": "4.5.2",
                     "r-data.table": "1.17.8",
@@ -27,19 +34,19 @@
                     "popscle": 0.1
                 },
                 "SAMTOOLS_INDEX": {
-                    "samtools": 1.21
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_SORT": {
-                    "samtools": 1.21
+                    "samtools": "1.23.1"
                 },
                 "SAMTOOLS_VIEW": {
-                    "samtools": 1.21
+                    "samtools": "1.23.1"
                 },
                 "SOUPORCELL": {
                     "souporcell": 2.5
                 },
                 "UMITOOLS_DEDUP": {
-                    "umitools": "1.1.5"
+                    "umitools": "1.1.6"
                 },
                 "VIREO": {
                     "vireo": "v0.5.8"
@@ -195,9 +202,9 @@
                 "test2.lmix:md5,39b16209e7c2238020024c5611ef10c5",
                 "test3.clust1.samples.gz:md5,d58f19c489213685176f03982dd8ea1e",
                 "test3.lmix:md5,39b16209e7c2238020024c5611ef10c5",
-                "clusters.tsv:md5,33ae22fc6e9cbb12b2d4a1d48b3da2e1",
-                "clusters.tsv:md5,33ae22fc6e9cbb12b2d4a1d48b3da2e1",
-                "clusters.tsv:md5,33ae22fc6e9cbb12b2d4a1d48b3da2e1",
+                "clusters.tsv:md5,408fb8c0433868d68c5463dee1ec8a3c",
+                "clusters.tsv:md5,408fb8c0433868d68c5463dee1ec8a3c",
+                "clusters.tsv:md5,408fb8c0433868d68c5463dee1ec8a3c",
                 "test1_genetic_overview_assignment.csv:md5,6e912c78c50b84deffdaf9fb5e8e3b20",
                 "test1_genetic_overview_classification.csv:md5,812a950b1eef4515079b2d7028b6658c",
                 "test1_genetic_summary_assignment.csv:md5,d99032c058450687415d441e474cef25",
@@ -210,41 +217,41 @@
                 "test3_genetic_overview_classification.csv:md5,812a950b1eef4515079b2d7028b6658c",
                 "test3_genetic_summary_assignment.csv:md5,d99032c058450687415d441e474cef25",
                 "test3_genetic_summary_classification.csv:md5,fdfbf54c3c34746624fa6afdaead2f50",
-                "test1.base.vcf.gz:md5,36eccb4bd3e2130f395985e09a66a60d",
-                "test1.cells.vcf.gz:md5,4428343f7d9e3e310c14cfab8b9a57f1",
+                "test1.base.vcf.gz:md5,c381d7e92163710dfca2306d0d9b73f1",
+                "test1.cells.vcf.gz:md5,f2237f599444ca39fa202b2789dc5c36",
                 "test1.samples.tsv:md5,4ee35dd786d28bfad433c5c2b2a00e7a",
-                "test1.tag.AD.mtx:md5,a76d9f63c6abdcab00f583fac269a98e",
-                "test1.tag.DP.mtx:md5,6f8e54bbaa8ad9dcaa42c15eff1e1351",
+                "test1.tag.AD.mtx:md5,59641a7fccbd20da984734c9a6a62d17",
+                "test1.tag.DP.mtx:md5,dcf051758a2f21372ce273b1ccc7fc90",
                 "test1.tag.OTH.mtx:md5,45e64ea3b3b8e8a7126690d9e775d501",
-                "test1_GT_donors.vireo.vcf.gz:md5,60bfaaf61b8e7f5fc2bd0950e576c3e5",
-                "test1_donor_ids.tsv:md5,a9ea6bc5851ecaff5a11abf54c5289cc",
+                "test1_GT_donors.vireo.vcf.gz:md5,8f7ab71e3b0aa2635d4b5d1349d221d0",
+                "test1_donor_ids.tsv:md5,3f425382307931a725fa3031401dbdf7",
                 "test1_filtered_variants.tsv:md5,d37231135d9e6e330c03ed0647fcaf0e",
                 "test1_prob_doublet.tsv.gz:md5,68b4ec74b77aa58421d73df2dbc92e34",
-                "test1_prob_singlet.tsv.gz:md5,b22717700bc3f7e846f6f831466f0dfd",
+                "test1_prob_singlet.tsv.gz:md5,5ea247ca9d0483389a730340f3f34d0d",
                 "test1_summary.tsv:md5,94b0ce40cc86bbe7fbacebf98e685ee7",
-                "test2.base.vcf.gz:md5,36eccb4bd3e2130f395985e09a66a60d",
-                "test2.cells.vcf.gz:md5,4428343f7d9e3e310c14cfab8b9a57f1",
+                "test2.base.vcf.gz:md5,c381d7e92163710dfca2306d0d9b73f1",
+                "test2.cells.vcf.gz:md5,f2237f599444ca39fa202b2789dc5c36",
                 "test2.samples.tsv:md5,4ee35dd786d28bfad433c5c2b2a00e7a",
-                "test2.tag.AD.mtx:md5,a76d9f63c6abdcab00f583fac269a98e",
-                "test2.tag.DP.mtx:md5,6f8e54bbaa8ad9dcaa42c15eff1e1351",
+                "test2.tag.AD.mtx:md5,59641a7fccbd20da984734c9a6a62d17",
+                "test2.tag.DP.mtx:md5,dcf051758a2f21372ce273b1ccc7fc90",
                 "test2.tag.OTH.mtx:md5,45e64ea3b3b8e8a7126690d9e775d501",
-                "test2_GT_donors.vireo.vcf.gz:md5,60bfaaf61b8e7f5fc2bd0950e576c3e5",
-                "test2_donor_ids.tsv:md5,a9ea6bc5851ecaff5a11abf54c5289cc",
+                "test2_GT_donors.vireo.vcf.gz:md5,8f7ab71e3b0aa2635d4b5d1349d221d0",
+                "test2_donor_ids.tsv:md5,3f425382307931a725fa3031401dbdf7",
                 "test2_filtered_variants.tsv:md5,d37231135d9e6e330c03ed0647fcaf0e",
                 "test2_prob_doublet.tsv.gz:md5,68b4ec74b77aa58421d73df2dbc92e34",
-                "test2_prob_singlet.tsv.gz:md5,b22717700bc3f7e846f6f831466f0dfd",
+                "test2_prob_singlet.tsv.gz:md5,5ea247ca9d0483389a730340f3f34d0d",
                 "test2_summary.tsv:md5,94b0ce40cc86bbe7fbacebf98e685ee7",
-                "test3.base.vcf.gz:md5,36eccb4bd3e2130f395985e09a66a60d",
-                "test3.cells.vcf.gz:md5,4428343f7d9e3e310c14cfab8b9a57f1",
+                "test3.base.vcf.gz:md5,c381d7e92163710dfca2306d0d9b73f1",
+                "test3.cells.vcf.gz:md5,f2237f599444ca39fa202b2789dc5c36",
                 "test3.samples.tsv:md5,4ee35dd786d28bfad433c5c2b2a00e7a",
-                "test3.tag.AD.mtx:md5,a76d9f63c6abdcab00f583fac269a98e",
-                "test3.tag.DP.mtx:md5,6f8e54bbaa8ad9dcaa42c15eff1e1351",
+                "test3.tag.AD.mtx:md5,59641a7fccbd20da984734c9a6a62d17",
+                "test3.tag.DP.mtx:md5,dcf051758a2f21372ce273b1ccc7fc90",
                 "test3.tag.OTH.mtx:md5,45e64ea3b3b8e8a7126690d9e775d501",
-                "test3_GT_donors.vireo.vcf.gz:md5,60bfaaf61b8e7f5fc2bd0950e576c3e5",
-                "test3_donor_ids.tsv:md5,a9ea6bc5851ecaff5a11abf54c5289cc",
+                "test3_GT_donors.vireo.vcf.gz:md5,8f7ab71e3b0aa2635d4b5d1349d221d0",
+                "test3_donor_ids.tsv:md5,3f425382307931a725fa3031401dbdf7",
                 "test3_filtered_variants.tsv:md5,d37231135d9e6e330c03ed0647fcaf0e",
                 "test3_prob_doublet.tsv.gz:md5,68b4ec74b77aa58421d73df2dbc92e34",
-                "test3_prob_singlet.tsv.gz:md5,b22717700bc3f7e846f6f831466f0dfd",
+                "test3_prob_singlet.tsv.gz:md5,5ea247ca9d0483389a730340f3f34d0d",
                 "test3_summary.tsv:md5,94b0ce40cc86bbe7fbacebf98e685ee7",
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f"
             ],
@@ -252,21 +259,21 @@
                 "test1.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test2.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
                 "test3.clust1.vcf.gz:md5,8de6d22ca83fcc331f3d49d59973e5ac",
-                "test1.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
-                "test1.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
-                "test1_GT_donors.vireo.vcf.gz:md5,b92d531491566870c247cf3a122b2dc1",
-                "test2.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
-                "test2.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
-                "test2_GT_donors.vireo.vcf.gz:md5,b92d531491566870c247cf3a122b2dc1",
-                "test3.base.vcf.gz:md5,cb2af96582fa4efe089ec4e0b3f1644c",
-                "test3.cells.vcf.gz:md5,349e2d3b9abb1e346f0cebb621b9d7f4",
-                "test3_GT_donors.vireo.vcf.gz:md5,b92d531491566870c247cf3a122b2dc1"
+                "test1.base.vcf.gz:md5,6a426c9fc04cd6c52023d12c3e7b294",
+                "test1.cells.vcf.gz:md5,df70201204c42838109e76955418f112",
+                "test1_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6",
+                "test2.base.vcf.gz:md5,6a426c9fc04cd6c52023d12c3e7b294",
+                "test2.cells.vcf.gz:md5,df70201204c42838109e76955418f112",
+                "test2_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6",
+                "test3.base.vcf.gz:md5,6a426c9fc04cd6c52023d12c3e7b294",
+                "test3.cells.vcf.gz:md5,df70201204c42838109e76955418f112",
+                "test3_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6"
             ]
         ],
-        "timestamp": "2026-04-23T17:26:19.929849031",
+        "timestamp": "2026-06-25T12:16:23.520507",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
         }
     }
 }

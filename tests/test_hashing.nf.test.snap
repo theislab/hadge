@@ -7,12 +7,24 @@
                     "r-seurat": "4.3.0.1",
                     "cellhashR": "1.0.3"
                 },
+                "CREATE_ANNDATA_MUDATA": {
+                    "anndata": "0.12.7",
+                    "mudata": "0.3.2",
+                    "pandas": "2.3.3",
+                    "python": "3.14.2",
+                    "scanpy": "1.11.5"
+                },
                 "DEMUXEM": "echo 0.1.7.post1",
                 "DONOR_MATCH": {
                     "r-base": "4.5.2",
                     "r-data.table": "1.17.8",
                     "r-pheatmap": "1.0.13",
                     "r-tidyverse": "2.0.0"
+                },
+                "EXTRACT_HASHES": {
+                    "gzip": 1.14,
+                    "gawk": "5.3.1",
+                    "coreutils": 9.5
                 },
                 "GMMDEMUX": {
                     "GMM-Demux": "0.2.2.3"
@@ -34,6 +46,10 @@
                     "pegasusio": "0.10.0",
                     "python": "3.12.12",
                     "scanpy": "1.11.5"
+                },
+                "HTODEMUX": {
+                    "r-base": "4.4.3",
+                    "r-seurat": "5.3.0"
                 },
                 "HTODEMUX_VISUALIZATION": {
                     "r-base": "4.4.3",
@@ -908,7 +924,6 @@
                 "test1_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test1_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test1_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test1_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test1_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test1_visual_params_htodemux.csv:md5,0a175b9868be2b4447867ab38705c11d",
                 "test2_assignment_htodemux.csv:md5,7217cd9d30a3c6f7f69e8b4f8aaa679d",
@@ -917,7 +932,6 @@
                 "test2_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test2_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test2_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test2_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test2_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test2_visual_params_htodemux.csv:md5,062e94620e3207810ddf2c65bf0d2914",
                 "test3_assignment_htodemux.csv:md5,7217cd9d30a3c6f7f69e8b4f8aaa679d",
@@ -926,7 +940,6 @@
                 "test3_featureScatter_htodemux.jpeg:md5,c67268ac0ff18c485899b4ee58f8f948",
                 "test3_heatMap_htodemux.jpeg:md5,2ebdb027344db91ae89deaa3d1011993",
                 "test3_ridge_htodemux.jpeg:md5,8bbc209b475b437a80f853277daa4ce9",
-                "test3_tSNE_htodemux.jpeg:md5,470812a92d09b88ea6e33bcdadb13f11",
                 "test3_violinPlot_htodemux.jpeg:md5,ef866e13e18a31ab43370299245d33c7",
                 "test3_visual_params_htodemux.csv:md5,b6f8f5593aeb86d846292f2f23fc518d",
                 "test1_params_multiseqdemux.csv:md5,60a096f79d78655870aef2af9130cf9d",
@@ -960,10 +973,10 @@
             ],
             "No VCF files"
         ],
-        "timestamp": "2026-04-23T17:28:30.528242288",
+        "timestamp": "2026-06-25T14:03:38.851764",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.3"
         }
     }
 }

@@ -41,7 +41,6 @@ workflow HASH_DEMULTIPLEXING {
         PREPROCESSING_FOR_HTODEMUX_MULTISEQ(
             ch_samplesheet
         )
-        ch_versions = ch_versions.mix(PREPROCESSING_FOR_HTODEMUX_MULTISEQ.out.versions)
 
         if (methods.contains('htodemux')) {
             HTODEMUX(
@@ -54,7 +53,6 @@ workflow HASH_DEMULTIPLEXING {
             HTODEMUX_VISUALIZATION(
                 HTODEMUX.out.rds.map { meta, seurat_object -> [meta, seurat_object, "HTO"] }
             )
-            ch_versions = ch_versions.mix(HTODEMUX_VISUALIZATION.out.versions)
         }
         if (methods.contains('multiseq')) {
             MULTISEQDEMUX(
@@ -74,16 +72,13 @@ workflow HASH_DEMULTIPLEXING {
     if (methods.contains('bff')) {
         BFF(ch_samplesheet.map { meta, _rna, hto -> [meta,hto,params.bff_methods,params.bff_preprocessing]})
         ch_bff = ch_bff.mix(BFF.out.assignment)
-        ch_versions = ch_versions.mix(BFF.out.versions)
     }
 
     if (methods.contains('demuxem')) {
 
         MTXCONVERT_RNA(ch_samplesheet.map { meta, rna, _hto -> [meta, rna] }, false)
-        ch_versions = ch_versions.mix(MTXCONVERT_RNA.out.versions)
 
         MTXCONVERT_HTO(ch_samplesheet.map { meta, _rna, hto -> [meta, hto] }, true)
-        ch_versions = ch_versions.mix(MTXCONVERT_HTO.out.versions)
 
         DEMUXEM(
             MTXCONVERT_RNA.out.h5.join(MTXCONVERT_HTO.out.csv),
@@ -132,7 +127,6 @@ workflow HASH_DEMULTIPLEXING {
 
         ch_hasheddrops_results = ch_hasheddrops_results.mix(HASHEDDROPS.out.results)
         ch_hasheddrops_id_to_hash = ch_hasheddrops_id_to_hash.mix(HASHEDDROPS.out.id_to_hash)
-        ch_versions = ch_versions.mix(HASHEDDROPS.out.versions)
     }
     if (methods.contains('hashsolo')) {
 
@@ -165,8 +159,6 @@ workflow HASH_DEMULTIPLEXING {
     // https://nf-co.re/docs/guidelines/components/modules#optional-inputs
 
     HASH_SUMMARY(ch_summary,params.bff_methods)
-
-    ch_versions = ch_versions.mix(HASH_SUMMARY.out.versions)
 
     emit:
     summary_assignment = HASH_SUMMARY.out.assignment

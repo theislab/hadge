@@ -59,18 +59,19 @@ workflow HADGE {
                     }
 
     UNTAR_RNA(ch_rna.tar)
-    ch_versions = ch_versions.mix(UNTAR_RNA.out.versions)
 
     UNTAR_HTO(ch_hto.tar)
-    ch_versions = ch_versions.mix(UNTAR_HTO.out.versions)
 
     ch_rna = ch_rna.directory.mix(UNTAR_RNA.out.untar)
     ch_hto = ch_hto.directory.mix(UNTAR_HTO.out.untar)
 
     // extract hto names (hto can be null in genetic or donor_match mode)
-    ch_hashes_non_null = EXTRACT_HASHES(ch_hto.filter { _meta, hto -> hto != null })
-    ch_hashes_null = ch_hto.filter { _meta, hto -> hto == null }
-    ch_hashes = ch_hashes_non_null.mix(ch_hashes_null)
+    ch_hto_by_presence = ch_hto.branch { _meta, hto ->
+        is_null: hto == null
+        not_null: true
+    }
+    EXTRACT_HASHES(ch_hto_by_presence.not_null)
+    ch_hashes = ch_hto_by_presence.is_null.mix(EXTRACT_HASHES.out.hashes)
 
     // join preprocessed channels
     ch_remaining_input = ch_samplesheet.map { meta, _rna, _hto, bam, barcodes, vcf -> [meta, bam, barcodes, vcf] }
@@ -177,8 +178,6 @@ workflow HADGE {
 
         ch_versions = ch_versions.mix(GENETIC_DEMULTIPLEXING.out.versions)
         ch_versions = ch_versions.mix(HASH_DEMULTIPLEXING.out.versions)
-        ch_versions = ch_versions.mix(JOIN_RESULTS_ASSIGNMENT.out.versions)
-        ch_versions = ch_versions.mix(JOIN_RESULTS_CLASSIFICATION.out.versions)
     }
     else if ( params.mode == 'donor_match' ){
 
@@ -246,12 +245,8 @@ workflow HADGE {
                     .combine(DONOR_MATCH.out.best_donor_match, by: 0)
 
                 SUBSET_GT_DONORS(ch_subset_gt_donors)
-
-                ch_versions = ch_versions.mix(SUBSET_GT_DONORS.out.versions)
             }
-            ch_versions = ch_versions.mix(FIND_VARIANTS.out.versions)
         }
-        ch_versions = ch_versions.mix(DONOR_MATCH.out.versions)
     }
 
     //
