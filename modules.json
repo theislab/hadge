@@ -7,7 +7,7 @@
                 "nf-core": {
                     "bff": {
                         "branch": "master",
-                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "git_sha": "5549501d6db037a4872d207635ce329878714408",
                         "installed_by": ["modules"]
                     },
                     "cellsnp/modea": {
