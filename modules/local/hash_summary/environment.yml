@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bioconda::pegasusio=0.10.0
+  - conda-forge::numpy=2.3.5
+  - conda-forge::pandas=2.3.3
+  - conda-forge::pyyaml=6.0.3
+  - conda-forge::scanpy=1.11.5

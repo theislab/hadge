@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/nf-core/hadge/main/assets/schema_input.json",
+    "$id": "https://raw.githubusercontent.com/nf-core/hadge/master/assets/schema_input.json",
     "title": "nf-core/hadge pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
@@ -13,21 +13,49 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "rna_matrix": {
                 "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "default": null,
+                "pattern": "^\\S+$",
+                "errorMessage": "RNA matrix must be provided and cannot contain spaces"
             },
-            "fastq_2": {
+            "hto_matrix": {
+                "type": "string",
+                "default": null,
+                "pattern": "^\\S+$",
+                "errorMessage": "HTO matrix must be provided and cannot contain spaces"
+            },
+            "bam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "default": null,
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "BAM file must be provided, cannot contain spaces and must have extension '.bam'"
+            },
+            "barcodes": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "default": null,
+                "pattern": "^\\S+\\.tsv$",
+                "errorMessage": "Barcodes file must be provided, cannot contain spaces and must have extension '.tsv'"
+            },
+            "n_samples": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "Number of samples must be greater than 0",
+                "meta": ["n_samples"]
+            },
+            "vcf": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "default": null,
+                "pattern": "^\\S+\\.vcf$",
+                "errorMessage": "VCF file must be provided, cannot contain spaces and must have extension '.vcf'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample"]
     }
 }

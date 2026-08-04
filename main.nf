@@ -26,9 +26,6 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_hadg
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// TODO nf-core: Remove this line if you don't need a FASTA file
-//   This is an example of how to use getGenomeAttribute() to fetch parameters
-//   from igenomes.config using `--genome`
 params.fasta = getGenomeAttribute('fasta')
 
 /*
@@ -44,6 +41,7 @@ workflow NFCORE_HADGE {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    fasta // file: /path/to/genome.fasta
 
     main:
 
@@ -52,10 +50,11 @@ workflow NFCORE_HADGE {
     //
     HADGE (
         samplesheet,
+        fasta,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,
-        params.outdir,
+        params.outdir
     )
     emit:
     multiqc_report = HADGE.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -88,7 +87,8 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_HADGE (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        params.fasta
     )
     //
     // SUBWORKFLOW: Run completion tasks
