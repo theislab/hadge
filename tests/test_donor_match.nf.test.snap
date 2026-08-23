@@ -19,7 +19,7 @@
                     "bcftools": 1.22
                 },
                 "Workflow": {
-                    "nf-core/hadge": "v1.0.0dev"
+                    "nf-core/hadge": "v1.0.0"
                 }
             },
             [
@@ -419,10 +419,10 @@
                 "test3_vireo.vcf.gz:md5,6e4bbad3892e84cd1dd53c8fc0579977"
             ]
         ],
-        "timestamp": "2026-04-23T17:22:11.804693089",
+        "timestamp": "2026-08-23T07:39:06.342397056",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
         }
     }
 }
