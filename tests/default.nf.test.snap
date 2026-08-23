@@ -131,7 +131,7 @@
                     "vireo": "v0.5.8"
                 },
                 "Workflow": {
-                    "nf-core/hadge": "v1.0.0dev"
+                    "nf-core/hadge": "v1.0.0"
                 }
             },
             [
@@ -1253,10 +1253,10 @@
                 "test3_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6"
             ]
         ],
-        "timestamp": "2026-06-25T13:53:35.37241",
+        "timestamp": "2026-08-23T07:37:43.847132463",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.3"
+            "nextflow": "26.04.6"
         }
     }
 }
