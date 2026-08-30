@@ -4,3 +4,4 @@ channels:
 dependencies:
   - conda-forge::r-ggplot2=3.5.2
   - conda-forge::r-seurat=5.3.0
+  - conda-forge::r-seuratobject=5.1.0
