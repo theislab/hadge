@@ -59,14 +59,17 @@
                 "donor_match",
                 "donor_match/test1",
                 "donor_match/test1/freemuxlet_vs_souporcell",
+                "donor_match/test1/freemuxlet_vs_souporcell/test1_freemuxlet_vs_souporcell_concordance_heatmap.png",
                 "donor_match/test1/freemuxlet_vs_souporcell/test1_freemuxlet_vs_souporcell_correlation_res.csv",
                 "donor_match/test1/freemuxlet_vs_souporcell/test1_freemuxlet_vs_souporcell_donor_match.csv",
                 "donor_match/test2",
                 "donor_match/test2/freemuxlet_vs_souporcell",
+                "donor_match/test2/freemuxlet_vs_souporcell/test2_freemuxlet_vs_souporcell_concordance_heatmap.png",
                 "donor_match/test2/freemuxlet_vs_souporcell/test2_freemuxlet_vs_souporcell_correlation_res.csv",
                 "donor_match/test2/freemuxlet_vs_souporcell/test2_freemuxlet_vs_souporcell_donor_match.csv",
                 "donor_match/test3",
                 "donor_match/test3/freemuxlet_vs_souporcell",
+                "donor_match/test3/freemuxlet_vs_souporcell/test3_freemuxlet_vs_souporcell_concordance_heatmap.png",
                 "donor_match/test3/freemuxlet_vs_souporcell/test3_freemuxlet_vs_souporcell_correlation_res.csv",
                 "donor_match/test3/freemuxlet_vs_souporcell/test3_freemuxlet_vs_souporcell_donor_match.csv",
                 "genetic",
@@ -264,7 +267,7 @@
                 "test3_GT_donors.vireo.vcf.gz:md5,921ce18ca982b86589477432fce4e3e6"
             ]
         ],
-        "timestamp": "2026-08-23T07:47:07.819251449",
+        "timestamp": "2026-09-12T16:58:01.78457062",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.6"
