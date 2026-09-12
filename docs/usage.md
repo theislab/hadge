@@ -6,49 +6,197 @@
 
 ## Introduction
 
-<!-- TODO nf-core: Add documentation about anything specific to running your pipeline. For general topics, please point to (and add to) the main nf-core website. -->
+### The rescue mode
+
+The joint call of hashing and genetic deconvolution methods has been shown to be beneficial for cell recovery rate and calling accuracy.
+hadge provides a rescue mode to run both genotype- and hashing-based approaches jointly to rescue problematic hashing experiments in cases where donors are genetically distinct.
+In this scenario, samples of both hashing and genetic multiplexing experiments are deconvoluted simultaneously.
+Furthermore, hadge allows for the automatic determination of the best combination of hashing and SNP-based donor deconvolution tools.
+
+```csv title="samplesheet.csv"
+sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode rescue \
+   --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
+```
+
+### The genetic mode
+
+Genotyped-based deconvolution assigns cells to donors using genetic variation.
+This can be performed with donor genotypes or, if these are unavailable, using reference panels in genotype-free mode (e.g., 1000 Genomes).
+Finally, it assigns SNPs to cells to determine donor identity but requires additional genotyping.
+
+```csv title="samplesheet.csv"
+sample,bam,vcf,n_samples,barcodes
+id1,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode genetic \
+   --genetic_tools demuxlet,freemuxlet,vireo,souporcell \
+   --fasta <FASTADIR>
+```
+
+:::info
+A FASTA file is only required if `--genetic_tools` includes souporcell.
+If a FASTA file is unavailable, you can specify the organism using `--genome`, and the pipeline will download the full reference genome automatically.
+However, to avoid long download times and high bandwidth usage, we recommend providing your own local reference genome with `--fasta`.
+:::
+
+### The hashing mode
+
+Cell hashing tags cells with unique oligo barcodes so samples can be pooled.
+Separate scRNA and HTO libraries are sequenced, producing count matrices used to determine each cell’s sample of origin.
+
+```csv title="samplesheet.csv"
+sample,rna_matrix,hto_matrix
+id1,rna.tar.gz,hto.tar.gz
+id2,rna.tar.gz,hto.tar.gz
+id3,rna.tar.gz,hto.tar.gz
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode hashing
+   --hash_tools htodemux,hasheddrops,multiseq,gmm-demux,bff,hashsolo \
+```
+
+### The donor match mode
+
+This mode utilizes the donor matching component from the rescue mode, but requires manual input for several stages.
+To run all steps of donor matching, you must provide the demultiplexing results, filtered variants, and both cell and donor genotypes.
+For detailed specifications on these input parameters, refer to the [parameter documentation](https://nf-co.re/hadge/parameters).
+
+```csv title="samplesheet.csv"
+sample,n_samples
+id1,2
+```
+
+Now, you can run the pipeline using:
+
+```bash
+nextflow run nf-core/hadge \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --mode donor_match
+   --demultiplexing_result <DIR> \
+   --vireo_filtered_variants <DIR> \
+   --cell_genotype <DIR> \
+   --gt_donors <DIR> \
+```
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline.
+Use this parameter to specify its location.
+It has to be a comma-separated file with a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
-### Multiple runs of the same sample
-
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
-
-```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
-```
-
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
-
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+Each row in the sample sheet represents a distinct single-cell multiplexing experiment.
+The `sample` column must contain a unique identifier for each experiment.
+This format allows you to process multiple deconvolutions in a single run.
+While a full example is provided below, some columns may be optional depending on the mode you select.
 
 ```csv title="samplesheet.csv"
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
+sample,rna_matrix,hto_matrix,bam,vcf,n_samples,barcodes
+id1,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id2,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
+id3,rna.tar.gz,hto.tar.gz,chr21.bam,donor_genotype_chr21.vcf,2,barcodes.tsv
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| Column       | Description                                                                                                                                                                            |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`     | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `rna_matrix` | Full path to the RNA-Seq count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
+| `hto_matrix` | Full path to the hashing count matrices provided in a 10x Genomics format and compressed as `.tar.gz`.                                                                                 |
+| `bam`        | Full path to the alignment file (`.bam`).                                                                                                                                              |
+| `vcf`        | Full path to common SNP genotypes vcf (`.vcf`).                                                                                                                                        |
+| `n_samples`  | The number of multiplexed donors.                                                                                                                                                      |
+| `barcodes`   | Full path to the list of cell barcodes (e.g., `barcodes.tsv` from Cell Ranger)                                                                                                         |
+
+:::tip{collapse title="Samplesheet Input Requirements by Module"}
+
+| Mode        | sample | rna_matrix | hto_matrix | bam | barcodes | n_samples | vcf |
+| ----------- | :----: | :--------: | :--------: | :-: | :------: | :-------: | :-: |
+| rescue      |   ✅   |     ✅     |     ✅     | ✅  |    ✅    |    ✅     | ✅  |
+| genetic     |   ✅   |     ❌     |     ❌     | ✅  |    ✅    |    ✅     | ✅  |
+| hashing     |   ✅   |     ✅     |     ✅     | ❌  |    ❌    |    ❌     | ❌  |
+| donor_match |   ✅   |     ❌     |     ❌     | ❌  |    ❌    |    ✅     | ❌  |
+
+| Module      | sample |   rna_matrix   | hto_matrix | bam | barcodes | n_samples | vcf<sup>1</sup> |
+| ----------- | :----: | :------------: | :--------: | :-: | :------: | :-------: | :-------------: |
+| htodemux    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| multiseq    |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| bff         |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| demuxem     |   ✅   |       ✅       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| gmm-demux   |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hasheddrops |   ✅   | ✅<sup>2</sup> |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| hashsolo    |   ✅   |       ❌       |     ✅     | ❌  |    ❌    |    ❌     |       ❌        |
+| vireo       |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ✅        |
+| demuxlet    |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ❌     | ✅<sup>3</sup>  |
+| freemuxlet  |   ✅   |       ❌       |     ❌     | ✅  |    ❌    |    ✅     |       ✅        |
+| souporcell  |   ✅   |       ❌       |     ❌     | ✅  |    ✅    |    ✅     |       ❌        |
+
+<sup>1</sup> The requirements for the VCF file differ between genetic deconvolution methods.
+Check out [Demuxafy](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/DemultiplexingSoftwares.html) to find the right VCF file for the methods you want to use.
+`POPSCLE_DSCPILEUP` (needed for `freemuxlet` and `demuxlet`) requires the VCF file to be sorted the same way as the BAM file. If you encounter an error due to this, consider using `picard SortVcf`.
+
+<sup>2</sup> if `params.hasheddrops_runEmptyDrops` is true
+
+<sup>3</sup> reference SNP genotypes for each individual ([demuxlet docs](https://demultiplexing-doublet-detecting-docs.readthedocs.io/en/latest/Demuxlet.html))
+
+:::
+
+:::tip{collapse title="Recommendations for naming HTO-labels and barcodes"}
+
+1. Avoid single DNA base letters as suffixes
+
+- **Incorrect:** `HTO-A`, `HTO-C`, `HTO-G`, `HTO-T`
+- **Reason:** The `BFF` module uses `cellhashR`'s `ProcessCountMatrix()`, which internally calls `SimplifyHtoNames()` and incorrectly strips single DNA base letters, collapsing `HTO-A`, `HTO-C`, `HTO-G` all to `HTO` and causing a crash.
+
+2. Avoid barcode sequences as part of the label
+
+- **Incorrect:** `HTO-1-ACTGTCTAACGG`
+- **Reason:** `SimplifyHtoNames()` strips the barcode suffix in `BFF`, causing the same HTO to appear as `HTO-1` in `BFF` output but `HTO-1-ACTGTCTAACGG` in other methods, making cross-method comparison unreliable.
+
+3. Avoid using the same trailing suffixes on all barcodes
+
+- **Incorrect:** `AAACCCAAGAAACACT-1` (`-1` at all barcodes)
+- **Reason:** In the `DEMUXEM` module, `pegasusio.read_input()` only removes the suffix from RNA barcodes, but not from HTO barcodes, which leads to a known issue (see [#21](https://github.com/lilab-bcb/demuxEM/issues/21)).
+
+:::
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -76,7 +224,7 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
 > [!WARNING]
-> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
+> Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/running/run-pipelines#configuring-pipelines), other infrastructural tweaks (such as output directories), or module arguments (args).
 
 The above pipeline run specified with a params file in yaml format:
 
@@ -149,7 +297,7 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `shifter`
   - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
 - `charliecloud`
-  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+  - A generic configuration profile to be used with [Charliecloud](https://charliecloud.io/)
 - `apptainer`
   - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
 - `wave`
@@ -173,19 +321,19 @@ Specify the path to a specific config file (this is a core Nextflow command). Se
 
 Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the pipeline steps, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher resources request (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
 
-To change the resource requests, please see the [max resources](https://nf-co.re/docs/usage/configuration#max-resources) and [tuning workflow resources](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources) section of the nf-core website.
+To change the resource requests, please see the [max resources](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#set-max-resources) and [customise process resources](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#customize-process-resources) section of the nf-core website.
 
 ### Custom Containers
 
 In some cases, you may wish to change the container or conda environment used by a pipeline steps for a particular tool. By default, nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However, in some cases the pipeline specified version maybe out of date.
 
-To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/usage/configuration#updating-tool-versions) section of the nf-core website.
+To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#update-tool-versions) section of the nf-core website.
 
 ### Custom Tool Arguments
 
 A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
 
-To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/usage/configuration#customising-tool-arguments) section of the nf-core website.
+To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#modifying-tool-arguments) section of the nf-core website.
 
 ### nf-core/configs
 
